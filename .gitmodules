@@ -4,3 +4,15 @@
 [submodule "implementations/jruby"]
 	path = implementations/jruby
 	url = https://github.com/jruby/jruby.git
+[submodule "implementations/classic-benchmarks"]
+	path = implementations/classic-benchmarks
+	url = https://github.com/smarr/Classic-Benchmarks.git
+[submodule "implementations/SOM-core-lib"]
+	path = implementations/SOM-core-lib
+	url = https://github.com/SOM-st/SOM
+[submodule "implementations/TruffleSOM"]
+	path = implementations/TruffleSOM
+	url = https://github.com/SOM-st/TruffleSOM
+[submodule "implementations/RTruffleSOM"]
+	path = implementations/RTruffleSOM
+	url = https://github.com/SOM-st/RTruffleSOM
