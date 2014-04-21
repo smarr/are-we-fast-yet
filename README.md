@@ -41,4 +41,23 @@ git clone --recursive http://github/TODO
 The setup has been used and tested on Ubuntu and OS X.
 The following programs are definitely required for execution:
 
- - ReBench (>= 0.5)
+ - ReBench (>= 0.5) for benchmark execution
+ - knitr (>= 1.5) and R (>= 3.0) for report generation
+
+For the various implementations, additional software is required:
+
+ - Graal
+   - C/C++ compiler (GCC, Clang)
+   - Java 8
+   - Python
+ - JRuby
+   - Maven
+   - 
+
+
+Licensing
+---------
+
+The material in this repository is licensed under the terms of the MIT License.
+Please note, the repository links in form of submodules to other repositories
+which are licensed under different terms.

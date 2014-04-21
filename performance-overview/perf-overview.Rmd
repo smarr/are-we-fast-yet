@@ -1,0 +1,20 @@
+Performance Overview
+====================
+
+In order to give a brief intution of the current state of self-optimizing
+interpreters compared to other language implementations, we briefly compare 
+the performance of a set of classic benchmarks for Java, C, JRuby, and the SOM
+implementations.
+
+When you click the **Knit HTML** button a web page will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+summary(cars)
+```
+
+You can also embed plots, for example:
+
+```{r fig.width=7, fig.height=6}
+plot(cars)
+```
+
