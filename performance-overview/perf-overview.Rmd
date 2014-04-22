@@ -6,15 +6,27 @@ interpreters compared to other language implementations, we briefly compare
 the performance of a set of classic benchmarks for Java, C, JRuby, and the SOM
 implementations.
 
-When you click the **Knit HTML** button a web page will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+Note, for the moment, the benchmark set is not yet complete for all languages.
 
-```{r}
-summary(cars)
-```
+**TODO:**
+ - Benchmarks:
+    - Mandelbrot (represents numerical performance)
+    - Delta Blue (represents OO programs)
+    - Richards   (represents OO programs)
+ - Language Implementations:
+    - Java 7, 8, Graal
+    - LuaJIT 2
+    - PyPy
+    - SOM (RTruffleSOM, TruffleSOM, SOM++, CSOM, SOM (java))
 
-You can also embed plots, for example:
 
-```{r fig.width=7, fig.height=6}
-plot(cars)
-```
+Overall Performance
+-------------------
+
+As a first, and misleading impression, an aggregated overview over the results
+in form of a **TODO** violine plot or box plot:
+
+**TODO**: figure: aggregated results
+
+**TODO**: figure: separated by benchmarks, normalized to fastest Java
 
