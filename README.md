@@ -35,7 +35,7 @@ setup.
 The following quick start instructions, allow to recreate the basic environment:
 
 ```bash
-git clone --recursive http://github/TODO
+git clone --recursive https://github.com/smarr/selfopt-interp-performance
 ```
 
 The setup has been used and tested on Ubuntu and OS X.
