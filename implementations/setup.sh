@@ -8,31 +8,10 @@ get_web_getter
 ./build-graal.sh
 ./build-classic-benchmarks.sh
 ./build-trufflesom.sh
+./build-rtrufflesom.sh
 
-exit 1.
-
-
-
-if [ \! -d pypy ]; then
-  INFO -n Get PyPy Source
-  $GET https://bitbucket.org/pypy/pypy/downloads/pypy-2.2.1-src.tar.bz2 || $GET https://bitbucket.org/pypy/pypy/downloads/pypy-2.2.1-src.tar.bz2
-  tar -xjf pypy-2.2.1-src.tar.bz2
-  mv pypy-2.2.1-src pypy
-else
-  OK Got PyPy Source
-fi
-
-if [ \! \( -f RTruffleSOM/RTruffleSOM-no-jit \) ]; then
-  INFO -n Compile RTruffleSOMs
-  cd RTruffleSOM
-  PYTHONPATH=$PYTHONPATH:../pypy ../pypy/rpython/bin/rpython --batch src/targetsomstandalone.py
-  PYTHONPATH=$PYTHONPATH:../pypy ../pypy/rpython/bin/rpython --batch -Ojit src/targetsomstandalone.py
-  cd ..
-
-else
-  OK Got RTruffleSOMs
-fi
-
+OK done.
+exit 0;
 
 if [ \! \( -x /usr/bin/pharo-vm-nox -o -d pharo \) ]; then
   INFO -n Get Pharo VM
@@ -80,32 +59,4 @@ else
   OK Got SOM++
 fi
 
-if [ \! \( -d TruffleSOM-exp \) ]; then
-  INFO Get TruffleSOM experiments
-  git clone --recursive https://github.com/smarr/TruffleSOM.git TruffleSOM-exp-source
-  mkdir TruffleSOM-exp
-  cd TruffleSOM-exp-source
 
-  for exp in without-extra-block-with-context       \
-             without-local-nonlocal-distinction     \
-             without-catch-nonlocalreturn-node      \
-             without-execute-void                   \
-             without-control-specialization         \
-             without-eager-primitives               \
-             without-lookup-caching                 \
-             without-global-lookup-caching          \
-             without-explicit-frame-initialization  \
-             only-generic-field-access              \
-             only-generic-var-access; do
-    git checkout -b $exp origin/opt-exp/$exp
-    ant clean
-    ant jar
-    cp build/som.jar ../TruffleSOM-exp/som.$exp.jar
-  done
-  cd ..
-else
-  OK Folder TruffleSOM-exp exists, assume all experiments prepared.
-fi
-
-OK done.
-exit 0;
