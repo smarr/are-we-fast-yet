@@ -127,5 +127,22 @@ plot <- plot +
 
 
 **TODO**: table
+```{r echo=FALSE, results='asis'}
+# aggregate results for display
+stats <- ddply(data, ~ Benchmark + VM,
+               summarise,
+               Time.mean                 = mean(Value),
+               Time.geomean              = geometric.mean(Value),
+               Time.stddev               = sd(Value),
+               Time.median               = median(Value),
+               max = max(Value),
+               min = min(Value))
+#stats
+benchs <- ddply(stats, ~ Benchmark, transform,
+                RuntimeRatio = round(Time.mean / Time.mean[VM == "Java8"], digits = 2))
 
+benchs <- benchs[c("Benchmark", "VM", "RuntimeRatio", "Time.mean", "Time.geomean", "Time.median", "Time.stddev", "min", "max")]
+#kable(benchs, format = "markdown", digits=2)
+kable(benchs, format = "html", digits=2)
+```
 
