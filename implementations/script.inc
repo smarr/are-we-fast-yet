@@ -46,3 +46,18 @@ function check_for_tools() {
   done
   OK ok.
 }
+
+function get_pypy() {
+  if [ \! -d pypy ]; then
+    get_web_getter
+    
+    INFO Get PyPy Source
+    PYPY_VERSION="2.2.1"
+    DOWNLOAD_URL="https://bitbucket.org/pypy/pypy/downloads/pypy-$PYPY_VERSION-src.tar.bz2"
+    $GET $DOWNLOAD_URL || $GET $DOWNLOAD_URL
+    tar -xjf pypy-$PYPY_VERSION-src.tar.bz2
+    mv pypy-$PYPY_VERSION-src pypy
+  else
+    OK Got PyPy Source
+  fi
+}
