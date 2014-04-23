@@ -98,8 +98,6 @@ stats <- ddply(data, ~ Benchmark + VM + Suite + Extra + Warmup + Cores,
 benchs <- ddply(stats, ~ Benchmark, transform,
                 RuntimeRatio = Time.mean / Time.mean[VM == "Java8"])
 
-benchs <- droplevels(subset(benchs, VM != "C"))
-
 # create a simple bar chart
 plot <- ggplot(benchs, aes_string(x="VM", y="RuntimeRatio"))
 plot <- plot + geom_bar(stat="identity",
