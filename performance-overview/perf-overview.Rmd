@@ -83,7 +83,7 @@ plot <- plot +
 
 **TODO**: figure: separated by benchmarks, normalized to fastest Java
 
-```{r echo=FALSE, fig.width=6, fig.height=4}
+```{r echo=FALSE, fig.width=10, fig.height=4}
 # aggregate results for display
 stats <- ddply(data, ~ Benchmark + VM + Suite + Extra + Warmup + Cores,
                summarise,
