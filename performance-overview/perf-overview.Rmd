@@ -117,9 +117,10 @@ plot <- plot +
 #          axis.line = element_line(colour = "black"),
           plot.title           = element_text(size = 12),
           panel.background     = element_rect(fill = NA, colour = NA),
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          plot.background      = element_rect(fill = NA, colour = NA))
+          panel.grid.major     = element_blank(),
+          panel.grid.minor     = element_blank(),
+          plot.background      = element_blank(),
+          strip.background     = element_blank())
   plot
 
 ```
