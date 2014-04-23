@@ -16,3 +16,6 @@
 [submodule "implementations/RTruffleSOM"]
 	path = implementations/RTruffleSOM
 	url = https://github.com/SOM-st/RTruffleSOM
+[submodule "implementations/RPySOM"]
+	path = implementations/RPySOM
+	url = https://github.com/SOM-st/RPySOM.git
