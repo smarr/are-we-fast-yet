@@ -7,25 +7,10 @@ get_web_getter
 
 ./build-graal.sh
 ./build-classic-benchmarks.sh
+./build-trufflesom.sh
 
 exit 1.
 
-
-
-if [ \! \( -d TruffleSOM -a -d  RTruffleSOM \) ]; then
-  INFO -n Get SOMs
-  git clone --recursive https://github.com/SOM-st/TruffleSOM.git
-  cd TruffleSOM
-  ant jar
-  cd ..
-
-  git clone --recursive https://github.com/SOM-st/RTruffleSOM
-  cd RTruffleSOM
-  git checkout tags/peak-performance
-  cd ..
-else
-  OK Got SOMs
-fi
 
 
 if [ \! -d pypy ]; then
