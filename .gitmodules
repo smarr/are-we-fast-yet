@@ -16,3 +16,6 @@
 [submodule "implementations/RPySOM"]
 	path = implementations/RPySOM
 	url = https://github.com/SOM-st/RPySOM.git
+[submodule "implementations/SOMpp"]
+	path = implementations/SOMpp
+	url = https://github.com/SOM-st/SOMpp.git
