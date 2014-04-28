@@ -5,6 +5,6 @@ source ./config.inc
 
 INFO Build TruffleSOM
 cd TruffleSOM
-make
+make clean; make
 cp ../graal/truffle.jar libs/
 OK TruffleSOM Build Completed.
