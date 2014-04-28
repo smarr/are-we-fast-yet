@@ -9,6 +9,8 @@ get_web_getter
 ./build-classic-benchmarks.sh
 ./build-trufflesom.sh
 ./build-rtrufflesom.sh
+./build-jruby.sh
+./build-sompp.sh
 
 OK done.
 exit 0;
