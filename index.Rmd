@@ -1,0 +1,224 @@
+Performance Evaluation of RPySOM and TruffleSOM
+===============================================
+
+The main question for our paper [Are we there yet? Simple 
+Language-Implementation Techniques for the 21st Century][TODO] was whether
+these simple AST ([TruffleSOM]) or bytecode interpreter ([RPySOM])
+implementations based on [Truffle] and [RPython] could actually
+reach performance of the same order of magnitude as for instance Java on top
+of a highly optimizing JVM.
+
+In order to answer this question, we chose DeltaBlue and the Richards
+benchmark as object-oriented benchmarks and Mandelbrot as a numerical
+benchmark. These are classic benchmarks that have been used to tune JVMs,
+JavaScript VMs, PyPy, as well as Smalltalk VMs. Still, they are rather
+specific benchmarks that might given an indicate of what the expected
+performance of a VM is, but _they are in no way predictors_ for the performance
+of concrete applications.
+
+Methodology
+-----------
+
+The benchmarking methodology is kept as simple as possible. For each benchmark,
+we roughly determined when the VM reaches stable state and then executed it
+100 times to account for non-deterministic influences such as caches and
+garbage collection. Each benchmark executes with a predefined _problem size_
+on each VM and the results are compared directly with each other. 
+
+The used benchmark machine has two quad-core Intel Xeons E5520, 2.26 GHz with
+8 GB of memory and runs Ubuntu Linux with kernel 3.11. For a few more details
+of the machine, see the [specification](data/spec.html).
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results='hide', errors=FALSE}
+# load libraries, the data, and prepare it
+if (Sys.getenv("RSTUDIO") == "1") { setwd("/Users/smarr/Projects/PostDoc/SELF-OPT-INT/") }
+
+options(scipen=5)
+
+source("scripts/libraries.R", chdir=TRUE)
+data <- load_data_file("data/are-we-there-yet.data")
+data <- subset(data, select = c(Value, Unit, Benchmark, VM, Suite))
+data <- prepare_vm_names(data)
+macro <- droplevels(subset(data, grepl("macro", Suite)))
+micro <- droplevels(subset(data, grepl("micro", Suite)))
+```
+
+Overall Performance
+-------------------
+
+```{r echo=FALSE}
+# aggregate results for display
+stats <- ddply(macro, ~ Benchmark + VM + Suite,
+               summarise,
+               Time.mean                 = mean(Value),
+               Time.geomean              = geometric.mean(Value),
+               Time.stddev               = sd(Value),
+               Time.median               = median(Value),
+               max = max(Value),
+               min = min(Value))
+
+# normalize for each benchmark separately to the Java baseline
+norm <- ddply(stats, ~ Benchmark, transform,
+              RuntimeRatio = Time.mean / Time.mean[VM == "Java"])
+
+sompp_runtime_ratio <- subset(norm, VM == "SOM++",      select = c(RuntimeRatio))
+rpy_runtime_ratio   <- subset(norm, VM == "RPySOM",     select = c(RuntimeRatio))
+tru_runtime_ratio   <- subset(norm, VM == "TruffleSOM", select = c(RuntimeRatio))
+```
+
+RPySOM and TruffleSOM reach more or less the set goal, i.e., the same order
+of magnitude of performance. RPySOM reaches
+`r round(min(rpy_runtime_ratio), 1)` to `r round(max(rpy_runtime_ratio), 1)`, 
+while TruffleSOM has more remaining optimization potential with being
+`r round(min(tru_runtime_ratio), 1)` to `r round(max(tru_runtime_ratio), 1)`
+slower. This performance is reached without requiring custom VMs and hundreds
+of person years of engineering. Thus, we conclude, that RPython as well as
+Truffle live up to the expectations. 
+
+```{r echo=FALSE, fig.width=6, fig.height=4}
+# summarize to VMs
+vms <- ddply(norm, ~ VM,
+             summarise,
+             RunRatio.geomean = geometric.mean(RuntimeRatio))
+
+# create a simple bar chart
+plot <- ggplot(subset(vms, VM != "SOM++" & VM != "TruffleSOM.ns"), aes_string(x="VM", y="RunRatio.geomean"))
+plot <- plot + geom_bar(stat="identity",
+                   colour=get_color(5, 6),
+                   size=.3,        # Thinner lines
+                   fill=get_color(5, 7),
+                   width=0.75) + scale_y_continuous(limit=c(0,10), 
+                                                    breaks=seq(0,100,1), 
+                                                    expand = c(0,0)) +
+  ylab("Runtime, normalized to Java (lower is better)")
+
+plot <- plot +
+    theme_bw() +
+    theme(axis.text.x          = element_text(size = 12, lineheight=0.7),
+          axis.title.x         = element_blank(),
+          axis.title.y         = element_text(size =  12),
+          axis.text.y          = element_text(size =  12),
+          axis.line            = element_line(colour = "gray"),
+          plot.title           = element_text(size = 12),
+          panel.background     = element_rect(fill = NA, colour = NA),
+          panel.grid.major     = element_blank(),
+          panel.grid.minor     = element_blank(),
+          panel.border         = element_blank(),
+          plot.background      = element_rect(fill = NA, colour = NA))
+  plot
+```
+
+A look at the details for the three benchmarks shows that the performance
+varies widely depending on the benchmark, which indicates further optimization
+potential for specific code characteristics.
+
+```{r echo=FALSE, fig.width=10, fig.height=6}
+# normalize for each benchmark separately to the Java baseline
+benchs <- ddply(stats, ~ Benchmark, transform,
+                RuntimeRatio = Time.mean / Time.mean[VM == "Java"])
+benchs <- subset(benchs, VM != "SOM++" & VM != "TruffleSOM.ns")
+
+# create a simple bar chart
+plot <- ggplot(benchs, aes_string(x="VM", y="RuntimeRatio"))
+plot <- plot + geom_bar(stat="identity",
+                   colour=get_color(5, 6),
+                   size=.3,        # Thinner lines
+                   fill=get_color(5, 7),
+                   width=0.75) + scale_y_continuous(limit=c(0,30),
+                                                    breaks=seq(0,100,2),
+                                                    expand = c(0,0)) +
+  ylab("Runtime, normalized to Java (lower is better)")
+plot <- plot + facet_wrap(~ Benchmark)
+plot <- plot +
+    theme_bw() +
+    theme(axis.text.x          = element_text(angle= 90, vjust=0.5, hjust=1, size = 12, lineheight=0.7),
+          axis.title.x         = element_blank(),
+          axis.title.y         = element_text(size =  12),
+          axis.text.y          = element_text(size =  12),
+          plot.title           = element_text(size = 12),
+          panel.background     = element_rect(fill = NA, colour = NA),
+          panel.grid.major     = element_blank(),
+          panel.grid.minor     = element_blank(),
+          plot.background      = element_blank(),
+          strip.background     = element_blank())
+plot
+```
+
+As a further reference point, we did measurements also for the SOM++
+interpreter, a SOM implemented in C++. It uses bytecodes and applies
+optimizations such as inline caching, threaded interpretation, and a
+generational garbage collector. However, it is 
+`r round(min(sompp_runtime_ratio), 0)` to `r round(max(sompp_runtime_ratio), 0)`x slower than Java.
+Since it is significantly slower, we did not include it in the charts because
+it would distort the impression. It is however included in the table below.
+
+```{r echo=FALSE, results='asis'}
+benchs <- ddply(subset(stats, VM != "TruffleSOM.ns"), ~ Benchmark, transform,
+                RuntimeRatio = round(Time.mean / Time.mean[VM == "Java"], digits = 2))
+
+benchs <- benchs[c("Benchmark", "VM", "RuntimeRatio", "Time.mean", "Time.geomean", "Time.median", "Time.stddev", "min", "max")]
+# kable(benchs, format = "markdown", digits=2)
+# kable(benchs, format = "html", digits=2)
+html(tabular(Benchmark ~ Format(digits=2) * (Runtime=VM)*Heading()*Value*(mean + sd),  data=droplevels(subset(macro,VM != "TruffleSOM.ns"))))
+```
+
+Microbenchmarks
+---------------
+
+In addition to DeltaBlue, Richards, and Mandelbrot, which can be considered
+macro or kernel benchmarks, we also use a number of more focused
+microbenchmarks to assess the performance of the SOM implementations.
+Since these are specific to SOM, we do not have numbers for the other
+languages.
+
+```{r echo=FALSE, fig.width=6, fig.height=4, dev="svg"}
+micro <- subset(micro, VM != "TruffleSOM")
+levels(micro$VM)  <- map_names(levels(micro$VM), list("TruffleSOM.ns" = "TruffleSOM"))
+stats <- ddply(micro, ~ Benchmark + VM + Suite,
+               summarise,
+               Time.mean                 = mean(Value),
+               Time.geomean              = geometric.mean(Value),
+               Time.stddev               = sd(Value),
+               Time.median               = median(Value),
+               max = max(Value),
+               min = min(Value))
+
+norm <- ddply(stats, ~ Benchmark, transform,
+              RuntimeRatio = Time.mean / Time.mean[VM == "RPySOM"])
+
+
+plot <- ggplot(norm, aes(x=Benchmark, y=RuntimeRatio, fill=VM))
+plot <- plot + geom_bar(stat="identity",
+                   size=.3,        # Thinner lines
+                   position=position_dodge(.9),
+                   width=0.75) + coord_flip() +
+  xlab("") + ggtitle("Runtime normalized to RPySOM (lower values are better)")
+plot <- plot +
+    theme_bw() +
+    scale_fill_manual(values=c(get_color(5, 7), get_color(3, 7))) +
+    scale_y_continuous(breaks=seq(0,100), expand = c(0,0), limits = c(0, 8)) +
+    theme(axis.text.x          = element_text(size = 12, lineheight=0.7),
+          axis.title.x         = element_blank(),
+          axis.title.y         = element_text(size =  12),
+          axis.text.y          = element_text(size =  12),
+          plot.title           = element_text(size = 12),
+          panel.background     = element_rect(fill = NA, colour = NA),
+          panel.grid.major     = element_blank(),
+          panel.grid.minor     = element_blank(),
+          plot.background      = element_blank(),
+          strip.background     = element_blank(),
+          legend.position      = c(0.9,0.9))
+plot
+```
+
+
+```{r echo=FALSE, results='asis'}
+#kable(stats, format = "html", digits=2)
+html(tabular(Benchmark ~ Format(digits=2) * VM*(Runtime=Value)*(mean + sd),  data=micro))
+```
+
+
+[RPySOM]:     https://github.com/SOM-st/RPySOM
+[TruffleSOM]: https://github.com/SOM-st/TruffleSOM
+[Truffle]:    https://wiki.openjdk.java.net/display/Graal/Truffle+FAQ+and+Guidelines
+[RPython]:    http://pypy.readthedocs.org/en/latest/translation.html
