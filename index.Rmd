@@ -1,17 +1,17 @@
 Performance Evaluation of RPySOM and TruffleSOM
 ===============================================
 
-The main question for our paper [Are we there yet? Simple 
-Language-Implementation Techniques for the 21st Century][TODO] was whether
-these simple AST ([TruffleSOM]) or bytecode interpreter ([RPySOM])
-implementations based on [Truffle] and [RPython] could actually
-reach performance of the same order of magnitude as for instance Java on top
+The main question for our paper _[Are we there yet? Simple 
+Language-Implementation Techniques for the 21st Century][1]_ was whether
+these simple AST ([TruffleSOM]) or bytecode ([RPySOM]) interpreter
+implementations based on [Truffle] and [RPython] could reach performance of
+the same order of magnitude as for instance Java on top
 of a highly optimizing JVM.
 
-In order to answer this question, we chose DeltaBlue and the Richards
-benchmark as object-oriented benchmarks and Mandelbrot as a numerical
-benchmark. These are classic benchmarks that have been used to tune JVMs,
-JavaScript VMs, PyPy, as well as Smalltalk VMs. Still, they are rather
+In order to answer this question, we chose DeltaBlue and Richards as
+object-oriented benchmarks and Mandelbrot as a numerical
+one. All three are classic benchmarks that have been used to tune for instance
+JVMs, JavaScript VMs, PyPy, as well as Smalltalk VMs. Still, they are rather
 specific benchmarks that might given an indicate of what the expected
 performance of a VM is, but _they are in no way predictors_ for the performance
 of concrete applications.
@@ -75,7 +75,7 @@ slower. This performance is reached without requiring custom VMs and hundreds
 of person years of engineering. Thus, we conclude, that RPython as well as
 Truffle live up to the expectations. 
 
-```{r echo=FALSE, fig.width=6, fig.height=4}
+```{r echo=FALSE, fig.width=4.3, fig.height=2.8, dev='svg'}
 # summarize to VMs
 vms <- ddply(norm, ~ VM,
              summarise,
@@ -90,29 +90,17 @@ plot <- plot + geom_bar(stat="identity",
                    width=0.75) + scale_y_continuous(limit=c(0,10), 
                                                     breaks=seq(0,100,1), 
                                                     expand = c(0,0)) +
-  ylab("Runtime, normalized to Java (lower is better)")
+  ylab("Runtime, normalized to Java\nlower is better")
 
-plot <- plot +
-    theme_bw() +
-    theme(axis.text.x          = element_text(size = 12, lineheight=0.7),
-          axis.title.x         = element_blank(),
-          axis.title.y         = element_text(size =  12),
-          axis.text.y          = element_text(size =  12),
-          axis.line            = element_line(colour = "gray"),
-          plot.title           = element_text(size = 12),
-          panel.background     = element_rect(fill = NA, colour = NA),
-          panel.grid.major     = element_blank(),
-          panel.grid.minor     = element_blank(),
-          panel.border         = element_blank(),
-          plot.background      = element_rect(fill = NA, colour = NA))
-  plot
+plot <- plot + theme_simple()
+plot
 ```
 
 A look at the details for the three benchmarks shows that the performance
 varies widely depending on the benchmark, which indicates further optimization
 potential for specific code characteristics.
 
-```{r echo=FALSE, fig.width=10, fig.height=6}
+```{r echo=FALSE, fig.width=6.8, fig.height=4.5, dev='svg'}
 # normalize for each benchmark separately to the Java baseline
 benchs <- ddply(stats, ~ Benchmark, transform,
                 RuntimeRatio = Time.mean / Time.mean[VM == "Java"])
@@ -129,18 +117,8 @@ plot <- plot + geom_bar(stat="identity",
                                                     expand = c(0,0)) +
   ylab("Runtime, normalized to Java (lower is better)")
 plot <- plot + facet_wrap(~ Benchmark)
-plot <- plot +
-    theme_bw() +
-    theme(axis.text.x          = element_text(angle= 90, vjust=0.5, hjust=1, size = 12, lineheight=0.7),
-          axis.title.x         = element_blank(),
-          axis.title.y         = element_text(size =  12),
-          axis.text.y          = element_text(size =  12),
-          plot.title           = element_text(size = 12),
-          panel.background     = element_rect(fill = NA, colour = NA),
-          panel.grid.major     = element_blank(),
-          panel.grid.minor     = element_blank(),
-          plot.background      = element_blank(),
-          strip.background     = element_blank())
+plot <- plot + theme_simple() +
+    theme(axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1))
 plot
 ```
 
@@ -159,7 +137,9 @@ benchs <- ddply(subset(stats, VM != "TruffleSOM.ns"), ~ Benchmark, transform,
 benchs <- benchs[c("Benchmark", "VM", "RuntimeRatio", "Time.mean", "Time.geomean", "Time.median", "Time.stddev", "min", "max")]
 # kable(benchs, format = "markdown", digits=2)
 # kable(benchs, format = "html", digits=2)
-html(tabular(Benchmark ~ Format(digits=2) * (Runtime=VM)*Heading()*Value*(mean + sd),  data=droplevels(subset(macro,VM != "TruffleSOM.ns"))))
+writeLines("<div class='full center'>")
+html(tabular(Justify(l,data=l)*Benchmark ~ Format(digits=2)*Heading('Runtime in ms')*VM*Heading()*Value*Justify(data=r)*(mean + sd),  data=droplevels(subset(macro,VM != "TruffleSOM.ns"))))
+writeLines("</div>")
 ```
 
 Microbenchmarks
@@ -194,30 +174,22 @@ plot <- plot + geom_bar(stat="identity",
                    width=0.75) + coord_flip() +
   xlab("") + ggtitle("Runtime normalized to RPySOM (lower values are better)")
 plot <- plot +
-    theme_bw() +
     scale_fill_manual(values=c(get_color(5, 7), get_color(3, 7))) +
     scale_y_continuous(breaks=seq(0,100), expand = c(0,0), limits = c(0, 8)) +
-    theme(axis.text.x          = element_text(size = 12, lineheight=0.7),
-          axis.title.x         = element_blank(),
-          axis.title.y         = element_text(size =  12),
-          axis.text.y          = element_text(size =  12),
-          plot.title           = element_text(size = 12),
-          panel.background     = element_rect(fill = NA, colour = NA),
-          panel.grid.major     = element_blank(),
-          panel.grid.minor     = element_blank(),
-          plot.background      = element_blank(),
-          strip.background     = element_blank(),
-          legend.position      = c(0.9,0.9))
+    theme_simple() +
+    theme(legend.position      = c(0.9,0.9))
 plot
 ```
 
 
-```{r echo=FALSE, results='asis'}
+```{r 'microbenchmarks-table', echo=FALSE, results='asis'}
 #kable(stats, format = "html", digits=2)
-html(tabular(Benchmark ~ Format(digits=2) * VM*(Runtime=Value)*(mean + sd),  data=micro))
+writeLines("<div class='half center'>")
+html(tabular(Justify(l,data=l)*Benchmark ~ Format(digits=2)*Heading('Runtime in ms')*VM*Heading()*Value*Justify(data=r)*(mean + sd),  data=micro))
+writeLines("</div>")
 ```
 
-
+[1]:          http://stefan-marr.de/research/
 [RPySOM]:     https://github.com/SOM-st/RPySOM
 [TruffleSOM]: https://github.com/SOM-st/TruffleSOM
 [Truffle]:    https://wiki.openjdk.java.net/display/Graal/Truffle+FAQ+and+Guidelines
