@@ -1,59 +1,34 @@
-Self-Optimizing Interpreters
-============================
+Are we there yet? Simple Language-Implementation Techniques for the 21st Century
+================================================================================
 
-This repository contains all the necessary bits and pieces for an evaluation
-of different ideas around self-optimizing interpreters.
+This repository contains the performance evaluation setup for the paper 
+published in IEEE Software [todo-ref]. The repository and its scripts are
+meant to facilitate simple re-execution of the experiments in order to reproduce
+and verify the performance numbers given in the paper.
 
-Currently, the evaluation focusses on the following aspects:
+Furthermore, we use this repository to extend the performance discussion of the 
+paper a little and provide additional data for the mentioned microbenchmarks.
 
- - _partial evaluation vs. meta-tracing_  
-   What are the tradeoffs with respect to engineering effort and performance?
 
- - _optimization techniques and their benefits_  
-   There a number of common patterns used for self-optimizing interpreters, 
-   and we are interested in which concrete impact they have on performance.
+Setup for Re-Execution of Experiments
+-------------------------------------
 
- - _pure interpretation_  
-   While peek-performance is one relevant criterion, startup time, 
-   and pure interpretation speed are relevant in a number of scenarios as well.
-   Thus, we are interested in the impact of the various optimizations on 
-   interpretation speed.
-
- - _the future_  
-   Which new and powerful language features could self-optimizing interpreters
-   facilitate? We think, they provide us with a technique that makes highly dynamic
-   language features such as _metaobject protocols_ practical. Here, we experiment
-   with such techniques and investigate the performance potential.
-
-Self-Contained, Complete, and Reproducible Evaluation Setup
------------------------------------------------------------
-
-This repository contains everything that is necessary to re-execute all
-experiments. Well, that excludes obviously the hardware, and operating system
-setup.
-
-The following quick start instructions, allow to recreate the basic environment:
+The following steps, recreate the basic environment:
 
 ```bash
-git clone --recursive https://github.com/smarr/selfopt-interp-performance
+git clone --recursive -b papers/ieee-software-2014 https://github.com/smarr/selfopt-interp-performance
+cd implementations
+./setup.sh
 ```
 
 The setup has been used and tested on Ubuntu and OS X.
-The following programs are definitely required for execution:
+The following programs are required for execution:
 
+ - Python 2.7
+ - C/C++ compiler (GCC or Clang)
  - ReBench (>= 0.5) for benchmark execution
  - knitr (>= 1.5) and R (>= 3.0) for report generation
-
-For the various implementations, additional software is required:
-
- - Graal
-   - C/C++ compiler (GCC, Clang)
-   - Java 8
-   - Python
- - JRuby
-   - Maven
-   - 
-
+ - Java 8 (for Graal)
 
 Licensing
 ---------
