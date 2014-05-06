@@ -13,3 +13,33 @@ load_data_file <- function (file, row_names) {
                             fill=TRUE))
   bench
 }
+
+prepare_vm_names <- function(data) {
+  # Reorder
+  data$VM <- factor(data$VM, c("Java", "PyPy", "RPySOM-recursive-jit",
+                               "TruffleSOM-graal", "TruffleSOM-graal-no-split",
+                               "SOMpp"))
+  
+  name_map <-     list("Java"                  = "Java",
+                       "PyPy"                  = "PyPy",
+                       "RPySOM-recursive-jit"  = "RPySOM",
+                       
+                       "TruffleSOM-graal"      = "TruffleSOM",
+                       "TruffleSOM-graal-no-split" = "TruffleSOM.ns",
+                       "SOMpp"                 = "SOM++")
+  # Rename
+  levels(data$VM)  <- map_names(
+    levels(data$VM),
+    name_map)
+  data
+}
+
+map_names <- function(old_names, name_map) {
+  for (i in 1:length(old_names)) {
+    old_name <- old_names[[i]]
+    if (!is.null(name_map[[old_name]])) {
+      old_names[i] <- name_map[[old_name]]
+    }
+  }
+  old_names
+}
