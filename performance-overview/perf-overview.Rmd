@@ -8,23 +8,15 @@ implementations.
 
 Note, for the moment, the benchmark set is not yet complete for all languages.
 
-**TODO:**
- - Benchmarks:
-    - Mandelbrot (represents numerical performance)
-    - Delta Blue (represents OO programs)
-    - Richards   (represents OO programs)
- - Language Implementations:
-    - LuaJIT 2
-    - JRuby
-    - SOM (RTruffleSOM, TruffleSOM, SOM++, CSOM, SOM (java))
-
-
 ```{r echo=FALSE, message=FALSE, warning=FALSE, results='hide', errors=FALSE}
 # load libraries, the data, and prepare it
 if (Sys.getenv("RSTUDIO") == "1") { setwd("/Users/smarr/Projects/PostDoc/SELF-OPT-INT/performance-overview") }
 
 source("../scripts/libraries.R", chdir=TRUE)
 data <- load_data_file("perf-overview.data")
+data <- subset(data, select = c(Value, Unit, Benchmark, VM, Suite))
+data <- prepare_vm_names(data)
+steady <- droplevels(subset(data, grepl("steady", Suite)))
 ```
 
 
@@ -36,9 +28,9 @@ in form of a simple bar chart:
 
 **TODO** add proper error bars, and read up on effect size confidence intervals.
 
-```{r echo=FALSE, fig.width=6, fig.height=4}
+```{r echo=FALSE, fig.width=6, fig.height=4, dev='svg'}
 # aggregate results for display
-stats <- ddply(data, ~ Benchmark + VM + Suite + Extra + Warmup + Cores,
+stats <- ddply(steady, ~ Benchmark + VM + Suite,
                summarise,
                Time.mean                 = mean(Value),
                Time.geomean              = geometric.mean(Value),
@@ -62,86 +54,64 @@ plot <- plot + geom_bar(stat="identity",
                    colour=get_color(5, 6),
                    size=.3,        # Thinner lines
                    fill=get_color(5, 7),
-                   width=0.75)
-plot <- plot +
-    theme_bw() +
-    theme(axis.text.x          = element_text(angle= 90, vjust=0.5, hjust=1, size = 12, lineheight=0.7),
-          axis.title.x         = element_blank(),
-          axis.title.y         = element_text(size =  12),
-          axis.text.y          = element_text(size =  12),
-          axis.line = element_line(colour = "gray"),
-          plot.title           = element_text(size = 12),
-          panel.background     = element_rect(fill = NA, colour = NA),
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          panel.border         = element_blank(),
-          plot.background      = element_rect(fill = NA, colour = NA))
+                   width=0.75) +
+    scale_y_continuous(limit=c(0,10), breaks=seq(0,100,1), expand = c(0,0)) + 
+    ylab("Runtime, normalized to Java8\nlower is better") +
+    theme_bw() + theme_simple() + theme(axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1))
   plot
-
 ```
 
+```{r echo=FALSE, fig.width=6, fig.height=4, dev='svg'}
+ plot <- ggplot(norm, aes(x=VM, y=RuntimeRatio)) +
+  geom_hline(aes(yintercept=(c(1, 10))), colour="#cccccc", linetype="dashed") +
+  
+  geom_boxplot(fill=get_color(5, 7)) + theme_bw() + theme_simple() + theme(axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1)) +
+  scale_y_continuous(limit=c(0,35), breaks=seq(0,100,5), expand = c(0,0)) + 
+  ylab("Runtime, normalized to Java8\nlower is better")
+ plot
+```
 
-**TODO**: figure: separated by benchmarks, normalized to fastest Java
-
-```{r echo=FALSE, fig.width=10, fig.height=4}
-# aggregate results for display
-stats <- ddply(data, ~ Benchmark + VM + Suite + Extra + Warmup + Cores,
-               summarise,
-               Time.mean                 = mean(Value),
-               Time.geomean              = geometric.mean(Value),
-               Time.stddev               = sd(Value),
-               Time.median               = median(Value),
-               max = max(Value),
-               min = min(Value))
-
-# normalize for each benchmark separately to the Java baseline
-benchs <- ddply(stats, ~ Benchmark, transform,
-                RuntimeRatio = Time.mean / Time.mean[VM == "Java8"])
-
+```{r echo=FALSE, fig.width=7, fig.height=5, dev='svg'}
 # create a simple bar chart
-plot <- ggplot(benchs, aes_string(x="VM", y="RuntimeRatio"))
+plot <- ggplot(norm, aes_string(x="VM", y="RuntimeRatio"))
 plot <- plot + geom_bar(stat="identity",
                    colour=get_color(5, 6),
                    size=.3,        # Thinner lines
                    fill=get_color(5, 7),
-                   width=0.75)
+                   width=0.75) +
+  scale_y_continuous(limit=c(0,35),
+                                                    breaks=seq(0,100,5),
+                                                    expand = c(0,0)) +
+  ylab("Runtime, normalized to Java (lower is better)")
 plot <- plot + facet_wrap(~ Benchmark)
 plot <- plot +
-    theme_bw() +
-    theme(axis.text.x          = element_text(angle= 90, vjust=0.5, hjust=1, size = 12, lineheight=0.7),
-          axis.title.x         = element_blank(),
-          axis.title.y         = element_text(size =  12),
-          axis.text.y          = element_text(size =  12),
-#          axis.line = element_line(colour = "black"),
-          plot.title           = element_text(size = 12),
-          panel.background     = element_rect(fill = NA, colour = NA),
-          panel.grid.major     = element_blank(),
-          panel.grid.minor     = element_blank(),
-          plot.background      = element_blank(),
-          strip.background     = element_blank())
+    theme_bw() + theme_simple() +
+    theme(axis.text.x          = element_text(angle= 90, vjust=0.5, hjust=1))
   plot
 
 ```
 
-
-
-**TODO**: table
 ```{r echo=FALSE, results='asis'}
-# aggregate results for display
-stats <- ddply(data, ~ Benchmark + VM,
-               summarise,
-               Time.mean                 = mean(Value),
-               Time.geomean              = geometric.mean(Value),
-               Time.stddev               = sd(Value),
-               Time.median               = median(Value),
-               max = max(Value),
-               min = min(Value))
-#stats
-benchs <- ddply(stats, ~ Benchmark, transform,
-                RuntimeRatio = round(Time.mean / Time.mean[VM == "Java8"], digits = 2))
-
-benchs <- benchs[c("Benchmark", "VM", "RuntimeRatio", "Time.mean", "Time.geomean", "Time.median", "Time.stddev", "min", "max")]
-#kable(benchs, format = "markdown", digits=2)
-kable(benchs, format = "html", digits=2)
+writeLines("<div class='full center'>")
+t <- tabular(Justify(l,data=l)*VM ~ Format(digits=2)*Heading('Runtime in ms')*Benchmark*Heading()*Value*Justify(data=r)*(mean + sd),  data=droplevels(steady))
+html(t)
+writeLines("</div>")
 ```
+
+
+
+
+TODO
+====
+
+**TODO:**
+ - Language Implementations:
+    - LuaJIT 2
+    - JRuby
+    - SOM (RTruffleSOM, TruffleSOM, SOM++, CSOM, SOM (java))
+
+ - some info on Benchmarks:
+    - Mandelbrot (represents numerical performance)
+    - Delta Blue (represents OO programs)
+    - Richards   (represents OO programs)
 

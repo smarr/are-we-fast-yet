@@ -15,14 +15,11 @@ load_data_file <- function (file, row_names) {
 }
 
 prepare_vm_names <- function(data) {
-  # Reorder
-  data$VM <- factor(data$VM, c("Java", "PyPy", "RPySOM-recursive-jit",
-                               "TruffleSOM-graal", "TruffleSOM-graal-no-split",
-                               "SOMpp"))
-  
   name_map <-     list("Java"                  = "Java",
                        "PyPy"                  = "PyPy",
                        "RPySOM-recursive-jit"  = "RPySOM",
+                       "RPySOM-jit"            = "RPySOM",
+                       "RTruffleSOM-jit"       = "RTruffleSOM",
                        
                        "TruffleSOM-graal"      = "TruffleSOM",
                        "TruffleSOM-graal-no-split" = "TruffleSOM.ns",
