@@ -19,3 +19,12 @@
 [submodule "implementations/SOMpp"]
 	path = implementations/SOMpp
 	url = https://github.com/SOM-st/SOMpp.git
+[submodule "implementations/CSOM"]
+	path = implementations/CSOM
+	url = https://github.com/SOM-st/CSOM.git
+[submodule "implementations/SOM"]
+	path = implementations/SOM
+	url = https://github.com/SOM-st/som-java.git
+[submodule "implementations/luajit"]
+	path = implementations/luajit
+	url = http://luajit.org/git/luajit-2.0.git
