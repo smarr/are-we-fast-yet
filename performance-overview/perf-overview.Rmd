@@ -12,6 +12,8 @@ Note, for the moment, the benchmark set is not yet complete for all languages.
 # load libraries, the data, and prepare it
 if (Sys.getenv("RSTUDIO") == "1") { setwd("/Users/smarr/Projects/PostDoc/SELF-OPT-INT/performance-overview") }
 
+options(scipen = 5)
+
 source("../scripts/libraries.R", chdir=TRUE)
 data <- load_data_file("perf-overview.data")
 data <- subset(data, select = c(Value, Unit, Benchmark, VM, Suite))
@@ -142,7 +144,7 @@ writeLines("</div>")
 
 ```{r echo=FALSE, results='asis'}
 writeLines("<div class='full center'>")
-t <- tabular(Justify(l,data=l)*VM ~ Format(digits=2)*Heading('Runtime in ms')*Benchmark*Heading()*Value*Justify(data=r)*(mean + sd),  data=droplevels(steady))
+t <- tabular(Justify(l,data=l)*VM ~ Format(digits=1)*Heading('Runtime in ms')*Benchmark*Heading()*Value*Justify(data=r)*(mean + sd),  data=droplevels(data))
 html(t)
 writeLines("</div>")
 ```
