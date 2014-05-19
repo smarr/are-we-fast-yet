@@ -16,7 +16,6 @@ source("../scripts/libraries.R", chdir=TRUE)
 data <- load_data_file("perf-overview.data")
 data <- subset(data, select = c(Value, Unit, Benchmark, VM, Suite))
 data <- prepare_vm_names(data)
-steady <- droplevels(subset(data, grepl("steady", Suite)))
 ```
 
 
@@ -30,7 +29,7 @@ in form of a simple bar chart:
 
 ```{r echo=FALSE, fig.width=6, fig.height=4, dev='svg'}
 # aggregate results for display
-stats <- ddply(steady, ~ Benchmark + VM + Suite,
+stats <- ddply(data, ~ Benchmark + VM + Suite,
                summarise,
                Time.mean                 = mean(Value),
                Time.geomean              = geometric.mean(Value),
@@ -48,32 +47,61 @@ vms <- ddply(norm, ~ VM,
              summarise,
              RunRatio.geomean = geometric.mean(RuntimeRatio))
 
+compiled = droplevels(subset(vms, !grepl("-interp", VM)))
+interp   = droplevels(subset(vms, grepl("-interp", VM)))
+
 # create a simple bar chart
-plot <- ggplot(vms, aes_string(x="VM", y="RunRatio.geomean"))
+plot <- ggplot(compiled, aes_string(x="VM", y="RunRatio.geomean"))
 plot <- plot + geom_bar(stat="identity",
                    colour=get_color(5, 6),
                    size=.3,        # Thinner lines
                    fill=get_color(5, 7),
                    width=0.75) +
-    scale_y_continuous(limit=c(0,9), breaks=seq(0,100,1), expand = c(0,0)) + 
+    scale_y_continuous(breaks=seq(0,100,1), expand = c(0,0)) + # limit=c(0,11)
+    ylab("Runtime, normalized to Java8\nlower is better") +
+    theme_bw() + theme_simple() + theme(axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1))
+  plot
+
+plot <- ggplot(interp, aes_string(x="VM", y="RunRatio.geomean"))
+plot <- plot + geom_bar(stat="identity",
+                   colour=get_color(5, 6),
+                   size=.3,        # Thinner lines
+                   fill=get_color(5, 7),
+                   width=0.75) +
+    scale_y_continuous(breaks=seq(0,500,25), expand = c(0,0)) + # limit=c(0,11)
     ylab("Runtime, normalized to Java8\nlower is better") +
     theme_bw() + theme_simple() + theme(axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1))
   plot
 ```
 
 ```{r echo=FALSE, fig.width=6, fig.height=4, dev='svg'}
- plot <- ggplot(norm, aes(x=VM, y=RuntimeRatio)) +
+norm_compiled = droplevels(subset(norm, !grepl("-interp", VM)))
+norm_interp   = droplevels(subset(norm, grepl("-interp", VM)))
+
+ plot <- ggplot(norm_compiled, aes(x=VM, y=RuntimeRatio)) +
   geom_hline(aes(yintercept=1), colour="#cccccc", linetype="dashed") +
   geom_hline(aes(yintercept=10), colour="#cccccc", linetype="dashed") +
   geom_boxplot(fill=get_color(5, 7)) + theme_bw() + theme_simple() + theme(axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1)) +
   scale_y_continuous(limit=c(0,30), breaks=seq(0,100,5), expand = c(0,0)) + 
   ylab("Runtime, normalized to Java8\nlower is better")
  plot
+
+plot <- ggplot(norm_interp, aes(x=VM, y=RuntimeRatio)) +
+  geom_hline(aes(yintercept=1), colour="#cccccc", linetype="dashed") +
+  geom_hline(aes(yintercept=10), colour="#cccccc", linetype="dashed") +
+  geom_hline(aes(yintercept=20), colour="#cccccc", linetype="dashed") +
+  geom_hline(aes(yintercept=100), colour="#cccccc", linetype="dashed") +
+  geom_hline(aes(yintercept=500), colour="#cccccc", linetype="dashed") +
+  geom_boxplot(fill=get_color(5, 7)) + theme_bw() + theme_simple() + theme(axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1)) +
+  scale_y_log10(breaks=c(1, 2, 3, 5, 10, 15, 20, 30, 50, 100, 150, 200, 300, 500, 700, 900, 1000), expand = c(0,0))+
+  #scale_y_continuous(breaks=seq(1,1000,25), expand = c(0,0)) + 
+  ylab("Runtime, normalized to Java8\nlower is better")
+ plot
 ```
 
 ```{r echo=FALSE, fig.width=7, fig.height=5, dev='svg'}
 # create a simple bar chart
-plot <- ggplot(norm, aes_string(x="VM", y="RuntimeRatio"))
+plot <- ggplot(norm_compiled, aes_string(x="VM", y="RuntimeRatio"))
 plot <- plot + geom_bar(stat="identity",
                    colour=get_color(5, 6),
                    size=.3,        # Thinner lines
@@ -82,6 +110,20 @@ plot <- plot + geom_bar(stat="identity",
   scale_y_continuous(limit=c(0,30),
                                                     breaks=seq(0,100,5),
                                                     expand = c(0,0)) +
+  ylab("Runtime, normalized to Java (lower is better)")
+plot <- plot + facet_wrap(~ Benchmark)
+plot <- plot +
+    theme_bw() + theme_simple() +
+    theme(axis.text.x          = element_text(angle= 90, vjust=0.5, hjust=1))
+  plot
+
+plot <- ggplot(norm_interp, aes_string(x="VM", y="RuntimeRatio"))
+plot <- plot + geom_bar(stat="identity",
+                   colour=get_color(5, 6),
+                   size=.3,        # Thinner lines
+                   fill=get_color(5, 7),
+                   width=0.75) +
+  scale_y_continuous(breaks=seq(0,1000,100), expand = c(0,0)) +
   ylab("Runtime, normalized to Java (lower is better)")
 plot <- plot + facet_wrap(~ Benchmark)
 plot <- plot +
