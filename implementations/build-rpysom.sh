@@ -7,5 +7,5 @@ cd RPySOM
 get_pypy
 
 INFO Build RPySOM
-make clean; make RPySOM-jit
+make clean; make -j4
 OK RPySOM Build Completed.
