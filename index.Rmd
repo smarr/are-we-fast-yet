@@ -133,12 +133,14 @@ Since it is significantly slower, we did not include it in the charts because
 it would distort the impression. It is however included in the table below.
 
 ```{r echo=FALSE, results='asis'}
-benchs <- ddply(subset(stats, VM != "TruffleSOM.ns"), ~ Benchmark, transform,
-                RuntimeRatio = round(Time.mean / Time.mean[VM == "Java"], digits = 2))
-
-benchs <- benchs[c("Benchmark", "VM", "RuntimeRatio", "Time.mean", "Time.geomean", "Time.median", "Time.stddev", "min", "max")]
+# benchs <- ddply(subset(stats, VM != "TruffleSOM.ns"), ~ Benchmark, transform,
+#                RuntimeRatio = round(Time.mean / Time.mean[VM == "Java"], digits = 1),
+#                Time.stddev = round(Time.stddev, digits = 1),
+#                Time.mean = round(Time.mean, digits = 0))
+# benchs <- benchs[c("Benchmark", "VM", "Time.mean", "Time.stddev", "RuntimeRatio", "Time.geomean", "Time.median", "min", "max")]
 # kable(benchs, format = "markdown", digits=2)
-# kable(benchs, format = "html", digits=2)
+# kable(benchs, format = "html", digits=1)
+
 writeLines("<div class='full center'>")
 html(tabular(Justify(l,data=l)*Benchmark ~ Format(digits=2)*Heading('Runtime in ms')*VM*Heading()*Value*Justify(data=r)*(mean + sd),  data=droplevels(subset(macro,VM != "TruffleSOM.ns"))))
 writeLines("</div>")
