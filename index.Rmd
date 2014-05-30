@@ -12,8 +12,8 @@ In order to answer this question, we chose DeltaBlue and Richards as
 object-oriented benchmarks and Mandelbrot as a numerical
 one. All three are classic benchmarks that have been used to tune for instance
 JVMs, JavaScript VMs, PyPy, as well as Smalltalk VMs. Still, they are rather
-specific benchmarks that might given an indicate of what the expected
-performance of a VM is, but _they are in no way predictors_ for the performance
+specific benchmarks that can given an indicate of what the expected
+performance of a VM is, but _they are not predictors_ for the performance
 of concrete applications.
 
 Methodology
@@ -66,12 +66,14 @@ rpy_runtime_ratio   <- subset(norm, VM == "RPySOM",     select = c(RuntimeRatio)
 tru_runtime_ratio   <- subset(norm, VM == "TruffleSOM", select = c(RuntimeRatio))
 ```
 
-RPySOM and TruffleSOM reach more or less the set goal, i.e., the same order
-of magnitude of performance. RPySOM reaches
+RPySOM and TruffleSOM reach more or less the goal, i.e., the same order
+of magnitude of performance as the Java Virtual Machine. RPySOM reaches a
+runtime of a factor
 `r round(min(rpy_runtime_ratio), 1)` to `r round(max(rpy_runtime_ratio), 1)`, 
-while TruffleSOM has more remaining optimization potential with being
+while TruffleSOM has more remaining optimization potential with being a factor
 `r round(min(tru_runtime_ratio), 1)` to `r round(max(tru_runtime_ratio), 1)`
-slower. This performance is reached without requiring custom VMs and hundreds
+slower, while being faster than RPySOM on two of the three benchmarks.
+This performance is reached without requiring custom VMs and hundreds
 of person years of engineering. Thus, we conclude, that RPython as well as
 Truffle live up to the expectations. 
 
@@ -87,7 +89,7 @@ plot <- plot + geom_bar(stat="identity",
                    colour=get_color(5, 6),
                    size=.3,        # Thinner lines
                    fill=get_color(5, 7),
-                   width=0.75) + scale_y_continuous(limit=c(0,10), 
+                   width=0.75) + scale_y_continuous(limit=c(0,5), 
                                                     breaks=seq(0,100,1), 
                                                     expand = c(0,0)) +
   ylab("Runtime, normalized to Java\nlower is better")
@@ -112,7 +114,7 @@ plot <- plot + geom_bar(stat="identity",
                    colour=get_color(5, 6),
                    size=.3,        # Thinner lines
                    fill=get_color(5, 7),
-                   width=0.75) + scale_y_continuous(limit=c(0,30),
+                   width=0.75) + scale_y_continuous(limit=c(0,18),
                                                     breaks=seq(0,100,2),
                                                     expand = c(0,0)) +
   ylab("Runtime, normalized to Java (lower is better)")
@@ -175,9 +177,10 @@ plot <- plot + geom_bar(stat="identity",
   xlab("") + ggtitle("Runtime normalized to RPySOM (lower values are better)")
 plot <- plot +
     scale_fill_manual(values=c(get_color(5, 7), get_color(3, 7))) +
-    scale_y_continuous(breaks=seq(0,100), expand = c(0,0), limits = c(0, 8)) +
+    scale_y_continuous(breaks=seq(0,100, 0.1), expand = c(0,0), limits = c(0, 1.2)) +
     theme_simple() +
-    theme(legend.position      = c(0.9,0.9))
+    theme(legend.position      = c(0.9,0.9),
+          legend.background    = element_blank())
 plot
 ```
 
