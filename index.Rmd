@@ -31,7 +31,7 @@ of the machine, see the [specification](data/spec.html).
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, results='hide', errors=FALSE}
 # load libraries, the data, and prepare it
-if (Sys.getenv("RSTUDIO") == "1") { setwd("/Users/smarr/Projects/PostDoc/SELF-OPT-INT/") }
+if (Sys.getenv("RSTUDIO") == "1") { setwd("/Users/smarr/Projects/PostDoc/ARE-WE-THERE-YETXX/perf-eval-repo/") }
 
 options(scipen=5)
 
