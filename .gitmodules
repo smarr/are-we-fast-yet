@@ -9,4 +9,4 @@
 	url = https://github.com/smarr/TruffleSOM
 [submodule "implementations/RTruffleSOM"]
 	path = implementations/RTruffleSOM
-	url = https://github.com/smarr/RPySOM.git
+	url = https://github.com/smarr/RTruffleSOM.git
