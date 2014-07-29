@@ -17,5 +17,5 @@ export EXTRA_JAVA_HOMES=$JAVA7_HOME
 INFO Build Graal
 cd graal
 ./mx.sh clean
-./mx.sh --vm server build
+./mx.sh --vm server build -p
 OK Graal Build Completed.
