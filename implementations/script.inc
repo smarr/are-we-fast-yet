@@ -52,7 +52,7 @@ function get_pypy() {
     get_web_getter
     
     INFO Get PyPy Source
-    PYPY_VERSION="2.2.1"
+    PYPY_VERSION="2.3.1"
     DOWNLOAD_URL="https://bitbucket.org/pypy/pypy/downloads/pypy-$PYPY_VERSION-src.tar.bz2"
     $GET $DOWNLOAD_URL || $GET $DOWNLOAD_URL
     tar -xjf pypy-$PYPY_VERSION-src.tar.bz2
