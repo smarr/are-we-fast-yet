@@ -6,3 +6,5 @@
 /README.html
 /README.txt
 /figure
+/implementations/pypy
+/implementations/pypy-*.bz2
