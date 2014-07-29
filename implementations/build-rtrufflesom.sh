@@ -3,7 +3,7 @@
 source ./script.inc
 source ./config.inc
 
-cd RPySOM
+cd RTruffleSOM
 get_pypy
 
 INFO Build RTruffleSOM
