@@ -1,0 +1,139 @@
+Warmup Behavior of TruffleSOM and RTruffleSOM
+=============================================
+
+Methodology
+-----------
+
+For each benchmark is execute 150 (or 400) times in the same VM instance.
+The runtime of one iteration is measured and reported.
+
+The used benchmark machine has two quad-core Intel Xeons E5520, 2.26 GHz with
+8 GB of memory and runs Ubuntu Linux with kernel 3.11. For a few more details
+of the machine, see the [specification](data/spec.html).
+
+TruffleSOM variants:
+
+- RTruffleSOM: self-optimizing AST interpreter on RPython
+- TruffleSOM.ns: on Truffle+Graal, ns=new splitting, -G:+TruffleSplittingNew 
+- TruffleSOM.nse, nse=new splitting and extra flag,  -G:+TruffleSplittingNew  -G:-TruffleSplittingClassInstanceStamps
+- TruffleSOM.wos, wos=without splitting,             -G:-TruffleSplitting
+- TruffleSOM.os, os=old splitting, (without unconditional inlining of small methods), -G:+TruffleSplitting
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results='hide', errors=FALSE}
+# load libraries, the data, and prepare it
+if (Sys.getenv("RSTUDIO") == "1") { setwd("/Users/smarr/Projects/PostDoc/ZERO-MOP/perf-eval-selfopt/") }
+
+options(scipen=5)
+
+source("scripts/libraries.R", chdir=TRUE)
+data <- load_data_file("data/zero-overhead.data")
+data <- subset(data, select = c(Value, Unit, Benchmark, VM, Suite, rid))
+data <- prepare_vm_names(data)
+
+## Add a time series id
+data <- ddply(data, ~ Benchmark + VM, transform,
+              Iteration = rid - min(rid))
+
+data <- subset(data, !grepl("OMOP", VM))
+data <- subset(data, Benchmark != "DeltaBlue")
+data <- droplevels(data)
+
+macro <- droplevels(subset(data, grepl("macro", Suite)))
+micro <- droplevels(subset(data, grepl("micro", Suite)))
+```
+
+
+```{r echo=FALSE, dev='svg', fig.keep='all', fig.width=20, fig.height=5}
+
+# for (vm_name in levels(macro$VM)) {
+#   for (bench_name in levels(macro$Benchmark)) {
+#     #vm_name = "TruffleSOM.ns"
+#     #bench_name = "DeltaBlue"
+#     file_name = paste0("timeline-", bench_name, "-", vm_name, ".pdf")
+#     cat(file_name)
+#     
+#     b <- subset(macro, VM == vm_name & Benchmark == bench_name)
+#     b <- droplevels(b)
+#     b$id <- seq_len(nrow(b))
+#     
+#     plot <- ggplot(b, aes(x=id, y=Value)) + geom_line() #+ facet_grid(VM + Benchmark ~ .)
+#     plot
+#     
+#     ggsave(plot, file=file_name)
+#   }
+# }
+# 
+# 
+# ### MACRO 
+# for (bench_name in levels(macro$Benchmark)) {
+#   #bench_name = "DeltaBlue"
+#   file_name = paste0("timeline-", bench_name, ".pdf")
+#   cat(file_name)
+#   
+#   b <- subset(macro, Benchmark == bench_name)
+#   b <- droplevels(b)
+#   
+#   plot <- ggplot(b, aes(x=Iteration, y=Value)) + geom_line(aes(colour = VM)) #+ facet_grid(VM + Benchmark ~ .)
+#   plot <- plot + scale_y_continuous(limits = c(0, 3000))
+#   plot
+#   
+#   ggsave(plot, file=file_name)
+# }
+# 
+# 
+# for (bench_name in levels(micro$Benchmark)) {
+#   #bench_name = "DeltaBlue"
+#   file_name = paste0("timeline-", bench_name, ".pdf")
+#   cat(file_name)
+#   
+#   b <- subset(micro, Benchmark == bench_name)
+#   b <- droplevels(b)
+#   
+#   plot <- ggplot(b, aes(x=Iteration, y=Value)) + geom_line(aes(colour = VM)) #+ facet_grid(VM + Benchmark ~ .)
+#   plot <- plot + scale_y_continuous(limits = c(0, 3000))
+#   plot
+#   
+#   ggsave(plot, file=file_name)
+# }
+# 
+
+for (bench_set in list(a=macro, b=micro)) {
+ for (bench_name in levels(bench_set$Benchmark)) {
+    # bench_set = macro
+    # bench_name = "DeltaBlue"
+    b <- subset(bench_set, Benchmark == bench_name)
+    b <- droplevels(b)
+    
+    upperBound <- 2 * median(b$Value)
+    b <- ddply(b, ~ Benchmark, transform,
+               ValCut = pmin(Value, upperBound))
+    
+    plot <- ggplot(b, aes(x=Iteration, y=ValCut)) + geom_line(aes(colour = VM)) #+ facet_grid(VM + Benchmark ~ .)
+    plot <- plot + ggtitle(bench_name)
+    #plot <- plot + scale_y_continuous(limits = c(0, 3000))
+    print(plot)
+    
+    # file_name = paste0("cut-timeline-", bench_name, ".pdf")
+    # cat(file_name)
+    # ggsave(plot, file=file_name)
+ }
+}
+
+# b <- subset(macro, VM == "TruffleSOM.ns" & Benchmark == "DeltaBlue")
+# b <- droplevels(b)
+# summary(b)
+# b$id <- seq_len(nrow(b))
+# 
+# plot <- ggplot(b, aes(x=id, y=Value)) + geom_line() #+ facet_grid(VM + Benchmark ~ .)
+# plot
+# 
+# 
+# plot <- ggplot(macro, aes(x=Iteration, y=Value, fill=VM)) + geom_line(aes(colour = VM)) + facet_grid(Benchmark ~ .)
+# plot
+# 
+# 
+# summary(macro)
+
+
+```
+
