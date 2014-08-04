@@ -31,14 +31,20 @@ of the machine, see the [specification](data/spec.html).
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, results='hide', errors=FALSE}
 # load libraries, the data, and prepare it
-if (Sys.getenv("RSTUDIO") == "1") { setwd("/Users/smarr/Projects/PostDoc/ARE-WE-THERE-YETXX/perf-eval-repo/") }
+if (Sys.getenv("RSTUDIO") == "1") { setwd("/Users/smarr/Projects/PostDoc/ZERO-MOP/perf-eval-selfopt/") }
 
 options(scipen=5)
 
 source("scripts/libraries.R", chdir=TRUE)
-data <- load_data_file("data/are-we-there-yet.data")
-data <- subset(data, select = c(Value, Unit, Benchmark, VM, Suite))
+data <- load_data_file("data/zero-overhead.data")
+data <- subset(data, select = c(Value, Unit, Benchmark, VM, Suite, rid))
 data <- prepare_vm_names(data)
+
+## Add a time series id
+data <- ddply(data, ~ Benchmark + VM, transform,
+              Iteration = rid - min(rid))
+
+
 macro <- droplevels(subset(data, grepl("macro", Suite)))
 micro <- droplevels(subset(data, grepl("micro", Suite)))
 ```
