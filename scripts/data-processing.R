@@ -9,23 +9,34 @@ load_data_file <- function (file, row_names) {
                    "Var")
   }
   
-  bench <- rbind(read.table(file, sep="\t", header=FALSE, col.names=row_names,
-                            fill=TRUE))
+  bench <- read.table(file, sep="\t", header=FALSE, col.names=row_names,
+                            fill=TRUE) # rbind()
+  bench$rid = seq_len(nrow(bench))
   bench
 }
 
 prepare_vm_names <- function(data) {
   # Reorder
-  data$VM <- factor(data$VM, c("Java", "PyPy", "RPySOM-jit",
-                               "TruffleSOM-graal", "TruffleSOM-graal-no-split",
+  data$VM <- factor(data$VM, c("Java", "PyPy",
+                               "RTruffleSOM-jit",
+                               "RTruffleSOM-OMOP-jit",
+                               "TruffleSOM-graal",
+                               "TruffleSOM-OMOP-graal",
+                               "TruffleSOM-graal-no-split",
+                               "TruffleSOM-graal-split-extra",
+                               "TruffleSOM-graal-old-splitting",
                                "SOMpp"))
   
   name_map <-     list("Java"                  = "Java",
                        "PyPy"                  = "PyPy",
-                       "RPySOM-jit"            = "RPySOM",
+                       "RTruffleSOM-jit"       = "RTruffleSOM",
+                       "RTruffleSOM-OMOP-jit"       = "RTruffleSOM (OMOP)",
                        
-                       "TruffleSOM-graal"      = "TruffleSOM",
-                       "TruffleSOM-graal-no-split" = "TruffleSOM.ns",
+                       "TruffleSOM-OMOP-graal"          = "TruffleSOM.ns (OMOP)",
+                       "TruffleSOM-graal"               = "TruffleSOM.ns",
+                       "TruffleSOM-graal-split-extra"   = "TruffleSOM.nse",
+                       "TruffleSOM-graal-no-split"      = "TruffleSOM.wos",
+                       "TruffleSOM-graal-old-splitting" = "TruffleSOM.os",
                        "SOMpp"                 = "SOM++")
   # Rename
   levels(data$VM)  <- map_names(
