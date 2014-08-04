@@ -39,7 +39,7 @@ NUMA node0 CPU(s):     0-15
 `$ cat /proc/meminfo | grep MemTotal`
 
 ```
-MemTotal:        8164196 kB
+MemTotal:        8164188 kB
 ```
 
 Software
@@ -48,7 +48,7 @@ Software
 `$ uname -a`
 
 ```
-Linux Infinity 3.11.0-18-generic #32-Ubuntu SMP Tue Feb 18 21:11:14 UTC 2014 x86_64 x86_64 x86_64 GNU/Linux
+Linux Infinity 3.11.0-26-generic #45-Ubuntu SMP Tue Jul 15 04:02:06 UTC 2014 x86_64 x86_64 x86_64 GNU/Linux
 ```
 
 `$ cat /etc/lsb-release`
@@ -73,8 +73,8 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 `$ java -version`
 
 ```
-java version "1.7.0_51"
-OpenJDK Runtime Environment (IcedTea 2.4.4) (7u51-2.4.4-0ubuntu0.13.10.1)
-OpenJDK 64-Bit Server VM (build 24.45-b08, mixed mode)
+java version "1.8.0_11"
+Java(TM) SE Runtime Environment (build 1.8.0_11-b12)
+Java HotSpot(TM) 64-Bit Server VM (build 25.11-b03, mixed mode)
 ```
 
