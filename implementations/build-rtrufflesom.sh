@@ -3,9 +3,14 @@
 source ./script.inc
 source ./config.inc
 
-cd RTruffleSOM
 get_pypy
 
-INFO Build RTruffleSOM
+cd RTruffleSOM
+INFO Build RTruffleSOM (without OMOP)
 make clean; make RTruffleSOM-jit
-OK RTruffleSOM Build Completed.
+OK RTruffleSOM (without OMOP) Build Completed.
+
+cd ../RTruffleSOM-OMOP
+INFO Build RTruffleSOM (with OMOP)
+make clean; make RTruffleSOM-jit
+OK RTruffleSOM (with OMOP) Build Completed.

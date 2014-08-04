@@ -10,3 +10,9 @@
 [submodule "implementations/RTruffleSOM"]
 	path = implementations/RTruffleSOM
 	url = https://github.com/smarr/RTruffleSOM.git
+[submodule "implementations/TruffleSOM-OMOP"]
+	path = implementations/TruffleSOM-OMOP
+	url = https://github.com/smarr/TruffleSOM.git
+[submodule "implementations/RTruffleSOM-OMOP"]
+	path = implementations/RTruffleSOM-OMOP
+	url = https://github.com/smarr/RTruffleSOM.git
