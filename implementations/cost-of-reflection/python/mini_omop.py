@@ -125,7 +125,7 @@ if __name__ == '__main__':
      
     numIterations = int(sys.argv[2])
     warmUp        = int(sys.argv[3])
-    innerIter     = int(sys.argv[4]) * 10000
+    innerIter     = int(sys.argv[4]) * 100000
     
     for i in range(warmUp):
         bench(innerIter)
