@@ -127,7 +127,7 @@ public class MethodInvocation {
     }
 
     @GenerateMicroBenchmark
-    public int testHanldeCallFromFinalVar() throws Throwable {
+    public int testHandleCallFromFinalVar() throws Throwable {
     	return x + (int) (getOneMethodHandleFinal.invokeExact(this));
     }
 
