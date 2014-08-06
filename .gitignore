@@ -8,3 +8,7 @@
 /figure
 /implementations/pypy
 /implementations/pypy-*.bz2
+
+*.class
+implementations/cost-of-reflection/java/reflection/target
+implementations/cost-of-reflection/python/.idea
