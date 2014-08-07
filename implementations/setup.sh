@@ -8,6 +8,7 @@ check_for_tools git ant tar make javac mv unzip uname
 ./build-classic-benchmarks.sh
 ./build-trufflesom.sh
 ./build-rtrufflesom.sh
+./build-cost-of-reflection.sh
 
 OK done.
 exit 0;
