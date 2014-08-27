@@ -22,6 +22,8 @@ prepare_vm_names <- function(data) {
                                "RTruffleSOM-OMOP-jit",
                                "TruffleSOM-graal",
                                "TruffleSOM-OMOP-graal",
+                               "TruffleSOM-OMOP-graal-no-stamp",
+                               "TruffleSOM-OMOP-graal-old-splitting",
                                "TruffleSOM-graal-no-split",
                                "TruffleSOM-graal-split-extra",
                                "TruffleSOM-graal-old-splitting",
@@ -33,6 +35,8 @@ prepare_vm_names <- function(data) {
                        "RTruffleSOM-OMOP-jit"       = "RTruffleSOM (OMOP)",
                        
                        "TruffleSOM-OMOP-graal"          = "TruffleSOM.ns (OMOP)",
+                       "TruffleSOM-OMOP-graal-old-splitting" = "TruffleSOM.os (OMOP)",
+                       "TruffleSOM-OMOP-graal-no-stamp"      = "TruffleSOM.nse (OMOP)",
                        "TruffleSOM-graal"               = "TruffleSOM.ns",
                        "TruffleSOM-graal-split-extra"   = "TruffleSOM.nse",
                        "TruffleSOM-graal-no-split"      = "TruffleSOM.wos",
