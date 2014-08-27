@@ -7,7 +7,7 @@ get_pypy
 
 cd RTruffleSOM
 INFO "Build RTruffleSOM (without OMOP)"
-make clean; make RTruffleSOM-jit
+make clean; make RTruffleSOM-jit &
 OK "RTruffleSOM (without OMOP) Build Completed."
 
 cd ../RTruffleSOM-OMOP
