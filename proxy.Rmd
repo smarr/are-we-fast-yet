@@ -1,0 +1,46 @@
+Dynamic Proxies
+===============
+
+For the implementation of proxies, the main question is whether our approach
+can remove the runtime overhead.
+
+
+```{r init, echo=FALSE, message=FALSE, warning=FALSE, results='hide', errors=FALSE}
+# load libraries, the data, and prepare it
+if (Sys.getenv("RSTUDIO") == "1") { setwd("/Users/smarr/Projects/PostDoc/ZERO-MOP/perf-eval-selfopt/") }
+
+options(scipen=5)
+
+source("scripts/libraries.R", chdir=TRUE)
+data <- load_data_file("data/zero-overhead.data")
+data <- subset(data, select = c(Value, Unit, Benchmark, VM, Suite, Var, rid))
+data <- prepare_vm_names(data)
+
+## Add a time series id
+data <- ddply(data, ~ Benchmark + VM + Var, transform,
+              Iteration = rid - min(rid))
+```
+
+To find an answer to this question, we compare the boxplots for the IndirectAdd
+and the ProxyAdd benchmark for the different VMs/VM settings.
+
+```{r boxplots, echo=FALSE}
+proxy <- subset(data, Suite == "proxy" & Iteration > 50)
+proxy <- droplevels(proxy)
+
+for (vm in levels(proxy$VM)) {
+  r <- subset(proxy, VM == vm)
+  r <- droplevels(r)
+  
+  p <- ggplot(r, aes(x=Benchmark, y=Value))
+  p <- p + ggtitle(vm)
+  print(p + geom_boxplot())
+}
+```
+
+Since these graphs are showing that the medians are not identical, but on an
+absolute scale very close, we investigate further the generated traces and
+native code for the benchmarks.
+
+TODO: add links to data files and a little explanation what to see where.
+Perhaps also with snippets taken from the files.
