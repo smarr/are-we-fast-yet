@@ -9,8 +9,8 @@ load_data_file <- function (file, row_names) {
                    "Var")
   }
   
-  bench <- rbind(read.table(file, sep="\t", header=FALSE, col.names=row_names,
-                            fill=TRUE))
+  bench <- read.table(file, sep="\t", header=FALSE, col.names=row_names, fill=TRUE)
+  bench$rid = seq_len(nrow(bench))
   bench
 }
 
