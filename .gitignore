@@ -6,3 +6,6 @@
 /README.html
 /README.txt
 /figure
+*.md
+*.html
+.Rhistory
