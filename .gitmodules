@@ -16,3 +16,6 @@
 [submodule "implementations/RTruffleSOM-OMOP"]
 	path = implementations/RTruffleSOM-OMOP
 	url = https://github.com/smarr/RTruffleSOM.git
+[submodule "implementations/jruby"]
+	path = implementations/jruby
+	url = https://github.com/jruby/jruby.git
