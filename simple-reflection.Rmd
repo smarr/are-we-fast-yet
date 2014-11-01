@@ -44,6 +44,20 @@ stats <- ddply(data, ~ Benchmark + VM + Suite + Var,
 #               ci.upper = CI(Value, ci = 0.999999)['upper'],
 #               ci.lower=  CI(Value, ci = 0.999999)['lower'],
 #               ci.mean =  CI(Value, ci = 0.999999)['mean'])
+
+warmup_plot <- function(bench, bench_name) {
+  upperBound <- 2 * median(bench$Value)
+  b <- ddply(bench, ~ Benchmark + Var + VM, here(transform),
+             ValCut = pmin(Value, upperBound))
+  
+  # b$Foo <- as.factor(paste0(as.character(b$VM), '-', as.character(b$Var)))
+  #plot <- ggplot(b, aes(x=Iteration, y=ValCut)) + geom_line(aes(colour = Var)) #+ facet_grid(VM + Benchmark ~ .)
+  plot <- ggplot(b, aes(x=Iteration, y=ValCut)) + geom_line(aes(colour = interaction(Var, VM))) #+ facet_grid(VM + Benchmark ~ .)
+  plot <- plot + ggtitle(paste0(bench_name, ' - ', vm))
+    #plot <- plot + scale_y_continuous(limits = c(0, 3000))
+  print(plot)
+}
+
 ```
 
 The reflection benchmarks were execute on a number of different VMs.
@@ -51,8 +65,17 @@ TODO: move discussion to methodology section, about the graal splitting.
 And remove also from other subsections.
 
 ```{r boxplots, echo=FALSE}
-refl <- subset(data, Suite == "reflection" & Iteration > 50)
-refl <- droplevels(refl)
+refl <- droplevels(subset(data, Suite == "reflection" & Iteration >= 50 & Iteration <= 130))
+for (vm in levels(refl$VM)) {
+  for (bench in levels(refl$Benchmark)) {
+    warmup_plot(droplevels(subset(refl, VM == vm & Benchmark == bench)), bench)
+  }
+}
+
+
+
+refl <- droplevels(subset(data, Suite == "reflection" & Iteration > 50))
+
 
 #summary(refl)
 #refl <- subset(data, Suite == "reflection" & Extra != "150 0 100")
@@ -64,6 +87,8 @@ refl <- droplevels(refl)
 #              Iteration = rid - min(rid))
 
 #
+
+
 
 
 
