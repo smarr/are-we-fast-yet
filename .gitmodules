@@ -18,4 +18,7 @@
 	url = https://github.com/smarr/RTruffleSOM.git
 [submodule "implementations/jruby"]
 	path = implementations/jruby
-	url = https://github.com/jruby/jruby.git
+	url = https://github.com/smarr/jruby.git
+[submodule "implementations/jruby-benchmarks"]
+	path = implementations/jruby-benchmarks
+	url = https://github.com/smarr/bench9000.git
