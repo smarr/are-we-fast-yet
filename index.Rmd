@@ -1,29 +1,11 @@
-Performance Evaluation of RPySOM and TruffleSOM
-===============================================
+Performance Evaluation for Zero-Overhead Metaprogramming
+========================================================
 
-The main question for our paper _[Are we there yet? Simple 
-Language-Implementation Techniques for the 21st Century][1]_ was whether
-these simple AST ([TruffleSOM]) or bytecode ([RPySOM]) interpreter
-implementations based on [Truffle] and [RPython] could reach performance of
-the same order of magnitude as for instance Java on top
-of a highly optimizing JVM.
-
-In order to answer this question, we chose DeltaBlue and Richards as
-object-oriented benchmarks and Mandelbrot as a numerical
-one. All three are classic benchmarks that have been used to tune for instance
-JVMs, JavaScript VMs, PyPy, as well as Smalltalk VMs. Still, they are rather
-specific benchmarks that can given an indicate of what the expected
-performance of a VM is, but _they are not predictors_ for the performance
-of concrete applications.
 
 Methodology
 -----------
 
-The benchmarking methodology is kept as simple as possible. For each benchmark,
-we roughly determined when the VM reaches stable state and then executed it
-100 times to account for non-deterministic influences such as caches and
-garbage collection. Each benchmark executes with a predefined _problem size_
-on each VM and the results are compared directly with each other. 
+TODO: main part of methodology
 
 The used benchmark machine has two quad-core Intel Xeons E5520, 2.26 GHz with
 8 GB of memory and runs Ubuntu Linux with kernel 3.11. For a few more details
@@ -37,20 +19,24 @@ options(scipen=5)
 
 source("scripts/libraries.R", chdir=TRUE)
 data <- load_data_file("data/zero-overhead.data")
-data <- subset(data, select = c(Value, Unit, Benchmark, VM, Suite, rid))
+data <- subset(data, select = c(Value, Unit, Benchmark, VM, Suite, Var, rid))
 data <- prepare_vm_names(data)
 
 ## Add a time series id
-data <- ddply(data, ~ Benchmark + VM, transform,
+data <- ddply(data, ~ Benchmark + VM + Var, transform,
               Iteration = rid - min(rid))
 
 
-macro <- droplevels(subset(data, grepl("macro", Suite)))
-micro <- droplevels(subset(data, grepl("micro", Suite)))
+#macro <- droplevels(subset(data, grepl("macro", Suite)))
+#micro <- droplevels(subset(data, grepl("micro", Suite)))
 ```
 
 Overall Performance
 -------------------
+
+TODO: need to re-add the necessary stuff to measure 
+      Java vs. RTruffleSOM/TruffleSOM performance, to have that one sentence 
+      in there that says we are fast enough.
 
 ```{r echo=FALSE}
 # aggregate results for display
@@ -75,9 +61,9 @@ tru_runtime_ratio   <- subset(norm, VM == "TruffleSOM", select = c(RuntimeRatio)
 RPySOM and TruffleSOM reach more or less the goal, i.e., the same order
 of magnitude of performance as the Java Virtual Machine. RPySOM reaches a
 runtime of a factor
-`r round(min(rpy_runtime_ratio), 1)` to `r round(max(rpy_runtime_ratio), 1)`, 
+r round(min(rpy_runtime_ratio), 1) to r round(max(rpy_runtime_ratio), 1), 
 while TruffleSOM has more remaining optimization potential with being a factor
-`r round(min(tru_runtime_ratio), 1)` to `r round(max(tru_runtime_ratio), 1)`
+r round(min(tru_runtime_ratio), 1) to r round(max(tru_runtime_ratio), 1)
 slower, while being faster than RPySOM on two of the three benchmarks.
 This performance is reached without requiring custom VMs and hundreds
 of person years of engineering. Thus, we conclude, that RPython as well as
@@ -134,7 +120,7 @@ As a further reference point, we did measurements also for the SOM++
 interpreter, a SOM implemented in C++. It uses bytecodes and applies
 optimizations such as inline caching, threaded interpretation, and a
 generational garbage collector. However, it is 
-`r round(min(sompp_runtime_ratio), 0)` to `r round(max(sompp_runtime_ratio), 0)`x slower than Java.
+r round(min(sompp_runtime_ratio), 0) to r round(max(sompp_runtime_ratio), 0)x slower than Java.
 Since it is significantly slower, we did not include it in the charts because
 it would distort the impression. It is however included in the table below.
 
@@ -199,6 +185,280 @@ writeLines("<div class='half center'>")
 html(tabular(Justify(l,data=l)*Benchmark ~ Format(digits=2)*Heading('Runtime in ms')*VM*Heading()*Value*Justify(data=r)*(mean + sd),  data=micro))
 writeLines("</div>")
 ```
+
+
+Overhead of Runtime Metaprogramming
+-----------------------------------
+
+= State of the Art
+
+- Java
+```{r echo=FALSE}
+java <- droplevels(subset(data, VM == "Java"))
+# summary(java)
+
+proxy <- droplevels(subset(java, grepl("DynamicProxy", Benchmark)))
+# summary(proxy)
+
+p <- ggplot(proxy, aes(x=Benchmark, y=Value))
+p <- p + ggtitle(vm)
+print(p + geom_boxplot())
+
+direct <- subset(proxy, Benchmark=="benchmarks.DynamicProxy.directAdd")
+direct_mean <- geometric.mean(direct$Value)
+
+proxied <- subset(proxy, Benchmark=="benchmarks.DynamicProxy.proxiedAdd")
+proxied_mean <- geometric.mean(proxied$Value)
+
+proxied_mean / direct_mean
+direct_mean / proxied_mean
+
+invocation <- droplevels(subset(java, grepl("MethodInvocation", Benchmark)))
+
+p <- ggplot(invocation, aes(x=Benchmark, y=Value))
+p <- p + ggtitle(vm) + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))
+print(p + geom_boxplot())
+
+
+direct_mean <- geometric.mean(subset(invocation, Benchmark=="benchmarks.MethodInvocation.testDirectCall")$Value)
+handle_finalvar_mean       <- geometric.mean(subset(invocation, Benchmark=="benchmarks.MethodInvocation.testHandleCallFromFinalVar")$Value)
+handle_mutablevar_mean     <- geometric.mean(subset(invocation, Benchmark=="benchmarks.MethodInvocation.testHandleCallFromMutableVar")$Value)
+handle_staticfinalvar_mean <- geometric.mean(subset(invocation, Benchmark=="benchmarks.MethodInvocation.testHandleCallFromStaticFinalVar")$Value)
+refl_finalvar_mean     <- geometric.mean(subset(invocation, Benchmark=="benchmarks.MethodInvocation.testReflectiveCallFromFinalVar")$Value)
+refl_mutablevar_mean   <- geometric.mean(subset(invocation, Benchmark=="benchmarks.MethodInvocation.testReflectiveCallFromMutableVar")$Value)
+refl_staticfinal_mean  <- geometric.mean(subset(invocation, Benchmark=="benchmarks.MethodInvocation.testReflectiveCallFromStaticFinalVar")$Value)
+
+handle_finalvar_mean / direct_mean
+handle_mutablevar_mean / direct_mean
+handle_staticfinalvar_mean /direct_mean
+refl_finalvar_mean    / direct_mean
+refl_mutablevar_mean  / direct_mean
+refl_staticfinal_mean / direct_mean
+
+direct_mean / handle_finalvar_mean
+direct_mean / handle_mutablevar_mean
+direct_mean / handle_staticfinalvar_mean
+direct_mean / refl_finalvar_mean
+direct_mean / refl_mutablevar_mean
+direct_mean / refl_staticfinal_mean
+
+
+summary(java$Benchmark)
+
+```
+
+- PyPy
+```{r echo=FALSE}
+pypy <- droplevels(subset(data, VM == "PyPy"))
+summary(pypy)
+levels(pypy$Benchmark)
+
+proxy      <- droplevels(subset(pypy, grepl("Dynamic", Benchmark)))
+direct_mean  <- geometric.mean(subset(pypy, Benchmark=="DynamicDirect")$Value)
+proxied_mean <- geometric.mean(subset(pypy, Benchmark=="DynamicProxy")$Value)
+
+direct_mean / proxied_mean
+
+invocation <- droplevels(subset(pypy, grepl("Method", Benchmark)))
+direct_mean  <- geometric.mean(subset(invocation, Benchmark=="MethodDirect")$Value)
+bound_mean  <- geometric.mean(subset(invocation, Benchmark=="MethodReflectiveBound")$Value)
+unbound_mean  <- geometric.mean(subset(invocation, Benchmark=="MethodReflectiveUnbound")$Value)
+static_bound_mean  <- geometric.mean(subset(invocation, Benchmark=="MethodReflectiveStaticBound")$Value)
+static_unbound_mean  <- geometric.mean(subset(invocation, Benchmark=="MethodReflectiveStaticUnbound")$Value)
+
+direct_mean / bound_mean
+direct_mean / unbound_mean
+direct_mean / static_bound_mean
+direct_mean / static_unbound_mean
+
+
+omop       <- droplevels(subset(pypy, grepl("OMOP", Benchmark)))
+direct_mean  <- geometric.mean(subset(omop, Benchmark=="OMOPDirect")$Value)
+proxied_mean  <- geometric.mean(subset(omop, Benchmark=="OMOPProxy")$Value)
+levels(omop$Benchmark)
+direct_mean / proxied_mean
+proxied_mean / direct_mean
+```
+
+
+- LuaJIT2
+
+= Results
+
+Simple Metaprogramming
+
+```{r echo=FALSE}
+refl <- subset(data, Suite == "reflection" & Benchmark != "IndirectAdd" & Benchmark != "ProxyAdd" & Iteration > 50)
+refl <- droplevels(refl)
+
+summary(refl)
+#refl <- subset(data, Suite == "reflection" & Extra != "150 0 100")
+#refl <- subset(refl, select = c(Value, Unit, Benchmark, VM, Suite, rid))
+#refl <- prepare_vm_names(refl)
+
+## Add a time series id
+#refl <- ddply(refl, ~ Benchmark + VM, transform,
+#              Iteration = rid - min(rid))
+
+#
+
+
+
+for (vm in levels(refl$VM)) {
+  #vm <- "RTruffleSOM (OMOP)"
+  r <- subset(refl, VM == vm)
+  r <- droplevels(r)
+  
+  p <- ggplot(r, aes(x=Benchmark, y=Value))
+  p <- p + ggtitle(vm)
+  print(p + geom_boxplot())
+}
+```
+
+Proxies
+
+```{r echo=FALSE}
+proxy <- subset(data, Suite == "reflection" & (Benchmark == "IndirectAdd" | Benchmark == "ProxyAdd") & Iteration > 50)
+proxy <- droplevels(proxy)
+
+for (vm in levels(proxy$VM)) {
+  r <- subset(proxy, VM == vm)
+  r <- droplevels(r)
+  
+  p <- ggplot(r, aes(x=Benchmark, y=Value))
+  p <- p + ggtitle(vm)
+  print(p + geom_boxplot())
+}
+
+```
+
+Metaobject Protocols
+
+
+```{r echo=FALSE}
+summary(data)
+
+omop <- droplevels(subset(data, Suite == "omop" & Benchmark != "Dispatch" & Iteration > 50))
+
+omop <- ddply(omop, ~ Benchmark + VM + Suite, transform,
+               Var = grepl("Enforced$", Benchmark),
+               Benchmark = gsub("(Enforced)|(Std)", "", Benchmark))
+omop$Benchmark <- factor(omop$Benchmark)
+
+## Boxplot with all benchmarks, only the enforced version, normalized, and shown around 1.0 line
+norm_omop <- ddply(omop, ~ Benchmark + VM + Suite, transform,
+                   RuntimeRatio = Value / geometric.mean(Value[Var == FALSE]))
+norm_omop_enforced <- droplevels(subset(norm_omop, Var == TRUE))
+
+
+summary(norm_omop_enforced)
+
+View(subset(omop, Benchmark == "Dispatch"))
+
+View(droplevels(subset(norm_omop_enforced, VM==vm)))
+
+
+benchmarks <- levels(droplevels(subset(omop, !grepl("Enforced", Benchmark))$Benchmark))
+
+for (vm in levels(omop$VM)) {
+  for (bench in benchmarks) {
+    r <- subset(omop, VM == vm & (Benchmark == bench | Benchmark == paste0(bench, "Enforced")))
+    r <- droplevels(r)
+    
+    p <- ggplot(r, aes(x=Benchmark, y=Value))
+    p <- p + ggtitle(vm)
+    print(p + geom_boxplot())
+  }
+}
+
+
+
+
+
+
+
+
+omop <- droplevels(subset(data, (Suite == "micro-steady-omop" | Suite == "macro-steady-omop") & Iteration > 50))
+
+benchmarks <- levels(omop$Benchmark)
+
+for (vm in levels(omop$VM)) {
+  for (bench in benchmarks) {
+    r <- subset(omop, VM == vm & Benchmark == bench)
+    r <- droplevels(r)
+    
+    p <- ggplot(r, aes(x=Var, y=Value))
+    p <- p + ggtitle(vm)
+    print(p + geom_boxplot())
+  }
+}
+
+vms <- subset(levels(omop$VM), !grepl(".002", levels(omop$VM)))
+
+for (bench_name in levels(omop$Benchmark)) {
+for (vm in vms) {
+  #bench_name = "Bounce"
+  b <- droplevels(subset(omop, Benchmark == bench_name & (VM == vm | VM == paste0(vm, '.002'))))
+  
+  upperBound <- 2 * median(b$Value)
+  b <- ddply(b, ~ Benchmark + Var + VM, transform,
+             ValCut = pmin(Value, upperBound))
+  # b$Foo <- as.factor(paste0(as.character(b$VM), '-', as.character(b$Var)))
+    
+  #plot <- ggplot(b, aes(x=Iteration, y=ValCut)) + geom_line(aes(colour = Var)) #+ facet_grid(VM + Benchmark ~ .)
+  plot <- ggplot(b, aes(x=Iteration, y=ValCut)) + geom_line(aes(colour = interaction(Var, VM))) #+ facet_grid(VM + Benchmark ~ .)
+  plot <- plot + ggtitle(paste0(bench_name, ' - ', vm))
+    #plot <- plot + scale_y_continuous(limits = c(0, 3000))
+  print(plot)
+    
+    # file_name = paste0("cut-timeline-", bench_name, ".pdf")
+    # cat(file_name)
+    # ggsave(plot, file=file_name)
+}}
+
+
+stats <- ddply(subset(omop, Iteration > 200), ~ Benchmark + VM + Suite + Var,
+               summarise,
+               Time.geomean              = geometric.mean(Value),
+               Time.stddev               = sd(Value),
+               Time.median               = median(Value),
+               max = max(Value),
+               min = min(Value))
+norm <- ddply(stats, ~ Benchmark + VM + Suite, transform,
+              RuntimeRatio = Time.geomean / Time.geomean[Var == "false"])
+
+norm <- subset(norm, Var == "true", c(Benchmark, VM, RuntimeRatio, Time.geomean, Time.stddev, Time.median, max, min))
+norm
+
+slow <- subset(norm, RuntimeRatio > 1.5)
+slow
+
+
+norm_vm <- ddply(subset(norm, Benchmark != "Sieve"), ~ VM,
+                 summarise,
+                 VM.geomean = geometric.mean(RuntimeRatio),
+                 min = min(RuntimeRatio),
+                 max = max(RuntimeRatio))
+norm_vm
+
+## Boxplot with all benchmarks, only the enforced version, normalized, and shown around 1.0 line
+norm_omop <- ddply(omop, ~ Benchmark + VM + Suite, transform,
+                   RuntimeRatio = Value / geometric.mean(Value[Var == "false"]))
+norm_omop_enforced <- droplevels(subset(norm_omop, Var == "true"))
+
+vms <- levels(norm_omop_enforced$VM)
+
+for (vm in vms) {
+  p <- ggplot(droplevels(subset(norm_omop_enforced, VM==vm)), aes(x=Benchmark, y=RuntimeRatio))
+  p <- p + ggtitle(vm)
+  print(p + geom_boxplot())
+}
+
+
+
+```
+
+
 
 [1]:          http://stefan-marr.de/research/
 [RPySOM]:     https://github.com/SOM-st/RPySOM
