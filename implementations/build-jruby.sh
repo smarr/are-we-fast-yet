@@ -20,6 +20,7 @@ fi
 INFO Got Graal binary
 
 INFO Compile JRuby
+export JAVA_HOME=$JAVA8_HOME
 mvn clean install package -Pbootstrap
 OK "JRuby+Truffle Build Completed."
 popd
