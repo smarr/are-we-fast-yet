@@ -27,6 +27,8 @@ prepare_vm_names <- function(data) {
                                "TruffleSOM-graal-no-split",
                                "TruffleSOM-graal-split-extra",
                                "TruffleSOM-graal-old-splitting",
+                               "JRuby-meta-uncached",
+                               "JRuby",
                                "SOMpp"))
   
   name_map <-     list("Java"                  = "Java",
@@ -41,6 +43,8 @@ prepare_vm_names <- function(data) {
                        "TruffleSOM-graal-split-extra"   = "TruffleSOM.nse",
                        "TruffleSOM-graal-no-split"      = "TruffleSOM.wos",
                        "TruffleSOM-graal-old-splitting" = "TruffleSOM.os",
+                       "JRuby" = "JRuby",
+                       "JRuby-meta-uncached" = "JRuby-meta-uncached",
                        "SOMpp"                 = "SOM++")
   # Rename
   levels(data$VM)  <- map_names(
