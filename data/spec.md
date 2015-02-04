@@ -39,7 +39,7 @@ NUMA node0 CPU(s):     0-15
 `$ cat /proc/meminfo | grep MemTotal`
 
 ```
-MemTotal:        8164188 kB
+MemTotal:        8163788 kB
 ```
 
 Software
@@ -48,22 +48,22 @@ Software
 `$ uname -a`
 
 ```
-Linux Infinity 3.11.0-26-generic #45-Ubuntu SMP Tue Jul 15 04:02:06 UTC 2014 x86_64 x86_64 x86_64 GNU/Linux
+Linux Infinity 3.13.0-37-generic #64-Ubuntu SMP Mon Sep 22 21:28:38 UTC 2014 x86_64 x86_64 x86_64 GNU/Linux
 ```
 
 `$ cat /etc/lsb-release`
 
 ```
 DISTRIB_ID=Ubuntu
-DISTRIB_RELEASE=13.10
-DISTRIB_CODENAME=saucy
-DISTRIB_DESCRIPTION="Ubuntu 13.10"
+DISTRIB_RELEASE=14.04
+DISTRIB_CODENAME=trusty
+DISTRIB_DESCRIPTION="Ubuntu 14.04.1 LTS"
 ```
 
 `$ cc --version`
 
 ```
-cc (Ubuntu/Linaro 4.8.1-10ubuntu9) 4.8.1
+cc (Ubuntu 4.8.2-19ubuntu1) 4.8.2
 Copyright (C) 2013 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
@@ -73,8 +73,8 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 `$ java -version`
 
 ```
-java version "1.8.0_11"
-Java(TM) SE Runtime Environment (build 1.8.0_11-b12)
-Java HotSpot(TM) 64-Bit Server VM (build 25.11-b03, mixed mode)
+java version "1.8.0_25"
+Java(TM) SE Runtime Environment (build 1.8.0_25-b17)
+Java HotSpot(TM) 64-Bit Server VM (build 25.25-b02, mixed mode)
 ```
 
