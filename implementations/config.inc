@@ -8,9 +8,12 @@ elif [ -x /usr/sbin/update-java-alternatives ]
 then
   jvm_info=(`/usr/sbin/update-java-alternatives -l | grep java-1.7`)
   export JAVA7_HOME=${jvm_info[2]}
+  if [ -z "$JAVA7_HOME" ]; then
+    jvm_info=(`/usr/sbin/update-java-alternatives -l | grep java-7`)
+    export JAVA7_HOME=${jvm_info[2]}
+  fi
   jvm_info=(`/usr/sbin/update-java-alternatives -l | grep java-8`)
   export JAVA8_HOME=${jvm_info[2]}
 else
   WARN Java directories could not be guessed, please check config.inc
 fi
-
