@@ -57,8 +57,8 @@ function get_pypy() {
     $GET $DOWNLOAD_URL || $GET $DOWNLOAD_URL
     tar -xjf pypy-$PYPY_VERSION-src.tar.bz2
     mv pypy-$PYPY_VERSION-src pypy
-    export PYPY_DIR=`pwd`/pypy
   else
     OK Got PyPy Source
   fi
+  export PYPY_DIR=`pwd`/pypy
 }
