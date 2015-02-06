@@ -1,0 +1,295 @@
+Evaluation of the Benchmark Results
+===================================
+
+This is a stripped down version of the evaluation section. Instead of focusing
+on the results and their meaning with respect to the research question, we will
+instead briefly detail what each of the R chunks do.
+
+### Setup
+
+The first step is to load the data and map the names used in the ReBench file
+to names that are better suited for the paper. The mapping is defined in the
+`scripts/data-processing.R` file. Furthermore, the setup chunk also defines
+a small help method for simple boxplots:
+
+```{r setup}
+
+# load libraries, the data, and prepare it
+source("scripts/init.R", chdir=TRUE)
+opts_chunk$set(dev='svg')
+
+simple_boxplot <- function(data_set, vm, x = "Benchmark", y = "Value") {
+  data_vm <- droplevels(subset(data_set, VM == vm))
+  
+  p <- ggplot(data_vm, aes_string(x=x, y=y))
+  p + geom_boxplot(outlier.size = 0.9) + theme_simple()
+}
+```
+
+### State of the Art in Reflection
+
+The state of the art section only used the numerical results. The following
+chunks calculate the numbers discussed in section 2.2.
+
+```{r sota-setup}
+stats <- ddply(data, ~ Benchmark + VM,
+               summarise,
+               Time.mean                 = mean(Value),
+               Time.geomean              = geometric.mean(Value),
+               Time.stddev               = sd(Value),
+               Time.median               = median(Value),
+               max = max(Value),
+               min = min(Value))
+
+# helper function: gm == geometric mean
+gm <- function (data, bench) {data[(data$Benchmark==bench), c('Time.geomean')]}
+```
+
+```{r JavaReflectionProxies}
+# Note, the Java measuments are reported as `operations per time unit` (ops/s)
+# this has different semantics than the PyPy numbers
+direct_mean  <- gm(stats, "benchmarks.DynamicProxy.directAdd")
+proxied_mean <- gm(stats, "benchmarks.DynamicProxy.proxiedAdd")
+```
+
+```{r JavaReflectionInvocation}
+direct_mean <- gm(stats, "benchmarks.MethodInvocation.testDirectCall")
+handle_finalvar_mean       <- gm(stats, "benchmarks.MethodInvocation.testHandleCallFromFinalVar")
+handle_mutablevar_mean     <- gm(stats, "benchmarks.MethodInvocation.testHandleCallFromMutableVar")
+handle_staticfinalvar_mean <- gm(stats, "benchmarks.MethodInvocation.testHandleCallFromStaticFinalVar")
+refl_finalvar_mean     <- gm(stats, "benchmarks.MethodInvocation.testReflectiveCallFromFinalVar")
+refl_mutablevar_mean   <- gm(stats, "benchmarks.MethodInvocation.testReflectiveCallFromMutableVar")
+refl_staticfinal_mean  <- gm(stats, "benchmarks.MethodInvocation.testReflectiveCallFromStaticFinalVar")
+```
+
+```{r PyPyReflectionProxy}
+direct  <- gm(stats, "DynamicDirect")
+proxied <- gm(stats, "DynamicProxy")
+```
+
+```{r PyPyReflectionInvocation}
+## Note, the PyPy numbers are time measurements, and therefore have different
+## semantics than the Java measurements
+direct               <- gm(stats, "MethodDirect")
+direct_static        <- gm(stats, "MethodDirectStatic")
+refl_bound           <- gm(stats, "MethodReflectiveBound")
+refl_unbound         <- gm(stats, "MethodReflectiveUnbound")
+refl_static_bound    <- gm(stats, "MethodReflectiveStaticBound")
+refl_static_unbound  <- gm(stats, "MethodReflectiveStaticUnbound")
+```
+
+```{r PyPyReflectionOmop}
+direct  <- gm(stats, "OMOPDirect")
+proxied <- gm(stats, "OMOPProxy")
+```
+
+### Performance of an unrestricted Metaobject Protocol
+
+#### Overhead for Metaprogramming
+
+The following chunk creates figure 4 of the paper.
+
+In the first step, we filter the data set to the `omop` experiment and drop a
+the `Dispatch` benchmark, which is redundant with the `DispatchEnforcedStd`
+benchmark. Furthermore, we filter out the first 50 iterations, which include
+warmup behavior.
+
+Afterwards, we process the data a little to distinguish the benchmarks executed 
+with and without the OMOP. Then the data is normalized, the names are prepared
+for the paper, and finally, the plot itself is constructed.
+
+```{r omop-micro, fig.width=4.8, fig.height=4.4, fig.show='asis'}
+# Ignore Dispatch, DispatchEnforced and DispatchEnforcedStd are the proper benchmarks
+omop <- droplevels(subset(data, Suite == "omop" & Benchmark != "Dispatch" & Iteration > 50))
+
+# create a column with a boolean indicating whether the benchmark was executed
+# with or without the OMOP (enforced) based on the benchmark name, and set the
+# benchmark name to the common variant without the string 'Enforced' in it.
+omop <- ddply(omop, ~ Benchmark + VM + Suite, transform,
+              Var = grepl("Enforced$", Benchmark),
+              Benchmark = gsub("(Enforced)|(Std)", "", Benchmark))
+omop$Benchmark <- factor(omop$Benchmark)
+
+rtruffle <- "RTruffleSOM (OMOP)"
+truffle  <- "TruffleSOM.ns (OMOP)"
+
+## Boxplot with all benchmarks, only the enforced version, normalized, and shown around 1.0 line
+
+# normalize data
+norm_omop <- ddply(omop, ~ Benchmark + VM + Suite, transform,
+                   RuntimeRatio = Value / geometric.mean(Value[Var == FALSE]))
+norm_omop_enforced <- droplevels(subset(
+    norm_omop, Var == TRUE & (VM == rtruffle | VM == truffle) & Benchmark != "Dispatch"))
+
+# Rename
+levels(norm_omop_enforced$VM) <- map_names(
+        levels(norm_omop_enforced$VM),
+        list("RTruffleSOM (OMOP)" = "SOM[MT]",
+             "TruffleSOM.ns (OMOP)"  = "SOM[PE]"))
+
+levels(norm_omop_enforced$Benchmark) <- map_names(levels(norm_omop_enforced$Benchmark),
+          list("AddDispatch"   = "dispatch",
+               "AddFieldWrite" = "field write",
+               "FieldRead"     = "field read",
+               "GlobalRead"    = "global read",
+               "ReqPrim"       = "exec. primitive"))
+
+
+p <- ggplot(norm_omop_enforced, aes(x = Benchmark, y = RuntimeRatio))
+p <- p + facet_grid(~VM, labeller = label_parsed)
+p <- p + geom_hline(yintercept = 1, linetype = "dashed")
+p <- p + geom_boxplot(outlier.size = 0.9) + theme_simple()
+p <- p + scale_y_continuous(name="Runtime normalized to\nrun without OMOP") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5),
+        panel.border = element_rect(colour = "black", fill = NA))
+p
+```
+
+#### Inherent Overhead
+
+The next chunk creates figure 5 of the paper.
+
+First, the chunk prepares the data for the micro and macro-benchmarks,
+discarding the iterations that include warmup behavior. Since some of the
+benchmarks warmup up very late on top of Truffle+Graal, they are handled
+explicitly.
+
+Then the results are normalized and the measurements of executions without the
+OMOP are discarded. After normalizing, it is nicer in the graph to only include
+the measurements of the experiments running with the OMOP. The ones without are
+at the 1-line anyway.
+
+The last step is to adapt the naming and construct the boxplot.
+
+```{r inherent-overhead, fig.width=10, fig.height=4.2, fig.show='hold'}
+# discard measurements including warmup time
+micro <- droplevels(subset(data, 
+            ((Suite == "micro-steady-omop" & Iteration >= 210 & Iteration <= 340 & Benchmark != "TreeSort" & Benchmark != "Fannkuch") |
+            (Suite == "micro-steady-omop" & Iteration >= 210 + 200 & Iteration <= 340 + 200 & Benchmark == "TreeSort") |
+            (Suite == "micro-steady-omop" & Iteration >= 210 - 150 & Iteration <= 340 - 150 & Benchmark == "Fannkuch"))
+             & Benchmark != "Sieve" & Benchmark != "Queens"))
+
+# discard measurements including warmup time
+macro <- droplevels(subset(data, Suite == "macro-steady-omop" & Iteration >= 600 & Iteration <= 990))
+omop <- rbind(micro, macro)
+
+rtruffle <- "RTruffleSOM (OMOP)"
+truffle  <- "TruffleSOM.os (OMOP)"
+
+# normalize measurements
+norm_omop <- ddply(omop, ~ Benchmark + VM + Suite, transform,
+                   RuntimeRatio = Value / geometric.mean(Value[Var == "false"]))
+norm_omop_enforced <- droplevels(subset(norm_omop, Var == "true" & (VM == rtruffle | VM == truffle)))
+
+# adapt naming to paper
+levels(norm_omop_enforced$VM) <- map_names(levels(norm_omop_enforced$VM),
+                                           list("RTruffleSOM (OMOP)" = "SOM[MT]",
+                                                "TruffleSOM.os (OMOP)"  = "SOM[PE]"))
+
+# construct plot
+p <- ggplot(norm_omop_enforced, aes(x = Benchmark, y = RuntimeRatio))
+p <- p + facet_grid(~VM, labeller = label_parsed)
+p <- p + geom_hline(yintercept = 1, linetype = "dashed")
+p <- p + geom_boxplot(outlier.size = 0.9) + theme_simple()
+p <- p + scale_y_continuous(name="Runtime normalized to\nrun without OMOP") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5),
+        panel.border = element_rect(colour = "black", fill = NA))
+p
+```
+
+The paper also refers to averages, minimum, and maximum values. These are
+calculated in the following chunk.
+
+```{r inherent-overhead-data, results='asis'}
+tdata <- droplevels(subset(norm_omop, Var == "true" & (VM == rtruffle | VM == truffle)))
+
+stats <- ddply(tdata, ~ Benchmark + VM,
+               summarise,
+               RR.mean                 = mean(RuntimeRatio),
+               RR.geomean              = geometric.mean(RuntimeRatio),
+               RR.stddev               = sd(RuntimeRatio),
+               RR.median               = median(RuntimeRatio),
+               max = max(RuntimeRatio),
+               min = min(RuntimeRatio))
+overall <- ddply(stats, ~ VM,
+               summarise,
+               mean                 = mean(RR.geomean),
+               geomean              = geometric.mean(RR.geomean),
+               stddev               = sd(RR.geomean),
+               median               = median(RR.geomean),
+               max = max(RR.geomean),
+               min = min(RR.geomean))
+rtruffle_mean <- overall[overall$VM==rtruffle,]$geomean
+rtruffle_min  <- overall[overall$VM==rtruffle,]$min
+rtruffle_max  <- overall[overall$VM==rtruffle,]$max
+truffle_mean  <- overall[overall$VM==truffle, ]$geomean
+truffle_min   <- overall[overall$VM==truffle, ]$min
+truffle_max   <- overall[overall$VM==truffle, ]$max
+
+per <- function (val) { round((val * 100) - 100, digits=1) }
+```
+
+
+### Performance Benefits for JRuby+Truffle
+
+Figure 6 of the paper is constructed by the next chunk.
+
+As previously, first the warmup iterations are discarded, and then the data is
+normalized. Afterwards a boxplot is constructed.
+
+```{r jruby-kernel, fig.width=6.4, fig.height=5.2, fig.show='hold', fig.cap="Speedup on psd.rb image composition kernels from optimizing reflective operations."}
+ruby <- droplevels(subset(data, Suite == "ruby-image-libs" & Iteration > 10))
+
+## Boxplot with all benchmarks, only the enforced version, normalized, and shown around 1.0 line
+norm_ruby <- ddply(ruby, ~ Benchmark + Suite, transform,
+                   SpeedUp = geometric.mean(Value[VM == "JRuby-meta-uncached"]) / Value)
+norm_opt  <- droplevels(subset(norm_ruby, VM == "JRuby"))
+
+# create boxplot
+p <- simple_boxplot(norm_opt, "JRuby", y = "SpeedUp")
+p <- p + scale_y_continuous(limits=c(9.8,20), name="Speedup over unoptimized\n(higher is better)") + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))
+p
+```
+
+### Compilation of Reflection and Dynamic Proxies
+
+Figure 7 is constructed in the same way.
+
+First, we discard the warmup iterations, then we normalize the data, adapt names
+for the paper, drop the baseline from the data set, and finally construct the
+boxplot.
+
+```{r simple-metaprogramming-metatracing, fig.width=3.8, fig.height=4.2, fig.show='asis'}
+rtruffle <- "RTruffleSOM"
+truffle  <- "TruffleSOM.os"
+
+# discard warmup iterations
+refl <- droplevels(subset(data, Suite == "reflection" & (VM == rtruffle | VM == truffle) & Iteration >= 50 & Iteration <= 130))
+prox <- droplevels(subset(data, Suite == "proxy"      & (VM == rtruffle | VM == truffle) & Iteration >= 50 & Iteration <= 130))
+
+# normalize data
+norm_refl <- ddply(refl, ~ VM + Suite, transform,
+                   RuntimeRatio = Value / geometric.mean(Value[Benchmark == "DirectAdd"]))
+norm_prox <- ddply(prox, ~ VM + Suite, transform,
+                   RuntimeRatio = Value / geometric.mean(Value[Benchmark == "IndirectAdd"]))
+
+norm_both <- rbind(norm_refl, norm_prox)
+
+# beautify names
+levels(norm_both$VM) <- map_names(levels(norm_both$VM),
+                                  list("RTruffleSOM"    = "SOM[MT]",
+                                       "TruffleSOM.os"  = "SOM[PE]"))
+
+# Show only the reflective version
+norm_both <- droplevels(subset(norm_both, Benchmark != "DirectAdd" & Benchmark != "IndirectAdd"))
+
+# Construct boxplot
+p <- ggplot(norm_both, aes(x = Benchmark, y = RuntimeRatio))
+p <- p + facet_grid(~VM, labeller = label_parsed)
+p <- p + geom_hline(yintercept = 1, linetype = "dashed")
+p <- p + geom_boxplot(outlier.size = 0.9) + theme_simple()
+p <- p + scale_y_continuous(name="Runtime normalized to\nnon-reflective operation") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5),
+        panel.border = element_rect(colour = "black", fill = NA))
+p
+```
