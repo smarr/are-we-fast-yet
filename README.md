@@ -6,8 +6,8 @@ published at PLDI [todo-ref]. The repository and its scripts are
 meant to facilitate simple re-execution of the experiments in order to reproduce
 and verify the performance numbers given in the paper.
 
-1. Reexecution of Experiments
-------------------------------
+1. Setup of Experiments
+-----------------------
 
 To reexecute and verify our experiments, we provide a VirtualBox image as well
 as a set of instructions to setup the experiments on another system. Note, the
@@ -15,6 +15,10 @@ additional virtualization level of VirtualBox can have an impact on the
 benchmark results.
 
 ### 1.1 VirtualBox Image
+
+The VirtualBox image contains all software dependencies, the repository with
+the experiments, and the necessary compiled binaries. Thus, it allows a direct
+reexecution of the experiments without additional steps.
 
  - download: [VirtualBox Image for Zero-Overhead Metaprogramming paper](http://TODO)
  - username: zero
@@ -93,18 +97,70 @@ git clone --recursive -b papers/zero-overhead-mop \
           https://github.com/smarr/selfopt-interp-performance
 ```
 
-After all repositories have been downloaded, the experiments can be compiled as follows. Please note that this will require further downloads. For instance the RPython-based experiments will download the RPython sources automatically, and the JRuby experiments will download all necessary dependencies with Maven. The whole compilation process will take a good while. In case of errors, each part can be started separately with the corresponding `build-$part.sh` script used in `setup.sh`.
+After all repositories have been downloaded, the experiments can be compiled as
+follows. Please note that this will require further downloads. For instance the
+RPython-based experiments will download the RPython sources automatically, and
+the JRuby experiments will download all necessary dependencies with Maven. The
+whole compilation process will take a good while. In case of errors, each part
+can be started separately with the corresponding `build-$part.sh` script used
+in `setup.sh`.
 
 ```bash
 cd implementations
 ./setup.sh
 ```
  
+2. Reexecution Instructions
+---------------------------
 
+To reexecute the benchmarks on a different system and independently verify our
+measurements, either the VirtualBox image with the complete setup is necessary
+or a successful built of the experiments in this repository. The built
+instructions are detailed in the previous section.
 
- 
-TODO: Reexecution Instructions
----
+To execute the benchmarks, we use the
+[ReBench](https://github.com/smarr/ReBench) benchmarking tool. The experiments
+and all benchmark parameters are configured in the `zero-overhead.conf` file.
+The file has three main sections, `benchmark_suites`, `virtual_machines`, and
+`experiments`. They describe the settings for all experiments. Each of them is
+annotated with part or figure of the paper in which the results are discussed.
+Note that the names used in the configuration file are post-processed for the
+paper in the R scripts used to generate graphs, thus, the configuration
+contains all necessary information to find the benchmark implementations in the
+repositories, but does not match exactly the names in the paper.
+
+To reexecute the experiments, ReBench is used as follows. Two important
+parameter to ReBench are the `-d` switch, which shows debug output, and the
+`-N` switch which disables the use of the `nice` command to increase the
+process priority of the benchmarks. The `-N` is only necessary when root or sudo
+are not available.
+
+```bash
+cd selfopt-interp-performance # change into the folder of this repository
+
+# to run the benchmarks discussed in section 2.2:
+sudo rebench -d zero-overhead.conf JavaReflection
+sudo rebench -d zero-overhead.conf PyPyReflection
+
+# to run the benchmarks shown in figure 4:
+sudo rebench -d zero-overhead.conf OMOP-Micro
+
+# to run the benchmarks shown in figure 5:
+sudo rebench -d zero-overhead.conf OMOP-Standard
+
+# to run the benchmarks shown in figure 6:
+sudo rebench -d zero-overhead.conf JRuby
+
+# to run the benchmarks shown in figure 7:
+sudo rebench -d zero-overhead.conf Reflection
+```
+
+All benchmarks results are recorded in the `zero-overhead.data` file. The
+benchmarks can be interrupted at any point and ReBench will continue the
+execution where it left off. However, the results of partial runs of one
+virtual machine invocation are not recorded to avoid mixing up results from
+before and after the warmup phases.
+
 
 TODO: Binary Equality
 ---------------------
