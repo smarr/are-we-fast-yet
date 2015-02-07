@@ -190,13 +190,24 @@ The compilation logs for the microbenchmarks can be created by executing the
 Here, we briefly pick out the two outliers and explain how to read the
 compilation logs.
 
-## Outlier 1: Slow Field Write on SOM_MT
+## 4.1 Outlier 1: Slow Field Write on SOM_MT
 
 The field write benchmark is implemented in the `AddFieldWrite.som` file and
 consequently the corresponding log file is `AddFieldWrite.log` for the version
 without the metaobject protocol. The generated code for the benchmark that's
 executed with the metaobject protocol is recorded in the
 `AddFieldWriteEnforced.log` file.
+
+The relevant part of the benchmark is the following code:
+
+```
+Mirror evaluate: [
+    1 to: 20000 do: [ :i | 
+        obj incOnce: 1
+    ].
+] enforcedIn: domain.
+obj get = 40000 ifFalse: [ self error: 'Benchmark failed with wrong result']
+```
 
 These log files contain the traces as well as the native code. Here we focus on
 the traces since that is the level on which the optimizer works. As a first
@@ -333,6 +344,81 @@ We attribute the performance difference observed for this benchmark to elements
 outside the control of our experiment. The main goal was reached, i.e., we
 enabled the optimizer to compile the code using the metaobject protocol to
 essentially the same code as for the version without the metaobject protocol.
+
+## 4.2 Outlier 2: Fast Field Read on SOM_PE
+
+The second outlier is a field read microbenchmark that got mysteriously faster
+when executed with the metaobject protocol enabled.
+
+The implementation of the benchmark is in `FieldRead.som` and
+`FieldReadEnforced.som`. The logs are in the corresponding files in the
+`hotspot` folder.
+
+The relevant part of the benchmark is the following code:
+
+```
+Mirror evaluate: [
+    1 to: 20000 do: [ :i | sum := sum + obj get ].
+] enforcedIn: domain.
+
+sum = 40000 ifFalse: [ self error: 'Benchmark failed with wrong result']
+```
+
+These log files have unfortunately much fewer useful annotations. The only
+comments relating to the benchmark indicate the AST nodes which correspond to
+the compiled code, but that does not make it easier to find the code we are
+interested in. Instead, we use the constant values used in the benchmarks as
+recognizable values. The two important constants are the loop boundary 20000
+(in hexadecimal: 0x4e20) and the check for the result value of 40000 (in
+hexadecimal: 0x9c40). With these constants, we are able to identify four
+different loops copies of the loop in the log file, for both versions of the
+benchmark. A comparison shows they have the same instruction sequences
+independent of whether the metaobject protocol is used or not. Here, we briefly
+examine the main loop from the last copy of the code in the log files, assuming
+that this is the code inlining from the driver loop all the way through the main
+loop, and thus, being the main code snippet being executed.
+
+The first snippet is the extract for the benchmark that executes without the
+metaobject protocol, slightly annotated for readability.
+
+```nasm
+# the first instruction, test, is the loop head, and target for the back jump
+0x00007f7ec8735de0: test   dword ptr [rip+0x1a9ed220],eax        # 0x00007f7ee3123006
+                                              ;   {poll}
+0x00007f7ec8735de6: mov    rax,rdx            # this is the 'sum' variable, the field read is completely complied out
+0x00007f7ec8735de9: add    rax,rbp            # the field's value, which is 1, resides in rbp
+0x00007f7ec8735dec: jo     0x00007f7ec8735ef8
+0x00007f7ec8735df2: add    r14,0x1            # increment loop counter
+0x00007f7ec8735df6: mov    rdx,rax
+0x00007f7ec8735df9: cmp    r14,0x4e20         # compare current value with 20000
+0x00007f7ec8735e00: jle    0x00007f7ec8735de0 # jump to loop head, or continue
+0x00007f7ec8735e02: cmp    rdx,0x9c40         # result should be 40000
+0x00007f7ec8735e09: jne    0x00007f7ec8735e8d
+```
+
+This snippet is the benchmark executing with the metaobject protocol:
+
+```nasm
+# the code looks identical, except for the used registers
+0x00007f16ef9ce600: test   dword ptr [rip+0x1a7a5a00],eax        # 0x00007f170a174006
+                                              ;   {poll}
+0x00007f16ef9ce606: mov    rdx,rcx             # it is rax,rdx above
+0x00007f16ef9ce609: add    rdx,rdi             # above: rax,rbp
+0x00007f16ef9ce60c: jo     0x00007f16ef9ce6b1
+0x00007f16ef9ce612: add    rbx,0x1             # above r14
+0x00007f16ef9ce616: mov    rcx,rdx             # etc...
+0x00007f16ef9ce619: cmp    rbx,0x4e20
+0x00007f16ef9ce620: jle    0x00007f16ef9ce600
+0x00007f16ef9ce622: cmp    rcx,0x9c40
+0x00007f16ef9ce629: jne    0x00007f16ef9ce7b7 
+```
+
+From those code snippets, we conclude as in the previous example that the
+compilers have sufficient information to remove all reflective overhead.
+The remaining difference such as different memory addresses, registers, and so
+on can have minor performance impact, but do have no relevant influence on the
+performance of larger programs.
+
 
 Licensing
 ---------
