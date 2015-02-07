@@ -161,13 +161,20 @@ execution where it left off. However, the results of partial runs of one
 virtual machine invocation are not recorded to avoid mixing up results from
 before and after the warmup phases.
 
+3. Evaluation of Performance Results
+------------------------------------
 
-TODO: Binary Equality
----------------------
+After the execution of the benchmarks, we evaluated the results using R. 
+The results we measured are part of this repository and available in
+`data/zero-overhead.data.bz2`. Next to the data file is the `data/spec.md` file,
+which contains the basic information on the benchmark machine we used.
 
-TODO: Annotated Performance Evaluation as Rmd
----------------------------------------------
+An annotated version of the R script used for the evaluation is given in
+`evaluation.Rmd`. It can be rendered by executing `./scripts/knit.R
+evaluation.Rmd`. However, this requires R and Knitr, and a variety of R
+packages. We leave out the setup instructions here for brevity.
 
+**TODO**: link to the HTML result
 
 Licensing
 ---------
