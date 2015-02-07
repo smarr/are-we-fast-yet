@@ -176,6 +176,164 @@ packages. We leave out the setup instructions here for brevity.
 
 **TODO**: link to the HTML result
 
+4. Generated Code of Microbenchmarks
+------------------------------------
+
+In section 4.3 of the paper, we observe in figure 4 two strange outliers on the
+microbenchmarks. Now the question arose what the cause of these outliers are.
+To verify that the compiler are able to optimize with and without the
+metaobject protocol (OMOP) to the same code, we inspect the compilation results.
+
+The compilation logs for the microbenchmarks can be created by executing the
+`scripts/collect-compilation-logs.sh` script.
+
+Here, we briefly pick out the two outliers and explain how to read the
+compilation logs.
+
+## Outlier 1: Slow Field Write on SOM_MT
+
+The field write benchmark is implemented in the `AddFieldWrite.som` file and
+consequently the corresponding log file is `AddFieldWrite.log` for the version
+without the metaobject protocol. The generated code for the benchmark that's
+executed with the metaobject protocol is recorded in the
+`AddFieldWriteEnforced.log` file.
+
+These log files contain the traces as well as the native code. Here we focus on
+the traces since that is the level on which the optimizer works. As a first
+step we determine which traces is the containing the main loop, and is executed
+during the peak-performance measurement. For microbenchmarks, the driver loop
+of the benchmark harness is typically the last one to be compiled, and thus at
+the end of the file. In this case it is `Loop 4`.
+
+```python
+# Loop 4 (Benchmark>>$blockMethod@169@12 while <WhileMessageNode object at 0x7f7f8aca8160>: Benchmark>>$blockMethod@170@17) : loop with 119 ops
+```
+
+Since the microbenchmark itself contains another loop, we need to look in this
+trace for a call to other compiled code. Because of loop unrolling, there are
+usually more than one such calls. In this case, the relevant call is:
+
+```python
+call_assembler(20000, 1, ConstPtr(ptr4), p63, ConstPtr(ptr71), descr=<Loop1>)
+```
+
+This tells us that the main benchmark loop is `Loop 1`:
+
+```python
+# Loop 1 (#to:do: AddFieldWrite>>$blockMethod@8@16:) : loop with 48 ops
+```
+
+The loop was in this case unrolled once, and the performance relevant part is
+listed below with additional comments:
+
+```python
+# head of the loop, and target for back jump
++383: label(i0, i23, p3, p4, p26, p11, p9, descr=TargetToken(140185749742160))
+
+# debug_merge_points only facilitate understanding of traces
+# here we see from which SOM methods the residual code originates
+debug_merge_point(0, 0, '#to:do: AddFieldWrite>>$blockMethod@8@16:')
+debug_merge_point(1, 1, 'AddFieldWrite>>#$blockMethod@8@16:')
++403: guard_not_invalidated(descr=<Guard0x7f7f89d31bb0>) [i23, i0, p4, p3]
+debug_merge_point(2, 2, 'AddFieldWriteObj>>#incTwice:')
+
+# reading the integer value
++403: i27 = getfield_gc_pure(p26, descr=<FieldS som.vmobjects.integer.Integer.inst__embedded_integer 8>)
+
+# doing a `+ 1`
++407: i29 = int_add_ovf(i27, 1)
+guard_no_overflow(descr=<Guard0x7f7f89d31b40>) [i23, i0, p4, p3, p11, i27, i29]
+
+# doing another `+ 1`
++420: i31 = int_add_ovf(i29, 1)
+guard_no_overflow(descr=<Guard0x7f7f89d31ad0>) [i23, i0, p4, p3, p11, i29, i31]
+
+# incrementing the loop counter
++433: i32 = int_add(i23, 1)
++444: i33 = int_le(i32, i0)
+
+# the guard that would fail once the loop counter reaches the limit
+guard_true(i33, descr=<Guard0x7f7f89d31a60>) [i32, i0, p4, p3, p11, i31]
+debug_merge_point(0, 0, '#to:do: AddFieldWrite>>$blockMethod@8@16:')
+
+# creates an integer object with the new value
+p34 = new_with_vtable(9666600)
++528: setfield_gc(p34, i31, descr=<FieldS som.vmobjects.integer.Integer.inst__embedded_integer 8>)
+
+#  and stores it into the object
++552: setfield_gc(p11, p34, descr=<FieldP som.vmobjects.object.Object.inst__field1 24>)
++556: i35 = arraylen_gc(p9, descr=<ArrayP 8>)
++556: jump(i0, i32, p3, p4, p34, p11, p9, descr=TargetToken(140185749742160))
+```
+
+For the benchmark executing with the metaobject protocol enabled, it works the
+same. The relevant part of the benchmark loop is the following trace:
+
+```python
++457: label(i0, i30, p3, p4, p33, p16, p14, descr=TargetToken(139944626571008))
+
+# note here, this is a trace from the AddFieldWriteEnforced class
+debug_merge_point(0, 0, '#to:do: AddFieldWriteEnforced>>$blockMethod@9@20:')
+debug_merge_point(1, 1, 'AddFieldWriteEnforced>>#$blockMethod@9@20:')
+
+# one guard, as in the version without the metaobject protocol
++477: guard_not_invalidated(descr=<Guard0x7f4765b66950>) [i30, i0, p4, p3]
+
+# here we see that the metaobject protocol is executed, first, a method
+# execution request is processed, but does not leave any residual code behind
+debug_merge_point(2, 2, 'Domain>>#requestExecutionOf:with:on:lookup:')
+
+# now we enter the method, as in the normal execution
+debug_merge_point(3, 3, 'AddFieldWriteObj>>#incOnce:')
+
+# and now a field read request is processed.
+debug_merge_point(4, 4, 'Domain>>#readField:of:')
+
+# first real instruction, as in the normal execution: reading the field
++477: i34 = getfield_gc_pure(p33, descr=<FieldS som.vmobjects.integer.Integer.inst__embedded_integer 8>)
+
+# doing a `+ 1`
++481: i36 = int_add_ovf(i34, 1)
+guard_no_overflow(descr=<Guard0x7f4765b668e0>) [i30, i0, p4, p3, p16, i34, i36]
+
+# now, we see the metaobject protocol again, but without extra instructions
+debug_merge_point(4, 5, 'AddFieldWriteDomain>>#write:toField:of:')
+
+# doing another `+ 1` on the meta level, the only difference here is that
+# the code generator apparently swapped the arguments
++494: i38 = int_add_ovf(1, i36)
+guard_no_overflow(descr=<Guard0x7f4765b66800>) [i30, i0, p4, p3, p16, i36, i38]
+
+# incrementing the loop counter
++508: i39 = int_add(i30, 1)
++512: i40 = int_le(i39, i0)
+
+# the guard that would fail once the loop counter reaches the limit
+guard_true(i40, descr=<Guard0x7f4765b66790>) [i39, i0, p4, p3, p16, i38]
+debug_merge_point(0, 0, '#to:do: AddFieldWriteEnforced>>$blockMethod@9@20:')
+
+# creates an integer object with the new value
+p41 = new_with_vtable(9666600)
++596: setfield_gc(p41, i38, descr=<FieldS som.vmobjects.integer.Integer.inst__embedded_integer 8>)
+
+#  and stores it into the object
++627: setfield_gc(p16, p41, descr=<FieldP som.vmobjects.object.Object.inst__field1 24>)
++631: i42 = arraylen_gc(p14, descr=<ArrayP 8>)
++631: jump(i0, i39, p3, p4, p41, p16, p14, descr=TargetToken(139944626571008))
+```
+
+So, for the first outlier, the only difference we see in the trace is that an
+add instruction has swapped arguments. Otherwise, the code is identical and the
+optimizer were able to remove all reflective overhead. Thus, we conclude that
+the information provided by the dispatch chains are sufficient for the optimizer
+to remove all reflective overhead. The only traces of the metaobject protocol
+are the debug information that enable use to read the trace.
+
+We attribute the performance difference observed for this benchmark to elements
+outside the control of our experiment. The main goal was reached, i.e., we
+enabled the optimizer to compile the code using the metaobject protocol to
+essentially the same code as for the version without the metaobject protocol.
+
 Licensing
 ---------
 
