@@ -5,14 +5,15 @@ This is a stripped down version of the evaluation section. Instead of focusing
 on the results and their meaning with respect to the research question, we will
 instead briefly detail what each of the R chunks do.
 
-### Setup
+Setup
+-----
 
 The first step is to load the data and map the names used in the ReBench file
 to names that are better suited for the paper. The mapping is defined in the
 `scripts/data-processing.R` file. Furthermore, the setup chunk also defines
 a small help method for simple boxplots:
 
-```{r setup}
+```{r setup, results='hide'}
 
 # load libraries, the data, and prepare it
 source("scripts/init.R", chdir=TRUE)
@@ -26,10 +27,11 @@ simple_boxplot <- function(data_set, vm, x = "Benchmark", y = "Value") {
 }
 ```
 
-### State of the Art in Reflection
+State of the Art in Reflection
+------------------------------
 
-The state of the art section only used the numerical results. The following
-chunks calculate the numbers discussed in section 2.2.
+The section 2.2 uses some statistics from the reflection
+benchmarks, which are calculated as follows:
 
 ```{r sota-setup}
 stats <- ddply(data, ~ Benchmark + VM,
@@ -83,28 +85,31 @@ direct  <- gm(stats, "OMOPDirect")
 proxied <- gm(stats, "OMOPProxy")
 ```
 
-### Performance of an unrestricted Metaobject Protocol
+Performance of an unrestricted Metaobject Protocol
+--------------------------------------------------
 
-#### Overhead for Metaprogramming
+### Overhead for Metaprogramming
 
 The following chunk creates figure 4 of the paper.
 
-In the first step, we filter the data set to the `omop` experiment and drop a
+In the first step, we filter the data set to the `omop` experiment and drop
 the `Dispatch` benchmark, which is redundant with the `DispatchEnforcedStd`
 benchmark. Furthermore, we filter out the first 50 iterations, which include
 warmup behavior.
 
-Afterwards, we process the data a little to distinguish the benchmarks executed 
-with and without the OMOP. Then the data is normalized, the names are prepared
-for the paper, and finally, the plot itself is constructed.
+Afterwards, we process the data to distinguish the benchmarks executed with and
+without the OMOP. Then the data is normalized, the names are prepared for the
+paper, and finally, the plot itself is constructed.
 
 ```{r omop-micro, fig.width=4.8, fig.height=4.4, fig.show='asis'}
-# Ignore Dispatch, DispatchEnforced and DispatchEnforcedStd are the proper benchmarks
+# Ignore Dispatch, DispatchEnforced and DispatchEnforcedStd
+# are the proper benchmarks
 omop <- droplevels(subset(data, Suite == "omop" & Benchmark != "Dispatch" & Iteration > 50))
 
-# create a column with a boolean indicating whether the benchmark was executed
-# with or without the OMOP (enforced) based on the benchmark name, and set the
-# benchmark name to the common variant without the string 'Enforced' in it.
+# create a column with a boolean indicating whether the benchmark was
+# executed with or without the OMOP (enforced) based on the benchmark
+# name, and set the benchmark name to the common variant without the
+# string 'Enforced' in it.
 omop <- ddply(omop, ~ Benchmark + VM + Suite, transform,
               Var = grepl("Enforced$", Benchmark),
               Benchmark = gsub("(Enforced)|(Std)", "", Benchmark))
@@ -112,8 +117,6 @@ omop$Benchmark <- factor(omop$Benchmark)
 
 rtruffle <- "RTruffleSOM (OMOP)"
 truffle  <- "TruffleSOM.ns (OMOP)"
-
-## Boxplot with all benchmarks, only the enforced version, normalized, and shown around 1.0 line
 
 # normalize data
 norm_omop <- ddply(omop, ~ Benchmark + VM + Suite, transform,
@@ -134,7 +137,7 @@ levels(norm_omop_enforced$Benchmark) <- map_names(levels(norm_omop_enforced$Benc
                "GlobalRead"    = "global read",
                "ReqPrim"       = "exec. primitive"))
 
-
+# construct boxplot, indicate expected value with dashed line at 1.0
 p <- ggplot(norm_omop_enforced, aes(x = Benchmark, y = RuntimeRatio))
 p <- p + facet_grid(~VM, labeller = label_parsed)
 p <- p + geom_hline(yintercept = 1, linetype = "dashed")
@@ -145,7 +148,7 @@ p <- p + scale_y_continuous(name="Runtime normalized to\nrun without OMOP") +
 p
 ```
 
-#### Inherent Overhead
+### Inherent Overhead
 
 The next chunk creates figure 5 of the paper.
 
@@ -203,6 +206,7 @@ calculated in the following chunk.
 ```{r inherent-overhead-data, results='asis'}
 tdata <- droplevels(subset(norm_omop, Var == "true" & (VM == rtruffle | VM == truffle)))
 
+# get averages, min, max, etc for each benchmark
 stats <- ddply(tdata, ~ Benchmark + VM,
                summarise,
                RR.mean                 = mean(RuntimeRatio),
@@ -211,6 +215,8 @@ stats <- ddply(tdata, ~ Benchmark + VM,
                RR.median               = median(RuntimeRatio),
                max = max(RuntimeRatio),
                min = min(RuntimeRatio))
+
+# then, get averages, min, max, etc for each VM
 overall <- ddply(stats, ~ VM,
                summarise,
                mean                 = mean(RR.geomean),
@@ -230,7 +236,8 @@ per <- function (val) { round((val * 100) - 100, digits=1) }
 ```
 
 
-### Performance Benefits for JRuby+Truffle
+Performance Benefits for JRuby+Truffle
+--------------------------------------
 
 Figure 6 of the paper is constructed by the next chunk.
 
@@ -240,7 +247,7 @@ normalized. Afterwards a boxplot is constructed.
 ```{r jruby-kernel, fig.width=6.4, fig.height=5.2, fig.show='hold', fig.cap="Speedup on psd.rb image composition kernels from optimizing reflective operations."}
 ruby <- droplevels(subset(data, Suite == "ruby-image-libs" & Iteration > 10))
 
-## Boxplot with all benchmarks, only the enforced version, normalized, and shown around 1.0 line
+# normalize measurements for each benchmark to the unoptimized version
 norm_ruby <- ddply(ruby, ~ Benchmark + Suite, transform,
                    SpeedUp = geometric.mean(Value[VM == "JRuby-meta-uncached"]) / Value)
 norm_opt  <- droplevels(subset(norm_ruby, VM == "JRuby"))
@@ -251,7 +258,8 @@ p <- p + scale_y_continuous(limits=c(9.8,20), name="Speedup over unoptimized\n(h
 p
 ```
 
-### Compilation of Reflection and Dynamic Proxies
+Compilation of Reflection and Dynamic Proxies
+---------------------------------------------
 
 Figure 7 is constructed in the same way.
 
