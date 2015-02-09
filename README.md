@@ -206,24 +206,26 @@ packages. We leave out the setup instructions here for brevity.
 5. Generated Code of Microbenchmarks
 ------------------------------------
 
-In section 4.3 of the paper, we observe in figure 4 two strange outliers on the
-microbenchmarks. Now the question arose what the cause of these outliers are.
-To verify that the compiler are able to optimize with and without the
-metaobject protocol (OMOP) to the same code, we inspect the compilation results.
+In section 4.3 of the paper, we observe in figure 4 two outliers on the
+microbenchmarks. To verify that the compilers of SOM_MT and SOM_PE are able to
+optimize to the same degree, independently of the presence or absence of the
+OMOP metaobject protocol, we inspected the compilation results and compared the
+generated code.
 
 The compilation logs for the microbenchmarks can be created by executing the
-`scripts/collect-compilation-logs.sh` script.
+`scripts/collect-compilation-logs.sh` script. Our log files are available in
+the `data/compilation-logs.tar.bz2` file in this repository, as well as the
+[data set download](http://stefan-marr.de/papers/pldi-marr-et-al-zero-overhead-metaprogramming-artifacts/benchmark-and-compilation-data.tar.bz2).
 
 Here, we briefly pick out the two outliers and explain how to read the
 compilation logs.
 
-## 5.1 Outlier 1: Slow Field Write on SOM_MT
+### 5.1 Outlier 1: Slow Field Write on SOM_MT
 
-The field write benchmark is implemented in the `AddFieldWrite.som` file and
-consequently the corresponding log file is `AddFieldWrite.log` for the version
-without the metaobject protocol. The generated code for the benchmark that's
-executed with the metaobject protocol is recorded in the
-`AddFieldWriteEnforced.log` file.
+The field write benchmark is implemented in the `AddFieldWrite.som` file. The
+corresponding log file is `AddFieldWrite.log` for the version without the
+metaobject protocol. The generated code for the benchmark that is executed with
+the metaobject protocol is recorded in the `AddFieldWriteEnforced.log` file.
 
 The relevant part of the benchmark is the following code:
 
@@ -233,36 +235,39 @@ Mirror evaluate: [
         obj incOnce: 1
     ].
 ] enforcedIn: domain.
-obj get = 40000 ifFalse: [ self error: 'Benchmark failed with wrong result']
+obj get = 40000 ifFalse: [
+    self error: 'Benchmark failed with wrong result']
 ```
 
 These log files contain the traces as well as the native code. Here we focus on
 the traces since that is the level on which the optimizer works. As a first
-step we determine which traces is the containing the main loop, and is executed
-during the peak-performance measurement. For microbenchmarks, the driver loop
-of the benchmark harness is typically the last one to be compiled, and thus at
-the end of the file. In this case it is `Loop 4`.
+step we determine which trace contains the main loop, and is executed during
+the peak-performance measurement. For microbenchmarks, the driver loop of the
+benchmark harness is typically the last one to be compiled, and thus at the end
+of the file. In this case it is `Loop 4`, which starts at the following line in
+the log file:
 
 ```python
 # Loop 4 (Benchmark>>$blockMethod@169@12 while <WhileMessageNode object at 0x7f7f8aca8160>: Benchmark>>$blockMethod@170@17) : loop with 119 ops
 ```
 
 Since the microbenchmark itself contains another loop, we need to look in this
-trace for a call to other compiled code. Because of loop unrolling, there are
-usually more than one such calls. In this case, the relevant call is:
+trace for a call to other compiled code. Because of loop unrolling, there is
+usually more than one call. In this case, the relevant call is:
 
 ```python
 call_assembler(20000, 1, ConstPtr(ptr4), p63, ConstPtr(ptr71), descr=<Loop1>)
 ```
 
-This tells us that the main benchmark loop is `Loop 1`:
+This tells us that the main benchmark loop is `Loop 1`, which starts with the
+following line:
 
 ```python
 # Loop 1 (#to:do: AddFieldWrite>>$blockMethod@8@16:) : loop with 48 ops
 ```
 
-The loop was in this case unrolled once, and the performance relevant part is
-listed below with additional comments:
+In this case, the loop was unrolled once, and the performance relevant part is
+listed below with explanatory comments:
 
 ```python
 # head of the loop, and target for back jump
@@ -272,17 +277,19 @@ listed below with additional comments:
 # here we see from which SOM methods the residual code originates
 debug_merge_point(0, 0, '#to:do: AddFieldWrite>>$blockMethod@8@16:')
 debug_merge_point(1, 1, 'AddFieldWrite>>#$blockMethod@8@16:')
+
+# a guard to check that the code is still valid
 +403: guard_not_invalidated(descr=<Guard0x7f7f89d31bb0>) [i23, i0, p4, p3]
 debug_merge_point(2, 2, 'AddFieldWriteObj>>#incTwice:')
 
-# reading the integer value
+# reading the integer value inside the #incOnce method
 +403: i27 = getfield_gc_pure(p26, descr=<FieldS som.vmobjects.integer.Integer.inst__embedded_integer 8>)
 
-# doing a `+ 1`
+# doing the `+ 1`, with overflow check
 +407: i29 = int_add_ovf(i27, 1)
 guard_no_overflow(descr=<Guard0x7f7f89d31b40>) [i23, i0, p4, p3, p11, i27, i29]
 
-# doing another `+ 1`
+# doing the second `+ 1`, with overflow check
 +420: i31 = int_add_ovf(i29, 1)
 guard_no_overflow(descr=<Guard0x7f7f89d31ad0>) [i23, i0, p4, p3, p11, i29, i31]
 
@@ -298,7 +305,7 @@ debug_merge_point(0, 0, '#to:do: AddFieldWrite>>$blockMethod@8@16:')
 p34 = new_with_vtable(9666600)
 +528: setfield_gc(p34, i31, descr=<FieldS som.vmobjects.integer.Integer.inst__embedded_integer 8>)
 
-#  and stores it into the object
+#  and stores it into the 'obj' object
 +552: setfield_gc(p11, p34, descr=<FieldP som.vmobjects.object.Object.inst__field1 24>)
 +556: i35 = arraylen_gc(p9, descr=<ArrayP 8>)
 +556: jump(i0, i32, p3, p4, p34, p11, p9, descr=TargetToken(140185749742160))
@@ -317,8 +324,9 @@ debug_merge_point(1, 1, 'AddFieldWriteEnforced>>#$blockMethod@9@20:')
 # one guard, as in the version without the metaobject protocol
 +477: guard_not_invalidated(descr=<Guard0x7f4765b66950>) [i30, i0, p4, p3]
 
-# here we see that the metaobject protocol is executed, first, a method
-# execution request is processed, but does not leave any residual code behind
+# here we see that the metaobject protocol is executed
+# first, a method execution request is processed, but does not
+# leave any residual code in the trace
 debug_merge_point(2, 2, 'Domain>>#requestExecutionOf:with:on:lookup:')
 
 # now we enter the method, as in the normal execution
@@ -327,18 +335,20 @@ debug_merge_point(3, 3, 'AddFieldWriteObj>>#incOnce:')
 # and now a field read request is processed.
 debug_merge_point(4, 4, 'Domain>>#readField:of:')
 
-# first real instruction, as in the normal execution: reading the field
+# the first residual instruction, as in the normal execution:
+# reading the field
 +477: i34 = getfield_gc_pure(p33, descr=<FieldS som.vmobjects.integer.Integer.inst__embedded_integer 8>)
 
-# doing a `+ 1`
+# doing the first `+ 1`, with overflow check
 +481: i36 = int_add_ovf(i34, 1)
 guard_no_overflow(descr=<Guard0x7f4765b668e0>) [i30, i0, p4, p3, p16, i34, i36]
 
-# now, we see the metaobject protocol again, but without extra instructions
+# now, we see the metaobject protocol again, but without
+# residual instructions
 debug_merge_point(4, 5, 'AddFieldWriteDomain>>#write:toField:of:')
 
-# doing another `+ 1` on the meta level, the only difference here is that
-# the code generator apparently swapped the arguments
+# doing the second `+ 1` on the meta level, the only difference is
+# that the code generator apparently swapped the arguments
 +494: i38 = int_add_ovf(1, i36)
 guard_no_overflow(descr=<Guard0x7f4765b66800>) [i30, i0, p4, p3, p16, i36, i38]
 
@@ -354,28 +364,27 @@ debug_merge_point(0, 0, '#to:do: AddFieldWriteEnforced>>$blockMethod@9@20:')
 p41 = new_with_vtable(9666600)
 +596: setfield_gc(p41, i38, descr=<FieldS som.vmobjects.integer.Integer.inst__embedded_integer 8>)
 
-#  and stores it into the object
+#  and stores it into the 'obj' object
 +627: setfield_gc(p16, p41, descr=<FieldP som.vmobjects.object.Object.inst__field1 24>)
 +631: i42 = arraylen_gc(p14, descr=<ArrayP 8>)
 +631: jump(i0, i39, p3, p4, p41, p16, p14, descr=TargetToken(139944626571008))
 ```
 
-So, for the first outlier, the only difference we see in the trace is that an
-add instruction has swapped arguments. Otherwise, the code is identical and the
-optimizer were able to remove all reflective overhead. Thus, we conclude that
-the information provided by the dispatch chains are sufficient for the optimizer
-to remove all reflective overhead. The only traces of the metaobject protocol
-are the debug information that enable use to read the trace.
+So, for the first outlier, the only difference we see in the trace is that the
+second add instruction has swapped arguments. Otherwise, the code is identical
+and the optimizer was able to remove all reflective overhead. The only remains
+of the metaobject protocol are the debug information that enable use to read
+the trace.
 
 We attribute the performance difference observed for this benchmark to elements
 outside the control of our experiment. The main goal was reached, i.e., we
 enabled the optimizer to compile the code using the metaobject protocol to
 essentially the same code as for the version without the metaobject protocol.
 
-## 5.2 Outlier 2: Fast Field Read on SOM_PE
+### 5.2 Outlier 2: Fast Field Read on SOM_PE
 
-The second outlier is a field read microbenchmark that got mysteriously faster
-when executed with the metaobject protocol enabled.
+The second outlier is a field read microbenchmark that got faster when executed
+with the metaobject protocol enabled.
 
 The implementation of the benchmark is in `FieldRead.som` and
 `FieldReadEnforced.som`. The logs are in the corresponding files in the
@@ -388,7 +397,8 @@ Mirror evaluate: [
     1 to: 20000 do: [ :i | sum := sum + obj get ].
 ] enforcedIn: domain.
 
-sum = 40000 ifFalse: [ self error: 'Benchmark failed with wrong result']
+sum = 40000 ifFalse: [
+     self error: 'Benchmark failed with wrong result']
 ```
 
 These log files have unfortunately much fewer useful annotations. The only
@@ -398,27 +408,36 @@ interested in. Instead, we use the constant values used in the benchmarks as
 recognizable values. The two important constants are the loop boundary 20000
 (in hexadecimal: 0x4e20) and the check for the result value of 40000 (in
 hexadecimal: 0x9c40). With these constants, we are able to identify four
-different loops copies of the loop in the log file, for both versions of the
+different copies of the loop in the log file, for both versions of the
 benchmark. A comparison shows they have the same instruction sequences
 independent of whether the metaobject protocol is used or not. Here, we briefly
 examine the main loop from the last copy of the code in the log files, assuming
-that this is the code inlining from the driver loop all the way through the main
-loop, and thus, being the main code snippet being executed.
+that this is the the main code snippet being executed, and inlining all methods
+from the driver loop all the way through to the main benchmark loop.
 
 The first snippet is the extract for the benchmark that executes without the
 metaobject protocol, slightly annotated for readability.
 
 ```nasm
-# the first instruction, test, is the loop head, and target for the back jump
+# the first instruction, test, is the loop head
+# and target for the back jump
 0x00007f7ec8735de0: test   dword ptr [rip+0x1a9ed220],eax        # 0x00007f7ee3123006
                                               ;   {poll}
-0x00007f7ec8735de6: mov    rax,rdx            # this is the 'sum' variable, the field read is completely complied out
-0x00007f7ec8735de9: add    rax,rbp            # the field's value, which is 1, resides in rbp
-0x00007f7ec8735dec: jo     0x00007f7ec8735ef8
+
+# move the 'sum' variable value from rdx temporarily to rax
+0x00007f7ec8735de6: mov    rax,rdx
+
+# the obj's field value, which is 1, resides in rbp
+# the actual field read is optimized out
+# add it to the sum
+0x00007f7ec8735de9: add    rax,rbp
+0x00007f7ec8735dec: jo     0x00007f7ec8735ef8 # overflow check
 0x00007f7ec8735df2: add    r14,0x1            # increment loop counter
 0x00007f7ec8735df6: mov    rdx,rax
-0x00007f7ec8735df9: cmp    r14,0x4e20         # compare current value with 20000
-0x00007f7ec8735e00: jle    0x00007f7ec8735de0 # jump to loop head, or continue
+
+# compare current value of loop counter with 20000
+0x00007f7ec8735df9: cmp    r14,0x4e20
+0x00007f7ec8735e00: jle    0x00007f7ec8735de0 # if<= jump to loop head
 0x00007f7ec8735e02: cmp    rdx,0x9c40         # result should be 40000
 0x00007f7ec8735e09: jne    0x00007f7ec8735e8d
 ```
@@ -429,11 +448,13 @@ This snippet is the benchmark executing with the metaobject protocol:
 # the code looks identical, except for the used registers
 0x00007f16ef9ce600: test   dword ptr [rip+0x1a7a5a00],eax        # 0x00007f170a174006
                                               ;   {poll}
-0x00007f16ef9ce606: mov    rdx,rcx             # it is rax,rdx above
-0x00007f16ef9ce609: add    rdx,rdi             # above: rax,rbp
+0x00007f16ef9ce606: mov    rdx,rcx            # it is rax,rdx above
+
+0x00007f16ef9ce609: add    rdx,rdi            # above: rax,rbp
 0x00007f16ef9ce60c: jo     0x00007f16ef9ce6b1
-0x00007f16ef9ce612: add    rbx,0x1             # above r14
-0x00007f16ef9ce616: mov    rcx,rdx             # etc...
+0x00007f16ef9ce612: add    rbx,0x1            # above r14
+0x00007f16ef9ce616: mov    rcx,rdx            # etc...
+
 0x00007f16ef9ce619: cmp    rbx,0x4e20
 0x00007f16ef9ce620: jle    0x00007f16ef9ce600
 0x00007f16ef9ce622: cmp    rcx,0x9c40
@@ -441,10 +462,10 @@ This snippet is the benchmark executing with the metaobject protocol:
 ```
 
 From those code snippets, we conclude as in the previous example that the
-compilers have sufficient information to remove all reflective overhead.
-The remaining difference such as different memory addresses, registers, and so
-on can have minor performance impact, but do have no relevant influence on the
-performance of larger programs.
+compilers have sufficient information to remove all reflective overhead. The
+remaining difference such as different memory addresses, registers, and so on
+can have a performance impact on microbenchmarks, but do not have relevant
+influence on the performance of larger programs.
 
 
 Licensing
