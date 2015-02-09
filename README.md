@@ -191,17 +191,18 @@ before and after the warmup phases.
 4. Evaluation of Performance Results
 ------------------------------------
 
-After the execution of the benchmarks, we evaluated the results using R. 
-The results we measured are part of this repository and available in
+After the execution of the benchmarks, we evaluate the results using R. 
+Our measurement raw data are part of this repository and available in
 `data/zero-overhead.data.bz2`. Next to the data file is the `data/spec.md` file,
 which contains the basic information on the benchmark machine we used.
 
 An annotated version of the R script used for the evaluation is given in
-`evaluation.Rmd`. It can be rendered by executing `./scripts/knit.R
-evaluation.Rmd`. However, this requires R and Knitr, and a variety of R
-packages. We leave out the setup instructions here for brevity.
+`evaluation.Rmd`. It gives a brief step-by-step description how the raw data
+is processed and how the graphs are generated.
 
-**TODO**: link to the HTML result
+The result can be rendered by executing `./scripts/knit.R evaluation.Rmd`.
+However, this requires R and Knitr, as well as a variety of R packages. We
+leave out the setup instructions here for brevity.
 
 5. Generated Code of Microbenchmarks
 ------------------------------------
