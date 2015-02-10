@@ -36,7 +36,7 @@ the benchmark results.
 The VirtualBox image contains all software dependencies, the repository with
 the experiments, and the necessary compiled binaries. Thus, it allows a direct
 reexecution of the experiments without additional steps. The image was created
-with VirtualBox and contains a minimal Ubuntu 14.10 desktop.
+with VirtualBox 4.3 and contains a minimal Ubuntu 14.10 desktop.
 
  - download: [VirtualBox Image for Zero-Overhead Metaprogramming paper](http://stefan-marr.de/papers/pldi-marr-et-al-zero-overhead-metaprogramming-artifacts/zero-overhead-metaprogramming-virtualbox-image.tar.bz2)
  - username: zero
