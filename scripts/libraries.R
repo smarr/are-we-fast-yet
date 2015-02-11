@@ -8,11 +8,12 @@ load_and_install_if_necessary <- function(package_name) {
   }
 }
 
+load_and_install_if_necessary("knitr")
 load_and_install_if_necessary("plyr")
 load_and_install_if_necessary("ggplot2")
 load_and_install_if_necessary("psych")   # uses only geometric.mean
 load_and_install_if_necessary("tables")
-load_and_install_if_necessary("tikzDevice")
+# load_and_install_if_necessary("tikzDevice") # only used for latex
 
 source("data-processing.R")
 source("plots.R")
