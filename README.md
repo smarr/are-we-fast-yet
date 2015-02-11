@@ -201,8 +201,21 @@ An annotated version of the R script used for the evaluation is given in
 is processed and how the graphs are generated.
 
 The result can be rendered by executing `./scripts/knit.R evaluation.Rmd`.
-However, this requires R and Knitr, as well as a variety of R packages. We
-leave out the setup instructions here for brevity.
+However, this requires R and Knitr, as well as a variety of R packages.
+
+The following commands will install the necessary scripts on a Ubuntu system:
+
+```bash
+sudo apt-get install r-base
+sudo Rscript scripts/libraries.R
+```
+
+On OS X with MacPorts, R and the required libraries can be installed similarly:
+
+```bash
+sudo port install R
+sudo Rscript scripts/libraries.R
+```
 
 5. Generated Code of Microbenchmarks
 ------------------------------------
