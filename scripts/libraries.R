@@ -15,6 +15,8 @@ load_and_install_if_necessary("psych")   # uses only geometric.mean
 load_and_install_if_necessary("tables")
 # load_and_install_if_necessary("tikzDevice") # only used for latex
 
-source("data-processing.R")
-source("plots.R")
-source("colors.R")
+if (file.exists("data-processing.R")) {  ## otherwise, we are just trying to load the libraries
+  source("data-processing.R")
+  source("plots.R")
+  source("colors.R")
+}
