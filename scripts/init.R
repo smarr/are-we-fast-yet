@@ -39,7 +39,11 @@ options(warn = 2, keep.source = TRUE, error =
 
 source("libraries.R", chdir=TRUE)
 
-data <- load_data_file("../data/zero-overhead.data.bz2")
+if (file.exists("../data/zero-overhead.data")) {
+  data <- load_data_file("../data/zero-overhead.data")
+} else {
+  data <- load_data_file("../data/zero-overhead.data.bz2")  
+}
 data <- subset(data, select = c(Value, Unit, Benchmark, VM, Suite, Var, rid))
 data <- prepare_vm_names(data)
 
