@@ -201,9 +201,14 @@ An annotated version of the R script used for the evaluation is given in
 is processed and how the graphs are generated.
 
 The result can be rendered by executing `./scripts/knit.R evaluation.Rmd`.
-However, this requires R and Knitr, as well as a variety of R packages.
+However, this requires R and Knitr, as well as a variety of R packages. Note,
+the script will try to load the `zero-overhead.data` file with the benchmark
+results of a reexecution first (cf. sec. 3). If the file is not found, it will
+fall back to using the file with our results. When the report was generated
+successfully, the `evaluation.html` file contains the results.
 
-The following commands will install the necessary scripts on a Ubuntu system:
+The following commands will install R and additional libraries on a Ubuntu
+system:
 
 ```bash
 sudo apt-get install r-base
