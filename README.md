@@ -17,13 +17,40 @@ image with the setup, and a complete source tarball.
  - [original data set](http://stefan-marr.de/papers/pldi-marr-et-al-zero-overhead-metaprogramming-artifacts/benchmark-and-compilation-data.tar.bz2),
    the raw data of our benchmark measurements, and compilation logs with the
    generated native code
- - [VirtualBox image with experiment setup](http://stefan-marr.de/papers/pldi-marr-et-al-zero-overhead-metaprogramming-artifacts/zero-overhead-metaprogramming-virtualbox-image.tar.bz2),
-   a virtual machine with all software dependencies to facilitate reexecution of
-   experiments
+ - VirtualBox image with experiment setup: a virtual machine with all software 
+   dependencies to facilitate reexecution of experiments.
+   [Mirror 1](http://stefan-marr.de/papers/pldi-marr-et-al-zero-overhead-metaprogramming-artifacts/zero-overhead-metaprogramming-virtualbox-image.tar.bz2),
+   [Mirror 2](http://soft.vub.ac.be/~ppp/zero-overhead-metaprogramming-virtualbox-image.tar.bz2),
+   [Mirror 3](https://drive.google.com/file/d/0B-LbpNQP1hoUeF9xZkw2YXZRVWc/view?usp=sharing)
  - [complete source tarball](http://stefan-marr.de/papers/pldi-marr-et-al-zero-overhead-metaprogramming-artifacts/source-snapshot.tar.bz2),
    a copy of all source of this repository and its submodules
 
-2. Setup of Experiments
+2. The Artifacts and Claims
+---------------------------
+
+The artifacts provided with our paper are intended to enable others to
+independently verify the claims made in the paper, which are:
+
+ - the reached performance reported in the paper
+ - the soundness of the used evaluation methodology
+ - the observed optimization of the JIT compilers and their ability to produce
+   equivalent compilation results independent of whether metaprogramming is
+   used or not
+
+Furthermore, we would like to advertise SOM and JRuby+Truffle as language
+implementations that can be used for a wide variety of purposes. SOM focuses on
+enabling language implementation research, while JRuby+Truffle can be used as
+platform for implementation research as well as high-performance Ruby
+implementation.
+
+Further material specifically on SOM and JRuby+Truffle:
+
+ - [SOM (Simple Object Machine)](http://som-st.github.io/): A minimal Smalltalk for teaching of and research on Virtual Machines; a brief overview.
+   - [SOM_PE, (aka TruffleSOM)](https://github.com/SOM-st/TruffleSOM/blob/master/README.md): SOM implemented with the Truffle framework; brief usage instructions
+   - [SOM_MT, (aka RTruffleSOM)](https://github.com/SOM-st/RTruffleSOM/blob/master/README.md): SOM implemented with RPython; brief usage instructions
+ - [JRuby+Truffle](https://github.com/jruby/jruby/wiki/Truffle): A Truffle-based backend for JRuby; introduction and usage instructions
+
+3. Setup of Experiments
 -----------------------
 
 To reexecute and verify our experiments, we provide the VirtualBox image above
@@ -31,7 +58,7 @@ as well as a set of instructions to setup the experiments on another system.
 Note, the additional virtualization level of VirtualBox can have an impact on
 the benchmark results.
 
-### 2.1 VirtualBox Image
+### 3.1 VirtualBox Image
 
 The VirtualBox image contains all software dependencies, the repository with
 the experiments, and the necessary compiled binaries. Thus, it allows a direct
@@ -42,7 +69,7 @@ with VirtualBox 4.3 and contains a minimal Ubuntu 14.10 desktop.
  - username: zero
  - password: zero
 
-### 2.2 Setup Instructions for other Systems
+### 3.2 Setup Instructions for other Systems
 
 The general software requirements are as follows:
 
@@ -57,7 +84,7 @@ The general software requirements are as follows:
  - pip and SciPy, for the ReBench benchmarking tool
 
 
-#### 2.2.1 Ubuntu
+#### 3.2.1 Ubuntu
 
 On a Ubuntu system, the following packages are required:
 
@@ -74,7 +101,7 @@ On older Ubuntus, the OpenJDK 8 package might not be available. Instead,
 Oracle's [Java SE Development Kit 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) 
 can be used.
 
-#### 2.2.2 Mac OS X
+#### 3.2.2 Mac OS X
 
 Required software:
 
@@ -108,7 +135,7 @@ sudo port install apache-ant libffi maven3 pypy py-pip py-scipy
 sudo pip install ReBench
 ```
 
-#### 2.2.3 Download and Compile Experiments
+#### 3.2.3 Download and Compile Experiments
 
 All experiments are part of this git repository, which uses submodules to
 manage the dependencies between source artifacts. When cloning the repository,
@@ -135,7 +162,7 @@ cd implementations
 ./setup.sh
 ```
  
-3. Reexecution Instructions
+4. Reexecution Instructions
 ---------------------------
 
 To reexecute the benchmarks on a different system and independently verify our
@@ -188,7 +215,7 @@ execution where it left off. However, the results of partial runs of one
 virtual machine invocation are not recorded to avoid mixing up results from
 before and after the warmup phases.
 
-4. Evaluation of Performance Results
+5. Evaluation of Performance Results
 ------------------------------------
 
 After the execution of the benchmarks, we evaluate the results using R. 
@@ -222,7 +249,7 @@ sudo port install R
 sudo Rscript scripts/libraries.R
 ```
 
-5. Generated Code of Microbenchmarks
+6. Generated Code of Microbenchmarks
 ------------------------------------
 
 In section 4.3 of the paper, we observe in figure 4 two outliers on the
@@ -239,7 +266,7 @@ the `data/compilation-logs.tar.bz2` file in this repository, as well as the
 Here, we briefly pick out the two outliers and explain how to read the
 compilation logs.
 
-### 5.1 Outlier 1: Slow Field Write on SOM_MT
+### 6.1 Outlier 1: Slow Field Write on SOM_MT
 
 The field write benchmark is implemented in the `AddFieldWrite.som` file. The
 corresponding log file is `AddFieldWrite.log` for the version without the
@@ -400,7 +427,7 @@ outside the control of our experiment. The main goal was reached, i.e., we
 enabled the optimizer to compile the code using the metaobject protocol to
 essentially the same code as for the version without the metaobject protocol.
 
-### 5.2 Outlier 2: Fast Field Read on SOM_PE
+### 6.2 Outlier 2: Fast Field Read on SOM_PE
 
 The second outlier is a field read microbenchmark that got faster when executed
 with the metaobject protocol enabled.
