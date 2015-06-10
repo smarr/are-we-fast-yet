@@ -28,3 +28,6 @@
 [submodule "implementations/luajit"]
 	path = implementations/luajit
 	url = http://luajit.org/git/luajit-2.0.git
+[submodule "implementations/SOMns"]
+	path = implementations/SOMns
+	url = https://github.com/smarr/SOMns.git
