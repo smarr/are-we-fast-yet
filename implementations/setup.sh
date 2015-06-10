@@ -13,6 +13,7 @@ get_web_getter
 ./build-jruby.sh
 ./build-sompp.sh
 ./build-som.sh
+./build-somns.sh
 ./build-csom.sh
 ./build-luajit.sh
 
