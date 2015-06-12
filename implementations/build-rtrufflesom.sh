@@ -9,5 +9,5 @@ get_pypy
 
 INFO Build RTruffleSOM
 make clean
-make -j4
+make
 OK RTruffleSOM Build Completed.
