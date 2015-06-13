@@ -11,6 +11,8 @@ load_data_file <- function (file, row_names) {
   
   bench <- read.table(file, sep="\t", header=FALSE, col.names=row_names, fill=TRUE)
   bench$rid = seq_len(nrow(bench))
+  bench <- ddply(bench, ~ Benchmark + VM + Var + Extra + Cores + Suite, transform,
+                 Iteration = rid - min(rid))
   bench
 }
 
@@ -20,6 +22,7 @@ prepare_vm_names <- function(data) {
                        "RPySOM-recursive-jit"  = "RPySOM",
                        "RPySOM-jit"            = "RPySOM",
                        "RTruffleSOM-jit"       = "RTruffleSOM",
+                       "SOMns-jit"             = "SOMns",
                        
                        "TruffleSOM-graal"      = "TruffleSOM",
                        "TruffleSOM-graal-no-split" = "TruffleSOM.ns",
