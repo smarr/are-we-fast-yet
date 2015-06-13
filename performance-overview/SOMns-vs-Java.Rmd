@@ -1,12 +1,12 @@
-Performance Comparison SOMns and Java
-=====================================
+Performance of SOMns vs Java
+============================
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, results='hide', errors=FALSE}
 # load libraries, the data, and prepare it
 if (Sys.getenv("RSTUDIO") == "1") { setwd("/Users/smarr/Projects/PostDoc/SELF-OPT-INT/performance-overview") }
 
 source("../scripts/libraries.R", chdir=TRUE)
-data <- load_data_file("perf-overview.data")
+data <- load_data_file("somns-vs-java.data")
 data <- subset(data, select = c(Value, Unit, Benchmark, VM, Suite, Extra, Iteration))
 data <- prepare_vm_names(data)
 # steady <- droplevels(subset(data, grepl("som", Suite) | grepl("java", Suite) | grepl("startup", Suite)))
@@ -60,15 +60,12 @@ vms_interp <- ddply(norm_interp, ~ VM,
 ```
 
 
-Overall, SOMns reaches a peak performance of being about `r round(vms_jit[vms_jit$VM=="SOMns-jit",]$RunRatio.geomean, 2)`x
-slower than Java, which is also depicted in the following plot.
+Overall, SOMns peak performance is about `r round(vms_jit[vms_jit$VM=="SOMns",]$RunRatio.geomean, 2)`x
+slower than Java's. The following boxplot summarieses this result.
 
 ```{r som-box-overview, echo=FALSE, fig.width=5, fig.height=1.5, dev='svg'}
-soms <- droplevels(subset(norm_jit, VM == "SOMns-jit"))
+soms <- droplevels(subset(norm_jit, VM == "SOMns"))
 
-# Rename
-name_map <- list("SOMns-jit" = "SOMns")
-levels(soms$VM) <- map_names(levels(soms$VM), name_map)
 
 plot <- ggplot(soms, aes(x=VM, y=RuntimeRatio)) +
   geom_hline(aes(yintercept=1), colour="#cccccc", linetype="dashed") +
@@ -81,15 +78,13 @@ plot <- ggplot(soms, aes(x=VM, y=RuntimeRatio)) +
  plot
 ```
 
-For this comparison, we use `r length(levels(soms$Benchmark))` different
-Benchmarks. Including classic ones such as DeltaBlue, Richards, Mandelbrot, and
+For this comparison, we use `r length(levels(soms$Benchmark))`
+benchmarks. Including classic ones such as DeltaBlue, Richards, Mandelbrot, and
 NBody, but also less common ones such as Json, which is a simple JSON parser,
 as well as PageRank, which simulates the page-rank algorithm.
 
 ```{r compiled, echo=FALSE, fig.width=5, fig.height=3, dev='svg'}
-somns <- droplevels(subset(norm_jit, VM == "SOMns-jit"))
-name_map <- list("SOMns-jit" = "SOMns")
-levels(soms$VM)  <- map_names(levels(soms$VM), name_map)
+somns <- droplevels(subset(norm_jit, VM == "SOMns"))
 
 p <- ggplot(somns, aes(x=Benchmark, y=RuntimeRatio))
 #p <- add_hlines(p, seq(1, 20, 2))
@@ -142,9 +137,8 @@ p
 ```
 
 ```{r echo=FALSE, results='asis'}
-table_data <- droplevels(subset(stats_jit, VM == "Java8" | VM == "SOMns-jit"))
-name_map <- list("SOMns-jit" = "SOMns",
-                 "Java8"     = "Java")
+table_data <- droplevels(subset(stats_jit, VM == "Java8" | VM == "SOMns"))
+name_map <- list("Java8"     = "Java")
 levels(table_data$VM)  <- map_names(levels(table_data$VM), name_map)
 
 writeLines("<div class='full center'>")
@@ -160,3 +154,5 @@ writeLines("</div>")
 # html(t)
 # writeLines("</div>")
 ```
+
+<p>&nbsp</p>
