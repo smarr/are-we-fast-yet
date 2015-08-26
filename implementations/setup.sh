@@ -7,14 +7,14 @@ get_web_getter
 
 ./build-graal.sh
 ./build-classic-benchmarks.sh
-./build-rpysom.sh
+# ./build-rpysom.sh
 ./build-trufflesom.sh
 ./build-rtrufflesom.sh
-./build-jruby.sh
-./build-sompp.sh
+# ./build-jruby.sh
+# ./build-sompp.sh
 ./build-som.sh
 ./build-somns.sh
-./build-csom.sh
-./build-luajit.sh
+# ./build-csom.sh
+# ./build-luajit.sh
 
 OK done.
