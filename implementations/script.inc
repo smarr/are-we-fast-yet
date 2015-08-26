@@ -15,10 +15,10 @@ if [ -t 1 -a -t 2 -a \( `type -t tput` = "file" \) ]; then
     ERR  () { tput setaf 1; /bin/echo "$@"; tput sgr0; }
   fi
 else
-  INFO () { /bin/echo "$@" }
-  OK   () { /bin/echo "$@" }
-  WARN () { /bin/echo "$@" }
-  ERR  () { /bin/echo "$@" }
+  INFO () { /bin/echo "$@"; }
+  OK   () { /bin/echo "$@"; }
+  WARN () { /bin/echo "$@"; }
+  ERR  () { /bin/echo "$@"; }
 fi
 
 
