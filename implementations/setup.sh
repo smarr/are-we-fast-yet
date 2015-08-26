@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e # make script fail on first error
 
 source script.inc
 
