@@ -1,0 +1,9 @@
+[submodule "implementations/TruffleSOM"]
+	path = implementations/TruffleSOM
+	url = https://github.com/SOM-st/TruffleSOM.git
+[submodule "implementations/SOMns"]
+	path = implementations/SOMns
+	url = https://github.com/smarr/SOMns.git
+[submodule "implementations/JRuby"]
+	path = implementations/JRuby
+	url = https://github.com/jruby/jruby.git
