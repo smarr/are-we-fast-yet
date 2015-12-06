@@ -1,0 +1,452 @@
+class RichardsBenchmark usingPlatform: platform andHarness: harness = (
+| private Benchmark        = harness Benchmark.
+  private system           = platform system.
+  private Array            = platform kernel Array.
+
+  private NoTask           = nil.
+  private Idler            = 1.
+  private NoWork           = nil.
+  private Worker           = 2.
+  private WorkPacketKind   = 2.
+  private HandlerA         = 3.
+  private HandlerB         = 4.
+  private DeviceA          = 5.
+  private DeviceB          = 6.
+  private DevicePacketKind = 1.
+|
+)(
+
+  class Richards = Benchmark ()(
+    public benchmark = (
+      ^ RichardsBenchmarks new start.
+    )
+    public verifyResult: result = (
+      ^ result
+    )
+  )
+  
+  class RichardsBenchmarks = (
+  | taskList currentTask currentTaskIdentity taskTable tracing layout
+    queuePacketCount holdCount |
+  )(
+    createDevice: identity priority: priority work: work state: state = (
+      | data |
+      data := DeviceTaskDataRecord create.
+      self
+        createTask: identity
+        priority: priority
+        work: work
+        state: state
+        function: [:work :word |
+          | data functionWork | 
+          data := word.
+          functionWork := work.
+          NoWork == functionWork ifTrue: [
+            NoWork == (functionWork := data pending)
+              ifTrue:  [ self wait ]
+              ifFalse: [
+                data pending: NoWork.
+                self queuePacket: functionWork ]]
+            ifFalse: [
+              data pending: functionWork.
+              tracing ifTrue: [
+                self trace: functionWork datum].
+              self holdSelf ]]
+        data: data
+    )
+
+    createHandler: identity priority: priority work: work state: state = (
+      | data |
+      data := HandlerTaskDataRecord create.
+      self createTask: identity
+           priority:   priority
+           work:       work
+           state:      state
+           function:   [:work :word | 
+             | data workPacket |
+             data := word.
+             NoWork == work ifFalse: [
+               WorkPacketKind = work kind 
+                 ifTrue:  [ data workInAdd: work ]
+                 ifFalse: [ data deviceInAdd: work ]].
+            
+             NoWork == (workPacket := data workIn)
+               ifTrue:  [ self wait ]
+               ifFalse: [
+                 |count|
+                 count := workPacket datum.
+                 count > 4
+                   ifTrue: [
+                     data workIn: workPacket link.
+                     self queuePacket: workPacket ]
+                   ifFalse: [
+                     | devicePacket |
+                     NoWork == (devicePacket := data deviceIn)
+                       ifTrue:  [ self wait ]
+                       ifFalse: [
+                         data deviceIn: devicePacket link.
+                         devicePacket datum: (workPacket data at: count).
+                         workPacket datum: count + 1.
+                         self queuePacket: devicePacket]]]]
+           data:       data
+    )
+
+    createIdler: identity priority: priority work: work state: state = (
+      | data |
+      data := IdleTaskDataRecord create.
+      self createTask: identity
+           priority:   priority
+           work:       work
+           state:      state
+           function:   [:work :word | 
+             | data |
+             data := word.
+             data count: data count - 1.
+             0 = data count
+               ifTrue:  [ self holdSelf ]
+               ifFalse: [
+                 0 = (data control & 1)
+                   ifTrue: [
+                     data control: data control / 2.
+                     self release: DeviceA ]
+                   ifFalse: [
+                     data control: (data control / 2 bitXor: 53256).
+                     self release: DeviceB ]]]
+           data:       data
+    )
+
+    createPacket: link identity: identity kind: kind = (
+      ^ Packet create:   link
+               identity: identity
+               kind:     kind
+    )
+
+    createTask: identity priority: priority work: work state: state function: aBlock data: data = (
+      | t |
+      t := TaskControlBlock link:             taskList
+                            create:           identity
+                            priority:         priority
+                            initialWorkQueue: work
+                            initialState:     state
+                            function:         aBlock
+                            privateData:      data.
+      taskList := t.
+      taskTable at: identity put: t
+    )
+
+    createWorker: identity priority: priority work: work state: state = (
+      | data |
+      data := WorkerTaskDataRecord create.
+      self createTask: identity
+           priority:   priority
+           work:       work
+           state:      state
+           function:   [:work :word |
+             | data | 
+             data := word.
+             NoWork == work
+               ifTrue:  [ self wait ]
+               ifFalse: [
+                 data destination: (HandlerA = data destination
+                                      ifTrue:  [HandlerB]
+                                      ifFalse: [HandlerA]).
+                 work identity: data destination.
+                 work datum: 1.
+                 1 to: 4 do: [:i |
+                   data count: data count + 1.
+                   data count > 26 ifTrue: [data count: 1].
+                   (* 65 == $A asInteger *)
+                   work data at: i put: 65 + data count - 1].
+             self queuePacket: work ]]
+           data:       data
+    )
+
+    public start = (
+      | workQ |
+      self initTrace.
+      self initScheduler.
+      
+      self createIdler: Idler
+           priority:    0
+           work:        NoWork
+           state:       TaskState running.
+      workQ := self createPacket: NoWork
+                    identity:     Worker
+                    kind:         WorkPacketKind.
+      workQ := self createPacket: workQ
+                    identity:     Worker
+                    kind:         WorkPacketKind.
+      self createWorker: Worker
+           priority:     1000
+           work:         workQ
+           state:        TaskState waitingWithPacket.
+
+      workQ := self createPacket: NoWork
+                    identity:     DeviceA
+                    kind:         DevicePacketKind.
+      workQ := self createPacket: workQ
+                    identity:     DeviceA
+                    kind:         DevicePacketKind.
+      workQ := self createPacket: workQ
+                    identity:     DeviceA
+                    kind:         DevicePacketKind.
+
+      self createHandler: HandlerA
+           priority:      2000
+           work:          workQ
+           state:         TaskState waitingWithPacket.
+      workQ := self createPacket: NoWork
+                    identity:     DeviceB
+                    kind:         DevicePacketKind.
+      workQ := self createPacket: workQ
+                    identity:     DeviceB
+                    kind:         DevicePacketKind.
+      workQ := self createPacket: workQ
+                    identity:     DeviceB
+                    kind:         DevicePacketKind.
+      self createHandler: HandlerB
+           priority:      3000
+           work:          workQ
+           state:         TaskState waitingWithPacket.
+      self createDevice: DeviceA
+           priority:     4000
+           work:         NoWork
+           state:        TaskState waiting.
+      self createDevice: DeviceB
+           priority:     5000
+           work:         NoWork
+           state:        TaskState waiting.
+
+      self schedule.
+
+      ^ queuePacketCount = 23246 and: holdCount = 9297
+    )
+
+
+    findTask: identity = (
+      | t |
+      t := taskTable at: identity.
+      NoTask == t ifTrue: [self error: 'findTask failed'].
+      ^ t
+    )
+
+    holdSelf = (
+      holdCount := holdCount + 1.
+      currentTask taskHolding: true.
+      ^ currentTask link
+    )
+
+    initScheduler = (
+      queuePacketCount := 0.
+      holdCount := 0.
+      taskTable := Array new: 6 withAll: NoTask.
+      taskList := NoTask
+    )
+
+    initTrace = (
+      tracing := false.
+      layout := 0
+    )
+
+    queuePacket: packet = (
+      | t |
+      t := self findTask: packet identity.
+      NoTask == t ifTrue: [ ^ NoTask ].
+      queuePacketCount := queuePacketCount + 1.
+      packet link: NoWork.
+      packet identity: currentTaskIdentity.
+      ^ t addInput: packet checkPriority: currentTask
+    )
+
+    release: identity = (
+      | t |
+      t := self findTask: identity.
+      NoTask == t ifTrue: [ ^ NoTask ].
+      t taskHolding: false.
+      t priority > currentTask priority
+        ifTrue:  [ ^ t ]
+        ifFalse: [ ^ currentTask ]
+    )
+
+    trace: id = (
+      layout := layout - 1.
+      0 >= layout ifTrue: [
+        Transcript cr.
+        layout := 50
+      ].
+      Transcript show: id asString
+    )
+
+    wait = (
+      currentTask taskWaiting: true.
+      ^ currentTask
+    )
+
+    schedule = (
+      currentTask := taskList. 
+      [ NoTask == currentTask ] whileFalse: [
+        currentTask isTaskHoldingOrWaiting
+          ifTrue:  [ currentTask := currentTask link ]
+          ifFalse: [
+            currentTaskIdentity := currentTask identity.
+            tracing ifTrue: [ self trace: currentTaskIdentity ].
+            currentTask := currentTask runTask ]]
+    )
+  )
+
+  class RBObject = Object ()(
+    public append: packet head: queueHead = (
+      | mouse link |
+      packet link: NoWork.
+      NoWork == queueHead ifTrue: [ ^ packet ].
+      mouse := queueHead.
+
+      [NoWork == (link := mouse link)]
+        whileFalse: [ mouse := link ].
+
+      mouse link: packet.
+      ^ queueHead
+	  )
+  )
+  
+  class Transcript = ()() : (
+    cr = ( system printNewline )
+    show: text = ( system printString: text )
+  )
+  
+  class DeviceTaskDataRecord create = (
+    | public pending ::= NoWork. |
+  )()
+
+  class HandlerTaskDataRecord create = RBObject (
+    | public workIn   ::= NoWork.
+      public deviceIn ::= NoWork. |
+  )(
+    public deviceInAdd: packet = (
+      deviceIn := self append: packet head: deviceIn
+    )
+
+    public workInAdd: packet = (
+      workIn := self append: packet head: workIn
+    )
+
+    public asString = (
+      ^ 'HandlerTaskDataRecord(' + workIn asString + ', ' + deviceIn asString + ')'
+    )
+  )
+  
+  class IdleTaskDataRecord create = (
+    | public control ::= 1.
+      public count   ::= 10000. |
+  )()
+  
+  class Packet create: link identity: identity kind: kind = (
+    | public link      ::= link.
+      public kind      ::= kind.
+      public identity  ::= identity.
+      public datum     ::= 1.
+      public data      ::= Array new: 4 withAll: 0.
+    |
+  )(
+    public asString = (
+      ^ 'Packet(' + 
+          link asString + ', ' +
+          identity asString + ', ' +
+          kind asString + ', ' +
+          datum asString + ', ' +
+          data asString +
+        ')'
+    )
+  )
+  
+  class TaskState = RBObject (
+    | packetPending_ taskWaiting_ taskHolding_ |
+  )(
+    public isPacketPending = ( ^ packetPending_ )
+    public isTaskHolding   = ( ^ taskHolding_ )
+    public isTaskWaiting   = ( ^ taskWaiting_ )
+
+    public taskHolding: aBoolean   = ( taskHolding_   := aBoolean)
+    public taskWaiting: aBoolean   = ( taskWaiting_   := aBoolean)
+    public packetPending: aBoolean = ( packetPending_ := aBoolean)
+
+    public packetPending = (
+      packetPending_ := true.
+      taskWaiting_   := false.
+      taskHolding_   := false
+    )
+
+    public running = (
+      packetPending_ := taskWaiting_ := taskHolding_ := false
+    )
+
+    public waiting = (
+      packetPending_ := taskHolding_ := false.
+      taskWaiting_   := true
+    )
+
+    public waitingWithPacket = (
+      taskHolding_ := false.
+      taskWaiting_ := packetPending_ := true
+    )
+
+    public isRunning = ( ^ packetPending_ not and: [taskWaiting_ not and: [taskHolding_ not]])
+    public isTaskHoldingOrWaiting = ( ^ taskHolding_ or: [packetPending_ not and: [taskWaiting_]])
+    public isWaiting = (^ packetPending_ not and: [taskWaiting_ and: [taskHolding_ not]])
+    public isWaitingWithPacket = ( ^ packetPending_ and: [taskWaiting_ and: [taskHolding_ not]])
+  ) : (
+    public packetPending = ( ^ self new packetPending )
+    public running       = ( ^ self new running )
+    public waiting       = ( ^ self new waiting )
+    public waitingWithPacket = ( ^ self new waitingWithPacket )
+  )
+
+  public class TaskControlBlock link: link create: identity priority: priority initialWorkQueue: initialWorkQueue initialState: initialState function: aBlock privateData: privateData = TaskState (
+  | public link     = link.
+    public identity = identity.
+    
+    public function = aBlock.
+    public priority = priority.
+
+    protected input ::= initialWorkQueue.
+    protected handle = privateData.
+  |
+    self packetPending: initialState isPacketPending.
+    self taskWaiting:   initialState isTaskWaiting.
+    self taskHolding:   initialState isTaskHolding.
+  )(
+    public addInput: packet checkPriority: oldTask = (
+      NoWork == input
+        ifTrue: [
+          input := packet.
+          self packetPending: true.
+          priority > oldTask priority ifTrue: [^self]]
+        ifFalse: [
+          input := self append: packet head: input].
+      ^ oldTask
+    )
+
+    public runTask = (
+      | message |
+      self isWaitingWithPacket
+        ifTrue: [
+          message := input.
+          input := message link.
+          NoWork == input
+            ifTrue:  [ self running ]
+            ifFalse: [ self packetPending ]]
+        ifFalse: [
+          message := NoWork ].
+
+      ^ function value: message with: handle
+    )
+  )
+  
+  class WorkerTaskDataRecord create = (
+  | public destination ::= HandlerA.
+    public count       ::= 0. |
+  )()
+
+  public newInstance = ( ^ Richards new )
+  public setupVerifiedRun: run = ( run innerIterations: 1 )
+)
