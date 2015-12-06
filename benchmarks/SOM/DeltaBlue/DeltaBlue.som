@@ -1,0 +1,10 @@
+DeltaBlue = Benchmark (
+
+    oneTimeSetup = ( Strength initialize )
+
+    innerBenchmarkLoop: innerIterations = (
+        Planner chainTest: innerIterations.
+        Planner projectionTest: innerIterations.
+        ^ true
+    )
+)

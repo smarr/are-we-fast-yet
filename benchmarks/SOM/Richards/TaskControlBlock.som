@@ -1,0 +1,59 @@
+
+TaskControlBlock = TaskState (
+    |link identity priority input function handle|
+
+    identity = (^identity)
+
+    link = (^link)
+
+    priority = (^priority)
+
+    link: aLink identity: anIdentity priority: aPriority initialWorkQueue: anInitialWorkQueue initialState: anInitialState function: aBlock privateData: aPrivateData = (
+        link := aLink.
+        identity := anIdentity.
+        priority := aPriority.
+        input := anInitialWorkQueue.
+        self packetPending: anInitialState isPacketPending.
+        self taskWaiting: anInitialState isTaskWaiting.
+        self taskHolding: anInitialState isTaskHolding.
+        function := aBlock.
+        handle := aPrivateData.
+    )
+
+    addInput: packet checkPriority: oldTask = (
+        RBObject NoWork == input
+                ifTrue: 
+                        [input := packet.
+                        self packetPending: true.
+                        priority > oldTask priority ifTrue: [^self]]
+                ifFalse: 
+                        [input := self append: packet head: input].
+        ^oldTask
+    )
+
+    runTask = (
+     | message |
+     self isWaitingWithPacket
+         ifTrue: 
+             [message := input.
+             input := message link.
+             RBObject NoWork == input
+                 ifTrue: [self running]
+                 ifFalse: [self packetPending]]
+         ifFalse: [message := RBObject NoWork].
+        ^function value: message with: handle
+    )
+
+----
+
+    link: link create: identity priority: priority initialWorkQueue: initialWorkQueue initialState: initialState function: aBlock privateData: privateData = (
+        ^super new
+                link: link
+                identity: identity
+                priority: priority
+                initialWorkQueue: initialWorkQueue
+                initialState: initialState
+                function: aBlock
+                privateData: privateData
+    )
+)

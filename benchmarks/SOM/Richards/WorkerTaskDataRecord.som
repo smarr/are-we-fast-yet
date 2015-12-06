@@ -1,0 +1,17 @@
+WorkerTaskDataRecord = RBObject (
+    |destination count|
+    count = (^count)
+
+    count: aCount =(count := aCount)
+
+    destination = (^destination)
+
+    destination: aHandler = (destination := aHandler)
+
+    create = (
+        destination := RBObject HandlerA.
+        count := 0
+    )
+----
+create = (^super new create)
+)

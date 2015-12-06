@@ -1,0 +1,8 @@
+Richards = Benchmark (
+    benchmark = (
+        ^ RichardsBenchmarks new reBenchStart.
+    )
+    verifyResult: result = (
+      ^ result
+    )
+)

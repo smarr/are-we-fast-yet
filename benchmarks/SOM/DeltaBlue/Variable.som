@@ -1,0 +1,155 @@
+Variable = (
+    "I represent a constrained variable. In addition to my value, I maintain the
+    structure of the constraint graph, the current dataflow graph, and various
+    parameters of interest to the DeltaBlue incremental constraint solver.
+
+    Instance variables:
+        value           my value; changed by constraints, read by client <Object>
+        constraints     normal constraints that reference me <Array of Constraint>
+        determinedBy    the constraint that currently determines
+                        my value (or nil if there isn't one) <Constraint>
+        walkStrength        my walkabout strength <Strength>
+        stay            true if I am a planning-time constant <Boolean>
+        mark            used by the planner to mark constraints <Number>"
+    | value constraints determinedBy walkStrength stay mark |
+    
+    "initialize-release"
+
+    initialize = (
+        value := 0.
+        constraints  := OrderedCollection new: 2.
+        determinedBy := nil.
+        walkStrength := Strength absoluteWeakest.
+        stay := true.
+        mark := 0.
+    )
+
+    "access"
+    addConstraint: aConstraint = (
+        "Add the given constraint to the set of all constraints that refer
+         to me."
+
+        constraints add: aConstraint.
+    )
+
+    constraints = (
+        "Answer the set of constraints that refer to me."
+
+        ^constraints
+    )
+
+    determinedBy = (
+        "Answer the constraint that determines my value in the current
+         dataflow."
+
+        ^determinedBy
+    )
+
+    determinedBy: aConstraint = (
+        "Record that the given constraint determines my value in the current
+         data flow."
+
+        determinedBy := aConstraint.
+    )
+
+    mark = (
+        "Answer my mark value."
+
+        ^mark
+    )
+
+    mark: markValue = (
+        "Set my mark value."
+
+        mark := markValue.
+    )
+
+    removeConstraint: c = (
+        "Remove all traces of c from this variable."
+
+        constraints remove: c ifAbsent: [].
+        (determinedBy == c) ifTrue: [determinedBy := nil].
+    )
+
+    stay = (
+        "Answer my stay flag."
+
+        ^stay
+    )
+
+    stay: aBoolean = (
+        "Set my stay flag."
+
+        stay := aBoolean
+    )
+
+    value = (
+        "Answer my value."
+
+        ^value
+    )
+
+    value: anObject = (
+        "Set my value."
+
+        value := anObject.
+    )
+
+    walkStrength = (
+        "Answer my walkabout strength in the current dataflow."
+
+        ^walkStrength
+    )
+
+    walkStrength: aStrength = (
+        "Set my walkabout strength in the current dataflow."
+
+        walkStrength := aStrength.
+    )
+
+    "printing"
+    longPrintOn: aStream  = (
+
+        self shortPrintOn: aStream.
+        aStream nextPutAll: '   Constraints: '.
+        (constraints isEmpty)
+            ifTrue: [aStream cr. aStream tab. aStream nextPutAll: 'none']
+            ifFalse:
+                [constraints do:
+                    [: c | aStream cr. aStream tab. c shortPrintOn: aStream]].
+        (determinedBy isNil) ifFalse:
+            [aStream cr. aStream nextPutAll: '   Determined by: '.
+             aStream cr. aStream tab. determinedBy shortPrintOn: aStream].
+        aStream cr.
+    )
+
+    printOn: aStream = (
+        self shortPrintOn: aStream
+    )
+
+    shortPrintOn: aStream = (
+
+        aStream nextPutAll: 'V(', self asOop printString, ', '.
+        aStream nextPutAll: walkStrength printString, ', '.
+        (stay isNil) ifFalse:
+            [aStream nextPutAll: (stay ifTrue: ['stay, '] ifFalse: ['changing, '])].
+        aStream nextPutAll: value printString.
+        aStream nextPutAll: ')'.
+        aStream cr.
+    )
+    
+    ----
+
+    "instance creation"
+
+    new = (
+        ^super new initialize
+    )
+
+    value: aValue = (
+        | o |
+        o := super new.
+        o initialize.
+        ^ o value: aValue
+    )
+)

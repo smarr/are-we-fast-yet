@@ -1,0 +1,53 @@
+TaskState = RBObject (
+    |packetPending taskWaiting taskHolding|
+
+    isPacketPending = (^packetPending)
+
+    isTaskHolding = (^taskHolding)
+
+    isTaskWaiting = (^taskWaiting)
+
+    taskHolding: aBoolean   = (taskHolding   := aBoolean)
+    taskWaiting: aBoolean   = (taskWaiting   := aBoolean)
+    packetPending: aBoolean = (packetPending := aBoolean)
+
+    packetPending = (
+        packetPending := true.
+        taskWaiting := false.
+        taskHolding := false
+    )
+
+    running = (
+        packetPending := taskWaiting := taskHolding := false
+    )
+
+    waiting = (
+        packetPending := taskHolding := false.
+        taskWaiting := true
+    )
+
+    waitingWithPacket = (
+        taskHolding := false.
+        taskWaiting := packetPending := true
+    )
+
+    isRunning = (^packetPending not and: [taskWaiting not and: [taskHolding not]])
+
+    isTaskHoldingOrWaiting = (^taskHolding or: [packetPending not and: [taskWaiting]])
+
+    isWaiting = (^packetPending not and: [taskWaiting and: [taskHolding not]])
+
+    isWaitingWithPacket = (^packetPending and: [taskWaiting and: [taskHolding not]])
+
+
+    ----
+    packetPending = (^super new packetPending)
+
+    running = (
+        ^super new running
+    )
+
+    waiting = (^super new waiting)
+
+    waitingWithPacket = (^super new waitingWithPacket)
+)

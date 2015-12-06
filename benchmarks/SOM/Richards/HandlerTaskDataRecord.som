@@ -1,0 +1,28 @@
+HandlerTaskDataRecord = RBObject (
+    |workIn deviceIn|
+
+    deviceIn = (^deviceIn)
+
+    deviceIn: aPacket = (deviceIn := aPacket)
+
+    deviceInAdd: packet = (
+        deviceIn := self append: packet head: deviceIn
+    )
+
+    workIn = (^workIn)
+
+    workIn: aWorkQueue = (workIn := aWorkQueue)
+
+    workInAdd: packet = (
+        workIn := self append: packet head: workIn
+    )
+
+    create = (
+        workIn := deviceIn := RBObject NoWork
+    )
+    asString = (
+        ^ 'HandlerTaskDataRecord(' + workIn asString + ', ' + deviceIn asString + ')'
+    )
+----
+    create = (^super new create)
+)
