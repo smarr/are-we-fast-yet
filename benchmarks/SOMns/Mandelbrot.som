@@ -48,9 +48,7 @@
 class MandelbrotSuite usingPlatform: platform andHarness: harness = (
 | private Benchmark = harness Benchmark. |
 )(
-  class Mandelbrot = Benchmark (
-    | firstResult |
-  ) (
+  class Mandelbrot = Benchmark () (
     public innerBenchmarkLoop: innerIterations = ( 
       ^ self verify: (self mandelbrot: innerIterations) inner: innerIterations
     )
@@ -63,10 +61,10 @@ class MandelbrotSuite usingPlatform: platform andHarness: harness = (
       innerIterations = 750 ifTrue: [
         ^ result = 50
       ].
-      firstResult isNil ifTrue: [
-        firstResult := result.
-      ].
-      ^ result = firstResult
+      
+      ('No verification result for ' + innerIterations + ' found') println.
+      ('Result is: ' + result asString) println.
+      ^ false
     )
 
     mandelbrot: size = (
@@ -133,5 +131,4 @@ class MandelbrotSuite usingPlatform: platform andHarness: harness = (
   )
   
   public newInstance = ( ^ Mandelbrot new )
-  public setupVerifiedRun: run = ( run innerIterations: 750 )
 )
