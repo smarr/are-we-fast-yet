@@ -24,12 +24,12 @@ class Benchmark
   end
 
   def benchmark
-    raise :subclassResponsibility
+    raise :subclass_responsibility
   end
 
   # noinspection RubyUnusedLocalVariable
   def verify_result(result)
-    raise :subclassResponsibility
+    raise :subclass_responsibility
   end
 end
 
@@ -48,7 +48,7 @@ class Run
   end
 
   def run_benchmark
-    puts('Starting ' + @name + ' benchmark ...')
+    puts "Starting #{@name} benchmark ..."
     do_runs(@benchmark_suite.new)
     report_benchmark
     puts ''
@@ -71,17 +71,15 @@ class Run
   end
 
   def report_benchmark
-    puts (@name + ': iterations=' + @num_iterations.to_s +
-          ' average: ' + (@total / @num_iterations).to_s + 'us total: ' + @total.to_s +
-          "us\n")
+    puts "#{@name}: iterations=#{@num_iterations} average: #{@total / @num_iterations}us total: #{@total}us\n"
   end
 
   def print_result(run_time)
-    puts (@name + ': iterations=1' + ' runtime: ' + run_time.to_s + 'us')
+    puts "#{@name}: iterations=1 runtime: #{run_time}us"
   end
 
   def print_total
-    puts ('Total Runtime: ' + @total.to_s + 'us')
+    puts "Total Runtime: #{@total}us"
   end
 end
 
@@ -98,12 +96,10 @@ def process_arguments(args, run)
 end
 
 def load_benchmark_suite(benchmark_name)
-  file = './' + benchmark_name.downcase + '.rb'
-  unless require file
-    raise 'failed loading benchmark: ' + file
+  unless require_relative benchmark_name.downcase
+    raise "failed loading #{benchmark_name}"
   end
-  clazz = Object.const_get(benchmark_name)
-  clazz
+  Object.const_get(benchmark_name)
 end
 
 def print_usage
