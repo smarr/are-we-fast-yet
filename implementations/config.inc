@@ -1,5 +1,7 @@
 #!/bin/bash
 
+SCRIPT_PATH=`dirname $0`
+
 if [ -x /usr/libexec/java_home ]   # usually on OS X, this tool is available
 then
   export JAVA7_HOME=`/usr/libexec/java_home -v 1.7`
@@ -28,3 +30,4 @@ else
   WARN Java directories could not be guessed, please check config.inc
 fi
 
+export JRUBY_CMD=$SCRIPT_PATH/JRuby/bin/jruby
