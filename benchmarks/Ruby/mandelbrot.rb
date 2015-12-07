@@ -39,103 +39,75 @@
 
 # http://benchmarksgame.alioth.debian.org/u64q/program.php?test=mandelbrot&lang=yarv&id=3
 
-def mandelbrot(size)
-  sum = 0
-
-  byte_acc = 0
-  bit_num = 0
-
-  y = 0
-  while y < size
-    ci = (2.0*y/size)-1.0
-
-    x = 0
-    while x < size
-      zrzr = zr = 0.0
-      zizi = zi = 0.0
-      cr = (2.0*x/size)-1.5
-      escape = 0b1
-
-      z = 0
-      while z < 50
-        tr = zrzr - zizi + cr
-        ti = 2.0*zr*zi + ci
-        zr = tr
-        zi = ti
-        # preserve recalculation
-        zrzr = zr*zr
-        zizi = zi*zi
-        if zrzr+zizi > 4.0
-          escape = 0b0
-          break
-        end
-        z += 1
-      end
-
-      byte_acc = (byte_acc << 1) | escape
-      bit_num += 1
-
-      # Code is very similar for these cases, but using separate blocks
-      # ensures we skip the shifting when it's unnecessary, which is most cases.
-      if (bit_num == 8)
-        #print byte_acc.chr
-        sum ^= byte_acc
-        byte_acc = 0
-        bit_num = 0
-      elsif (x == size - 1)
-        byte_acc <<= (8 - bit_num)
-        #print byte_acc.chr
-        sum ^= byte_acc
-        byte_acc = 0
-        bit_num = 0
-      end
-      x += 1
-    end
-    y += 1
+class Mandelbrot < Benchmark
+  def inner_benchmark_loop(inner_iterations)
+    verify_result(mandelbrot(inner_iterations), inner_iterations)
   end
 
-  sum
-end
+  def verify_result(result, inner_iterations)
+    if inner_iterations == 500
+      return result == 191
+    end
 
-def sample
-  mandelbrot(750) == 192
-end
+    if inner_iterations == 750
+      return result == 50
+    end
 
+    puts ('No verification result for ' + inner_iterations + ' found')
+    puts ('Result is: ' + result)
+  end
 
-iterations   = 100
-warmup       = 0
-problem_size = 1000
+  def mandelbrot(size)
+    sum      = 0
+    byte_acc = 0
+    bit_num  = 0
 
+    y = 0
+    while y < size
+      ci = (2.0 * y / size) - 1.0
+      x  = 0
 
-if ARGV.size >= 1
-  iterations = ARGV[0].to_i
-end
+      while x < size
+        zrzr = zr = 0.0
+        zizi = zi = 0.0
+        cr   = (2.0 * x / size) - 1.5
 
-if ARGV.size >= 2
-  warmup = ARGV[1].to_i
-end
+        z = 0
+        escape = 0b1
+        while z < 50
+          zr = zrzr - zizi + cr
+          zi = 2.0 * zr * zi + ci
 
-if ARGV.size >= 3
-  problem_size = ARGV[2].to_i
-end
+          # preserve recalculation
+          zrzr = zr * zr
+          zizi = zi * zi
+          if zrzr + zizi > 4.0
+            escape = 0b0
+            break
+          end
+          z += 1
+        end
 
-puts "Overall iterations: #{iterations}."
-puts "Warmup  iterations: #{warmup}."
-puts "Problem size:       #{problem_size}."
+        byte_acc = (byte_acc << 1) | escape
+        bit_num += 1
 
-warmup.times do
-  mandelbrot(problem_size)
-end
+        # Code is very similar for these cases, but using separate blocks
+        # ensures we skip the shifting when it's unnecessary, which is most cases.
+        if bit_num == 8
+          sum ^= byte_acc
+          byte_acc = 0
+          bit_num  = 0
+        elsif x == size - 1
+          byte_acc <<= (8 - bit_num)
+          sum ^= byte_acc
+          byte_acc = 0
+          bit_num  = 0
+        end
+        x += 1
+      end
+      y += 1
+    end
 
-if not sample
-  puts "Sanity check failed! Mandelbrot gives wrong result"
-  exit 1
-end
-
-
-iterations.times do
-  start   = Time.now
-  mandelbrot(problem_size)
-  elapsed = (Time.now - start) * 1000.0 * 1000.0
-  puts "Mandelbrot: iterations=1 runtime: %.0fus" % [elapsed]
+    sum
+  end
 end
