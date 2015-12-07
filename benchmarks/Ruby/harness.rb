@@ -71,8 +71,8 @@ class Run
   end
 
   def report_benchmark
-    puts (@name + ': iterations=' + @num_iterations +
-          ' average: ' + (@total / @num_iterations) + 'us total: ' + @total +
+    puts (@name + ': iterations=' + @num_iterations.to_s +
+          ' average: ' + (@total / @num_iterations).to_s + 'us total: ' + @total.to_s +
           "us\n")
   end
 
@@ -81,7 +81,7 @@ class Run
   end
 
   def print_total
-    puts ('Total Runtime: ' + total.to_s + 'us')
+    puts ('Total Runtime: ' + @total.to_s + 'us')
   end
 end
 
