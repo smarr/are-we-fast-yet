@@ -53,8 +53,8 @@ class Mandelbrot < Benchmark
       return result == 50
     end
 
-    puts ('No verification result for ' + inner_iterations + ' found')
-    puts ('Result is: ' + result)
+    puts ('No verification result for ' + inner_iterations.to_s + ' found')
+    puts ('Result is: ' + result.to_s)
   end
 
   def mandelbrot(size)
