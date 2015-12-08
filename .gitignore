@@ -9,3 +9,8 @@
 *.md
 *.html
 .Rhistory
+.idea
+.eclipse-ws
+benchmarks.jar
+benchmark.data
+benchmarks/Java/build
