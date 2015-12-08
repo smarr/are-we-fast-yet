@@ -1,6 +1,6 @@
-package som.deltablue;
+package deltablue;
 
-import som.deltablue.Constraint.BlockFunction.Return;
+import deltablue.Constraint.BlockFunction.Return;
 
 // ------------------------ constraints ------------------------------------
 

@@ -1,6 +1,6 @@
-package som.deltablue;
+package deltablue;
 
-import som.deltablue.Constraint.BlockFunction.Return;
+import deltablue.Constraint.BlockFunction.Return;
 
 // I relate two variables by the linear scaling relationship: "v2 =
 // (v1 * scale) + offset". Either v1 or v2 may be changed to maintain

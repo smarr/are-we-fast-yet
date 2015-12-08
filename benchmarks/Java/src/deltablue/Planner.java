@@ -1,9 +1,9 @@
-package som.deltablue;
+package deltablue;
 
 import java.util.Arrays;
 import java.util.Vector;
 
-import som.deltablue.Constraint.ConstraintBlockFunction;
+import deltablue.Constraint.ConstraintBlockFunction;
 
 public class Planner {
   private int currentMark;

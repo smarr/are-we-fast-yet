@@ -1,4 +1,4 @@
-package som.richards;
+package richards;
 
 
 public class TaskState extends RBObject {

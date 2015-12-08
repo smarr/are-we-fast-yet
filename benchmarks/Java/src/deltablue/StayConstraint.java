@@ -1,4 +1,4 @@
-package som.deltablue;
+package deltablue;
 
 // I mark variables that should, with some level of preference, stay
 // the same. I have one method with zero inputs and one output, which

@@ -1,4 +1,3 @@
-package som;
 
 public abstract class Benchmark {
   protected int innerIterations;

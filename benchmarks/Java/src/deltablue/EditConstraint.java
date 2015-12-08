@@ -1,4 +1,4 @@
-package som.deltablue;
+package deltablue;
 
 // I am a unary input constraint used to mark a variable that the
 // client wishes to change.

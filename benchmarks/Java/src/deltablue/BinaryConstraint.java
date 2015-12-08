@@ -1,4 +1,4 @@
-package som.deltablue;
+package deltablue;
 
 // I am an abstract superclass for constraints having two possible
 // output variables.

@@ -1,4 +1,4 @@
-package som.deltablue;
+package deltablue;
 
 import java.util.HashMap;
 

@@ -1,4 +1,4 @@
-package som.richards;
+package richards;
 
 public class Transcript {
   public static void cr() { System.out.println(); }
