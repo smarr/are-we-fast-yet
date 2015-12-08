@@ -10,8 +10,10 @@ get_web_getter
 ./build-somns.sh
 ./build-trufflesom.sh
 
+./build-benchmarks.sh
+
 # ./build-graal.sh
-# ./build-classic-benchmarks.sh
+
 # ./build-rpysom.sh
 # ./build-rtrufflesom.sh
 
