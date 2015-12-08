@@ -1,0 +1,18 @@
+<project name="Java-benchmarks" basedir="." default="compile">
+    <property name="src.dir" value="src" />
+    
+    <property name="build.dir" value="build" />
+    
+    <target name="clean">
+        <delete dir="${build.dir}" />
+    </target>
+    
+    <target name="compile">
+        <mkdir dir="${build.dir}" />
+        <javac includeantruntime="false" srcdir="${src.dir}" destdir="${build.dir}" />
+    </target>
+    
+    <target name="jar" depends="compile">
+        <jar destfile="benchmarks.jar" basedir="${build.dir}" />
+    </target>
+</project>
