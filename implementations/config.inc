@@ -31,3 +31,10 @@ else
 fi
 
 export JRUBY_CMD=$SCRIPT_PATH/JRuby/bin/jruby
+
+function home_from_command() {
+  HOME=`dirname $1`
+  HOME=`dirname $HOME`
+  HOME=`dirname $HOME`
+  HOME=`dirname $HOME`
+}
