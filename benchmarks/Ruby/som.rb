@@ -212,7 +212,7 @@ class IdentitySet < Set
         return true
       end
     }
-    return false
+    false
   end
 end
 
@@ -236,7 +236,7 @@ class Dictionary
         return p.value
       end
     }
-    return nil
+    nil
   end
 
   def pair_at(key)
