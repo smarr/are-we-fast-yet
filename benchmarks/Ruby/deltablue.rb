@@ -58,20 +58,17 @@ class Planner
     constraint.mark_unsatisfied
     constraint.remove_from_graph
     unsatisfied = remove_propagate_from(out)
-
-    for u in unsatisfied
-      incremental_add(u)
-    end
+    unsatisfied.each { |u| incremental_add(u) }
   end
 
   def extract_plan_from_constraints(constraints)
     sources = Vector.new
 
-    for c in constraints
+    constraints.each { | c |
       if c.is_input and c.is_satisfied
         sources.append(c)
       end
-    end
+    }
 
     make_plan(sources)
   end
@@ -108,11 +105,11 @@ class Planner
   def add_constraints_consuming_to(v, coll)
     determining_c = v.determined_by
 
-    for c in v.constraints
+    v.constraints.each { | c |
       if c != determining_c and c.is_satisfied
         coll.append(c)
       end
-    end
+    }
   end
 
   def add_propagate(c, mark)
@@ -142,11 +139,11 @@ class Planner
 
   def constraints_consuming(v) # &block
     determining_c = v.determined_by
-    for c in v.constraints
+    v.constraints.each { | c |
       if c != determining_c and c.is_satisfied
         yield c
       end
-    end
+    }
   end
 
   def new_mark
@@ -165,13 +162,13 @@ class Planner
     until todo.empty?
       v = todo.remove_first
 
-      for c in v.constraints
+      v.constraints.each { | c |
         unless c.is_satisfied
           unsatisfied.append(c)
         end
-      end
+      }
 
-      constraints_consuming(v) {
+      constraints_consuming(v) { | c |
         c.recalculate
         todo.append(c.output)
       }
@@ -199,25 +196,25 @@ class Planner
     vars = Array.new(n + 1) { Variable.new }
 
     # thread a chain of equality constraints through the variables
-    for i in 0..(n - 1)
+    (0..(n - 1)).each { | i |
       v1 = vars[i]
       v2 = vars[i + 1]
 
       EqualityConstraint.new(v1, v2, :required, planner)
-    end
+    }
 
     StayConstraint.new(vars.last, :strong_default, planner)
     edit = EditConstraint.new(vars.first, :preferred, planner)
     plan = planner.extract_plan_from_constraints([edit])
 
-    for v in 1..100
+    (1..100).each { | v |
       vars.first.value = v
       plan.execute
 
       if vars.last.value != v
         raise 'Chain test failed!!'
       end
-    end
+    }
 
     edit.destroy_constraint(planner)
   end
@@ -233,14 +230,16 @@ class Planner
     scale   = Variable.value(10)
     offset  = Variable.value(1000)
 
+    src = nil
+    dst = nil
 
-    for i in 1..n
+    (1..n).each { | i |
       src = Variable.value(i)
       dst = Variable.value(i)
       dests.append(dst)
       StayConstraint.new(src, :default, planner)
       ScaleConstraint.new(src, scale, offset, dst, :required, planner)
-    end
+    }
 
     planner.change_var(src, 17)
     if dst.value != 1170; raise 'Projection 1 failed' end
@@ -249,18 +248,18 @@ class Planner
     if src.value != 5; raise 'Projection 2 failed' end
 
     planner.change_var(scale, 5)
-    for i in 0..(n - 2)
+    (0..(n - 2)).each { | i |
       if dests.at(i).value != ((i + 1) * 5 + 1000)
         raise 'Projection 3 failed'
       end
-    end
+    }
 
     planner.change_var(offset, 2000)
-    for i in 0..(n - 2)
+    (0..(n - 2)).each { | i |
       if dests.at(i).value != ((i + 1) * 5 + 2000)
         raise 'Projection 4 failed'
       end
-    end
+    }
   end
 end
 

@@ -45,9 +45,9 @@ class Vector
   end
 
   def each # &block
-    for i in @first_idx..(@last_idx - 1)
+    (@first_idx..(@last_idx - 1)).each { | i |
       yield @storage[i]
-    end
+    }
   end
 
   def self.with(elem)
