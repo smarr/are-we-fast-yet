@@ -44,7 +44,7 @@ class Vector
     self
   end
 
-  def each(&block)
+  def each # &block
     for i in @first_idx..(@last_idx - 1)
       yield @storage[i]
     end
@@ -107,7 +107,7 @@ class Vector
   end
 
 
-  def sort_range(i, j, &block)
+  def sort_range(i, j)  # &block
     # Sort elements i through j of self to be non-descending according to sortBlock.
     unless block_given?
       default_sort(i, j)
@@ -198,7 +198,7 @@ class Set
     end
   end
 
-  def collect(&block)
+  def collect # &block
     coll = Vector.new
     each { | e | coll.append(yield e) }
     coll
