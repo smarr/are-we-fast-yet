@@ -93,18 +93,6 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       ^ self makePlan: sources
     )
 
-    public extractPlanFromVariables: variables = (
-      (* Extract a plan from the dataflow graph having the given variables. It
-         is assumed that the given set of variables is complete, or at least
-         that it contains all the input variables. *)
-      | sources |
-      sources := Vector new.
-      variables do: [:v |
-        v constraints do: [: c |
-          (c isInput and: [c isSatisfied]) ifTrue: [sources add: c]]].
-      ^self makePlan: sources
-    )
-
     makePlan: sources = (
       (* Extract a plan for resatisfaction starting from the given satisfied
          source constraints, usually a set of input constraints. This method
@@ -218,7 +206,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       unsatisfied := Vector new.
 
       out determinedBy: nil.
-      out walkStrength: Strength absoluteWeakest.
+      out walkStrength: AbsoluteWeakest.
       out stay: true.
       todo := Vector with: out.
       [todo isEmpty] whileFalse: [
@@ -373,19 +361,6 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       (* Answer an instance with the specified strength. *)
       ^ strengthConstants at: aSymbol
     )
-
-    'constants'
-    public absoluteStrongest = (
-      ^ AbsoluteStrongest
-    )
-
-    public absoluteWeakest = (
-      ^ AbsoluteWeakest
-    )
-
-    public required = (
-      ^ Required
-    )
   )
   
   class AbstractConstraint new: strengthSymbol = (
@@ -507,7 +482,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
           out mark: mark]
         ifFalse: [ (* constraint cannot be satisfied *)
           overridden := nil.
-          (strength sameAs: (Strength required)) ifTrue:
+          (strength sameAs: Required) ifTrue:
             [self error: 'Failed to satisfy a required constraint']].
       ^ overridden
     )
@@ -614,6 +589,68 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
     )
   )
 
+  class UnaryConstraint var: aVariable strength: strengthSymbol addTo: planner = AbstractConstraint new: strengthSymbol (
+    (* I am an abstract superclass for constraints having a single possible
+       output variable.
+
+    Instance variables:
+        output      possible output variable <Variable>
+        satisfied       true if I am currently satisfied <Boolean> *)
+    | public output = aVariable.
+      satisfied     ::= false. |
+    self addConstraint: planner.
+  )(
+    'queries'
+    public isSatisfied = (
+      (* Answer true if this constraint is satisfied in the current solution. *)
+      ^ satisfied
+    )
+
+    'add/remove'
+    addToGraph = (
+      (* Add myself to the constraint graph. *)
+      output addConstraint: self.
+      satisfied := false.
+    )
+
+    public removeFromGraph = (
+      (* Remove myself from the constraint graph. *)
+      output == nil ifFalse: [output removeConstraint: self].
+      satisfied := false.
+    )
+
+    'planning'
+    chooseMethod: mark = (
+      (* Decide if I can be satisfied and record that decision. *)
+      satisfied :=
+        output mark <> mark and: [
+          strength stronger: output walkStrength].
+    )
+
+    public execute = (
+      (* Enforce this constraint. Assume that it is satisfied. *)
+      self subclassResponsibility
+    )
+
+    inputsDo: aBlock = (
+      (* I have no input variables. *)
+    )
+
+    public markUnsatisfied = (
+      (* Record the fact that I am unsatisfied. *)
+      satisfied := false.
+    )
+
+    public recalculate = (
+      (* Calculate the walkabout strength, the stay flag, and, if it is 'stay',
+         the value for the current output of this constraint. Assume this
+         constraint is satisfied. *)
+      output walkStrength: strength.
+      output stay: self isInput not.
+      output stay ifTrue: [self execute].   (* stay optimization *)
+    )
+  )
+
   class EditConstraint var: aVariable strength: strengthSymbol addTo: planner = UnaryConstraint var: aVariable strength: strengthSymbol addTo: planner (
     (* I am a unary input constraint used to mark a variable that the client
        wishes to change. *)
@@ -706,68 +743,6 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       out stay ifTrue: [self execute].      (* stay optimization *)
     )
   )
-  
-  class UnaryConstraint var: aVariable strength: strengthSymbol addTo: planner = AbstractConstraint new: strengthSymbol (
-    (* I am an abstract superclass for constraints having a single possible
-       output variable.
-
-    Instance variables:
-        output      possible output variable <Variable>
-        satisfied       true if I am currently satisfied <Boolean> *)
-    | public output = aVariable.
-      satisfied     ::= false. |
-    self addConstraint: planner.
-  )(
-    'queries'
-    public isSatisfied = (
-      (* Answer true if this constraint is satisfied in the current solution. *)
-      ^ satisfied
-    )
-
-    'add/remove'
-    addToGraph = (
-      (* Add myself to the constraint graph. *)
-      output addConstraint: self.
-      satisfied := false.
-    )
-
-    public removeFromGraph = (
-      (* Remove myself from the constraint graph. *)
-      output == nil ifFalse: [output removeConstraint: self].
-      satisfied := false.
-    )
-
-    'planning'
-    chooseMethod: mark = (
-      (* Decide if I can be satisfied and record that decision. *)
-      satisfied :=
-        output mark <> mark and: [
-          strength stronger: output walkStrength].
-    )
-
-    public execute = (
-      (* Enforce this constraint. Assume that it is satisfied. *)
-      self subclassResponsibility
-    )
-
-    inputsDo: aBlock = (
-      (* I have no input variables. *)
-    )
-
-    public markUnsatisfied = (
-      (* Record the fact that I am unsatisfied. *)
-      satisfied := false.
-    )
-
-    public recalculate = (
-      (* Calculate the walkabout strength, the stay flag, and, if it is 'stay',
-         the value for the current output of this constraint. Assume this
-         constraint is satisfied. *)
-      output walkStrength: strength.
-      output stay: self isInput not.
-      output stay ifTrue: [self execute].   (* stay optimization *)
-    )
-  )
 
   class StayConstraint var: aVariable strength: strengthSymbol addTo: planner = UnaryConstraint var: aVariable strength: strengthSymbol addTo: planner (
     (* I mark variables that should, with some level of preference, stay the
@@ -798,7 +773,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
     | public value        ::= 0.
       public constraints  = Vector new: 2.
       public determinedBy ::= nil.
-      public walkStrength ::= Strength absoluteWeakest.
+      public walkStrength ::= AbsoluteWeakest.
       public stay         ::= true.
       public mark         ::= 0.
     |
@@ -822,7 +797,6 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       ^ o
     )
   )
-
+  
   public newInstance = ( ^ DeltaBlue new )
-  public setupVerifiedRun: run = ( run innerIterations: 20 )
 )
