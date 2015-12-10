@@ -13,7 +13,6 @@ end
 class Vector
   def initialize(size = 50)
     @storage   = Array.new(size)
-    raise 'foo' if @storage.nil?
     @first_idx = 0
     @last_idx  = 0
   end

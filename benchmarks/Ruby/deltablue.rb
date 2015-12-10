@@ -485,7 +485,7 @@ class BinaryConstraint < AbstractConstraint
       if @strength.stronger(@v2.walk_strength)
         return @direction = :forward
       else
-        return @direction = :backward
+        return @direction = nil
       end
     end
   end
