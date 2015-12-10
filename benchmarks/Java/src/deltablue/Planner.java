@@ -1,15 +1,16 @@
 package deltablue;
 
 import java.util.Arrays;
-import java.util.Vector;
 
-import deltablue.Constraint.ConstraintBlockFunction;
+import deltablue.AbstractConstraint.ConstraintBlockFunction;
+import deltablue.Strength.S;
+import som.Vector;
 
 public class Planner {
   private int currentMark;
 
-  public void initialize() {
-    currentMark = 0;
+  public Planner() {
+    currentMark = 1;
   }
 
   // Attempt to satisfy the given constraint and, if successful,
@@ -25,11 +26,12 @@ public class Planner {
   // the algorithm to avoid getting into an infinite loop even if the
   // constraint graph has an inadvertent cycle.
   //
-  public void incrementalAdd(final Constraint c) {
+  public void incrementalAdd(final AbstractConstraint c) {
     int mark = newMark();
-    Constraint overridden = c.satisfy(mark);
+    AbstractConstraint overridden = c.satisfy(mark, this);
+
     while (overridden != null) {
-      overridden = overridden.satisfy(mark);
+      overridden = overridden.satisfy(mark, this);
     }
   }
 
@@ -43,24 +45,24 @@ public class Planner {
   // unnecessarily adding and then overriding weak constraints.
   // Assume: c is satisfied.
   //
-  public void incrementalRemove(final Constraint c) {
-    Variable out = c.output();
+  public void incrementalRemove(final AbstractConstraint c) {
+    Variable out = c.getOutput();
     c.markUnsatisfied();
     c.removeFromGraph();
 
-    Vector<Constraint> unsatisfied = removePropagateFrom(out);
+    Vector<AbstractConstraint> unsatisfied = removePropagateFrom(out);
     unsatisfied.forEach(u -> incrementalAdd(u));
   }
 
   // Extract a plan for resatisfaction starting from the outputs of
   // the given constraints, usually a set of input constraints.
   //
-  protected Plan extractPlanFromConstraints(final Vector<Constraint> constraints) {
-    Vector<Constraint> sources = new Vector<>();
+  protected Plan extractPlanFromConstraints(final Vector<AbstractConstraint> constraints) {
+    Vector<AbstractConstraint> sources = new Vector<>();
 
     constraints.forEach(c -> {
       if (c.isInput() && c.isSatisfied()) {
-        sources.add(c);
+        sources.append(c);
       }});
 
     return makePlan(sources);
@@ -84,19 +86,19 @@ public class Planner {
   // any constraint.
   // Assume: sources are all satisfied.
   //
-  protected Plan makePlan(final Vector<Constraint> sources) {
+  protected Plan makePlan(final Vector<AbstractConstraint> sources) {
     int mark = newMark();
     Plan plan = new Plan();
-    Vector<Constraint> todo = sources;
+    Vector<AbstractConstraint> todo = sources;
 
     while (!todo.isEmpty()) {
-      Constraint c = todo.remove(0);
+      AbstractConstraint c = todo.removeFirst();
 
-      if (c.output().getMark() != mark && c.inputsKnown(mark)) {
+      if (c.getOutput().getMark() != mark && c.inputsKnown(mark)) {
         // not in plan already and eligible for inclusion
-        plan.add(c);
-        c.output().setMark(mark);
-        addConstraintsConsumingTo(c.output(), todo);
+        plan.append(c);
+        c.getOutput().setMark(mark);
+        addConstraintsConsumingTo(c.getOutput(), todo);
       }
     }
     return plan;
@@ -104,20 +106,22 @@ public class Planner {
 
   // The given variable has changed. Propagate new values downstream.
   public void propagateFrom(final Variable v) {
-    Vector<Constraint> todo = new Vector<>();
+    Vector<AbstractConstraint> todo = new Vector<>();
     addConstraintsConsumingTo(v, todo);
+
     while (!todo.isEmpty()) {
-      Constraint c = todo.remove(0);
+      AbstractConstraint c = todo.removeFirst();
       c.execute();
-      addConstraintsConsumingTo(c.output(), todo);
+      addConstraintsConsumingTo(c.getOutput(), todo);
     }
   }
 
-  protected void addConstraintsConsumingTo(final Variable v, final Vector<Constraint> coll) {
-    Constraint determiningC = v.getDeterminedBy();
+  protected void addConstraintsConsumingTo(final Variable v, final Vector<AbstractConstraint> coll) {
+    AbstractConstraint determiningC = v.getDeterminedBy();
+
     v.getConstraints().forEach(c -> {
       if (c != determiningC && c.isSatisfied()) {
-        coll.add(c);
+        coll.append(c);
       }
     });
   }
@@ -134,38 +138,37 @@ public class Planner {
   // the output constraint means that there is a path from the
   // constraint's output to one of its inputs.
   //
-  public boolean addPropagate(final Constraint c, final int mark) {
-    Vector<Constraint> todo = new Vector<>();
-    todo.add(c);
-    while (!todo.isEmpty()) {
-      Constraint d = todo.remove(0);
+  public boolean addPropagate(final AbstractConstraint c, final int mark) {
+    Vector<AbstractConstraint> todo = Vector.with(c);
 
-      if (d.output().getMark() == mark) {
+    while (!todo.isEmpty()) {
+      AbstractConstraint d = todo.removeFirst();
+
+      if (d.getOutput().getMark() == mark) {
         incrementalRemove(c);
         return false;
       }
       d.recalculate();
-      addConstraintsConsumingTo(d.output(), todo);
+      addConstraintsConsumingTo(d.getOutput(), todo);
     }
     return true;
   }
 
   private void change(final Variable var, final int newValue) {
-    EditConstraint editC = EditConstraint.var(var, "preferred");
+    EditConstraint editC = new EditConstraint(var, S.PREFERRED, this);
 
-    Vector<Constraint> editV = new Vector<>();
-    editV.add(editC);
+    Vector<AbstractConstraint> editV = Vector.with(editC);
     Plan plan = extractPlanFromConstraints(editV);
     for (int i = 0; i < 10; i++) {
       var.setValue(newValue);
       plan.execute();
     }
-    editC.destroyConstraint();
+    editC.destroyConstraint(this);
   }
 
   private void constraintsConsuming(final Variable v,
       final ConstraintBlockFunction block) {
-    Constraint determiningC = v.getDeterminedBy();
+    AbstractConstraint determiningC = v.getDeterminedBy();
     v.getConstraints().forEach(c -> {
       if (c != determiningC && c.isSatisfied()) {
         block.apply(c);
@@ -175,31 +178,31 @@ public class Planner {
 
   // Select a previously unused mark value.
   private int newMark() {
-    return ++currentMark;
+    currentMark++;
+    return currentMark;
   }
 
   // Update the walkabout strengths and stay flags of all variables
   // downstream of the given constraint. Answer a collection of
   // unsatisfied constraints sorted in order of decreasing strength.
-  protected Vector<Constraint> removePropagateFrom(final Variable out) {
-    Vector<Constraint> unsatisfied = new Vector<>();
+  protected Vector<AbstractConstraint> removePropagateFrom(final Variable out) {
+    Vector<AbstractConstraint> unsatisfied = new Vector<>();
 
     out.setDeterminedBy(null);
     out.setWalkStrength(Strength.absoluteWeakest);
     out.setStay(true);
 
-    Vector<Variable> todo = new Vector<>();
-    todo.add(out);
+    Vector<Variable> todo = Vector.with(out);
 
     while (!todo.isEmpty()) {
-      Variable v = todo.remove(0);
+      Variable v = todo.removeFirst();
 
       v.getConstraints().forEach(c -> {
-        if (!c.isSatisfied()) { unsatisfied.add(c); }});
+        if (!c.isSatisfied()) { unsatisfied.append(c); }});
 
       constraintsConsuming(v, c -> {
         c.recalculate();
-        todo.add(c.output());
+        todo.append(c.getOutput());
       });
     }
 
@@ -207,19 +210,6 @@ public class Planner {
       c1.getStrength().stronger(c2.getStrength()) ?
           -1 : c1.getStrength().sameAs(c2.getStrength()) ? 0 : 1);
     return unsatisfied;
-  }
-
-
-  public static void error(final String s) {
-    System.err.println(s);
-    System.exit(1);
-  }
-
-  private static Planner currentPlanner;
-
-  public Planner() {
-    initialize();
-    currentPlanner = this;
   }
 
   // This is the standard DeltaBlue benchmark. A long chain of
@@ -244,23 +234,22 @@ public class Planner {
     for (int i = 0; i < n; i++) {
       Variable v1 = vars[i];
       Variable v2 = vars[i + 1];
-      EqualityConstraint.var(v1, v2, "required");
+      new EqualityConstraint(v1, v2, S.REQUIRED, planner);
     }
 
-    StayConstraint.var(vars[n], "strongDefault");
-    Constraint editC = EditConstraint.var(vars[0], "preferred");
+    new StayConstraint(vars[n], S.STRONG_DEFAULT, planner);
+    AbstractConstraint editC = new EditConstraint(vars[0], S.PREFERRED, planner);
 
-    Vector<Constraint> editV = new Vector<>();
-    editV.addElement(editC);
+    Vector<AbstractConstraint> editV = Vector.with(editC);
     Plan plan = planner.extractPlanFromConstraints(editV);
     for (int i = 0; i < 100; i++) {
       vars[0].setValue(i);
       plan.execute();
       if (vars[n].getValue() != i) {
-        error("Chain test failed!");
+        throw new RuntimeException("Chain test failed!");
       }
     }
-    editC.destroyConstraint();
+    editC.destroyConstraint(planner);
   }
 
   // This test constructs a two sets of variables related to each
@@ -280,37 +269,33 @@ public class Planner {
     for (int i = 0; i < n; ++i) {
       src = Variable.value(i);
       dst = Variable.value(i);
-      dests.add(dst);
-      StayConstraint.var(src, "default");
-      ScaleConstraint.var(src, scale, offset, dst, "required");
+      dests.append(dst);
+      new StayConstraint(src, S.DEFAULT, planner);
+      new ScaleConstraint(src, scale, offset, dst, S.REQUIRED, planner);
     }
 
     planner.change(src, 17);
     if (dst.getValue() != 1170) {
-      error("Projection test 1 failed!");
+      throw new RuntimeException("Projection test 1 failed!");
     }
 
     planner.change(dst, 1050);
     if (src.getValue() != 5) {
-      error("Projection test 2 failed!");
+      throw new RuntimeException("Projection test 2 failed!");
     }
 
     planner.change(scale, 5);
     for (int i = 0; i < n - 1; ++i) {
-      if (dests.elementAt(i).getValue() != i * 5 + 1000) {
-        error("Projection test 3 failed!");
+      if (dests.at(i).getValue() != i * 5 + 1000) {
+        throw new RuntimeException("Projection test 3 failed!");
       }
     }
 
     planner.change(offset, 2000);
     for (int i = 0; i < n - 1; ++i) {
-      if (dests.elementAt(i).getValue() != i * 5 + 2000) {
-        error("Projection test 4 failed!");
+      if (dests.at(i).getValue() != i * 5 + 2000) {
+        throw new RuntimeException("Projection test 4 failed!");
       }
     }
-  }
-
-  public static Planner getCurrent() {
-    return currentPlanner;
   }
 }

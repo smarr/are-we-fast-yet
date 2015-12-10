@@ -1,20 +1,20 @@
 package deltablue;
 
-import deltablue.Constraint.BlockFunction.Return;
+import deltablue.AbstractConstraint.BlockFunction.Return;
+import deltablue.Strength.S;
+
 
 // I am an abstract superclass for constraints having a single
 // possible output variable.
-//
-abstract class UnaryConstraint extends Constraint {
+abstract class UnaryConstraint extends AbstractConstraint {
 
-  protected Variable myOutput; // possible output variable
+  protected final Variable output; // possible output variable
   protected boolean  satisfied; // true if I am currently satisfied
 
-  public void set(final Variable v, final String strength) {
-    this.strength = Strength.of(strength);
-    myOutput = v;
-    satisfied = false;
-    addConstraint();
+  public UnaryConstraint(final Variable v, final S strength, final Planner planner) {
+    super(strength);
+    this.output = v;
+    addConstraint(planner);
   }
 
   // Answer true if this constraint is satisfied in the current solution.
@@ -26,24 +26,24 @@ abstract class UnaryConstraint extends Constraint {
   // Add myself to the constraint graph.
   @Override
   public void addToGraph() {
-    myOutput.addConstraint(this);
+    output.addConstraint(this);
     satisfied = false;
   }
 
   // Remove myself from the constraint graph.
   @Override
   public void removeFromGraph() {
-    if (myOutput != null) {
-      myOutput.removeConstraint(this);
+    if (output != null) {
+      output.removeConstraint(this);
     }
     satisfied = false;
   }
 
   // Decide if I can be satisfied and record that decision.
   @Override
-  protected String chooseMethod(final int mark) {
-    satisfied = myOutput.getMark() != mark
-        && strength.stronger(myOutput.getWalkStrength());
+  protected Direction chooseMethod(final int mark) {
+    satisfied = output.getMark() != mark
+        && strength.stronger(output.getWalkStrength());
     return null;
   }
 
@@ -63,8 +63,8 @@ abstract class UnaryConstraint extends Constraint {
 
   // Answer my current output variable.
   @Override
-  public Variable output() {
-    return myOutput;
+  public Variable getOutput() {
+    return output;
   }
 
   // Calculate the walkabout strength, the stay flag, and, if it is
@@ -72,9 +72,9 @@ abstract class UnaryConstraint extends Constraint {
   // constraint. Assume this constraint is satisfied."
   @Override
   public void recalculate() {
-    myOutput.setWalkStrength(strength);
-    myOutput.setStay(!isInput());
-    if (myOutput.getStay()) {
+    output.setWalkStrength(strength);
+    output.setStay(!isInput());
+    if (output.getStay()) {
       execute(); // stay optimization
     }
   }

@@ -1,6 +1,6 @@
 package deltablue;
 
-import java.util.Vector;
+import som.Vector;
 
 // ------------------------------ variables ------------------------------
 
@@ -11,8 +11,8 @@ import java.util.Vector;
 class Variable {
 
   private int value;       // my value; changed by constraints
-  private Vector<Constraint> constraints; // normal constraints that reference me
-  private Constraint determinedBy; // the constraint that currently determines
+  private final Vector<AbstractConstraint> constraints; // normal constraints that reference me
+  private AbstractConstraint determinedBy; // the constraint that currently determines
   // my value (or null if there isn't one)
   private int mark;        // used by the planner to mark constraints
   private Strength walkStrength; // my walkabout strength
@@ -34,19 +34,19 @@ class Variable {
   }
 
   // Add the given constraint to the set of all constraints that refer to me.
-  public void addConstraint(final Constraint c) {
-    constraints.add(c);
+  public void addConstraint(final AbstractConstraint c) {
+    constraints.append(c);
   }
 
-  public Vector<Constraint> getConstraints() {
+  public Vector<AbstractConstraint> getConstraints() {
     return constraints;
   }
 
-  public Constraint getDeterminedBy() {
+  public AbstractConstraint getDeterminedBy() {
     return determinedBy;
   }
 
-  public void setDeterminedBy(final Constraint c) {
+  public void setDeterminedBy(final AbstractConstraint c) {
     determinedBy = c;
   }
 
@@ -59,7 +59,7 @@ class Variable {
   }
 
   // Remove all traces of c from this variable.
-  public void removeConstraint(final Constraint c) {
+  public void removeConstraint(final AbstractConstraint c) {
     constraints.remove(c);
     if (determinedBy == c) {
       determinedBy = null;

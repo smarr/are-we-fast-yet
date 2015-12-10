@@ -1,6 +1,7 @@
 package deltablue;
 
-import deltablue.Constraint.BlockFunction.Return;
+import deltablue.AbstractConstraint.BlockFunction.Return;
+import deltablue.Strength.S;
 
 // ------------------------ constraints ------------------------------------
 
@@ -9,16 +10,16 @@ import deltablue.Constraint.BlockFunction.Return;
 // a strength instance variable; concrete subclasses provide a means
 // of storing the constrained variables and other information required
 // to represent a constraint.
-abstract class Constraint {
+abstract class AbstractConstraint {
 
-  protected Strength strength; // the strength of this constraint
+  protected final Strength strength; // the strength of this constraint
+
+  public AbstractConstraint(final S strength) {
+    this.strength = Strength.of(strength);
+  }
 
   public Strength getStrength() {
     return strength;
-  }
-
-  public void setStrength(final String strength) {
-    this.strength = Strength.of(strength);
   }
 
   // Normal constraints are not input constraints. An input constraint
@@ -32,9 +33,9 @@ abstract class Constraint {
   public abstract boolean isSatisfied();
 
   // Activate this constraint and attempt to satisfy it.
-  protected void addConstraint() {
+  protected void addConstraint(final Planner planner) {
     addToGraph();
-    Planner.getCurrent().incrementalAdd(this);
+    planner.incrementalAdd(this);
   }
 
   // Add myself to the constraint graph.
@@ -43,9 +44,9 @@ abstract class Constraint {
   // Deactivate this constraint, remove it from the constraint graph,
   // possibly causing other constraints to be satisfied, and destroy
   // it.
-  public void destroyConstraint() {
+  public void destroyConstraint(final Planner planner) {
     if (isSatisfied()) {
-      Planner.getCurrent().incrementalRemove(this);
+      planner.incrementalRemove(this);
     }
     removeFromGraph();
   }
@@ -54,9 +55,9 @@ abstract class Constraint {
   public abstract void removeFromGraph();
 
   // Decide if I can be satisfied and record that decision. The output
-  // of the choosen method must not have the given mark and must have
+  // of the chosen method must not have the given mark and must have
   // a walkabout strength less than that of this constraint.
-  protected abstract String chooseMethod(int mark);
+  protected abstract Direction chooseMethod(int mark);
 
   // Enforce this constraint. Assume that it is satisfied.
   public abstract void execute();
@@ -78,10 +79,10 @@ abstract class Constraint {
 
   @FunctionalInterface
   public interface ConstraintBlockFunction {
-    void apply(final Constraint c);
+    void apply(final AbstractConstraint c);
   }
 
-  public abstract void inputsDo(Constraint.BlockFunction block) throws BlockFunction.Return;
+  public abstract void inputsDo(AbstractConstraint.BlockFunction block) throws BlockFunction.Return;
 
   // Assume that I am satisfied. Answer true if all my current inputs
   // are known. A variable is known if either a) it is 'stay' (i.e. it
@@ -106,7 +107,7 @@ abstract class Constraint {
 
   // Answer my current output variable. Raise an error if I am not
   // currently satisfied.
-  public abstract Variable output();
+  public abstract Variable getOutput();
 
   // Calculate the walkabout strength, the stay flag, and, if it is
   // 'stay', the value for the current output of this
@@ -119,8 +120,8 @@ abstract class Constraint {
   // there is one, or nil, if there isn't.
   // Assume: I am not already satisfied.
   //
-  public Constraint satisfy(final int mark) {
-    Constraint overridden;
+  public AbstractConstraint satisfy(final int mark, final Planner planner) {
+    AbstractConstraint overridden;
 
     chooseMethod(mark);
 
@@ -131,15 +132,14 @@ abstract class Constraint {
         inputsDo(in -> in.setMark(mark));
       } catch (BlockFunction.Return e) {/* Doesn't throw return... */}
 
-      Variable out = output();
+      Variable out = getOutput();
       overridden = out.getDeterminedBy();
       if (overridden != null) {
         overridden.markUnsatisfied();
       }
       out.setDeterminedBy(this);
-      if (!Planner.getCurrent().addPropagate(this, mark)) {
-        System.out.println("Cycle encountered");
-        return null;
+      if (!planner.addPropagate(this, mark)) {
+        throw new RuntimeException("Cycle encountered");
       }
       out.setMark(mark);
     } else {

@@ -1,18 +1,19 @@
 package deltablue;
 
+import deltablue.Strength.S;
+
 // I am an abstract superclass for constraints having two possible
 // output variables.
-abstract class BinaryConstraint extends Constraint {
+abstract class BinaryConstraint extends AbstractConstraint {
 
   protected Variable v1, v2;          // possible output variables
-  protected String   direction;       // one of the following...
+  protected Direction direction;       // one of the following...
 
-  public void set(final Variable var1, final Variable var2, final String strength) {
-    this.strength = Strength.of(strength);
+  public BinaryConstraint(final Variable var1, final Variable var2, final S strength, final Planner planner) {
+    super(strength);
     v1 = var1;
     v2 = var2;
     direction = null;
-    addConstraint();
   }
 
   // Answer true if this constraint is satisfied in the current solution.
@@ -46,10 +47,10 @@ abstract class BinaryConstraint extends Constraint {
   // decision.
   //
   @Override
-  protected String chooseMethod(final int mark) {
+  protected Direction chooseMethod(final int mark) {
     if (v1.getMark() == mark) {
       if (v2.getMark() != mark && strength.stronger(v2.getWalkStrength())) {
-        direction = "forward";
+        direction = Direction.FORWARD;
         return direction;
       } else {
         direction = null;
@@ -59,7 +60,7 @@ abstract class BinaryConstraint extends Constraint {
 
     if (v2.getMark() == mark) {
       if (v1.getMark() != mark && strength.stronger(v1.getWalkStrength())) {
-        direction = "backward";
+        direction = Direction.BACKWARD;
         return direction;
       } else {
         direction = null;
@@ -70,7 +71,7 @@ abstract class BinaryConstraint extends Constraint {
     // If we get here, neither variable is marked, so we have a choice.
     if (v1.getWalkStrength().weaker(v2.getWalkStrength())) {
       if (strength.stronger(v1.getWalkStrength())) {
-        direction = "backward";
+        direction = Direction.BACKWARD;
         return direction;
       } else {
         direction = null;
@@ -78,7 +79,7 @@ abstract class BinaryConstraint extends Constraint {
       }
     } else {
       if (strength.stronger(v2.getWalkStrength())) {
-        direction = "forward";
+        direction = Direction.FORWARD;
         return direction;
       } else {
         direction = null;
@@ -88,8 +89,8 @@ abstract class BinaryConstraint extends Constraint {
   }
 
   @Override
-  public void inputsDo(final Constraint.BlockFunction block) throws BlockFunction.Return {
-    if (direction == "forward") {
+  public void inputsDo(final AbstractConstraint.BlockFunction block) throws BlockFunction.Return {
+    if (direction == Direction.FORWARD) {
       block.apply(v1);
     } else {
       block.apply(v2);
@@ -105,8 +106,8 @@ abstract class BinaryConstraint extends Constraint {
 
   // Answer my current output variable.
   @Override
-  public Variable output() {
-    return direction == "forward" ? v2 : v1;
+  public Variable getOutput() {
+    return direction == Direction.FORWARD ? v2 : v1;
   }
 
   // Calculate the walkabout strength, the stay flag, and, if it is
@@ -117,7 +118,7 @@ abstract class BinaryConstraint extends Constraint {
   public void recalculate() {
     Variable in, out;
 
-    if (direction == "forward") {
+    if (direction == Direction.FORWARD) {
       in = v1; out = v2;
     } else {
       in = v2; out = v1;

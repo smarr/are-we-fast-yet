@@ -1,13 +1,13 @@
 public final class Harness {
 
+  @SuppressWarnings("unchecked")
   private static Class<? extends Benchmark> getSuiteFromName(final String name) {
-    switch (name) {
-      case "DeltaBlue":
-        return null;
-      case "Mandelbrot":
-        return Mandelbrot.class;
+    try {
+      return (Class<? extends Benchmark>) Class.forName(name);
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
     }
-    return null;
   }
 
   private static void processArguments(final String[] args, final Run run) {

@@ -1,6 +1,6 @@
 package deltablue;
 
-import java.util.HashMap;
+import som.Dictionary;
 
 /*
  * Strengths are used to measure the relative importance of constraints. New
@@ -10,12 +10,16 @@ import java.util.HashMap;
  */
 public class Strength {
 
-  private int    arithmeticValue;
-  private String symbolicValue;
+  public enum S { ABSOLUTE_STRONGEST, REQUIRED, STRONG_PREFERRED, PREFERRED,
+    STRONG_DEFAULT, DEFAULT, WEAK_DEFAULT, ABSOLUTE_WEAKEST };
 
-  private Strength(final String symbolicValue) {
+  private final int arithmeticValue;
+  @SuppressWarnings("unused")
+  private final S   symbolicValue;
+
+  private Strength(final S symbolicValue) {
     this.symbolicValue = symbolicValue;
-    this.arithmeticValue = strengthTable.get(symbolicValue);
+    this.arithmeticValue = strengthTable.at(symbolicValue);
   }
 
   public boolean sameAs(final Strength s) {
@@ -46,33 +50,42 @@ public class Strength {
     System.out.print("strength[" + Integer.toString(arithmeticValue) + "]");
   }
 
-  public HashMap<String, Integer> strengthTable() {
+  public Dictionary<S, Integer> strengthTable() {
     return strengthTable;
   }
 
-  public static Strength of(final String aSymbol) {
-    return strengthConstant.get(aSymbol);
+  public static Strength of(final S strength) {
+    return strengthConstant.at(strength);
   }
 
-  public static void initialize() {
-    strengthTable = new HashMap<>();
-    strengthTable.put("absoluteStrongest", -10000);
-    strengthTable.put("required",          -800);
-    strengthTable.put("strongPreferred",   -600);
-    strengthTable.put("preferred",         -400);
-    strengthTable.put("strongDefault",     -200);
-    strengthTable.put("default",            0);
-    strengthTable.put("weakDefault",        500);
-    strengthTable.put("absoluteWeakest",    10000);
+  private static Dictionary<S, Integer> createStrengthTable() {
+    Dictionary<S, Integer> strengthTable = new Dictionary<>();
+    strengthTable.atPut(S.ABSOLUTE_STRONGEST, -10000);
+    strengthTable.atPut(S.REQUIRED,           -800);
+    strengthTable.atPut(S.STRONG_PREFERRED,   -600);
+    strengthTable.atPut(S.PREFERRED,          -400);
+    strengthTable.atPut(S.STRONG_DEFAULT,     -200);
+    strengthTable.atPut(S.DEFAULT,             0);
+    strengthTable.atPut(S.WEAK_DEFAULT,        500);
+    strengthTable.atPut(S.ABSOLUTE_WEAKEST,    10000);
+    return strengthTable;
+  }
 
-    strengthConstant = new HashMap<>();
-    strengthTable.keySet().forEach(key ->
-      strengthConstant.put(key, new Strength(key))
+  private static Dictionary<S, Strength> createStrengthConstants() {
+    Dictionary<S, Strength> strengthConstant = new Dictionary<>();
+    strengthTable.getKeys().forEach(key ->
+      strengthConstant.atPut(key, new Strength(key))
     );
+    return strengthConstant;
+  }
 
-    absoluteStrongest = of("absoluteStrongest");
-    absoluteWeakest   = of("absoluteWeakest");
-    required          = of("required");
+  static {
+    strengthTable     = createStrengthTable();
+    strengthConstant  = createStrengthConstants();
+
+    absoluteStrongest = of(S.ABSOLUTE_STRONGEST);
+    absoluteWeakest   = of(S.ABSOLUTE_WEAKEST);
+    required          = of(S.REQUIRED);
   }
 
   public static Strength absoluteStrongest() {
@@ -87,10 +100,10 @@ public class Strength {
     return required;
   }
 
-  private static Strength absoluteStrongest;
-  static Strength absoluteWeakest;
-  static Strength required;
+  private static final Strength absoluteStrongest;
+  static final Strength absoluteWeakest;
+  static final Strength required;
 
-  private static HashMap<String, Integer>  strengthTable;
-  private static HashMap<String, Strength> strengthConstant;
+  private static final Dictionary<S, Integer>  strengthTable;
+  private static final Dictionary<S, Strength> strengthConstant;
 }

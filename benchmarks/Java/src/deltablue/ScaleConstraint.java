@@ -1,6 +1,7 @@
 package deltablue;
 
-import deltablue.Constraint.BlockFunction.Return;
+import deltablue.AbstractConstraint.BlockFunction.Return;
+import deltablue.Strength.S;
 
 // I relate two variables by the linear scaling relationship: "v2 =
 // (v1 * scale) + offset". Either v1 or v2 may be changed to maintain
@@ -8,20 +9,16 @@ import deltablue.Constraint.BlockFunction.Return;
 // read-only.
 class ScaleConstraint extends BinaryConstraint {
 
-  protected Variable scale; // scale factor input variable
-  protected Variable offset; // offset input variable
+  protected final Variable scale;  // scale factor input variable
+  protected final Variable offset; // offset input variable
 
-  // Install a scale constraint with the given strength on the given
-  // variables.
-  public void set(final Variable src, final Variable scale,
-      final Variable offset, final Variable dest, final String strength) {
-    this.strength = Strength.of(strength);
-    v1 = src;
-    v2 = dest;
+  public ScaleConstraint(final Variable src, final Variable scale,
+      final Variable offset, final Variable dest, final S strength,
+      final Planner planner) {
+    super(src, dest, strength, planner);
     this.scale = scale;
     this.offset = offset;
-    direction = null;
-    addConstraint();
+    addConstraint(planner);
   }
 
   // Add myself to the constraint graph.
@@ -47,7 +44,7 @@ class ScaleConstraint extends BinaryConstraint {
   // Enforce this constraint. Assume that it is satisfied.
   @Override
   public void execute() {
-    if (direction == "forward") {
+    if (direction == Direction.FORWARD) {
       v2.setValue(v1.getValue() * scale.getValue() + offset.getValue());
     } else {
       v1.setValue((v2.getValue() - offset.getValue()) / scale.getValue());
@@ -56,7 +53,7 @@ class ScaleConstraint extends BinaryConstraint {
 
   @Override
   public void inputsDo(final BlockFunction block) throws Return {
-    if (direction == "forward") {
+    if (direction == Direction.FORWARD) {
       block.apply(v1);
       block.apply(scale);
       block.apply(offset);
@@ -74,7 +71,7 @@ class ScaleConstraint extends BinaryConstraint {
   public void recalculate() {
     Variable in, out;
 
-    if (direction == "forward") {
+    if (direction == Direction.FORWARD) {
       in  = v1; out = v2;
     } else {
       out = v1; in  = v2;
@@ -85,12 +82,5 @@ class ScaleConstraint extends BinaryConstraint {
     if (out.getStay()) {
       execute(); // stay optimization
     }
-  }
-
-  public static ScaleConstraint var(final Variable src, final Variable scale,
-      final Variable offset, final Variable dest, final String strength) {
-    ScaleConstraint c = new ScaleConstraint();
-    c.set(src, scale, offset, dest, strength);
-    return c;
   }
 }
