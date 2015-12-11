@@ -106,7 +106,7 @@ class Planner
     determining_c = v.determined_by
 
     v.constraints.each { | c |
-      if c != determining_c and c.is_satisfied
+      if (!c.equal? determining_c) and c.is_satisfied
         coll.append(c)
       end
     }
