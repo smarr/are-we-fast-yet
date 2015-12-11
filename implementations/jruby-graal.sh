@@ -2,4 +2,4 @@
 SCRIPT_PATH=`dirname $0`
 source $SCRIPT_PATH/config.inc
 export JAVACMD=$GRAAL_GRAAL_BASIC_CMD
-exec $JRUBY_CMD -Xcompile.invokedynamic "$@"
+exec $JRUBY_CMD -Xcompile.invokedynamic=true "$@"
