@@ -207,8 +207,7 @@ public class Planner {
     }
 
     unsatisfied.sort((c1, c2) ->
-      c1.getStrength().stronger(c2.getStrength()) ?
-          -1 : c1.getStrength().sameAs(c2.getStrength()) ? 0 : 1);
+      c1.getStrength().stronger(c2.getStrength()) ? -1 : 1);
     return unsatisfied;
   }
 
