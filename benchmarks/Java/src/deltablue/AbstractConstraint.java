@@ -144,7 +144,7 @@ abstract class AbstractConstraint {
       out.setMark(mark);
     } else {
       overridden = null;
-      if (strength.sameAs(Strength.required)) {
+      if (strength.sameAs(Strength.required())) {
         throw new RuntimeException("Could not satisfy a required constraint");
       }
     }
