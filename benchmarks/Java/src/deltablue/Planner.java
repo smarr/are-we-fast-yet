@@ -265,7 +265,7 @@ public class Planner {
     Variable offset = Variable.value(1000);
 
     Variable src = null, dst = null;
-    for (int i = 0; i < n; ++i) {
+    for (int i = 1; i <= n; i++) {
       src = Variable.value(i);
       dst = Variable.value(i);
       dests.append(dst);
@@ -285,14 +285,14 @@ public class Planner {
 
     planner.change(scale, 5);
     for (int i = 0; i < n - 1; ++i) {
-      if (dests.at(i).getValue() != i * 5 + 1000) {
+      if (dests.at(i).getValue() != (i + 1) * 5 + 1000) {
         throw new RuntimeException("Projection test 3 failed!");
       }
     }
 
     planner.change(offset, 2000);
     for (int i = 0; i < n - 1; ++i) {
-      if (dests.at(i).getValue() != i * 5 + 2000) {
+      if (dests.at(i).getValue() != (i + 1) * 5 + 2000) {
         throw new RuntimeException("Projection test 4 failed!");
       }
     }
