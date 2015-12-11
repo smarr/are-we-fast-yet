@@ -36,7 +36,9 @@ Vector.prototype.at = function (idx) {
 Vector.prototype.append = function (elem) {
   if (this.lastIdx >= this.storage.length) {
     // Copy storage to comply with rules, but don't extend storage
+    var newLength = this.storage.length * 2;
     this.storage = this.storage.slice();
+    this.storage.length = newLength;
   }
 
   this.storage[this.lastIdx] = elem;
