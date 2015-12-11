@@ -625,6 +625,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       satisfied :=
         output mark <> mark and: [
           strength stronger: output walkStrength].
+      ^ nil
     )
 
     public execute = (
