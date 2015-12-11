@@ -2,10 +2,10 @@
 
 function Run() {
   var name            = null,
-      benchmarkSuite  = null,
-      numIterations   = 1,
-      innerIterations = 1,
-      total           = 0;
+    benchmarkSuite  = null,
+    numIterations   = 1,
+    innerIterations = 1,
+    total           = 0;
 
   function reportBenchmark() {
     process.stdout.write(name + ": iterations=" + numIterations +
@@ -66,8 +66,7 @@ function Run() {
 
 function loadBenchmark(name) {
   var filename = "./" + name.toLowerCase() + ".js";
-  var benchSuite = require(filename);
-  return benchSuite;
+  return require(filename);
 }
 
 function processArguments(args, run) {
