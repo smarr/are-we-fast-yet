@@ -8,8 +8,8 @@ function Benchmark() {
       if (!that.verifyResult(that.benchmark())) {
         return false;
       }
-      return true;
     }
+    return true;
   };
 
   this.benchmark = function () {
