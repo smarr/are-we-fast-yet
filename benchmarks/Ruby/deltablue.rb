@@ -273,7 +273,7 @@ class Strength
   end
 
   def same_as(strength)
-    @arithmetic_value < strength.arithmetic_value
+    @arithmetic_value == strength.arithmetic_value
   end
 
   def stronger(strength)
