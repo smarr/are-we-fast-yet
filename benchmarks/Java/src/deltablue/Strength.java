@@ -46,14 +46,6 @@ public class Strength {
     return arithmeticValue;
   }
 
-  public void print() {
-    System.out.print("strength[" + Integer.toString(arithmeticValue) + "]");
-  }
-
-  public Dictionary<S, Integer> strengthTable() {
-    return strengthTable;
-  }
-
   public static Strength of(final S strength) {
     return strengthConstant.at(strength);
   }
@@ -83,14 +75,10 @@ public class Strength {
     strengthTable     = createStrengthTable();
     strengthConstant  = createStrengthConstants();
 
-    absoluteStrongest = of(S.ABSOLUTE_STRONGEST);
     absoluteWeakest   = of(S.ABSOLUTE_WEAKEST);
     required          = of(S.REQUIRED);
   }
 
-  public static Strength absoluteStrongest() {
-    return absoluteStrongest;
-  }
 
   public static Strength absoluteWeakest() {
     return absoluteWeakest;
@@ -100,9 +88,8 @@ public class Strength {
     return required;
   }
 
-  private static final Strength absoluteStrongest;
-  static final Strength absoluteWeakest;
-  static final Strength required;
+  private static final Strength absoluteWeakest;
+  private static final Strength required;
 
   private static final Dictionary<S, Integer>  strengthTable;
   private static final Dictionary<S, Strength> strengthConstant;
