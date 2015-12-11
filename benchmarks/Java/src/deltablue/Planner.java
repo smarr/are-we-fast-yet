@@ -189,7 +189,7 @@ public class Planner {
     Vector<AbstractConstraint> unsatisfied = new Vector<>();
 
     out.setDeterminedBy(null);
-    out.setWalkStrength(Strength.absoluteWeakest);
+    out.setWalkStrength(Strength.absoluteWeakest());
     out.setStay(true);
 
     Vector<Variable> todo = Vector.with(out);
