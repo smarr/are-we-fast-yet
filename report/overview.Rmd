@@ -1,0 +1,120 @@
+# Performance Overview
+
+## Comparing Peak Performance of the different Language Implementations
+
+### Setup
+
+Basic R setup script.
+
+```{r prepare-data, echo=TRUE, message=TRUE, warning=TRUE, dev='svg'}
+# load libraries, the data, and prepare it
+if (Sys.getenv("RSTUDIO") == "1") { setwd("/Users/smarr/Projects/PostDoc/FASTXX/are-we-fast-yet/report") }
+
+source("scripts/libraries.R", chdir=TRUE)
+data <- load_data_file("data/benchmark.data")
+data <- subset(data, select = c(Value, Unit, Benchmark, VM, Iteration))
+data <- prepare_vm_names(data)
+
+summary(data)
+levels(data$VM)
+
+jit <- droplevels(subset(data, Iteration >= 700 & Iteration <= 999))
+mri <- droplevels(subset(data, VM == "MRI22"))
+
+peak <- rbind(jit, mri)
+
+norm <- ddply(peak, ~ Benchmark, transform,
+              RuntimeRatio = Value / mean(Value[VM == "GraalEnterprise"]))
+stats <- ddply(norm, ~ VM + Benchmark, summarise,
+               Time.ms = mean(Value),
+               sd      = sd(Value),
+               RuntimeFactor = geometric.mean(RuntimeRatio),
+               RR.sd         = sd(RuntimeRatio))
+
+
+```
+
+# Plots
+
+## Runtime Factor over GraalEnterprise (Java benchmark version)
+
+ - GraalEnterprise: top-tier JIT = Enterprise Graal
+ - GraalC2: top-tier JIT = C2
+ - GraalBasic: top-tier JIT = Basic Graal
+ - GraalJS: on Enterprise Graal
+ - JRubyTruffle: on Basic Graal
+ - JRubyTruffleEnterprise: on Enterprise Graal
+ - Node: node.js 5.2
+ - SOMns: on Basic Graal
+
+```{r fast-vms-factor, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
+# b <- "Mandelbrot"
+
+fast_stats <- droplevels(subset(stats, VM != "MRI22" & VM != "JRubyGraal" & VM != "JRubyC2" & Benchmark != "DeltaBlueV8"))
+
+for (b in levels(fast_stats$Benchmark)) {
+  data_b <- droplevels(subset(fast_stats, Benchmark == b))
+  
+  p <- ggplot(data_b, aes(x = VM, y = RuntimeFactor, fill = VM)) +
+    geom_bar(stat = "identity") +
+    geom_errorbar(aes(ymax = RuntimeFactor + RR.sd, ymin = RuntimeFactor - RR.sd), width=0.25) +
+    coord_flip() + theme_bw() + # scale_fill_manual(values=col) +
+    theme(legend.position="none") + ggtitle(b)
+  print(p)
+  
+}
+```
+
+## Same Plots: Absolute Runtime
+
+```{r fast-vms-ms, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
+for (b in levels(fast_stats$Benchmark)) {
+  data_b <- droplevels(subset(fast_stats, Benchmark == b))
+  
+  p <- ggplot(data_b, aes(x = VM, y = Time.ms, fill = VM)) +
+    geom_bar(stat = "identity") +
+    geom_errorbar(aes(ymax = Time.ms + sd, ymin = Time.ms - sd), width=0.25) +
+    coord_flip() + theme_bw() + # scale_fill_manual(values=col) +
+    theme(legend.position="none") + ggtitle(b)
+  print(p)
+}
+```
+
+# Including Slow Implementations
+
+## Runtime Factor over GraalEnterprise (Java benchmark version)
+
+```{r all-vms-factor, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
+# b <- "Mandelbrot"
+
+levels(stats$Benchmark)
+
+for (b in levels(stats$Benchmark)) {
+  cat(b)
+  data_b <- droplevels(subset(stats, Benchmark == b))
+  
+  p <- ggplot(data_b, aes(x = VM, y = RuntimeFactor, fill = VM)) +
+    geom_bar(stat = "identity") +
+    geom_errorbar(aes(ymax = RuntimeFactor + RR.sd, ymin = RuntimeFactor - RR.sd), width=0.25) +
+    coord_flip() + theme_bw() + # scale_fill_manual(values=col) +
+    theme(legend.position="none") + ggtitle(b)
+  print(p)
+  
+}
+```
+
+## Same Plots: Absolute Runtime
+
+```{r all-vms, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
+for (b in levels(stats$Benchmark)) {
+  cat(b)
+  data_b <- droplevels(subset(stats, Benchmark == b))
+  
+  p <- ggplot(data_b, aes(x = VM, y = Time.ms, fill = VM)) +
+    geom_bar(stat = "identity") +
+    geom_errorbar(aes(ymax = Time.ms + sd, ymin = Time.ms - sd), width=0.25) +
+    coord_flip() + theme_bw() + # scale_fill_manual(values=col) +
+    theme(legend.position="none") + ggtitle(b)
+  print(p)
+}
+```
