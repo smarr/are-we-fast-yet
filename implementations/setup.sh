@@ -12,6 +12,8 @@ get_web_getter
 
 ./build-benchmarks.sh
 
+get_jdk9ea
+
 # ./build-graal.sh
 
 # ./build-rpysom.sh
