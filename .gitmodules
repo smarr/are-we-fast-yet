@@ -7,3 +7,6 @@
 [submodule "implementations/JRuby"]
 	path = implementations/JRuby
 	url = https://github.com/jruby/jruby.git
+[submodule "implementations/JRuby-master"]
+	path = implementations/JRuby-master
+	url = https://github.com/jruby/jruby.git
