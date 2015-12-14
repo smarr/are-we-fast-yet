@@ -341,17 +341,9 @@ class AbstractConstraint
     false
   end
 
-  def is_satisfied
-    raise :subclass_responsibility
-  end
-
   def add_constraint(planner)
     add_to_graph
     planner.incremental_add(self)
-  end
-
-  def add_to_graph
-    raise :subclass_responsibility
   end
 
   def destroy_constraint(planner)
@@ -361,33 +353,7 @@ class AbstractConstraint
     remove_from_graph
   end
 
-  def remove_from_graph
-    raise :subclass_responsibility
-  end
-
-  def choose_method(mark)
-    raise :subclass_responsibility
-  end
-
-  def execute
-    raise :subclass_responsibility
-  end
-
-  def inputs_do
-    raise :subclass_responsibility
-  end
-
   def inputs_known(mark)
-  def mark_unsatisfied
-    raise :subclass_responsibility
-  end
-
-  def output
-    raise :subclass_responsibility
-  end
-
-  def recalculate
-    raise :subclass_responsibility
     !inputs_has_one { | v | !(v.mark == mark or v.stay or v.determined_by nil?) }
   end
 
@@ -490,9 +456,6 @@ class BinaryConstraint < AbstractConstraint
       yield @v2
     end
   end
-  def execute
-    raise :subclass_responsibility
-  end
 
   def inputs_has_one # &block
     if @direction == :forward
@@ -560,10 +523,6 @@ class UnaryConstraint < AbstractConstraint
 
   def choose_method(mark)
     @satisfied = @output.mark != mark and @strength.stronger(@output.walk_strength)
-  end
-
-  def execute
-    raise :subclass_responsibility
   end
 
   def inputs_do
