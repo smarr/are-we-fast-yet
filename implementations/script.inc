@@ -70,7 +70,7 @@ function get_graal07() {
   INFO Get Graal 0.7 from $GRAAL07_URL
   if [ \! -d "$GRAAL07_DIR" ]; then
     $GET $GRAAL07_URL || $GET $GRAAL07_URL
-    tar -xjf $GRAAL07_ARCHIVE
+    tar -xzf $GRAAL07_ARCHIVE
     OK Got Graal 0.7
   else
     OK Have Graal 0.7
@@ -85,7 +85,7 @@ function get_jdk9ea() {
   INFO Get JDK9 Early Access from $JDK_URL
   if [ \! -d "$JDK_DIR" ]; then
     $GET $JDK_URL || $GET $JDK_URL
-    tar -xjf $JDK_ARCHIVE
+    tar -xzf $JDK_ARCHIVE
     OK Got JDK Early Access
   else
     OK Have JDK Early Access
