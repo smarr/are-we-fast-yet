@@ -1,7 +1,7 @@
 package deltablue;
 
-import deltablue.AbstractConstraint.BlockFunction.Return;
 import deltablue.Strength.S;
+import som.ForEachInterface;
 
 
 // I am an abstract superclass for constraints having a single
@@ -51,9 +51,14 @@ abstract class UnaryConstraint extends AbstractConstraint {
   public abstract void execute();
 
   @Override
-  public void inputsDo(final BlockFunction block) throws Return {
+  public void inputsDo(final ForEachInterface<Variable> fn) {
     // I have no input variables
   }
+
+  @Override
+  public boolean inputsHasOne(final som.TestInterface<Variable> fn) {
+    return false;
+  };
 
   // Record the fact that I am unsatisfied.
   @Override

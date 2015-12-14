@@ -1,7 +1,7 @@
 package deltablue;
 
-import deltablue.AbstractConstraint.BlockFunction.Return;
 import deltablue.Strength.S;
+import som.ForEachInterface;
 
 // I relate two variables by the linear scaling relationship: "v2 =
 // (v1 * scale) + offset". Either v1 or v2 may be changed to maintain
@@ -52,15 +52,15 @@ class ScaleConstraint extends BinaryConstraint {
   }
 
   @Override
-  public void inputsDo(final BlockFunction block) throws Return {
+  public void inputsDo(final ForEachInterface<Variable> fn) {
     if (direction == Direction.FORWARD) {
-      block.apply(v1);
-      block.apply(scale);
-      block.apply(offset);
+      fn.apply(v1);
+      fn.apply(scale);
+      fn.apply(offset);
     } else {
-      block.apply(v2);
-      block.apply(scale);
-      block.apply(offset);
+      fn.apply(v2);
+      fn.apply(scale);
+      fn.apply(offset);
     }
   }
 

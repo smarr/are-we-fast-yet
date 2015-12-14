@@ -13,12 +13,6 @@ public final class IdentitySet<E> extends Set<E> {
 
   @Override
   public boolean contains(final E obj) {
-    for (E e : this) {
-      if (e == obj) {
-        return true;
-      }
-    }
-
-    return false;
+    return hasSome(e -> { return e == obj; } );
   }
 }

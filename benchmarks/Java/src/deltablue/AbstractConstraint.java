@@ -1,7 +1,8 @@
 package deltablue;
 
-import deltablue.AbstractConstraint.BlockFunction.Return;
 import deltablue.Strength.S;
+import som.ForEachInterface;
+import som.TestInterface;
 
 // ------------------------ constraints ------------------------------------
 
@@ -77,12 +78,8 @@ abstract class AbstractConstraint {
     void apply(final Variable var) throws BlockFunction.Return;
   }
 
-  @FunctionalInterface
-  public interface ConstraintBlockFunction {
-    void apply(final AbstractConstraint c);
-  }
-
-  public abstract void inputsDo(AbstractConstraint.BlockFunction block) throws BlockFunction.Return;
+  public abstract void inputsDo(ForEachInterface<Variable> fn);
+  public abstract boolean inputsHasOne(TestInterface<Variable> fn);
 
   // Assume that I am satisfied. Answer true if all my current inputs
   // are known. A variable is known if either a) it is 'stay' (i.e. it
@@ -91,15 +88,9 @@ abstract class AbstractConstraint {
   // earlier in the plan), or c) it is not determined by any
   // constraint.
   public boolean inputsKnown(final int mark) {
-    try {
-      inputsDo(v -> {
-        if (!(v.getMark() == mark ||
-            v.getStay() ||
-            v.getDeterminedBy() == null)) { throw new Return(false); } });
-    } catch (BlockFunction.Return r) {
-      return false;
-    }
-    return true;
+    return !inputsHasOne(v -> {
+        return !(v.getMark() == mark || v.getStay() || v.getDeterminedBy() == null);
+    });
   }
 
   // Record the fact that I am unsatisfied.
@@ -128,9 +119,7 @@ abstract class AbstractConstraint {
     if (isSatisfied()) {
       // constraint can be satisfied
       // mark inputs to allow cycle detection in addPropagate
-      try {
-        inputsDo(in -> in.setMark(mark));
-      } catch (BlockFunction.Return e) {/* Doesn't throw return... */}
+      inputsDo(in -> in.setMark(mark));
 
       Variable out = getOutput();
       overridden = out.getDeterminedBy();

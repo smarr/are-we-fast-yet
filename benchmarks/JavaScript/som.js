@@ -7,29 +7,19 @@ function Pair(key, val) {
   this.value = val;
 }
 
-function ArrayIndexOutOfBoundsException() { }
-ArrayIndexOutOfBoundsException.prototype = new Error();
-
-function IndexOutOfBounds(collection, idx) {
-  this.getCollection = function () { return collection; };
-  this.getIndex      = function () { return idx; };
-}
-IndexOutOfBounds.prototype = new Error();
-
 function Vector(size) {
   this.storage  = new Array(size === undefined ? 50 : size);
   this.firstIdx = 0;
   this.lastIdx  = 0;
 }
 
-Vector.prototype.checkIdx = function (idx) {
-  if (!(this.firstIdx <= idx && idx < this.lastIdx)) {
-    throw new IndexOutOfBounds(this, idx);
-  }
+Vector.with = function (elem) {
+  var v = new Vector(1);
+  v.append(elem);
+  return v;
 };
 
 Vector.prototype.at = function (idx) {
-  this.checkIdx(idx);
   return this.storage[idx];
 };
 
@@ -43,6 +33,10 @@ Vector.prototype.append = function (elem) {
 
   this.storage[this.lastIdx] = elem;
   this.lastIdx += 1;
+};
+
+Vector.prototype.isEmpty = function () {
+  return this.lastIdx === this.firstIdx;
 };
 
 Vector.prototype.forEach = function (fn) {
@@ -70,13 +64,9 @@ Vector.prototype.getOne = function (fn) {
   return null;
 };
 
-Vector.prototype.isEmpty = function () {
-  return this.lastIdx === this.firstIdx;
-};
-
 Vector.prototype.removeFirst = function () {
   if (this.isEmpty()) {
-    throw new ArrayIndexOutOfBoundsException();
+    return null;
   }
   this.firstIdx++;
   return this.storage[this.firstIdx - 1];
@@ -174,12 +164,6 @@ Vector.prototype.sort = function(compare) {
   if (this.size() > 0) {
     this.sortRange(this.firstIdx, this.lastIdx - 1, compare);
   }
-};
-
-Vector.with = function (elem) {
-  var v = new Vector(1);
-  v.append(elem);
-  return v;
 };
 
 function Set(size) {

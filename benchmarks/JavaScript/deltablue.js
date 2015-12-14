@@ -314,16 +314,9 @@ AbstractConstraint.prototype.destroyConstraint = function(planner) {
 };
 
 AbstractConstraint.prototype.inputsKnown = function(mark) {
-  function Return() {}
-  try {
-    this.inputsDo(function (v) {
-      if (!(v.mark === mark ||
-        v.stay ||
-        v.determinedBy === null)) { throw new Return(); } });
-  } catch (r) {
-    return false;
-  }
-  return true;
+  return !this.inputsHasOne(function (v) {
+      return !(v.mark === mark || v.stay || v.determinedBy === null)
+  });
 };
 
 AbstractConstraint.prototype.satisfy = function (mark, planner) {
@@ -431,6 +424,14 @@ BinaryConstraint.prototype.inputsDo = function (fn) {
   }
 };
 
+BinaryConstraint.prototype.inputsHasOne = function (fn) {
+  if (this.direction == "forward") {
+    return fn(this.v1);
+  } else {
+    return fn(this.v2);
+  }
+};
+
 BinaryConstraint.prototype.markUnsatisfied = function () {
   this.direction = null;
 };
@@ -488,6 +489,10 @@ UnaryConstraint.prototype.chooseMethod = function (mark) {
 
 UnaryConstraint.prototype.inputsDo = function (fn) {
   // I have no input variables
+};
+
+UnaryConstraint.prototype.inputsHasOne = function (fn) {
+  return false;
 };
 
 UnaryConstraint.prototype.markUnsatisfied = function () {

@@ -129,7 +129,7 @@ class Planner
 
   def change_var(var, val)
     edit_constraint = EditConstraint.new(var, :preferred, self)
-    plan = extract_plan_from_constraints([edit_constraint])
+    plan = extract_plan_from_constraints(Vector.with(edit_constraint))
     10.times {
       var.value = val
       plan.execute
@@ -378,14 +378,6 @@ class AbstractConstraint
   end
 
   def inputs_known(mark)
-    inputs_do { | v |
-      unless v.mark == mark or v.stay or v.determined_by nil?
-        return false
-      end
-    }
-    true
-  end
-
   def mark_unsatisfied
     raise :subclass_responsibility
   end
@@ -396,6 +388,7 @@ class AbstractConstraint
 
   def recalculate
     raise :subclass_responsibility
+    !inputs_has_one { | v | !(v.mark == mark or v.stay or v.determined_by nil?) }
   end
 
   def satisfy(mark, planner)
@@ -490,11 +483,18 @@ class BinaryConstraint < AbstractConstraint
     end
   end
 
+  def inputs_do # &block
+    if @direction == :forward
+      yield @v1
+    else
+      yield @v2
+    end
+  end
   def execute
     raise :subclass_responsibility
   end
 
-  def inputs_do # &block
+  def inputs_has_one # &block
     if @direction == :forward
       yield @v1
     else
@@ -568,6 +568,10 @@ class UnaryConstraint < AbstractConstraint
 
   def inputs_do
     # No-op. I have no input variable.
+  end
+
+  def inputs_has_one
+    false
   end
 
   def mark_unsatisfied

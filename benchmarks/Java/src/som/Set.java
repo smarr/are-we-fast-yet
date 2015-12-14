@@ -1,8 +1,6 @@
 package som;
 
-import java.util.Iterator;
-
-public abstract class Set<E> implements Iterable<E> {
+public abstract class Set<E> {
   private final Vector<E> items;
 
   public Set() {
@@ -13,9 +11,16 @@ public abstract class Set<E> implements Iterable<E> {
     items = new Vector<E>(size);
   }
 
-  @Override
-  public Iterator<E> iterator() {
-    return items.iterator();
+  public void forEach(final ForEachInterface<E> fn) {
+    items.forEach(fn);
+  }
+
+  public boolean hasSome(final TestInterface<E> fn) {
+    return items.hasSome(fn);
+  }
+
+  public E getOne(final TestInterface<E> fn) {
+    return items.getOne(fn);
   }
 
   public void add(final E obj) {
@@ -26,9 +31,10 @@ public abstract class Set<E> implements Iterable<E> {
 
   public <T> Vector<T> collect(final CollectInterface<E, T> fn) {
     Vector<T> coll = new Vector<T>();
-    for (E e : this) {
+
+    forEach(e -> {
       coll.append(fn.collect(e));
-    }
+    });
     return coll;
   }
 

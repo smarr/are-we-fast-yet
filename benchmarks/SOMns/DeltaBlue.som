@@ -1,8 +1,9 @@
 class DeltaBlue usingPlatform: platform andHarness: harness = (
   | private Benchmark         = harness Benchmark.
     private Array             = platform kernel Array.
-    private Vector            = platform kernel Vector.
-    private Dictionary        = platform collections Dictionary.
+    private Core              = (platform system loadModule: 'Core.som' nextTo: self) with: platform kernel.
+    private Vector            = Core Vector.
+    private Dictionary        = Core Dictionary.
     private strengthTable     = Strength createStrengthTable.
     private strengthConstants = Strength createStrengthConstants.
     
@@ -27,7 +28,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
     'execution'
     public execute = (
       (* Execute my constraints in order. *)
-      self do: [:c | c execute]
+      self forEach: [:c | c execute ]
     )
   )
 
@@ -79,7 +80,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       c markUnsatisfied.
       c removeFromGraph.
       unsatisfied := self removePropagateFrom: out.
-      unsatisfied do: [: u | self incrementalAdd: u]
+      unsatisfied forEach: [: u | self incrementalAdd: u]
     )
 
     'planning/value propagation'
@@ -88,7 +89,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
          given constraints, usually a set of input constraints. *)
       | sources |
       sources := Vector new.
-      constraints do: [:c |
+      constraints forEach: [:c |
         (c isInput and: [c isSatisfied]) ifTrue: [sources append: c]].
       ^ self makePlan: sources
     )
@@ -139,7 +140,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
     addConstraintsConsuming: v to: aCollection = (
       | determiningC |
       determiningC := v determinedBy.
-      v constraints do: [:c |
+      v constraints forEach: [:c |
         (c == determiningC or: [c isSatisfied not]) ifFalse:
           [aCollection append: c]].
     )
@@ -162,7 +163,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
         d := todo removeFirst.
         d output mark = mark ifTrue: [
           self incrementalRemove: c.
-          ^ false].
+          ^ false ].
         d recalculate.
         self addConstraintsConsuming: d output to: todo].
       ^ true
@@ -171,20 +172,19 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
     public changeVar: aVariable newValue: newValue = (
       | editConstraint plan |
       editConstraint := EditConstraint var: aVariable strength: #preferred addTo: self.
-      plan := self extractPlanFromConstraints: (Array with: editConstraint).
+      plan := self extractPlanFromConstraints: (Vector with: editConstraint).
       10 timesRepeat: [
         aVariable value: newValue.
-        plan execute].
+        plan execute ].
       editConstraint destroyConstraint: self.
     )
 
     constraintsConsuming: v do: aBlock = (
       | determiningC |
       determiningC := v determinedBy.
-      v constraints do:
-        [:c |
-          (c == determiningC or: [c isSatisfied not]) ifFalse:
-            [aBlock value: c]].
+      v constraints forEach: [:c |
+        (c == determiningC or: [c isSatisfied not]) ifFalse:
+          [aBlock value: c]].
     )
 
     newMark = (
@@ -211,7 +211,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       todo := Vector with: out.
       [todo isEmpty] whileFalse: [
         v := todo removeFirst.
-        v constraints do: [:c |
+        v constraints forEach: [:c |
           c isSatisfied ifFalse: [unsatisfied append: c]].
         self constraintsConsuming: v do: [:c |
           c recalculate.
@@ -239,7 +239,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
 
       StayConstraint var: vars last strength: #strongDefault addTo: planner.
       editConstraint := EditConstraint var: vars first strength: #preferred addTo: planner.
-      plan := planner extractPlanFromConstraints: (Array with: editConstraint).
+      plan := planner extractPlanFromConstraints: (Vector with: editConstraint).
 
       1 to: 100 do: [:v | 
         vars first value: v.
@@ -349,7 +349,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
     public createStrengthConstants = (
       | constants |
       constants := Dictionary new.
-      strengthTable keys do: [:strengthSymbol |
+      strengthTable keys forEach: [:strengthSymbol |
         constants
           at: strengthSymbol
           put: (self new: strengthSymbol)].
@@ -435,10 +435,8 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
          constant at plan execution time), b) it has the given mark (indicating
          that it has been computed by a constraint appearing earlier in the
          plan), or c) it is not determined by any constraint. *)
-      self inputsDo: [:v |
-        (v mark = mark or: [v stay or: [v determinedBy == nil]])
-          ifFalse: [ ^ false ]].
-      ^ true
+      ^ (self inputsHasOne: [:v | 
+          (v mark = mark or: [v stay or: [v determinedBy == nil]]) not ]) not
     )
 
     public markUnsatisfied = (
@@ -556,11 +554,17 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       self subclassResponsibility
     )
 
-    inputsDo: aBlock = (
+    public inputsDo: aBlock = (
       (* Evaluate the given block on my current input variable. *)
       direction = #forward
         ifTrue:  [ aBlock value: v1 ]
         ifFalse: [ aBlock value: v2 ]
+    )
+    
+    public inputsHasOne: aBlock = (
+      ^ direction = #forward
+          ifTrue:  [ aBlock value: v1 ]
+          ifFalse: [ aBlock value: v2 ]
     )
 
     public markUnsatisfied = (
@@ -588,7 +592,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       out stay ifTrue: [self execute].      (* stay optimization *)
     )
   )
-
+  
   class UnaryConstraint var: aVariable strength: strengthSymbol addTo: planner = AbstractConstraint new: strengthSymbol (
     (* I am an abstract superclass for constraints having a single possible
        output variable.
@@ -633,9 +637,13 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       self subclassResponsibility
     )
 
-    inputsDo: aBlock = (
+    public inputsDo: aBlock = (
       (* I have no input variables. *)
     )
+    
+    public inputsHasOne: aBlock = (
+      ^ false
+    ) 
 
     public markUnsatisfied = (
       (* Record the fact that I am unsatisfied. *)
@@ -720,7 +728,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
         ifFalse: [ v1 value: (v2 value - offset value) / scale value ]
     )
 
-    inputsDo: aBlock = (
+    public inputsDo: aBlock = (
       (* Evaluate the given block on my current input variable. *)
       direction = #forward
         ifTrue: [aBlock value: v1.

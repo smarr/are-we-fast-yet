@@ -2,8 +2,8 @@ package deltablue;
 
 import java.util.Arrays;
 
-import deltablue.AbstractConstraint.ConstraintBlockFunction;
 import deltablue.Strength.S;
+import som.ForEachInterface;
 import som.Vector;
 
 public class Planner {
@@ -167,11 +167,11 @@ public class Planner {
   }
 
   private void constraintsConsuming(final Variable v,
-      final ConstraintBlockFunction block) {
+      final ForEachInterface<AbstractConstraint> fn) {
     AbstractConstraint determiningC = v.getDeterminedBy();
     v.getConstraints().forEach(c -> {
       if (c != determiningC && c.isSatisfied()) {
-        block.apply(c);
+        fn.apply(c);
       }
     });
   }

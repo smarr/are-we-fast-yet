@@ -22,21 +22,16 @@ public final class Dictionary<K, V> {
   }
 
   public V at(final K key) {
-    for (Pair<K, V> p : pairs) {
-      if (p.getKey() == key) {
-        return p.getValue();
-      }
+    Pair<K, V> pair = pairAt(key);
+    if (pair == null) {
+      return null;
+    } else {
+      return pair.getValue();
     }
-    return null;
   }
 
   private Pair<K, V> pairAt(final K key) {
-    for (Pair<K, V> p : pairs) {
-      if (p.getKey() == key) {
-        return p;
-      }
-    }
-    return null;
+    return pairs.getOne(p -> {return p.getKey() == key; });
   }
 
   public Vector<K> getKeys() {

@@ -2,14 +2,13 @@ package som;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Iterator;
 
 /**
  * Porting notes:
  *  - does not use an explicit array bounds check, because Java already does
  *    that. Don't see a point in doing it twice.
  */
-public class Vector<E> implements Iterable<E> {
+public class Vector<E> {
   private Object[] storage;
   private int firstIdx;
   private int lastIdx;
@@ -48,9 +47,37 @@ public class Vector<E> implements Iterable<E> {
   }
 
   @SuppressWarnings("unchecked")
+  public void forEach(final ForEachInterface<E> fn) {
+    for (int i = firstIdx; i < lastIdx; i++) {
+      fn.apply((E) storage[i]);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  public boolean hasSome(final TestInterface<E> fn) {
+    for (int i = firstIdx; i < lastIdx; i++) {
+      if (fn.test((E) storage[i])) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @SuppressWarnings("unchecked")
+  public E getOne(final TestInterface<E> fn) {
+    for (int i = firstIdx; i < lastIdx; i++) {
+      E e = (E) storage[i];
+      if (fn.test(e)) {
+        return e;
+      }
+    }
+    return null;
+  }
+
+  @SuppressWarnings("unchecked")
   public E removeFirst() {
     if (isEmpty()) {
-      throw new ArrayIndexOutOfBoundsException();
+      return null;
     }
     firstIdx++;
     return (E) storage[firstIdx - 1];
@@ -58,22 +85,21 @@ public class Vector<E> implements Iterable<E> {
 
   public boolean remove(final E obj) {
     Object[] newArray = new Object[capacity()];
-    int newLast = 0;
-    boolean found = false;
+    int[] newLast = new int[] { 0 };
+    boolean[] found = new boolean[] { false };
 
-    for (E it : this) {
+    forEach(it -> {
       if (it == obj) {
-        found = true;
+        found[0] = true;
       } else {
-        newArray[newLast] = it;
-        newLast++;
-      }
-    }
+        newArray[newLast[0]] = it;
+        newLast[0]++;
+    }});
 
     storage  = newArray;
-    lastIdx  = newLast;
+    lastIdx  = newLast[0];
     firstIdx = 0;
-    return found;
+    return found[0];
   }
 
   public int size() {
@@ -157,31 +183,5 @@ public class Vector<E> implements Iterable<E> {
 
   private void defaultSort(final int i, final int j) {
     throw new NotImplemented();
-  }
-
-  private class VectorIterator implements Iterator<E> {
-
-    private int current;
-
-    VectorIterator() {
-      current = firstIdx;
-    }
-
-    @Override
-    public boolean hasNext() {
-      return current < lastIdx;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public E next() {
-      current++;
-      return (E) storage[current - 1];
-    }
-  }
-
-  @Override
-  public Iterator<E> iterator() {
-    return new VectorIterator();
   }
 }

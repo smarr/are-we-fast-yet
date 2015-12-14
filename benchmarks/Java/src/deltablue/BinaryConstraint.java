@@ -1,6 +1,8 @@
 package deltablue;
 
 import deltablue.Strength.S;
+import som.ForEachInterface;
+import som.TestInterface;
 
 // I am an abstract superclass for constraints having two possible
 // output variables.
@@ -89,11 +91,20 @@ abstract class BinaryConstraint extends AbstractConstraint {
   }
 
   @Override
-  public void inputsDo(final AbstractConstraint.BlockFunction block) throws BlockFunction.Return {
+  public void inputsDo(final ForEachInterface<Variable> fn) {
     if (direction == Direction.FORWARD) {
-      block.apply(v1);
+      fn.apply(v1);
     } else {
-      block.apply(v2);
+      fn.apply(v2);
+    }
+  }
+
+  @Override
+  public boolean inputsHasOne(final TestInterface<Variable> fn) {
+    if (direction == Direction.FORWARD) {
+      return fn.test(v1);
+    } else {
+      return fn.test(v2);
     }
   }
 

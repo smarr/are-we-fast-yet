@@ -11,6 +11,13 @@ class Pair
 end
 
 class Vector
+
+  def self.with(elem)
+    new_vector = self.new(1)
+    new_vector.append(elem)
+    new_vector
+  end
+
   def initialize(size = 50)
     @storage   = Array.new(size)
     @first_idx = 0
@@ -18,14 +25,7 @@ class Vector
   end
 
   def at(idx)
-    check_idx(idx)
     @storage[idx]
-  end
-
-  def check_idx(idx)
-    unless @first_idx <= idx and idx <= @last_idx
-      raise IndexOutOfBounds.new(self, idx)
-    end
   end
 
   def append(elem)
@@ -43,25 +43,38 @@ class Vector
     self
   end
 
+  def empty?
+    @last_idx == @first_idx
+  end
+
   def each # &block
     (@first_idx..(@last_idx - 1)).each { | i |
       yield @storage[i]
     }
   end
 
-  def self.with(elem)
-    new_vector = self.new(1)
-    new_vector.append(elem)
-    new_vector
+  def has_some
+    (@first_idx..(@last_idx - 1)).each { | i |
+      if yield @storage[i]
+        return true
+      end
+    }
+    return false
   end
 
-  def empty?
-    @last_idx == @first_idx
+  def get_one
+    (@first_idx..(@last_idx - 1)).each { | i |
+      e = @storage[i]
+      if yield e
+        return e
+      end
+    }
+    return nil
   end
 
   def remove_first
     if empty?
-      raise 'Vector is empty'
+      return nil
     end
 
     @first_idx += 1
@@ -175,13 +188,6 @@ class Vector
   end
 end
 
-class IndexOutOfBounds < StandardError
-  def initialize(vec, idx)
-    @vec = vec
-    @idx = idx
-  end
-end
-
 class Set
   def initialize(size = INITIAL_SIZE)
     @items = Vector.new(size)
@@ -189,6 +195,14 @@ class Set
 
   def each(&block)
     @items.each(&block)
+  end
+
+  def has_some(&block)
+    @items.has_some(&block)
+  end
+
+  def get_one(&block)
+    @items.get_one(&block)
   end
 
   def add(obj)
@@ -206,12 +220,7 @@ end
 
 class IdentitySet < Set
   def contains(obj)
-    @items.each { | it |
-      if it.equal? obj
-        return true
-      end
-    }
-    false
+    return has_some { | it | it.equal? obj }
   end
 end
 
@@ -230,21 +239,16 @@ class Dictionary
   end
 
   def at(key)
-    @pairs.each { | p |
-      if p.key == key
-        return p.value
-      end
-    }
-    nil
+    pair = pair_at(key)
+    if pair.nil?
+      nil
+    else
+      pair.value
+    end
   end
 
   def pair_at(key)
-    @pairs.each { | p |
-      if p.key == key
-        return p
-      end
-    }
-    nil
+    return @pairs.get_one { | p | p.key == key }
   end
 
   def keys
