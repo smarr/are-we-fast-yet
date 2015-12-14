@@ -66,19 +66,20 @@ function Mandelbrot() {
     var y = 0;
 
     while (y < size) {
-      var ci = (2.0 * y / size) - 1.0;
-      var x = 0;
+      var ci = (2.0 * y / size) - 1.0,
+        x = 0;
 
       while (x < size) {
-        var zr   = 0.0;
-        var zrzr = 0.0;
-        var zi   = 0.0;
-        var zizi = 0.0;
-        var cr = (2.0 * x / size) - 1.5;
+        var zr   = 0.0,
+          zrzr = 0.0,
+          zi   = 0.0,
+          zizi = 0.0,
+          cr = (2.0 * x / size) - 1.5;
 
-        var z = 0;
-        var escape = 0;
-        while (z < 50) {
+        var z = 0,
+          notDone = true,
+          escape = 0;
+        while (notDone && z < 50) {
           zr = zrzr - zizi + cr;
           zi = 2.0 * zr * zi + ci;
 
@@ -87,18 +88,18 @@ function Mandelbrot() {
           zizi = zi * zi;
 
           if (zrzr + zizi > 4.0) {
-            escape = 1;
-            break;
+            notDone = false;
+            escape  = 1;
           }
           z += 1;
         }
 
-        byteAcc = (byteAcc << 1) | escape;
+        byteAcc = (byteAcc << 1) + escape;
         bitNum += 1;
 
         // Code is very similar for these cases, but using separate blocks
         // ensures we skip the shifting when it's unnecessary, which is most cases.
-        if (bitNum == 8) {
+        if (bitNum === 8) {
           sum ^= byteAcc;
           byteAcc = 0;
           bitNum  = 0;

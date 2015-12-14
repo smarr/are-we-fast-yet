@@ -73,8 +73,9 @@ class Mandelbrot < Benchmark
         cr   = (2.0 * x / size) - 1.5
 
         z = 0
-        escape = 0b1
-        while z < 50
+        not_done = true
+        escape = 0
+        while not_done and z < 50
           zr = zrzr - zizi + cr
           zi = 2.0 * zr * zi + ci
 
@@ -82,13 +83,13 @@ class Mandelbrot < Benchmark
           zrzr = zr * zr
           zizi = zi * zi
           if zrzr + zizi > 4.0
-            escape = 0b0
-            break
+            not_done = false
+            escape   = 1
           end
           z += 1
         end
 
-        byte_acc = (byte_acc << 1) | escape
+        byte_acc = (byte_acc << 1) + escape
         bit_num += 1
 
         # Code is very similar for these cases, but using separate blocks

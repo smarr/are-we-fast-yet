@@ -87,8 +87,9 @@ final class Mandelbrot extends Benchmark {
          double cr = (2.0 * x / size) - 1.5;
 
          int z = 0;
+         boolean notDone = true;
          int escape = 0;
-         while (z < 50) {
+         while (notDone && z < 50) {
            zr = zrzr - zizi + cr;
            zi = 2.0 * zr * zi + ci;
 
@@ -97,13 +98,13 @@ final class Mandelbrot extends Benchmark {
            zizi = zi*zi;
 
            if (zrzr + zizi > 4.0) {
+             notDone = false;
              escape  = 1;
-             break;
            }
            z += 1;
          }
 
-         byteAcc = (byteAcc << 1) | escape;
+         byteAcc = (byteAcc << 1) + escape;
          bitNum += 1;
 
          // Code is very similar for these cases, but using separate blocks
