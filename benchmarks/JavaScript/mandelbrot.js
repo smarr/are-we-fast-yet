@@ -116,7 +116,7 @@ function Mandelbrot() {
     return sum;
   }
 
-  this.innerBenchmarkLoop = function(innerIterations) {
+  this.innerBenchmarkLoop = function (innerIterations) {
     return verifyResult(mandelbrot(innerIterations), innerIterations);
   };
 }
