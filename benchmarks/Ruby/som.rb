@@ -59,7 +59,7 @@ class Vector
         return true
       end
     }
-    return false
+    false
   end
 
   def get_one
@@ -69,7 +69,7 @@ class Vector
         return e
       end
     }
-    return nil
+    nil
   end
 
   def remove_first
@@ -220,7 +220,7 @@ end
 
 class IdentitySet < Set
   def contains(obj)
-    return has_some { | it | it.equal? obj }
+    has_some { | it | it.equal? obj }
   end
 end
 
@@ -248,7 +248,7 @@ class Dictionary
   end
 
   def pair_at(key)
-    return @pairs.get_one { | p | p.key == key }
+    @pairs.get_one { | p | p.key == key }
   end
 
   def keys
