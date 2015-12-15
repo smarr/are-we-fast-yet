@@ -60,7 +60,7 @@ class NBodySystem
     @bodies.each_index { | i |
       i_body = @bodies[i]
 
-      ((i + 1)..(@bodies.size - 1)).each { | j |
+      ((i + 1)...@bodies.size).each { | j |
         j_body = @bodies[j]
         dx = i_body.x - j_body.x
         dy = i_body.y - j_body.y
@@ -98,7 +98,7 @@ class NBodySystem
            (i_body.vy * i_body.vy) +
            (i_body.vz * i_body.vz))
 
-      ((i + 1)..(@bodies.size - 1)).each { | j |
+      ((i + 1)...@bodies.size).each { | j |
         j_body = @bodies[j]
 
         dx = i_body.x - j_body.x
@@ -116,8 +116,14 @@ end
 class Body
   attr_accessor :x, :y, :z, :vx, :vy, :vz, :mass
 
-  def initialize
-    @x = @y = @z = @vx = @vy = @vz = @mass = 0.0
+  def initialize(x, y, z, vx, vy, vz, mass)
+    @x = x
+    @y = y
+    @z = z
+    @vx = vx * DAYS_PER_YEAR
+    @vy = vy * DAYS_PER_YEAR
+    @vz = vz * DAYS_PER_YEAR
+    @mass = mass * SOLAR_MASS
   end
 
   def offset_momentum(px, py, pz)
@@ -127,56 +133,46 @@ class Body
   end
 
   def self.jupiter
-    b = self.new
-    b.x  =   4.8414314424647209
-    b.y  =  -1.16032004402742839
-    b.z  =  -0.103622044471123109
-    b.vx =   0.00166007664274403694   * DAYS_PER_YEAR
-    b.vy =   0.00769901118419740425   * DAYS_PER_YEAR
-    b.vz =  -0.0000690460016972063023 * DAYS_PER_YEAR
-    b.mass = 0.000954791938424326609  * SOLAR_MASS
-    b
+    self.new(4.8414314424647209,
+            -1.16032004402742839,
+            -0.103622044471123109,
+             0.00166007664274403694,
+             0.00769901118419740425,
+            -0.0000690460016972063023,
+             0.000954791938424326609)
   end
 
   def self.saturn
-    b = self.new
-    b.x    =  8.34336671824457987
-    b.y    =  4.12479856412430479
-    b.z    = -0.403523417114321381
-    b.vx   = -0.00276742510726862411   * DAYS_PER_YEAR
-    b.vy   =  0.00499852801234917238   * DAYS_PER_YEAR
-    b.vz   =  0.0000230417297573763929 * DAYS_PER_YEAR
-    b.mass =  0.000285885980666130812  * SOLAR_MASS
-    b
+    self.new(8.34336671824457987,
+             4.12479856412430479,
+            -0.403523417114321381,
+            -0.00276742510726862411,
+             0.00499852801234917238,
+             0.0000230417297573763929,
+             0.000285885980666130812)
   end
 
   def self.uranus
-    b = self.new
-    b.x    = 12.894369562139131
-    b.y    =-15.1111514016986312
-    b.z    = -0.223307578892655734
-    b.vx   =  0.00296460137564761618   * DAYS_PER_YEAR
-    b.vy   =  0.0023784717395948095    * DAYS_PER_YEAR
-    b.vz   = -0.0000296589568540237556 * DAYS_PER_YEAR
-    b.mass =  0.0000436624404335156298 * SOLAR_MASS
-    b
+    self.new(12.894369562139131,
+            -15.1111514016986312,
+             -0.223307578892655734,
+              0.00296460137564761618,
+              0.0023784717395948095,
+             -0.0000296589568540237556,
+              0.0000436624404335156298)
   end
 
   def self.neptune
-    b = self.new
-    b.x    = 15.3796971148509165
-    b.y    =-25.9193146099879641
-    b.z    =  0.179258772950371181
-    b.vx   =  0.00268067772490389322   * DAYS_PER_YEAR
-    b.vy   =  0.00162824170038242295   * DAYS_PER_YEAR
-    b.vz   = -0.000095159225451971587  * DAYS_PER_YEAR
-    b.mass =  0.0000515138902046611451 * SOLAR_MASS
-    b
+    self.new(15.3796971148509165,
+            -25.9193146099879641,
+              0.179258772950371181,
+              0.00268067772490389322,
+              0.00162824170038242295,
+             -0.000095159225451971587,
+              0.0000515138902046611451)
   end
 
   def self.sun
-    b = self.new
-    b.mass = SOLAR_MASS
-    b
+    self.new(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0)
   end
 end

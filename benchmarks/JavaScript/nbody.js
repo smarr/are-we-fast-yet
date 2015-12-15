@@ -112,14 +112,14 @@ NBodySystem.prototype.energy = function () {
   return e;
 };
 
-function Body () {
-  this.x = 0.0;
-  this.y = 0.0;
-  this.z = 0.0;
-  this.vx = 0.0;
-  this.vy = 0.0;
-  this.vz = 0.0;
-  this.mass = 0.0;
+function Body (x, y, z, vx, vy, vz, mass) {
+  this.x = x;
+  this.y = y;
+  this.z = z;
+  this.vx = vx * DAYS_PER_YER;
+  this.vy = vy * DAYS_PER_YER;
+  this.vz = vz * DAYS_PER_YER;
+  this.mass = mass * SOLAR_MASS;
 }
 
 Body.prototype.offsetMomentum = function (px, py, pz) {
@@ -129,57 +129,47 @@ Body.prototype.offsetMomentum = function (px, py, pz) {
 };
 
 Body.jupiter = function () {
-  var p = new Body();
-  p.x    =  4.84143144246472090e+00;
-  p.y    = -1.16032004402742839e+00;
-  p.z    = -1.03622044471123109e-01;
-  p.vx   =  1.66007664274403694e-03 * DAYS_PER_YER;
-  p.vy   =  7.69901118419740425e-03 * DAYS_PER_YER;
-  p.vz   = -6.90460016972063023e-05 * DAYS_PER_YER;
-  p.mass =  9.54791938424326609e-04 * SOLAR_MASS;
-  return p;
+  return new Body(4.84143144246472090e+00,
+                 -1.16032004402742839e+00,
+                 -1.03622044471123109e-01,
+                  1.66007664274403694e-03,
+                  7.69901118419740425e-03,
+                 -6.90460016972063023e-05,
+                  9.54791938424326609e-04);
 };
 
 Body.saturn = function () {
-  var p = new Body();
-  p.x    =  8.34336671824457987e+00;
-  p.y    =  4.12479856412430479e+00;
-  p.z    = -4.03523417114321381e-01;
-  p.vx   = -2.76742510726862411e-03 * DAYS_PER_YER;
-  p.vy   =  4.99852801234917238e-03 * DAYS_PER_YER;
-  p.vz   =  2.30417297573763929e-05 * DAYS_PER_YER;
-  p.mass =  2.85885980666130812e-04 * SOLAR_MASS;
-  return p;
+  return new Body(8.34336671824457987e+00,
+                  4.12479856412430479e+00,
+                 -4.03523417114321381e-01,
+                 -2.76742510726862411e-03,
+                  4.99852801234917238e-03,
+                  2.30417297573763929e-05,
+                  2.85885980666130812e-04);
 };
 
 Body.uranus = function () {
-  var p = new Body();
-  p.x    = 1.28943695621391310e+01;
-  p.y    = -1.51111514016986312e+01;
-  p.z    = -2.23307578892655734e-01;
-  p.vx   =  2.96460137564761618e-03 * DAYS_PER_YER;
-  p.vy   =  2.37847173959480950e-03 * DAYS_PER_YER;
-  p.vz   = -2.96589568540237556e-05 * DAYS_PER_YER;
-  p.mass =  4.36624404335156298e-05 * SOLAR_MASS;
-  return p;
+  return new Body(1.28943695621391310e+01,
+                 -1.51111514016986312e+01,
+                 -2.23307578892655734e-01,
+                  2.96460137564761618e-03,
+                  2.37847173959480950e-03,
+                 -2.96589568540237556e-05,
+                  4.36624404335156298e-05);
 };
 
 Body.neptune = function () {
-  var p = new Body();
-  p.x    =  1.53796971148509165e+01;
-  p.y    = -2.59193146099879641e+01;
-  p.z    =  1.79258772950371181e-01;
-  p.vx   =  2.68067772490389322e-03 * DAYS_PER_YER;
-  p.vy   =  1.62824170038242295e-03 * DAYS_PER_YER;
-  p.vz   = -9.51592254519715870e-05 * DAYS_PER_YER;
-  p.mass =  5.15138902046611451e-05 * SOLAR_MASS;
-  return p;
+  return new Body(1.53796971148509165e+01,
+                 -2.59193146099879641e+01,
+                  1.79258772950371181e-01,
+                  2.68067772490389322e-03,
+                  1.62824170038242295e-03,
+                 -9.51592254519715870e-05,
+                  5.15138902046611451e-05);
 };
 
 Body.sun = function () {
-  var p = new Body();
-  p.mass = SOLAR_MASS;
-  return p;
+  return new Body(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
 };
 
 exports.newInstance = function () {
