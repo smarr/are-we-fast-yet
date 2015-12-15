@@ -21,3 +21,4 @@ clobber: clean
 
 upload: all
 	scp overview.html ts:www-truffle/are-we-fast-yet.html
+	echo "Report Available at http://stefan-marr.de/downloads/truffle/are-we-fast-yet.html"
