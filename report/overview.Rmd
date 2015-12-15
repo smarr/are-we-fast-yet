@@ -1,12 +1,9 @@
 # Performance Overview
 
-## Comparing Peak Performance of the different Language Implementations
+## Comparing Peak Performance of Language Implementations
 
-### Setup
-
-Basic R setup script.
-
-```{r prepare-data, echo=TRUE, message=TRUE, warning=TRUE, dev='svg'}
+```{r prepare-data, echo=FALSE, message=TRUE, warning=TRUE, dev='svg'}
+## Basic Setup
 # load libraries, the data, and prepare it
 if (Sys.getenv("RSTUDIO") == "1") { setwd("/Users/smarr/Projects/PostDoc/FASTXX/are-we-fast-yet/report") }
 
@@ -15,8 +12,8 @@ data <- load_data_file("data/benchmark.data")
 data <- subset(data, select = c(Value, Unit, Benchmark, VM, Iteration))
 data <- prepare_vm_names(data)
 
-summary(data)
-levels(data$VM)
+# summary(data)
+# levels(data$VM)
 
 jit <- droplevels(subset(data, Iteration >= 700 & Iteration <= 999))
 mri <- droplevels(subset(data, VM == "MRI22"))
@@ -30,13 +27,26 @@ stats <- ddply(norm, ~ VM + Benchmark, summarise,
                sd      = sd(Value),
                RuntimeFactor = geometric.mean(RuntimeRatio),
                RR.sd         = sd(RuntimeRatio))
+stats_all <- stats
+stats <- droplevels(subset(stats, Benchmark != "DeltaBlueV8"))
 
-
+plot_benchmarks_speedup_for_vms <- function(stats, vms) {
+  vm_stats <- droplevels(subset(stats, VM %in% vms))
+  
+  for (b in levels(vm_stats$Benchmark)) {
+    data_b <- droplevels(subset(vm_stats, Benchmark == b))
+    
+    p <- ggplot(data_b, aes(x = VM, y = RuntimeFactor, fill = VM)) +
+      geom_bar(stat = "identity") +
+      geom_errorbar(aes(ymax = RuntimeFactor + RR.sd, ymin = RuntimeFactor - RR.sd), width=0.25) +
+      coord_flip() + theme_bw() + # scale_fill_manual(values=col) +
+      theme(legend.position="none") + ggtitle(b)
+    tryCatch({print(p)})
+  }
+}
 ```
 
-# Plots
-
-## Runtime Factor over GraalEnterprise (Java benchmark version)
+The following plots show the runtime factor over GraalEnterprise (Java benchmark version)
 
  - GraalEnterprise: top-tier JIT = Enterprise Graal
  - GraalC2: top-tier JIT = C2
@@ -44,28 +54,55 @@ stats <- ddply(norm, ~ VM + Benchmark, summarise,
  - GraalJS: on Enterprise Graal
  - JRubyTruffle: on Basic Graal
  - JRubyTruffleEnterprise: on Enterprise Graal
+ - JRubyTruffleMaster07: JRuby master branch on Graal 0.7 release
  - Node: node.js 5.2
  - SOMns: on Basic Graal
 
-```{r fast-vms-factor, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
-# b <- "Mandelbrot"
+The benchmarks are implemented as identical as possible, trying to exercise a
+'core' language common to the benchmarked system.
+More details on the methodology and all benchmarks are available in the
+[Are We Fast Yet?](https://github.com/smarr/are-we-fast-yet#are-we-fast-yet) repository.
 
-fast_stats <- droplevels(subset(stats, VM != "MRI22" & VM != "JRubyGraal" & VM != "JRubyC2" & Benchmark != "DeltaBlueV8"))
+### Are Truffle Languages Fast Yet? (Compared to Java with Graal Enterprise)
 
-for (b in levels(fast_stats$Benchmark)) {
-  data_b <- droplevels(subset(fast_stats, Benchmark == b))
-  
-  p <- ggplot(data_b, aes(x = VM, y = RuntimeFactor, fill = VM)) +
-    geom_bar(stat = "identity") +
-    geom_errorbar(aes(ymax = RuntimeFactor + RR.sd, ymin = RuntimeFactor - RR.sd), width=0.25) +
-    coord_flip() + theme_bw() + # scale_fill_manual(values=col) +
-    theme(legend.position="none") + ggtitle(b)
-  print(p)
-  
-}
+```{r truffle-langs, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
+plot_benchmarks_speedup_for_vms(stats, c("GraalEnterprise", "GraalJS", "JRubyTruffle", "JRubyTruffleEnterprise", "JRubyTruffleMaster07", "SOMns"))
 ```
 
-## Same Plots: Absolute Runtime
+### Is Graal Fast Yet? (Compared to C2)
+
+```{r graal, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
+plot_benchmarks_speedup_for_vms(stats, c("GraalBasic", "GraalC2", "GraalEnterprise"))
+```
+
+### Is Graal Fast Yet? (JRuby-Indy on C2 or Graal)
+
+```{r graal-jruby-indy, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
+plot_benchmarks_speedup_for_vms(stats, c("JRubyC2", "JRubyGraal"))
+```
+
+### Is Graal.JS Fast Yet?
+```{r graaljs, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
+plot_benchmarks_speedup_for_vms(stats, c("GraalEnterprise", "GraalJS", "Node"))
+```
+
+### Is JRuby+Truffle Fast Yet?
+
+```{r jruby-truffle, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
+plot_benchmarks_speedup_for_vms(stats, c("GraalEnterprise", "JRubyTruffle", "JRubyTruffleEnterprise", "JRubyTruffleMaster07"))
+```
+
+Including JRuby-Indy (w/o Truffle) and MRI
+```{r jruby-truffle-all, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
+plot_benchmarks_speedup_for_vms(stats, c("GraalEnterprise", "JRubyC2", "JRubyGraal", "JRubyTruffle", "JRubyTruffleEnterprise", "JRubyTruffleMaster07", "MRI22"))
+```
+
+
+
+
+# Other Plots
+
+## Absolute Runtime
 
 ```{r fast-vms-ms, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
 for (b in levels(fast_stats$Benchmark)) {
@@ -80,30 +117,7 @@ for (b in levels(fast_stats$Benchmark)) {
 }
 ```
 
-# Including Slow Implementations
-
-## Runtime Factor over GraalEnterprise (Java benchmark version)
-
-```{r all-vms-factor, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
-# b <- "Mandelbrot"
-
-levels(stats$Benchmark)
-
-for (b in levels(stats$Benchmark)) {
-  cat(b)
-  data_b <- droplevels(subset(stats, Benchmark == b))
-  
-  p <- ggplot(data_b, aes(x = VM, y = RuntimeFactor, fill = VM)) +
-    geom_bar(stat = "identity") +
-    geom_errorbar(aes(ymax = RuntimeFactor + RR.sd, ymin = RuntimeFactor - RR.sd), width=0.25) +
-    coord_flip() + theme_bw() + # scale_fill_manual(values=col) +
-    theme(legend.position="none") + ggtitle(b)
-  print(p)
-  
-}
-```
-
-## Same Plots: Absolute Runtime
+## Including Slow Implementations
 
 ```{r all-vms, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
 for (b in levels(stats$Benchmark)) {
