@@ -28,11 +28,10 @@ final class Body {
 
   public void setMass(final double val) { mass = val; }
 
-  Body offsetMomentum(final double px, final double py, final double pz) {
+  void offsetMomentum(final double px, final double py, final double pz) {
     vx = 0.0 - (px / SOLAR_MASS);
     vy = 0.0 - (py / SOLAR_MASS);
     vz = 0.0 - (pz / SOLAR_MASS);
-    return this;
   }
 
   public Body() {}
