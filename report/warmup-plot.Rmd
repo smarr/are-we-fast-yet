@@ -32,11 +32,23 @@ warmup_plot <- function (data_b, b) {
 
 # Plots
 
-```{r log-plots, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
+```{r warmup-plots, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
 b <- "Mandelbrot"
 
 for (b in levels(data$Benchmark)) {
   data_b <- droplevels(subset(data, Benchmark == b))
+  warmup_plot(data_b, b)
+}
+```
+
+# Plots JRuby with Indy
+
+```{r warmup-plots-jruby, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
+b <- "Mandelbrot"
+d <- droplevels(subset(data, VM %in% c("JRubyGraal", "JRubyC2")))
+
+for (b in levels(d$Benchmark)) {
+  data_b <- droplevels(subset(d, Benchmark == b))
   warmup_plot(data_b, b)
 }
 ```
