@@ -39,7 +39,7 @@ Currently, the set of required concepts is as follows:
 
 Not permitted is the use of the following concepts:
 
- - non-local returns
+ - non-local returns (except in `if` or to implement iteration on collections)
  - flow control in loops with continue, break, or similar abstractions
  - data structures such as hash tables, dictionaries, stacks, or queues
 
@@ -63,7 +63,11 @@ optimized in a language, novice and polyglot programmers will be able to rely
 on the basic abstractions common to many languages without leaving the *sweet
 spot* for fast programs.
 
-
+We are generally not interested in the most efficient hash table, vector, or
+random number generator. Instead, we use a common library implemented within
+the *core* language subset of each language. The reason is here to compare the
+effectiveness of the compilers instead of well optimized standard libraries.
+This could be a topic for another benchmarking game.
 
 
 Known Issues
@@ -82,12 +86,51 @@ incompatible value is used, or worse, might lead to a sparse representation.
 So, this needs to be implemented carefully to get an array of the desired
 length.
 
-Language Specific Guidelines
-----------------------------
+Guidelines
+----------
+
+### Language Independent
+
+ - code should pass a linter, if available for the language  
+   rational: gives some consistency with established rules
+ 
+ - code should be within the 'expected performance sweet spot'  
+   for instance, fields and collections should be used well typed
+ 
+ - idiomatic is what is debuggable  
+   For instance in JavaScript, using lexical scope to have private variables
+   is problematic in some IDEs. This makes the use of normal JavaScript object
+   properties preferable.
+  
+ - identical code structure is more important than 100% idiomatic code  
+   While for the use of iteration constructs, we prefer the idiomatic version,
+   in other cases it is usually preferable to use the same structure of methods
+   and similar naming to avoid differences in method structure etc.
+
+### Harness
+
+- should be entry point for all executions
+- dynamically selects benchmark to execute based on arguments
 
 ### Java
 
  - closures are realized by using arrays (this seems to be 'idiomatic')
  - should use generics for the basic collection library
  - absent features can be replaced with NotImplemented exceptions
- - symbols are realized with enums
+ - Smalltalk/Ruby symbols are realized with enums
+ - getters and setters are used
+
+### JavaScript
+
+ - private fields are realized as normal object properties
+ - JSLint is used
+ - Smalltalk/Ruby symbols are represented as normal strings
+
+### Ruby
+
+ - RuboCop is used as linter
+
+### Java
+
+ - use of lambdas and generally 'modern' Java is preferable
+
