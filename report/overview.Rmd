@@ -105,6 +105,7 @@ plot_benchmarks_speedup_for_vms(stats, c("GraalEnterprise", "JRubyC2", "JRubyGra
 ## Absolute Runtime
 
 ```{r fast-vms-ms, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
+fast_stats <- droplevels(subset(stats, VM != "MRI22" & VM != "JRubyGraal" & VM != "JRubyC2"))
 for (b in levels(fast_stats$Benchmark)) {
   data_b <- droplevels(subset(fast_stats, Benchmark == b))
   
