@@ -69,7 +69,7 @@ More details on the methodology and all benchmarks are available in the
 plot_benchmarks_speedup_for_vms(stats, c("GraalEnterprise", "GraalJS", "JRubyTruffle", "JRubyTruffleEnterprise", "JRubyTruffleMaster07", "SOMns"))
 ```
 
-### Is Graal Fast Yet? (Compared to C2)
+### Is Graal Fast Yet? (Baseline Graal Enterprise)
 
 ```{r graal, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
 plot_benchmarks_speedup_for_vms(stats, c("GraalBasic", "GraalC2", "GraalEnterprise"))
