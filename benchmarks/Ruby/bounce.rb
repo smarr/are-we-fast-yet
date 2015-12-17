@@ -35,8 +35,8 @@ class Ball
     x_limit = y_limit = 500
     bounced = false
 
-    @x = @x + @x_vel
-    @y = @y + @y_vel
+    @x += @x_vel
+    @y += @y_vel
 
     if @x > x_limit
       @x = x_limit; @x_vel = 0 - @x_vel.abs; bounced = true
