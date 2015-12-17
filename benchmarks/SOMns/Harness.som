@@ -38,15 +38,6 @@ class Harness usingPlatform: platform = (
 
     benchmark  = ( self subclassResponsibility )
     verifyResult: result = ( self subclassResponsibility )
-
-    assert: expected equals: value = (
-      expected = value ifFalse: [
-        self error: 'Expected value (' + expected asString + 
-                    ') differs from actual (' + value asString + 
-                    ') benchmark result.'
-      ].
-      ^ true
-    )
   )
   
   public class Random = (

@@ -239,6 +239,16 @@ Dictionary.prototype.getKeys = function () {
   return this.pairs.collect(function (p) { return p.key });
 };
 
+function Random() {
+  this.seed = 74755;
+}
+
+Random.prototype.next = function () {
+  this.seed = ((this.seed * 1309) + 13849) & 65535;
+  return this.seed;
+};
+
 exports.IdentitySet = IdentitySet;
 exports.Dictionary  = Dictionary;
 exports.Vector      = Vector;
+exports.Random      = Random;

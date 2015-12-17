@@ -255,3 +255,13 @@ class Dictionary
     @pairs.collect { | p | p.key }
   end
 end
+
+class Random
+  def initialize
+    @seed = 74755
+  end
+
+  def next
+    @seed = ((@seed * 1309) + 13849) & 65535
+  end
+end
