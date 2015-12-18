@@ -2,7 +2,7 @@ package richards;
 
 import java.util.Arrays;
 
-public class RichardsBenchmarks extends RBObject {
+public class Scheduler extends RBObject {
   private TaskControlBlock taskList;
   private TaskControlBlock currentTask;
   private int currentTaskIdentity;
@@ -11,12 +11,12 @@ public class RichardsBenchmarks extends RBObject {
   private int queuePacketCount;
   private int holdCount;
 
-  private final boolean tracing;
   private int layout;
 
-  public RichardsBenchmarks() {
+  private static final boolean tracing = false;
+
+  public Scheduler() {
     // init tracing
-    tracing = false;
     layout  = 0;
 
     // init scheduler
@@ -148,7 +148,7 @@ public class RichardsBenchmarks extends RBObject {
         }, dataRecord);
   }
 
-  public boolean reBenchStart() {
+  public boolean start() {
     Packet workQ;
 
     createIdler(IDLER, 0, NO_WORK, TaskState.createRunning());
@@ -186,7 +186,6 @@ public class RichardsBenchmarks extends RBObject {
     currentTask.setTaskHolding(true);
     return currentTask.getLink();
   }
-
 
   TaskControlBlock queuePacket(final Packet packet) {
     TaskControlBlock t = findTask(packet.getIdentity());

@@ -19,14 +19,14 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
 
   class Richards = Benchmark ()(
     public benchmark = (
-      ^ RichardsBenchmarks new start.
+      ^ Scheduler new start.
     )
     public verifyResult: result = (
       ^ result
     )
   )
   
-  class RichardsBenchmarks = (
+  class Scheduler = (
   | private taskList    ::= NoTask.
     private currentTask ::= nil.
     private currentTaskIdentity ::= 0.
