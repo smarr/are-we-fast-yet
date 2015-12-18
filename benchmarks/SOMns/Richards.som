@@ -13,6 +13,7 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
   private DeviceA          = 5.
   private DeviceB          = 6.
   private DevicePacketKind = 1.
+  private tracing = false.
 |
 )(
 
@@ -26,9 +27,14 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
   )
   
   class RichardsBenchmarks = (
-  | taskList currentTask currentTaskIdentity taskTable tracing layout
-    queuePacketCount holdCount |
-  )(
+  | private taskList    ::= NoTask.
+    private currentTask ::= nil.
+    private currentTaskIdentity ::= 0.
+    private taskTable = Array new: 6 withAll: NoTask.
+    private layout    ::= 0.
+    private queuePacketCount ::= 0.
+    private holdCount ::= 0.
+  |)(
     createDevice: identity priority: priority work: work state: state = (
       | data |
       data := DeviceTaskDataRecord create.
@@ -162,10 +168,7 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
     )
 
     public start = (
-      | workQ |
-      self initTrace.
-      self initScheduler.
-      
+      | workQ |      
       self createIdler: Idler
            priority:    0
            work:        NoWork
@@ -236,18 +239,6 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
       ^ currentTask link
     )
 
-    initScheduler = (
-      queuePacketCount := 0.
-      holdCount := 0.
-      taskTable := Array new: 6 withAll: NoTask.
-      taskList := NoTask
-    )
-
-    initTrace = (
-      tracing := false.
-      layout := 0
-    )
-
     queuePacket: packet = (
       | t |
       t := self findTask: packet identity.
@@ -271,10 +262,10 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
     trace: id = (
       layout := layout - 1.
       0 >= layout ifTrue: [
-        Transcript cr.
+        '' println.
         layout := 50
       ].
-      Transcript show: id asString
+      id print
     )
 
     wait = (
@@ -308,12 +299,7 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
       ^ queueHead
 	  )
   )
-  
-  class Transcript = ()() : (
-    cr = ( system printNewline )
-    show: text = ( system printString: text )
-  )
-  
+    
   class DeviceTaskDataRecord create = (
     | public pending ::= NoWork. |
   )()
