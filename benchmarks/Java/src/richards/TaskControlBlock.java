@@ -1,19 +1,15 @@
 package richards;
 
 
-public class TaskControlBlock extends TaskState {
-  private TaskControlBlock link;
-  private int identity;
-  private int priority;
+final class TaskControlBlock extends TaskState {
+  private final TaskControlBlock link;
+  private final int identity;
+  private final int priority;
   private Packet input;
-  private ProcessFunction function;
-  private RBObject handle;
+  private final ProcessFunction function;
+  private final RBObject handle;
 
-  public int getIdentity() { return identity; }
-  public TaskControlBlock getLink()  { return link; }
-  public int getPriority() { return priority; }
-
-  public void initialize(final TaskControlBlock aLink, final int anIdentity,
+  TaskControlBlock(final TaskControlBlock aLink, final int anIdentity,
       final int aPriority, final Packet anInitialWorkQueue,
       final TaskState anInitialState, final ProcessFunction aBlock,
       final RBObject aPrivateData) {
@@ -28,9 +24,13 @@ public class TaskControlBlock extends TaskState {
     handle = aPrivateData;
   }
 
+  public int getIdentity() { return identity; }
+  public TaskControlBlock getLink()  { return link; }
+  public int getPriority() { return priority; }
+
   public TaskControlBlock addInputAndCheckPriority(final Packet packet,
       final TaskControlBlock oldTask) {
-    if (RBObject.noWork() == input) {
+    if (NO_WORK == input) {
       input = packet;
       setPacketPending(true);
       if (priority > oldTask.getPriority()) { return this; }
@@ -45,24 +45,14 @@ public class TaskControlBlock extends TaskState {
     if (isWaitingWithPacket()) {
       message = input;
       input = message.getLink();
-      if (RBObject.noWork() == input) {
+      if (NO_WORK == input) {
         running();
       } else {
         packetPending();
       }
     } else {
-      message = RBObject.noWork();
+      message = NO_WORK;
     }
     return function.apply(message, handle);
-  }
-
-  public static TaskControlBlock create(final TaskControlBlock link, final int identity,
-      final int priority, final Packet initialWorkQueue,
-      final TaskState initialState, final ProcessFunction aBlock,
-      final RBObject privateData) {
-    TaskControlBlock t = new TaskControlBlock();
-    t.initialize(link, identity, priority, initialWorkQueue,
-        initialState, aBlock, privateData);
-    return t;
   }
 }

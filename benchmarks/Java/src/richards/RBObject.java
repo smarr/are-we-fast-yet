@@ -1,54 +1,33 @@
 package richards;
 
 
-public class RBObject {
+abstract class RBObject {
   public Packet append(final Packet packet, final Packet queueHead) {
-    packet.setLink(RBObject.noWork());
-    if (RBObject.noWork() == queueHead) {
+    packet.setLink(NO_WORK);
+    if (NO_WORK == queueHead) {
       return packet;
     }
 
     Packet mouse = queueHead;
     Packet link;
-    while (RBObject.noWork() != (link = mouse.getLink())) {
+    while (NO_WORK != (link = mouse.getLink())) {
       mouse = link;
     }
     mouse.setLink(packet);
     return queueHead;
   }
 
-  private static int    DeviceA;
-  private static int    DeviceB;
-  private static int    DevicePacketKind;
-  private static int    HandlerA;
-  private static int    HandlerB;
-  private static int    Idler;
-  private static TaskControlBlock NoTask;
-  private static Packet NoWork;
-  private static int    Worker;
-  private static int    WorkPacketKind;
+  public static final int IDLER     = 0;
+  public static final int WORKER    = 1;
+  public static final int HANDLER_A = 2;
+  public static final int HANDLER_B = 3;
+  public static final int DEVICE_A  = 4;
+  public static final int DEVICE_B  = 5;
+  public static final int NUM_TYPES = 6;
 
-  public static TaskControlBlock noTask() { return NoTask; }
-  public static int    idler()  { return Idler;  }
-  public static Packet noWork() { return NoWork; }
-  public static int    worker() { return Worker; }
-  public static int    workPacketKind() { return WorkPacketKind; }
-  public static int    handlerA() { return HandlerA; }
-  public static int    handlerB() { return HandlerB; }
-  public static int    deviceA()  { return DeviceA;  }
-  public static int    deviceB()  { return DeviceB;  }
-  public static int    devicePacketKind() { return DevicePacketKind; }
+  public static final int DEVICE_PACKET_KIND = 0;
+  public static final int WORK_PACKET_KIND   = 1;
 
-  public static void initialize() {
-    DeviceA          = 5;
-    DeviceB          = 6;
-    DevicePacketKind = 1;
-    HandlerA         = 3;
-    HandlerB         = 4;
-    Idler            = 1;
-    NoWork           = null;
-    NoTask           = null;
-    Worker           = 2;
-    WorkPacketKind   = 2;
-  }
+  public static final Packet NO_WORK = null;
+  public static final TaskControlBlock NO_TASK = null;
 }

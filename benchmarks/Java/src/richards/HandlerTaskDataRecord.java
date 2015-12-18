@@ -1,9 +1,13 @@
 package richards;
 
 
-public class HandlerTaskDataRecord extends RBObject {
+final class HandlerTaskDataRecord extends RBObject {
   private Packet workIn;
   private Packet deviceIn;
+
+  HandlerTaskDataRecord() {
+    workIn = deviceIn = NO_WORK;
+  }
 
   public Packet deviceIn() { return deviceIn; }
   public void deviceIn(final Packet aPacket) { deviceIn = aPacket; }
@@ -17,13 +21,5 @@ public class HandlerTaskDataRecord extends RBObject {
 
   public void workInAdd(final Packet packet) {
     workIn = append(packet, workIn);
-  }
-
-  private HandlerTaskDataRecord() {
-    workIn = deviceIn = RBObject.noWork();
-  }
-
-  public static HandlerTaskDataRecord create() {
-    return new HandlerTaskDataRecord();
   }
 }

@@ -1,18 +1,22 @@
 package richards;
 
 
-public class Packet extends RBObject {
-  public static Packet create(final Packet link, final int identity, final int kind) {
-    Packet p = new Packet();
-    p.initialize(link, identity, kind);
-    return p;
+final class Packet extends RBObject {
+  public final static int DATA_SIZE = 4;
+
+  Packet(final Packet link, final int identity, final int kind) {
+    this.link     = link;
+    this.identity = identity;
+    this.kind     = kind;
+    this.datum    = 0;
+    this.data     = new int[DATA_SIZE];
   }
 
-  private Packet link;
-  private int    identity;
-  private int    kind;
-  private int    datum;
-  private int[]  data;
+  private Packet      link;
+  private int         identity;
+  private final int   kind;
+  private int         datum;
+  private final int[] data;
 
   public int[] getData() { return data; }
   public int   getDatum() { return datum; }
@@ -24,12 +28,4 @@ public class Packet extends RBObject {
   public int getKind() { return kind; }
   public Packet getLink() { return link; }
   public void setLink(final Packet aLink) { link = aLink; }
-
-  public void initialize(final Packet aLink, final int anIdentity, final int aKind) {
-    link     = aLink;
-    identity = anIdentity;
-    kind     = aKind;
-    datum    = 1;
-    data     = new int[4];
-  }
 }

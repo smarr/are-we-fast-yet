@@ -1,7 +1,7 @@
 package richards;
 
 
-public class TaskState extends RBObject {
+class TaskState extends RBObject {
   private boolean packetPending;
   private boolean taskWaiting;
   private boolean taskHolding;
