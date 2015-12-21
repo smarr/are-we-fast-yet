@@ -1,425 +1,448 @@
 # Derived from http://pws.prserv.net/dlissett/ben/bench1.htm
 # Licensed CC BY-NC-SA 1.0
 
-IDLE = 0  
-WORKER = 1  
-HANDLERA = 2  
-HANDLERB = 3  
-DEVICEA = 4  
-DEVICEB = 5 
+NO_TASK = nil
+NO_WORK = nil
 
-MAXTASKS = 6
-$layout = 0
+IDLER     = 0
+WORKER    = 1
+HANDLER_A = 2
+HANDLER_B = 3
+DEVICE_A  = 4
+DEVICE_B  = 5
 
+NUM_TYPES = 6
 
-def run(iterations)
-   s = Scheduler.new 
-   for i in 1..iterations
-     s.reset
-     s.addIdleTask(IDLE, 0, nil, 10000)
+DEVICE_PACKET_KIND = 0
+WORK_PACKET_KIND   = 1
 
-     wkq = Packet.new(nil, WORKER, Packet::WORK)
-     wkq = Packet.new(wkq, WORKER, Packet::WORK)   
-     s.addWorkerTask(WORKER, 1000, wkq)
+DATA_SIZE = 4
 
-     wkq = Packet.new(nil, DEVICEA, Packet::DEVICE)
-     wkq = Packet.new(wkq, DEVICEA, Packet::DEVICE)  
-     wkq = Packet.new(wkq, DEVICEA, Packet::DEVICE)       
-     s.addHandlerTask(HANDLERA, 2000, wkq)   
+TRACING = false
 
-     wkq = Packet.new(nil, DEVICEB, Packet::DEVICE)
-     wkq = Packet.new(wkq, DEVICEB, Packet::DEVICE)  
-     wkq = Packet.new(wkq, DEVICEB, Packet::DEVICE) 
-     s.addHandlerTask(HANDLERB, 3000, wkq)  
+class Richards < Benchmark
+  def benchmark
+    Scheduler.new.start
+  end
 
-     s.addDeviceTask(DEVICEA, 4000, nil) 
-     s.addDeviceTask(DEVICEB, 5000, nil)           
-     s.schedule
-     
-     if s.holdCount != 9297 or s.queueCount != 23246
-       return false
-     end
-   end
-   return true
-end
-
-
-def trace(c)
-   if $layout <= 0
-      print "\n"
-      $layout = 50
-   end
-   $layout -= 1
-   print c
-end
-
-
-class Scheduler
-   attr_reader :queueCount, :holdCount
-
-   def initialize()
-      @table = Array.new(MAXTASKS,nil)
-      @list = nil 
-      @queueCount = 0
-      @holdCount = 0
-   end   
-   
-   def reset()
-      @table = Array.new(MAXTASKS,nil)
-      @list = nil 
-      @queueCount = 0
-      @holdCount = 0
-   end
-   
-   def holdCurrent
-      @holdCount += 1
-      @currentTcb.held
-      @currentTcb.link
-   end
-
-   def queue(packet)
-      task = @table.at(packet.id)
-      if task # not nil
-         @queueCount += 1
-         packet.link = nil
-         packet.id = @currentId
-         task.checkPriorityAdd(@currentTcb,packet)                
-      else
-         task
-      end     
-   end
-   
-   def release(id)
-      task = @table.at(id)
-      task.notHeld      
-      if task.pri > @currentTcb.pri 
-         task
-      else
-         @currentTcb
-      end                   
-   end 
-   
-   def schedule()
-      @currentTcb = @list
-      while @currentTcb # not nil        
-         if @currentTcb.isHeldOrSuspended?     
-            @currentTcb = @currentTcb.link
-         else           
-            @currentId = @currentTcb.id                     
-            # trace(@currentId + 1) #TRACE         
-            @currentTcb = @currentTcb.run
-         end           
-      end                  
-   end
-   
-   def suspendCurrent()
-      @currentTcb.suspended
-   end   
-   
-   def addDeviceTask(id,pri,wkq)
-      createTcb(id,pri,wkq, DeviceTask.new(self))
-   end
-   
-   def addHandlerTask(id,pri,wkq)
-      createTcb(id,pri,wkq, HandlerTask.new(self))
-   end      
-   
-   def addIdleTask(id,pri,wkq,count)
-      createRunningTcb(id,pri,wkq, IdleTask.new(self,1,count))
-   end   
-  
-   def addWorkerTask(id,pri,wkq)
-      createTcb(id,pri,wkq, WorkerTask.new(self,HANDLERA,0))
-   end     
-   
-   def createRunningTcb(id,pri,wkq,task)
-      createTcb(id,pri,wkq,task)
-      @currentTcb.setRunning
-   end
-   
-   def createTcb(id,pri,wkq,task)
-      @currentTcb = Tcb.new(@list,id,pri,wkq,task)
-      @list = @currentTcb
-      @table[id] = @currentTcb
-   end
-end
-
-
-class DeviceTask
-   def initialize(scheduler)
-      @scheduler = scheduler  
-   end   
-
-   def run(packet)   
-      if packet # not nil
-         @v1 = packet       
-         # trace(packet.a1.chr) #TRACE       
-         @scheduler.holdCurrent                                    
-      else
-         if @v1 # not nil
-            pkt = @v1
-            @v1 = nil           
-            @scheduler.queue(pkt) 
-         else           
-            @scheduler.suspendCurrent          
-         end                        
-      end           
-   end   
-end
-
-
-class HandlerTask   
-   def initialize(scheduler)
-      @scheduler = scheduler  
-   end   
-
-   def run(packet)   
-      if packet # not nil    
-         if packet.kind == Packet::WORK
-            @v1 = packet.addTo(@v1)             
-         else
-            @v2 = packet.addTo(@v2)                    
-         end   
-      end   
-      if @v1 # not nil               
-         if (count = @v1.a1) < 4
-            if @v2 # not nil
-               v = @v2
-               @v2 = @v2.link
-               v.a1 = @v1.a2.at(count)
-               @v1.a1 = count+1                
-               return @scheduler.queue(v)
-            end         
-         else
-            v = @v1
-            @v1 = @v1.link          
-            return @scheduler.queue(v) 
-         end                                               
-      end      
-      @scheduler.suspendCurrent      
-   end
-end
-
-
-class IdleTask   
-   def initialize(scheduler,v1,v2)
-      @scheduler = scheduler
-      @v1 = v1
-      @v2 = v2   
-   end   
-
-   def run(packet)       
-      if ( @v2 -= 1 ).zero?    
-         @scheduler.holdCurrent       
-      else    
-         if (@v1 & 1).zero? 
-            @v1 >>= 1            
-            @scheduler.release(DEVICEA) 
-         else
-            @v1 >>= 1 
-            @v1 ^= 0xD008
-            @scheduler.release(DEVICEB)          
-         end                  
-      end      
-   end
-end
-
-
-class WorkerTask
-   ALPHA = "0ABCDEFGHIJKLMNOPQRSTUVWXYZ"
- 
-   def initialize(scheduler,v1,v2)
-      @scheduler = scheduler
-      @v1 = v1
-      @v2 = v2   
-   end   
-
-   def run(packet)
-      if packet # not nil
-         @v1 = 
-            if @v1 == HANDLERA 
-               HANDLERB
-            else
-               HANDLERA
-            end      
-         packet.id = @v1
-         packet.a1 = 0
-                  
-         packet.a2.collect! {|x|
-            @v2 += 1
-            @v2 = 1 if @v2 > 26 
-            ALPHA[@v2]
-            }                  
-         @scheduler.queue(packet) 
-      else
-         @scheduler.suspendCurrent         
-      end      
-   end
-end
-
-
-class Tcb
-   RUNNING = 0b0   
-   RUNNABLE = 0b1 
-   SUSPENDED = 0b10   
-   HELD = 0b100   
-   SUSPENDED_RUNNABLE = SUSPENDED | RUNNABLE
-   NOT_HELD = ~HELD 
-
-   attr_reader :link, :id, :pri
-
-   def initialize(link, id, pri, wkq, task)
-      @link = link
-      @id = id
-      @pri = pri
-      @wkq = wkq     
-      @task = task  
-      # SUSPENDED_RUNNABLE else SUSPENDED       
-      @state = if wkq then 0b11 else 0b10 end                        
-   end                 
-          
-   def checkPriorityAdd(task,packet)
-      if @wkq # not nil
-         packet.addTo(@wkq)      
-      else      
-         @wkq = packet
-         @state |= 0b1 # RUNNABLE      
-         return self if @pri > task.pri         
-      end      
-      task
-   end
-           
-   def run 
-      if @state == 0b11 # SUSPENDED_RUNNABLE   
-         packet = @wkq
-         @wkq = packet.link         
-         @state = @wkq ? 0b1 : 0b0 # RUNNABLE : RUNNING
-      else
-         packet = nil
-      end   
-      @task.run(packet)     
-   end         
-   
-   def setRunning
-      @state = 0b0 # RUNNING
-   end
-   
-   def suspended
-      @state |= 0b10 # SUSPENDED
-      self      
-   end      
-   
-   def held
-      @state |= 0b100 # HELD
-   end   
-   
-   def notHeld
-      @state &= ~0b100 # NOT_HELD
-   end     
-   
-   def isHeldOrSuspended?
-      #(@state & HELD) != 0 || @state == SUSPENDED
-      (@state & 0b100) != 0 || @state == 0b10
-   end        
-end 
-
-
-class Packet
-   DEVICE = 0
-   WORK = 1
-
-   attr_accessor :link, :id, :kind, :a1
-   attr_reader :a2
-   
-   def initialize(link, id, kind)
-      @link = link
-      @id = id
-      @kind = kind
-      @a1 = 0
-      @a2 = Array.new(4,0)
-   end
-   
-   def addTo(queue)
-     @link = nil
-     unless queue
-       self      
-     else
-       nextPacket = queue
-       while (peek = nextPacket.link) 
-         nextPacket = peek
-       end
-       nextPacket.link = self
-       queue
-     end
-   end
-    
-end
-
-class Packet
-   
-  attr_accessor :link, :id, :kind, :a1
-  attr_reader :a2
-   def initialize(link, id, kind)
-      @link = link
-      @id = id
-      @kind = kind
-      @a1 = 0
-      @a2 = Array.new(4,0)
-   end
-
-   def addTo(queue)
-     @link = nil
-     unless queue
-       self      
-     else
-       nextPacket = queue
-       while (peek = nextPacket.link) 
-         nextPacket = peek
-       end
-       nextPacket.link = self
-       queue
-     end
-   end
-
-end
-
-iterations   = 100
-warmup       = 0
-innerIter    = 1
-
-if ARGV.size >= 1
-  iterations = ARGV[0].to_i
-end
-
-if ARGV.size >= 2
-  warmup = ARGV[1].to_i
-end
-
-if ARGV.size >= 3
-  innerIter = ARGV[2].to_i
-end
-
-
-puts "Overall iterations: #{iterations}."
-puts "Warmup  iterations: #{warmup}."
-puts "Inner   iterations: #{innerIter}."
-
-warmup.times do
-  if not run(innerIter)
-    puts "Benchmark delivers wrong results. Run failed."
-    exit 1
+  def verify_result(result)
+    result
   end
 end
 
-result = true
-iterations.times do
-  start   = Time.now
-  result  = result && run(innerIter)
-  elapsed = (Time.now - start) * 1000.0 * 1000.0
-  puts "Richards: iterations=1 runtime: %.0fus" % [elapsed]
+class RBObject
+  def append(packet, queue_head)
+    packet.link = NO_WORK
+    if NO_WORK == queue_head
+      return packet
+    end
+
+    mouse = queue_head
+
+    while NO_WORK != (link = mouse.link)
+      mouse = link
+    end
+    mouse.link = packet
+    queue_head
+  end
 end
 
-if not result
-  puts "Benchmark delivers wrong results. Run failed."
-  exit 1
+class Scheduler < RBObject
+
+  def initialize
+    # init tracing
+    @layout = 0
+
+    # init scheduler
+    @task_list    = NO_TASK
+    @current_task = NO_TASK
+    @current_task_identity = 0
+
+    @task_table = Array.new(NUM_TYPES, NO_TASK)
+
+    @queue_count = 0
+    @hold_count  = 0
+  end
+
+  def create_device(identity, priority, work, state)
+    data = DeviceTaskDataRecord.new
+    create_task(identity, priority, work, state, data) { | work, word |
+      data = word
+      function_work = work
+      if NO_WORK == function_work
+        function_work = data.pending
+        if NO_WORK == function_work
+          wait
+        else
+          data.pending = NO_WORK
+          queue_packet(function_work)
+        end
+      else
+        data.pending = function_work
+        if TRACING
+          trace(function_work.datum)
+        end
+        hold_self
+      end
+    }
+  end
+
+  def create_handler(identity, priority, work, state)
+    data = HandlerTaskDataRecord.new
+    create_task(identity, priority, work, state, data) { | work, word |
+      data = word
+      unless NO_WORK == work
+        if WORK_PACKET_KIND == work.kind
+          data.work_in_add(work)
+        else
+          data.device_in_add(work)
+        end
+      end
+
+      work_packet = data.work_in
+      if NO_WORK == work_packet
+        wait
+      else
+        count = work_packet.datum
+        if count >= DATA_SIZE
+          data.work_in = work_packet.link
+          queue_packet(work_packet)
+        else
+          device_packet = data.device_in
+          if NO_WORK == device_packet
+            wait
+          else
+            data.device_in = device_packet.link
+            device_packet.datum = work_packet.data[count]
+            work_packet.datum = count + 1
+            queue_packet(device_packet)
+          end
+        end
+      end
+    }
+  end
+
+  def create_idler(identity, priority, work, state)
+    data = IdleTaskDataRecord.new
+    create_task(identity, priority, work, state, data) { | work, word |
+      data = word
+      data.count -= 1
+      if 0 == data.count
+        hold_self
+      else
+        if 0 == (data.control & 1)
+          data.control /= 2
+          release(DEVICE_A)
+        else
+          data.control = (data.control / 2) ^ 53256
+          release(DEVICE_B)
+        end
+      end
+    }
+  end
+
+  def create_packet(link, identity, kind)
+    Packet.new(link, identity, kind)
+  end
+
+  def create_task(identity, priority, work, state, data, &block)
+    t = TaskControlBlock.new(@task_list, identity, priority, work, state, data, &block)
+    @task_list = t
+    @task_table[identity] = t
+  end
+
+  def create_worker(identity, priority, work, state)
+    data = WorkerTaskDataRecord.new
+    create_task(identity, priority, work, state, data) { | work, word |
+      data = word
+      if NO_WORK == work
+        wait
+      else
+        data.destination = HANDLER_A == data.destination ? HANDLER_B : HANDLER_A
+        work.identity = data.destination
+        work.datum = 0
+        DATA_SIZE.times { | i |
+          data.count += 1
+          if data.count > 26
+            data.count = 1
+          end
+          work.data[i] = 65 + data.count - 1
+        }
+        queue_packet(work)
+      end
+    }
+  end
+
+  def start
+    create_idler(IDLER, 0, NO_WORK, TaskState.running)
+    wkq = create_packet(NO_WORK, WORKER, WORK_PACKET_KIND)
+    wkq = create_packet(wkq,     WORKER, WORK_PACKET_KIND)
+
+    create_worker(WORKER, 1000, wkq, TaskState.waiting_with_packet)
+    wkq = create_packet(NO_WORK, DEVICE_A, DEVICE_PACKET_KIND)
+    wkq = create_packet(wkq,     DEVICE_A, DEVICE_PACKET_KIND)
+    wkq = create_packet(wkq,     DEVICE_A, DEVICE_PACKET_KIND)
+
+    create_handler(HANDLER_A, 2000, wkq, TaskState.waiting_with_packet)
+    wkq = create_packet(NO_WORK, DEVICE_B, DEVICE_PACKET_KIND)
+    wkq = create_packet(wkq,     DEVICE_B, DEVICE_PACKET_KIND)
+    wkq = create_packet(wkq,     DEVICE_B, DEVICE_PACKET_KIND)
+
+    create_handler(HANDLER_B, 3000, wkq, TaskState.waiting_with_packet)
+    create_device(DEVICE_A, 4000, NO_WORK, TaskState.waiting)
+    create_device(DEVICE_B, 5000, NO_WORK, TaskState.waiting)
+
+    schedule
+
+    @queue_count == 23246 and @hold_count == 9297
+  end
+
+  def find_task(identity)
+    t = @task_table[identity]
+    if NO_TASK == t
+      raise 'find_task failed'
+    end
+    t
+  end
+
+  def hold_self
+    @hold_count += 1
+    @current_task.task_holding = true
+    @current_task.link
+  end
+
+  def queue_packet(packet)
+    task = find_task(packet.identity)
+    if NO_TASK == task
+      return NO_TASK
+    end
+
+    @queue_count += 1
+
+    packet.link     = NO_WORK
+    packet.identity = @current_task_identity
+    task.add_input_and_check_priority(packet, @current_task)
+  end
+
+  def release(identity)
+    task = find_task(identity)
+    if NO_TASK == task
+      return NO_TASK
+    end
+
+    task.task_holding = false
+
+    if task.priority > @current_task.priority
+      task
+    else
+      @current_task
+    end
+  end
+
+  def trace(id)
+    @layout -= 1
+    if 0 >= @layout
+      puts ''
+      @layout = 50
+    end
+    print id
+  end
+
+  def wait
+    @current_task.task_waiting = true
+    @current_task
+  end
+
+  def schedule
+    @current_task = @task_list
+    while NO_TASK != @current_task
+      if @current_task.is_task_holding_or_waiting
+        @current_task = @current_task.link
+      else
+        @current_task_identity = @current_task.identity
+        if TRACING
+          trace(@current_task_identity)
+        end
+        @current_task = @current_task.run_task
+      end
+    end
+  end
+end
+
+class DeviceTaskDataRecord < RBObject
+  attr_accessor :pending
+   def initialize
+    @pending = NO_WORK
+   end
+end
+
+class HandlerTaskDataRecord < RBObject
+  attr_accessor :work_in, :device_in
+  def initialize
+    @work_in   = NO_WORK
+    @device_in = NO_WORK
+   end
+
+  def device_in_add(packet)
+    @device_in = append(packet, @device_in)
+  end
+
+  def work_in_add(packet)
+    @work_in = append(packet, @work_in)
+  end
+end
+
+class IdleTaskDataRecord < RBObject
+  attr_accessor :control, :count
+
+  def initialize
+    @control = 1
+    @count   = 10000
+  end
+end
+
+class Packet < RBObject
+  attr_accessor :link, :kind, :identity, :datum, :data
+  def initialize(link, identity, kind)
+    @link     = link
+    @kind     = kind
+    @identity = identity
+    @datum    = 0
+    @data     = Array.new(4, 0)
+  end
+end
+
+class TaskState < RBObject
+  attr_writer :task_holding, :task_waiting, :packet_pending
+
+  def initialize
+    @task_holding = false
+    @task_waiting = false
+    @packet_pending = false
+  end
+
+  def is_packet_pending
+    @packet_pending
+  end
+
+  def is_task_waiting
+    @task_waiting
+  end
+
+  def is_task_holding
+    @task_holding
+  end
+
+  def packet_pending
+    @packet_pending = true
+    @task_waiting   = false
+    @task_holding   = false
+    self
+  end
+
+  def running
+    @packet_pending = @task_waiting = @task_holding = false
+    self
+  end
+
+  def waiting
+    @packet_pending = @task_holding = false
+    @task_waiting = true
+    self
+  end
+
+  def waiting_with_packet
+    @task_holding = false
+    @task_waiting = @packet_pending = true
+    self
+  end
+
+  def is_running
+    !@packet_pending and !@task_waiting and !@task_holding
+  end
+
+  def is_task_holding_or_waiting
+    @task_holding or (!@packet_pending and @task_waiting)
+  end
+
+  def is_waiting
+    !@packet_pending and @task_waiting and !@task_holding
+  end
+
+  def is_waiting_with_packet
+    @packet_pending and @task_waiting and !@task_holding
+  end
+
+  def self.packet_pending
+    self.new.packet_pending
+  end
+
+  def self.running
+    self.new.running
+  end
+
+  def self.waiting
+    self.new.waiting
+  end
+
+  def self.waiting_with_packet
+    self.new.waiting_with_packet
+  end
+end
+
+class TaskControlBlock < TaskState
+  attr_reader :link, :identity, :function, :priority
+
+  def initialize(link, identity, priority, initial_work_queue,
+                 initial_state, private_data, &block)
+    super()
+    @link = link
+    @identity = identity
+    @function = block
+    @priority = priority
+    @input = initial_work_queue
+    @handle = private_data
+
+    self.packet_pending = initial_state.is_packet_pending
+    self.task_waiting   = initial_state.is_task_waiting
+    self.task_holding   = initial_state.is_task_holding
+  end
+
+  def add_input_and_check_priority(packet, old_task)
+    if NO_WORK == @input
+      @input = packet
+      self.packet_pending = true
+      if @priority > old_task.priority
+        return self
+      end
+    else
+      @input = append(packet, @input)
+    end
+    old_task
+  end
+
+  def run_task
+    if is_waiting_with_packet
+      message = @input
+      @input = message.link
+      if NO_WORK == @input
+        running
+      else
+        packet_pending
+      end
+    else
+      message = NO_WORK
+    end
+
+    function.call(message, @handle)
+  end
+end
+
+class WorkerTaskDataRecord < RBObject
+  attr_accessor :destination, :count
+
+  def initialize
+    @destination = HANDLER_A
+    @count = 0
+  end
 end
