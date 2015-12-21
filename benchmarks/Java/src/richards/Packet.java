@@ -28,4 +28,9 @@ final class Packet extends RBObject {
   public int getKind() { return kind; }
   public Packet getLink() { return link; }
   public void setLink(final Packet aLink) { link = aLink; }
+
+  @Override
+  public String toString() {
+    return "Packet id: " + identity + " kind: " + kind;
+  }
 }

@@ -25,10 +25,25 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
       ^ result
     )
   )
-  
-  class Scheduler = (
+
+  class RBObject = Object ()(
+    public append: packet head: queueHead = (
+      | mouse link |
+      packet link: NoWork.
+      NoWork == queueHead ifTrue: [ ^ packet ].
+      mouse := queueHead.
+
+      [NoWork == (link := mouse link)]
+        whileFalse: [ mouse := link ].
+
+      mouse link: packet.
+      ^ queueHead
+	  )
+  )
+
+  class Scheduler = RBObject (
   | private taskList    ::= NoTask.
-    private currentTask ::= nil.
+    private currentTask ::= NoTask.
     private currentTaskIdentity ::= 0.
     private taskTable = Array new: 6 withAll: NoTask.
     private layout    ::= 0.
@@ -284,23 +299,8 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
             currentTask := currentTask runTask ]]
     )
   )
-
-  class RBObject = Object ()(
-    public append: packet head: queueHead = (
-      | mouse link |
-      packet link: NoWork.
-      NoWork == queueHead ifTrue: [ ^ packet ].
-      mouse := queueHead.
-
-      [NoWork == (link := mouse link)]
-        whileFalse: [ mouse := link ].
-
-      mouse link: packet.
-      ^ queueHead
-	  )
-  )
     
-  class DeviceTaskDataRecord create = (
+  class DeviceTaskDataRecord create = RBObject (
     | public pending ::= NoWork. |
   )()
 
@@ -321,12 +321,12 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
     )
   )
   
-  class IdleTaskDataRecord create = (
+  class IdleTaskDataRecord create = RBObject (
     | public control ::= 1.
       public count   ::= 10000. |
   )()
   
-  class Packet create: link identity: identity kind: kind = (
+  class Packet create: link identity: identity kind: kind = RBObject (
     | public link      ::= link.
       public kind      ::= kind.
       public identity  ::= identity.
@@ -346,8 +346,10 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
   )
   
   class TaskState = RBObject (
-    | packetPending_ taskWaiting_ taskHolding_ |
-  )(
+  | private packetPending_ ::= false.
+    private taskWaiting_   ::= false.
+    private taskHolding_   ::= false.
+  |)(
     public isPacketPending = ( ^ packetPending_ )
     public isTaskHolding   = ( ^ taskHolding_ )
     public isTaskWaiting   = ( ^ taskWaiting_ )
@@ -428,7 +430,7 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
     )
   )
   
-  class WorkerTaskDataRecord create = (
+  class WorkerTaskDataRecord create = RBObject (
   | public destination ::= HandlerA.
     public count       ::= 0. |
   )()

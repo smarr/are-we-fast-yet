@@ -13,7 +13,7 @@ public class Scheduler extends RBObject {
 
   private int layout;
 
-  private static final boolean tracing = false;
+  private static final boolean TRACING = false;
 
   public Scheduler() {
     // init tracing
@@ -23,7 +23,7 @@ public class Scheduler extends RBObject {
     queuePacketCount = 0;
     holdCount = 0;
     taskTable = new TaskControlBlock[NUM_TYPES];
-    Arrays.setAll(taskTable, v -> NO_TASK);
+    Arrays.fill(taskTable, NO_TASK);
     taskList = NO_TASK;
   }
 
@@ -45,7 +45,7 @@ public class Scheduler extends RBObject {
            }
          } else {
            dataRecord.setPending(functionWork);
-           if (tracing) {
+           if (TRACING) {
              trace(functionWork.getDatum());
            }
            return holdSelf();
@@ -153,20 +153,19 @@ public class Scheduler extends RBObject {
 
     createIdler(IDLER, 0, NO_WORK, TaskState.createRunning());
     workQ = createPacket(NO_WORK, WORKER, WORK_PACKET_KIND);
-    workQ = createPacket(workQ, WORKER, WORK_PACKET_KIND);
+    workQ = createPacket(workQ,   WORKER, WORK_PACKET_KIND);
 
     createWorker(WORKER, 1000, workQ, TaskState.createWaitingWithPacket());
     workQ = createPacket(NO_WORK, DEVICE_A, DEVICE_PACKET_KIND);
-    workQ = createPacket(workQ, DEVICE_A, DEVICE_PACKET_KIND);
-    workQ = createPacket(workQ, DEVICE_A, DEVICE_PACKET_KIND);
+    workQ = createPacket(workQ,   DEVICE_A, DEVICE_PACKET_KIND);
+    workQ = createPacket(workQ,   DEVICE_A, DEVICE_PACKET_KIND);
 
     createHandler(HANDLER_A, 2000, workQ, TaskState.createWaitingWithPacket());
     workQ = createPacket(NO_WORK, DEVICE_B, DEVICE_PACKET_KIND);
     workQ = createPacket(workQ, DEVICE_B, DEVICE_PACKET_KIND);
     workQ = createPacket(workQ, DEVICE_B, DEVICE_PACKET_KIND);
 
-    createHandler(HANDLER_B, 3000, workQ,
-        TaskState.createWaitingWithPacket());
+    createHandler(HANDLER_B, 3000, workQ, TaskState.createWaitingWithPacket());
     createDevice(DEVICE_A, 4000, NO_WORK, TaskState.createWaiting());
     createDevice(DEVICE_B, 5000, NO_WORK, TaskState.createWaiting());
 
@@ -215,7 +214,7 @@ public class Scheduler extends RBObject {
       System.out.println();
       layout = 50;
     }
-    System.out.println(id);
+    System.out.print(id);
   }
 
   TaskControlBlock markWaiting() {
@@ -230,7 +229,7 @@ public class Scheduler extends RBObject {
         currentTask = currentTask.getLink();
       } else {
         currentTaskIdentity = currentTask.getIdentity();
-        if (tracing) { trace(currentTaskIdentity); }
+        if (TRACING) { trace(currentTaskIdentity); }
         currentTask = currentTask.runTask();
       }
     }
