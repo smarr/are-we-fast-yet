@@ -365,15 +365,6 @@ class JsonSuite usingPlatform: platform andHarness: harness = (
         ifFalse: [ hashTable at: slot put: 0 ]
     )
 
-    public remove: index = (
-      hashTable doIndexes: [:i |
-        index + 1 = (hashTable at: i)
-          ifTrue:  [ hashTable at: i put: 0 ]
-          ifFalse: [ 
-            (hashTable at: i) > index + 1 ifTrue: [
-              hashTable at: i put: (hashTable at: i) - 1]]]
-    )
-
     public at: name = (
       | slot |
       slot := self hashSlotFor: name.
@@ -383,7 +374,7 @@ class JsonSuite usingPlatform: platform andHarness: harness = (
     )
 
     private hashSlotFor: element = (
-      ^ (element hashcode & 31) + 1
+      ^ (element hashcode & (hashTable size - 1)) + 1
     )
   )
   
@@ -416,113 +407,18 @@ class JsonSuite usingPlatform: platform andHarness: harness = (
     public asArray = (
       self error: 'Unsupported operation, not an array: ' + self asString
     )
-
-    public asInteger = (
-      self error: 'Unsupported operation, not a number: ' + self asString
-    )
-
-    public asDouble = (
-      self error: 'Unsupported operation, not a number: ' + self asString
-    )
-
-    public asString = (
-      self error: 'Unsupported operation, not a string: ' + self asString
-    )
-
-    public asBoolean = (
-      self error: 'Unsupported operation, not a boolean: ' + self asString
-    )
-
-    public writeTo: writer = (
-      self writeTo: writer with: nil
-    )
-
-    public writeOn: writer = (
-      ^ self subclassResponsibility
-    )
-  ) : (
-    public integer: anInteger = (
-      ^ JsonNumber new: anInteger asString
-    )
-
-    public double: aDouble = (
-      aDouble ifNil: [self error: 'aDouble nil'].
-      ^ JsonNumber new: (self cutOffPointZero: aDouble asString)
-    )
-
-    public string: aString = (
-      ^ aString = nil
-          ifTrue:  [ JsonLiteral NULL ]
-          ifFalse: [ JsonString new: aString ]
-    )
-
-    public boolean: aBoolean = (
-      ^ aBoolean
-          ifTrue:  [ JsonLiteral TRUE  ]
-          ifFalse: [ JsonLiteral FALSE ]
-    )
-  
-    public cutOffPointZero: str = (
-      (str endsWith: '.0') ifTrue: [ ^ str substringFrom: 1 to: str length - 2].
-      ^ str
-    )
   )
-  
+
   private class JsonArray = JsonValue (
-    | public values = Vector new. |
-  )(   
-    public addInteger: value = (
-      values append: (JsonValue integer: value)
-    )
-
-    public addDouble: value = (
-      values append: (JsonValue double: value)
-    )
-
-    public addBoolean: value = (
-      values append: (JsonValue boolean: value)
-    )
-
-    public addString: value = (
-      values append: (JsonValue string: value)
-    )
-
+  | private values = Vector new. |
+  )(
     public add: value = (
       value ifNil: [ self error: 'value is null' ].
       values append: value
     )
 
-    public at: index putInteger: value = (
-      values at: index put: (JsonValue integer: value)
-    )
-
-    public at: index putDouble: value = (
-      values at: index put: (JsonValue double: value)
-    )
-
-    public at: index putBoolean: value = (
-      values at: index put: (JsonValue boolean: value)
-    )
-
-    public at: index putString: value = (
-      values at: index put: (JsonValue string: value)
-    )
-
-    public at: index put: value = (
-      value ifNil: [ self error: 'value is null' ].
-      values at: index put: value
-    )
-
-    public removeAt: index = (
-      values removeAt: index
-    )
-
     public size = (
       ^ values size
-    )
-
-    public isEmpty = (
-      ^ values isEmpty
     )
 
     public at: index = (
@@ -536,18 +432,6 @@ class JsonSuite usingPlatform: platform andHarness: harness = (
     public asArray = (
       ^ self
     )
-
-    public hashcode = (
-      ^ values hashcode
-    )
-
-    public = other = (
-      self == other ifTrue: [ ^ true ].
-      other == nil ifTrue: [ ^ false ].
-      self class == other class ifFalse: [ ^ false ].
-
-      ^ values = other values
-    )
   )
   
   private class JsonLiteral new: val = JsonValue (
@@ -557,29 +441,15 @@ class JsonSuite usingPlatform: platform andHarness: harness = (
     public isFalse = 'false' = val.
   |)(
     public asString  = ( ^ value )
-    public hashcode  = ( ^ value hashcode )
     public isBoolean = ( ^ isTrue || isFalse )
-
-    public asBoolean = (
-      isNull ifTrue:  [ ^ super asBoolean ]
-             ifFalse: [ ^ isTrue ]
-    )
   )
 
   private class JsonNumber new: aString = JsonValue (
-    | string = aString. |
+  | private string = aString. |
     aString ifNil: [ self error: 'string is null' ].
   )(  
     public asString = ( ^ string )
     public isNumber = ( ^ true )
-
-    public asInteger = (
-      ^ Integer fromString: string
-    )
-
-    public asDouble = (
-      ^ Double fromString: string
-    )
   )
   
   private class JsonObject = JsonValue (
@@ -591,7 +461,7 @@ class JsonSuite usingPlatform: platform andHarness: harness = (
       name ifNil: [ self error: 'name is null'  ].
       aJsonValue ifNil: [ self error: 'aJsonValue is null' ].
 
-      table at: name put: names size.
+      table at: name put: names size + 1. (* + 1 for 1-based indexing *)
       names  append: name.
       values append: aJsonValue.
     )
@@ -619,7 +489,6 @@ class JsonSuite usingPlatform: platform andHarness: harness = (
     private indexOf: name = (
       | idx |
       idx := table at: name.
-      name print. ' ' print. idx println.
       idx <> 0 && name = (names at: idx) ifTrue: [ ^ idx ].
       ^ self error: 'not implement'
     )
