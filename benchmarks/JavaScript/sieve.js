@@ -25,7 +25,7 @@ function sieve(flags, size) {
 }
 
 Sieve.prototype.benchmark = function () {
-  var flags = new Array(5000).fill(false);
+  var flags = new Array(5000);
   return sieve(flags, 5000);
 };
 

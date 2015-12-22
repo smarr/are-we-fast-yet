@@ -1,6 +1,6 @@
 class Sieve < Benchmark
   def benchmark
-    flags = Array.new(5000, false)
+    flags = Array.new(5000)
     sieve(flags, 5000)
   end
 
