@@ -53,8 +53,7 @@ public final class Towers extends Benchmark {
     if (disks == 1) {
       moveTopDisk(fromPile, toPile);
     } else {
-      int otherPile;
-      otherPile = (6 - fromPile) - toPile;
+      int otherPile = (6 - fromPile) - toPile;
       moveDisks(disks - 1, fromPile, otherPile);
       moveTopDisk(fromPile, toPile);
       moveDisks(disks - 1, otherPile, toPile);
