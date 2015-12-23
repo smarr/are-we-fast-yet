@@ -55,21 +55,6 @@ package json;
  */
 public abstract class JsonValue {
 
-  /**
-   * Represents the JSON literal <code>true</code>.
-   */
-  public static final JsonValue TRUE = JsonLiteral.TRUE;
-
-  /**
-   * Represents the JSON literal <code>false</code>.
-   */
-  public static final JsonValue FALSE = JsonLiteral.FALSE;
-
-  /**
-   * Represents the JSON literal <code>null</code>.
-   */
-  public static final JsonValue NULL = JsonLiteral.NULL;
-
   JsonValue() {
     // prevent subclasses outside of this package
   }

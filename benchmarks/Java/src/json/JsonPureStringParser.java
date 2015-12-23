@@ -21,9 +21,6 @@
  ******************************************************************************/
 package json;
 
-import java.io.IOException;
-
-
 public final class JsonPureStringParser {
 
   private final String input;
@@ -34,7 +31,7 @@ public final class JsonPureStringParser {
   private String captureBuffer;
   private int captureStart;
 
-  public JsonPureStringParser( final String string ) {
+  public JsonPureStringParser(final String string) {
     this.input = string;
     index = -1;
     line = 1;
@@ -44,7 +41,7 @@ public final class JsonPureStringParser {
     captureBuffer = "";
   }
 
-  public JsonValue parse() throws IOException {
+  public JsonValue parse() {
     read();
     skipWhiteSpace();
     JsonValue result = readValue();
@@ -55,7 +52,7 @@ public final class JsonPureStringParser {
     return result;
   }
 
-  private JsonValue readValue() throws IOException {
+  private JsonValue readValue() {
     switch( current ) {
     case "n":
       return readNull();
@@ -82,99 +79,100 @@ public final class JsonPureStringParser {
     case "9":
       return readNumber();
     default:
-      throw expected( "value" );
+      throw expected("value");
     }
   }
 
-  private JsonArray readArray() throws IOException {
+  private JsonArray readArray() {
     read();
     JsonArray array = new JsonArray();
     skipWhiteSpace();
-    if( readChar( "]" ) ) {
+    if (readChar("]")) {
       return array;
     }
     do {
       skipWhiteSpace();
-      array.add( readValue() );
+      array.add(readValue());
       skipWhiteSpace();
-    } while( readChar( "," ) );
-    if( !readChar( "]" ) ) {
-      throw expected( "',' or ']'" );
+    } while (readChar(","));
+    if (!readChar("]")) {
+      throw expected("',' or ']'");
     }
     return array;
   }
 
-  private JsonObject readObject() throws IOException {
+  private JsonObject readObject() {
     read();
     JsonObject object = new JsonObject();
     skipWhiteSpace();
-    if( readChar( "}" ) ) {
+    if (readChar("}")) {
       return object;
     }
     do {
       skipWhiteSpace();
       String name = readName();
       skipWhiteSpace();
-      if( !readChar( ":" ) ) {
+      if (!readChar(":")) {
         throw expected( "':'" );
       }
       skipWhiteSpace();
-      object.add( name, readValue() );
+      object.add(name, readValue());
       skipWhiteSpace();
-    } while( readChar( "," ) );
-    if( !readChar( "}" ) ) {
-      throw expected( "',' or '}'" );
+    } while (readChar( "," ));
+
+    if (!readChar("}")) {
+      throw expected("',' or '}'");
     }
     return object;
   }
 
-  private String readName() throws IOException {
-    if( !current.equals("\"") ) {
+  private String readName() {
+    if (!current.equals("\"")) {
       throw expected( "name" );
     }
     return readStringInternal();
   }
 
-  private JsonValue readNull() throws IOException {
+  private JsonValue readNull() {
     read();
     readRequiredChar( "u" );
     readRequiredChar( "l" );
     readRequiredChar( "l" );
-    return JsonValue.NULL;
+    return JsonLiteral.NULL;
   }
 
-  private JsonValue readTrue() throws IOException {
+  private JsonValue readTrue() {
     read();
     readRequiredChar( "r" );
     readRequiredChar( "u" );
     readRequiredChar( "e" );
-    return JsonValue.TRUE;
+    return JsonLiteral.TRUE;
   }
 
-  private JsonValue readFalse() throws IOException {
+  private JsonValue readFalse() {
     read();
     readRequiredChar( "a" );
     readRequiredChar( "l" );
     readRequiredChar( "s" );
     readRequiredChar( "e" );
-    return JsonValue.FALSE;
+    return JsonLiteral.FALSE;
   }
 
-  private void readRequiredChar( final String ch ) throws IOException {
-    if( !readChar( ch ) ) {
+  private void readRequiredChar(final String ch) {
+    if( !readChar(ch) ) {
       throw expected( "'" + ch + "'" );
     }
   }
 
-  private JsonValue readString() throws IOException {
-    return new JsonString( readStringInternal() );
+  private JsonValue readString() {
+    return new JsonString(readStringInternal());
   }
 
-  private String readStringInternal() throws IOException {
+  private String readStringInternal() {
     read();
     startCapture();
-    while( !current.equals("\"") ) {
-      if( current.equals("\\") ) {
+    while (!current.equals("\"")) {
+      if (current.equals("\\")) {
         pauseCapture();
         readEscape();
         startCapture();
@@ -187,7 +185,7 @@ public final class JsonPureStringParser {
     return string;
   }
 
-  private void readEscape() throws IOException {
+  private void readEscape() {
     read();
     switch( current ) {
     case "\"":
@@ -216,72 +214,70 @@ public final class JsonPureStringParser {
     read();
   }
 
-  private JsonValue readNumber() throws IOException {
+  private JsonValue readNumber() {
     startCapture();
-    readChar( "-" );
+    readChar("-");
     String firstDigit = current;
-    if( !readDigit() ) {
+    if (!readDigit()) {
       throw expected( "digit" );
     }
-    if( !firstDigit.equals("0") ) {
-      while( readDigit() ) {
-      }
+    if (!firstDigit.equals("0") ) {
+      while (readDigit()) { }
     }
     readFraction();
     readExponent();
     return new JsonNumber( endCapture() );
   }
 
-  private boolean readFraction() throws IOException {
-    if( !readChar( "." ) ) {
+  private boolean readFraction() {
+    if (!readChar(".")) {
       return false;
     }
-    if( !readDigit() ) {
-      throw expected( "digit" );
+    if (!readDigit()) {
+      throw expected("digit");
     }
-    while( readDigit() ) {
-    }
+    while(readDigit()) { }
     return true;
   }
 
-  private boolean readExponent() throws IOException {
-    if( !readChar( "e" ) && !readChar( "E" ) ) {
+  private boolean readExponent() {
+    if (!readChar("e") && !readChar("E")) {
       return false;
     }
-    if( !readChar( "+" ) ) {
+    if (!readChar( "+" ) ) {
       readChar( "-" );
     }
-    if( !readDigit() ) {
+    if (!readDigit()) {
       throw expected( "digit" );
     }
-    while( readDigit() ) {
-    }
+
+    while(readDigit()) { }
     return true;
   }
 
-  private boolean readChar( final String ch ) throws IOException {
-    if( !current.equals(ch) ) {
+  private boolean readChar(final String ch) {
+    if (!current.equals(ch)) {
       return false;
     }
     read();
     return true;
   }
 
-  private boolean readDigit() throws IOException {
-    if( !isDigit() ) {
+  private boolean readDigit() {
+    if (!isDigit()) {
       return false;
     }
     read();
     return true;
   }
 
-  private void skipWhiteSpace() throws IOException {
-    while( isWhiteSpace() ) {
+  private void skipWhiteSpace() {
+    while (isWhiteSpace()) {
       read();
     }
   }
 
-  private void read() throws IOException {
+  private void read() {
     if( "\n".equals(current) ) {
       line++;
       column = 0;
@@ -319,14 +315,14 @@ public final class JsonPureStringParser {
   }
 
   private ParseException expected( final String expected ) {
-    if( isEndOfText() ) {
-      return error( "Unexpected end of input" );
+    if (isEndOfText()) {
+      return error("Unexpected end of input");
     }
-    return error( "Expected " + expected );
+    return error("Expected " + expected);
   }
 
-  private ParseException error( final String message ) {
-    return new ParseException( message, index, line, column - 1 );
+  private ParseException error(final String message) {
+    return new ParseException(message, index, line, column - 1);
   }
 
   private boolean isWhiteSpace() {
