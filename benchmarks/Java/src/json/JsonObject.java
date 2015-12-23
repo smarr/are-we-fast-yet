@@ -158,14 +158,20 @@ public final class JsonObject extends JsonValue {
       }
     }
 
-    int get(final Object name) {
+    int get(final String name) {
       int slot = hashSlotFor(name);
       // subtract 1, 0 stands for empty
       return (hashTable[slot] & 0xff) - 1;
     }
 
-    private int hashSlotFor(final Object element) {
-      return element.hashCode() & hashTable.length - 1;
+    private int stringHash(final String s) {
+      // this is not a proper hash, but sufficient for the benchmark,
+      // and very portable!
+      return s.length() * 1402589;
+    }
+
+    private int hashSlotFor(final String element) {
+      return stringHash(element) & hashTable.length - 1;
     }
   }
 }

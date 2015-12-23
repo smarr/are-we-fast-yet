@@ -350,8 +350,14 @@ class HashIndexTable
     (@hash_table[slot] & 0xff) - 1
   end
 
+  def string_hash(s)
+    # this is not a proper hash, but sufficient for the benchmark,
+    # and very portable!
+    s.size * 1402589
+  end
+
   def hash_slot_for(element)
-    element.hash & @hash_table.length - 1
+    string_hash(element) & @hash_table.length - 1
   end
 end
 

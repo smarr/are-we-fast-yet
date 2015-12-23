@@ -372,9 +372,15 @@ class JsonSuite usingPlatform: platform andHarness: harness = (
       (* subtract 1, 0 stands for empty *)
       ^ ((hashTable at: slot) & 255) - 1
     )
+    
+    private stringHash: s = (
+      (* this is not a proper hash, but sufficient for the benchmark,
+         and very portable! *)
+      ^ s length * 1402589
+    )
 
     private hashSlotFor: element = (
-      ^ (element hashcode & (hashTable size - 1)) + 1
+      ^ ((stringHash: element) & (hashTable size - 1)) + 1
     )
   )
   
