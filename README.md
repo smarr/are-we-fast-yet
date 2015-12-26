@@ -114,7 +114,10 @@ Guidelines
 
 ### Java
 
- - closures are realized by using arrays (this seems to be 'idiomatic')
+ - to realize closures which assign variables in their lexical scope, we use
+   arrays, typically one-element arrays. This is necessary because Java's
+   lambdas allow only read access to variables. The use of arrays as mutable
+   boxes seems to be the 'idiomatic' workaround
  - should use generics for the basic collection library
  - absent features can be replaced with NotImplemented exceptions
  - Smalltalk/Ruby symbols are realized with enums
