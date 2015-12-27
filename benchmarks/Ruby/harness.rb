@@ -19,17 +19,21 @@
 # THE SOFTWARE.
 class Benchmark
   def inner_benchmark_loop(inner_iterations)
-    inner_iterations.times { unless verify_result(benchmark); return false end }
+    inner_iterations.times {
+      unless verify_result(benchmark)
+        return false
+      end
+    }
     true
   end
 
   def benchmark
-    raise :subclass_responsibility
+    raise "subclass_responsibility"
   end
 
   # noinspection RubyUnusedLocalVariable
   def verify_result(result)
-    raise :subclass_responsibility
+    raise "subclass_responsibility"
   end
 end
 
@@ -88,15 +92,15 @@ def process_arguments(args, run)
   run.benchmark_suite = load_benchmark_suite(args[0])
 
   if args.size > 1
-    run.num_iterations = args[1].to_i
+    run.num_iterations = Integer(args[1])
     if args.size > 2
-      run.inner_iterations = args[2].to_i
+      run.inner_iterations = Integer(args[2])
     end
   end
 end
 
 def load_benchmark_suite(benchmark_name)
-  unless require_relative benchmark_name.downcase
+  unless require_relative(benchmark_name.downcase)
     raise "failed loading #{benchmark_name}"
   end
   Object.const_get(benchmark_name)
