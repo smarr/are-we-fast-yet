@@ -88,7 +88,7 @@ class TowersSuite usingPlatform: platform andHarness: harness = (
   
   private class TowersDisk new: size = (
   | public size = size.
-      public next ::= nil.
+    public next ::= nil.
   |)()
   
   public newInstance = ( ^ Towers new. )
