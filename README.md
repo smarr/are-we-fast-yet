@@ -118,6 +118,7 @@ Guidelines
    arrays, typically one-element arrays. This is necessary because Java's
    lambdas allow only read access to variables. The use of arrays as mutable
    boxes seems to be the 'idiomatic' workaround
+ - use of lambdas and generally 'modern' Java is preferable
  - should use generics for the basic collection library
  - absent features can be replaced with NotImplemented exceptions
  - Smalltalk/Ruby symbols are realized with enums
@@ -132,8 +133,3 @@ Guidelines
 ### Ruby
 
  - RuboCop is used as linter
-
-### Java
-
- - use of lambdas and generally 'modern' Java is preferable
-
