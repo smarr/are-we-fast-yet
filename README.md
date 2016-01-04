@@ -1,10 +1,10 @@
-Are We Fast Yet?
-================
+Are We Fast Yet? Comparing Language Implementations with Objects, Closures, and Arrays
+======================================================================================
 
 The goal of this project is to assess whether a language implementation is
-highly optimizing and able to remove the overhead of typical abstractions used
-in programs written in object-oriented languages. We are ultimately interested
-in comparing language implementations with each other and optimizing them.
+highly optimizing and able to remove the overhead of abstractions used in
+programs written in object-oriented languages. We are ultimately interested in
+comparing language implementations with each other and optimizing them.
 
 This is in contrast to other projects such as the [Computer Language Benchmark
 game](http://benchmarksgame.alioth.debian.org/), which encourage finding the
@@ -22,9 +22,21 @@ as well as the absolute performance achieved, we set the following rules:
      This means, they should be realized as much as possible with idiomatic
      code in each language, while relying only on the core set of abstractions.
 
+Disclaimer: This is an Academic Project to Facilitate Research on Languages
+---------------------------------------------------------------------------
 
-The *Core* Language
--------------------
+The main goal of the project is to have a common set of benchmarks for a wide
+variety of languages that support objects, closures, and arrays. In this
+setting, is is important that benchmarks can be ported easily between languages
+and produce results that are comparable. One part of the portability is the
+implementation effort. Therefore, all benchmarks included here are comparably
+small and do not reach the size of typical applications. However, we make an
+effort to avoid pure microbenchmarks in order to still capture common
+programming practices and patterns that only emerge in somewhat larger
+interplay of different code parts.
+
+The *Core* Language with Objects, Closures, Arrays
+--------------------------------------------------
 
 While our initial intention is to compare object-oriented (OO) languages, the
 benchmarks could be implemented on other languages as well as long as for
@@ -36,6 +48,8 @@ Currently, the set of required concepts is as follows:
  - polymorphic methods on user-defined classes/objects/types
  - closures, i.e. anonymous functions with access to lexical scope (incl. changing variables)
  - basic array-like abstractions, ideally with a fixed size
+ - garbage collection, currently benchmarks rely on it and we do not yet have
+   variants that do manual memory management
 
 Not permitted is the use of the following concepts:
 
@@ -65,9 +79,67 @@ spot* for fast programs.
 
 We are generally not interested in the most efficient hash table, vector, or
 random number generator. Instead, we use a common library implemented within
-the *core* language subset of each language. The reason is here to compare the
-effectiveness of the compilers instead of well optimized standard libraries.
-This could be a topic for another benchmarking game.
+the *core* language subset of each language. We do this, because we want to
+compare the effectiveness of the compilers instead of well optimized standard
+libraries. Optimization of standard libraries could be a topic for another
+benchmarking game.
+
+Executing Benchmarks
+--------------------
+
+### Direct Execution for Specific Language
+
+The benchmarks are sorted by language in the `benchmarks` folder. For each
+language, there is a separate harness that can be typically executed like this:
+
+```
+cd benchmarks/JavaScript
+node harness.js Richards 5 10
+cd ../Ruby
+ruby2.2 harness.rb Queens 5 20
+```
+
+Thus, the harness takes as first parameter the benchmark name, corresponding to
+a class or file name, and then two arguments. The first is the number of
+iterations and the second specifies a problem sizes, which is used to ensure an
+appropriate runtime for each benchmark.
+
+### Executing Benchmarks with given Setup and ReBench
+
+To provide a standardized setup and execution for the benchmarks and a standard
+setting of parameters, we rely on the scripts in the `implementations` folder
+and the [ReBench](https://github.com/smarr/ReBench) tool.
+
+The script `implementations/setup.sh` compiles the languages that are
+configured as source dependencies in form of git submodules. The
+`implementations/config.inc` file defines paths to implementations that are
+available as binary releases.
+
+*Note*: Currently automatisms are minimal, and focus supporting local and CI
+environments.
+
+The various scripts such as `mri-22.sh`, `java8.sh`, `node.sh` etc are used as
+wrappers to execute all language implementations in a common way by ReBench.
+
+To execute the benchmarks with ReBench, it can be installed via the Python
+package manager pip:
+
+```
+pip install ReBench
+```
+
+Then the benchmarks can be executed with this command in the root folder:
+
+```
+rebench -d --without-nice rebench.conf all
+```
+
+The `-d` gives more output during execution, and `--without-nice` means that
+the `nice` tool to enforce high process priority is not used. We don't use it
+here to avoid requiring root rights.
+
+*Note:* The `rebench.conf` file specifies how and which benchmarks to execute.
+It also defines the arguments to be passed to the benchmarks.
 
 
 Known Issues
