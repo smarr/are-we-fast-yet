@@ -8,17 +8,20 @@
 if (Sys.getenv("RSTUDIO") == "1") { setwd("/Users/smarr/Projects/PostDoc/FASTXX/are-we-fast-yet/report") }
 
 source("scripts/libraries.R", chdir=TRUE)
+opts_chunk$set(dev = 'svg')
+
 data <- load_data_file("data/benchmark.data")
 data <- subset(data, select = c(Value, Unit, Benchmark, VM, Iteration))
-data <- prepare_vm_names(data)
+#data <- prepare_vm_names(data)
 
 # summary(data)
 # levels(data$VM)
 
 jit <- droplevels(subset(data, Iteration >= 700 & Iteration <= 999))
 mri <- droplevels(subset(data, VM == "MRI22"))
+ruby_indy <- droplevels(subset(data, Iteration >= 90 & Iteration <= 170 & VM %in% c("JRubyC2", "JRubyGraal", "JRubyJ8")))
 
-peak <- rbind(jit, mri)
+peak <- rbind(jit, mri, ruby_indy)
 
 norm <- ddply(peak, ~ Benchmark, transform,
               RuntimeRatio = Value / mean(Value[VM == "GraalEnterprise"]))
@@ -27,8 +30,17 @@ stats <- ddply(norm, ~ VM + Benchmark, summarise,
                sd      = sd(Value),
                RuntimeFactor = geometric.mean(RuntimeRatio),
                RR.sd         = sd(RuntimeRatio))
-stats_all <- stats
 stats <- droplevels(subset(stats, Benchmark != "DeltaBlueV8"))
+
+norm_j8 <- ddply(peak, ~ Benchmark, transform,
+              RuntimeRatio = Value / mean(Value[VM == "Java8U66"]))
+stats_j8 <- ddply(norm_j8, ~ VM + Benchmark, summarise,
+               Time.ms = mean(Value),
+               sd      = sd(Value),
+               RuntimeFactor = geometric.mean(RuntimeRatio),
+               RR.sd         = sd(RuntimeRatio))
+stats_j8 <- droplevels(subset(stats_j8, Benchmark != "DeltaBlueV8"))
+
 
 plot_benchmarks_speedup_for_vms <- function(stats, vms) {
   vm_stats <- droplevels(subset(stats, VM %in% vms))
@@ -43,6 +55,38 @@ plot_benchmarks_speedup_for_vms <- function(stats, vms) {
       theme(legend.position="none") + ggtitle(b)
     tryCatch({print(p)})
   }
+}
+
+plot_benchmarks_speedup_for_vms_faceted <- function(stats, vms) {
+  vm_stats <- droplevels(subset(stats, VM %in% vms))
+    
+  p <- ggplot(vm_stats, aes(x = VM, y = RuntimeFactor, fill = VM)) +
+      geom_bar(stat = "identity") +
+      geom_errorbar(aes(ymax = RuntimeFactor + RR.sd, ymin = RuntimeFactor - RR.sd), width=0.25) +
+      facet_wrap(~ Benchmark, ncol = 1, scales="free_y") +
+       theme_bw() + theme_simple() + # scale_fill_manual(values=col) + coord_flip() +
+      theme(legend.position="none", axis.text.x=element_text(angle=90, hjust = 1, vjust = 0.5))
+  print(p)
+}
+
+overview_box_plot <- function(stats, vms, prepare_data = NULL) {
+  cat(vms)
+  vm_stats <- droplevels(subset(stats, VM %in% vms))
+  
+  if (!is.null(prepare_data)) {
+    vm_stats <- prepare_data(vm_stats)
+  }
+  
+  plot <- ggplot(vm_stats, aes(x=VM, y=RuntimeFactor, fill = VM)) +
+    #geom_hline(aes(yintercept=1), colour="#cccccc", linetype="dashed") +
+    #geom_hline(aes(yintercept=5), colour="#cccccc", linetype="dashed") +
+    geom_boxplot() + #fill=get_color(5, 7)
+    theme_bw() + theme_simple() + theme(axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1), legend.position="none") +
+    #scale_y_log10(breaks=c(1,2,3,10,20,30,50,100,200,300,500,1000)) + #limit=c(0,30), breaks=seq(0,100,5), expand = c(0,0)
+    ggtitle("Runtime Factor, normalized to Java 1.8.0_66 (lower is better)") + coord_flip() + xlab("")
+  
+    #labeller = label_parsed
+  print(plot)
 }
 ```
 
@@ -63,49 +107,115 @@ The benchmarks are implemented as identical as possible, trying to exercise a
 More details on the methodology and all benchmarks are available in the
 [Are We Fast Yet?](https://github.com/smarr/are-we-fast-yet#are-we-fast-yet) repository.
 
-### Are Truffle Languages Fast Yet? (Compared to Java with Graal Enterprise)
+### Are Truffle Languages Fast Yet? (Compared to Java 1.8.0_66)
+<a id="all"></a>
 
-```{r truffle-langs, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
-plot_benchmarks_speedup_for_vms(stats, c("GraalEnterprise", "GraalJS", "JRubyTruffle", "JRubyTruffleEnterprise", "JRubyTruffleMaster07", "SOMns"))
+```{r truffle-langs-overview, echo=FALSE, fig.keep='all', fig.width=8, fig.height=3}
+overview_box_plot(stats_j8, c("GraalEnterprise", "GraalJS", "JRubyTruffle", "JRubyTruffleEnterprise", "JRubyTruffleMaster07", "SOMns", "SOMns-Enterprise"))
+
+
+overview_box_plot(stats_j8, c("Java8U66", "GraalJS", "JRubyTruffleEnterprise", "SOMns"))
+overview_box_plot(stats_j8, c("Java8U66", "GraalJS", "JRubyTruffle", "SOMns"))
+
+overview_box_plot(stats_j8, c("Java8U66", "JRubyJ8", "Node", "MRI22"))
+```
+
+<a id="candidate-plot"></a>
+```{r candidate-plot, echo=FALSE, fig.keep='all', fig.width=8, fig.height=3}
+
+prep <- function (d) {
+  d <- prepare_vm_names(d)
+  d$VM <- reorder(d$VM, X=-d$RuntimeFactor)
+  d
+}
+overview_box_plot(stats_j8, c("Java8U66", "JRubyJ8", "Node", "MRI22", "SOMns", "JRubyTruffleEnterprise"), prep)
+```
+
+```{r truffle-lang-table, results='asis', echo=FALSE}
+vm_stats_j8 <- ddply(stats_j8, ~ VM, summarise,
+                     geomean = geometric.mean(RuntimeFactor),
+                     sd      = sd(RuntimeFactor),
+                     min     = min(RuntimeFactor),
+                     max     = max(RuntimeFactor),
+                     median  = median(RuntimeFactor))
+vm_stats_j8$VM <- reorder(vm_stats_j8$VM, X=vm_stats_j8$geomean)
+#vm_stats_j8_o <- arrange(vm_stats_j8, Runtime.Factor)
+
+
+t <- tabular(Justify("l")*Heading()*VM ~ 
+             Heading('Runtime Factor over Java8U66')*Justify("r")*Format(sprintf("%.2f"))*((geomean + sd + min + max + median)*Heading()*identity), data=vm_stats_j8)
+table_options(justification="c ")
+html(t)
+```
+
+```{r truffle-langs, echo=FALSE, fig.keep='all', fig.width=4, fig.height=16}
+plot_benchmarks_speedup_for_vms_faceted(stats, c("GraalEnterprise", "GraalJS", "JRubyTruffleEnterprise", "SOMns"))
+
+#plot_benchmarks_speedup_for_vms_faceted(stats, c("GraalEnterprise", "GraalJS", "JRubyTruffle", "JRubyTruffleEnterprise", "JRubyTruffleMaster07", "SOMns", "SOMns-Enterprise"))
 ```
 
 ### Is Graal Fast Yet? (Baseline Graal Enterprise)
+<a id="graal"></a>
 
-```{r graal, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
-plot_benchmarks_speedup_for_vms(stats, c("GraalBasic", "GraalC2", "GraalEnterprise"))
+```{r graal-overview, echo=FALSE, fig.keep='all', fig.width=8, fig.height=3}
+overview_box_plot(stats, c("GraalBasic", "GraalC2", "GraalEnterprise", "Java8U66"))
+```
+
+```{r graal, echo=FALSE, fig.keep='all', fig.width=3, fig.height=16}
+# vms <- c("GraalBasic", "GraalC2", "GraalEnterprise")
+plot_benchmarks_speedup_for_vms_faceted(stats, c("GraalBasic", "GraalC2", "GraalEnterprise", "Java8U66"))
 ```
 
 ### Is Graal Fast Yet? (JRuby-Indy on C2 or Graal)
 
-```{r graal-jruby-indy, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
-plot_benchmarks_speedup_for_vms(stats, c("JRubyC2", "JRubyGraal"))
+```{r graal-jruby-indy-overview, echo=FALSE, fig.keep='all', fig.width=8, fig.height=3}
+overview_box_plot(stats, c("JRubyC2", "JRubyGraal", "JRubyJ8"))
+```
+
+
+```{r graal-jruby-indy, echo=FALSE, fig.keep='all', fig.width=2, fig.height=16}
+plot_benchmarks_speedup_for_vms_faceted(stats, c("JRubyC2", "JRubyGraal", "JRubyJ8"))
 ```
 
 ### Is Graal.JS Fast Yet?
-```{r graaljs, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
-plot_benchmarks_speedup_for_vms(stats, c("GraalEnterprise", "GraalJS", "Node"))
+<a id="js"></a>
+
+```{r graaljs-overview, echo=FALSE, fig.keep='all', fig.width=8, fig.height=3}
+overview_box_plot(stats, c("GraalEnterprise", "GraalJS", "Node"))
+```
+
+```{r graaljs, echo=FALSE, fig.keep='all', fig.width=3, fig.height=16}
+plot_benchmarks_speedup_for_vms_faceted(stats, c("GraalEnterprise", "GraalJS", "Node"))
 ```
 
 ### Is JRuby+Truffle Fast Yet?
+!!!*TODO*: fix chart titles, normally the base line is GraalEnterprise except for some charts at the very top
+<a id="ruby"></a>
 
-```{r jruby-truffle, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
-plot_benchmarks_speedup_for_vms(stats, c("GraalEnterprise", "JRubyTruffle", "JRubyTruffleEnterprise", "JRubyTruffleMaster07"))
+```{r jruby-truffle-overview, echo=FALSE, fig.keep='all', fig.width=8, fig.height=3}
+overview_box_plot(stats, c("GraalEnterprise", "JRubyTruffle", "JRubyTruffleEnterprise", "JRubyTruffleMaster07"))
+```
+
+```{r jruby-truffle, echo=FALSE, fig.keep='all', fig.width=4, fig.height=16}
+plot_benchmarks_speedup_for_vms_faceted(stats, c("GraalEnterprise", "JRubyTruffle", "JRubyTruffleEnterprise", "JRubyTruffleMaster07"))
 ```
 
 Including JRuby-Indy (w/o Truffle) and MRI
-```{r jruby-truffle-all, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
-plot_benchmarks_speedup_for_vms(stats, c("GraalEnterprise", "JRubyC2", "JRubyGraal", "JRubyTruffle", "JRubyTruffleEnterprise", "JRubyTruffleMaster07", "MRI22"))
+```{r jruby-truffle-overview-all, echo=FALSE, fig.keep='all', fig.width=8, fig.height=3}
+overview_box_plot(stats,  c("GraalEnterprise", "JRubyC2", "JRubyGraal", "JRubyJ8", "JRubyTruffle", "JRubyTruffleEnterprise", "JRubyTruffleMaster07", "MRI22"))
 ```
 
-
+```{r jruby-truffle-all, echo=FALSE, fig.keep='all', fig.width=5, fig.height=16}
+plot_benchmarks_speedup_for_vms_faceted(stats, c("GraalEnterprise", "JRubyC2", "JRubyGraal", "JRubyJ8", "JRubyTruffle", "JRubyTruffleEnterprise", "JRubyTruffleMaster07", "MRI22"))
+```
 
 
 # Other Plots
 
 ## Absolute Runtime
 
-```{r fast-vms-ms, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
-fast_stats <- droplevels(subset(stats, VM != "MRI22" & VM != "JRubyGraal" & VM != "JRubyC2"))
+```{r fast-vms-ms, echo=FALSE, fig.keep='all', fig.width=10, fig.height=6}
+fast_stats <- droplevels(subset(stats, VM != "MRI22" & VM != "JRubyGraal" & VM != "JRubyC2" & VM != "JRubyJ8"))
 for (b in levels(fast_stats$Benchmark)) {
   data_b <- droplevels(subset(fast_stats, Benchmark == b))
   
@@ -120,7 +230,7 @@ for (b in levels(fast_stats$Benchmark)) {
 
 ## Including Slow Implementations
 
-```{r all-vms, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
+```{r all-vms, echo=FALSE, fig.keep='all', fig.width=10, fig.height=6}
 for (b in levels(stats$Benchmark)) {
   cat(b)
   data_b <- droplevels(subset(stats, Benchmark == b))
