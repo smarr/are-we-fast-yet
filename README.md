@@ -84,6 +84,17 @@ compare the effectiveness of the compilers instead of well optimized standard
 libraries. Optimization of standard libraries could be a topic for another
 benchmarking game.
 
+Current Results
+---------------
+
+As of January 5th, 2016, we got 12 different benchmarks implemented as
+identical as possible on Java, JavaScript, Ruby, and [SOMns][1] (a
+[Newspeak][2] implementation). The graph below shows the results for the
+different implementations after warmup, to ensure peak performance is reported:
+
+![Peak Performance of Java, Node.js, JRuby, JRuby+Truffle, MRI, and SOMns](report/latest-results.svg?raw=true)
+
+
 Executing Benchmarks
 --------------------
 
@@ -138,8 +149,29 @@ The `-d` gives more output during execution, and `--without-nice` means that
 the `nice` tool to enforce high process priority is not used. We don't use it
 here to avoid requiring root rights.
 
-*Note:* The `rebench.conf` file specifies how and which benchmarks to execute.
-It also defines the arguments to be passed to the benchmarks.
+*Note:* The [rebench.conf](rebench.conf) file specifies how and which
+benchmarks to execute. It also defines the arguments to be passed to the
+benchmarks.
+
+Pull Requests Welcome!
+----------------------
+
+There is much work left for this project. There are multiple interesting
+questions. On the one hand, it needs to be figured out which benchmarks to
+include and which new ones to add. On the other hand, it would be interesting to
+see how this approach translates to other languages.
+
+So, below, is a list of potentially interesting things to include, but any
+other suggestions, bug reports, improvements are very welcome too:
+
+Potentially Interesting Projects:
+
+  - port to other languages:
+    - Python, as another object-oriented language
+    - Racket, Clojure, CLOS: do the benchmarks still fit in a often-used subset?
+    - C++, Rust, Go, Objective-C, Swift, ...: how do classic compilers fare on these benchmarks, and how does manual memory management impact them?
+  - other benchmarks:
+    - any classic medium sized Java, JavaScript, ... benchmarks that should be added?
 
 
 Known Issues
@@ -205,3 +237,6 @@ Guidelines
 ### Ruby
 
  - RuboCop is used as linter
+
+ [1]: https://github.com/smarr/SOMns
+ [2]: http://www.newspeaklanguage.org/
