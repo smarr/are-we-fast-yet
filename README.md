@@ -92,7 +92,7 @@ identical as possible on Java, JavaScript, Ruby, and [SOMns][1] (a
 [Newspeak][2] implementation). The graph below shows the results for the
 different implementations after warmup, to ensure peak performance is reported:
 
-![Peak Performance of Java, Node.js, JRuby, JRuby+Truffle, MRI, and SOMns](report/latest-results.svg?raw=true)
+![Peak Performance of Java, Node.js, JRuby, JRuby+Truffle, MRI, and SOMns](report/latest-results.png?raw=true)
 
 
 Executing Benchmarks
