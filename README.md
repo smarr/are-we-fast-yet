@@ -68,21 +68,26 @@ Idioms and good engineering advice:
 Why Is the *Core* Language Relevant?
 ------------------------------------
 
-What we call the *core* language is a minimal subset of language constructs
+What we call the *core* language is a small subset of language constructs
 that is widely supported also between languages. We assume that this set of
 core constructs is also widely used by programmers, because it represents the
 very basics. Of course, the core language excludes many concepts that also
 deserve attention when optimizing. However, if this common set of concepts is
 optimized in a language, novice and polyglot programmers will be able to rely
 on the basic abstractions common to many languages without leaving the *sweet
-spot* for fast programs.
+spot* for fast programs. As such, we see an optimal implementation of the *core*
+language as a necessary condition to achieve optimal application performance.
+However, depending on a specific language and its features it is by far not
+sufficient to optimize only the *core* language to achieve optimal performance.
 
 We are generally not interested in the most efficient hash table, vector, or
 random number generator. Instead, we use a common library implemented within
 the *core* language subset of each language. We do this, because we want to
 compare the effectiveness of the compilers instead of well optimized standard
 libraries. Optimization of standard libraries could be a topic for another
-benchmarking game.
+benchmarking game. Note, this common library typically implements basic
+iteration with some of the control flow features that are generally not
+permitted.
 
 Current Results
 ---------------
