@@ -9,10 +9,10 @@ Run = (
     name            := nil.
   )
   
-  name = ( ^ name )
   name: aString = ( name := aString )
-  
-  benchmarkSuite: aSuite = ( benchmarkSuite := aSuite )
+  benchmarkSuite: aSuite = ( benchmarkSuite  := aSuite )
+  numIterations:   anInt = ( numIterations   := anInt )
+  innerIterations: anInt = ( innerIterations := anInt )
   
   runBenchmark = (
     | result |
