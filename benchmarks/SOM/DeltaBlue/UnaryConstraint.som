@@ -1,82 +1,82 @@
 UnaryConstraint = AbstractConstraint (
-    "I am an abstract superclass for constraints having a single possible output
-    variable.
+  "I am an abstract superclass for constraints having a single possible output
+  variable.
 
-    Instance variables:
-        output      possible output variable <Variable>
-        satisfied       true if I am currently satisfied <Boolean>"
-    | output satisfied |
-    
-    "initialize-release"
+  Instance variables:
+      output      possible output variable <Variable>
+      satisfied       true if I am currently satisfied <Boolean>"
+  | output satisfied |
+  
+  "initialize-release"
 
-    var: aVariable strength: strengthSymbol = (
-        "Initialize myself with the given variable and strength."
+  initializeVar: aVariable strength: strengthSymbol addTo: planner = (
+    "Initialize myself with the given variable and strength."
+    super initialize: strengthSymbol.
+    output := aVariable.
+    satisfied := false.
+    self addConstraint: planner.
+  )
 
-        strength := Strength of: strengthSymbol.
-        output := aVariable.
-        satisfied := false.
-        self addConstraint.
-    )
+  "queries"
+  isSatisfied = (
+    "Answer true if this constraint is satisfied in the current solution."
+    ^ satisfied
+  )
 
-    "queries"
-    isSatisfied = (
-        "Answer true if this constraint is satisfied in the current solution."
+  "add/remove"
 
-        ^satisfied
-    )
+  addToGraph = (
+    "Add myself to the constraint graph."
+    output addConstraint: self.
+    satisfied := false.
+  )
 
-    "add/remove"
+  removeFromGraph = (
+    "Remove myself from the constraint graph."
+    output == nil ifFalse: [output removeConstraint: self].
+    satisfied := false.
+  )
 
-    addToGraph = (
-        "Add myself to the constraint graph."
+  "planning"
+  chooseMethod: mark = (
+    "Decide if I can be satisfied and record that decision."
 
-        output addConstraint: self.
-        satisfied := false.
-    )
+    satisfied :=
+        output mark <> mark and:
+        [strength stronger: output walkStrength].
+    ^ nil
+  )
 
-    removeFromGraph = (
-        "Remove myself from the constraint graph."
+  execute = (
+    "Enforce this constraint. Assume that it is satisfied."
+    self subclassResponsibility
+  )
 
-        (output == nil) ifFalse: [output removeConstraint: self].
-        satisfied := false.
-    )
+  inputsDo: aBlock = (
+    "I have no input variables."
+  )
+  
+  inputsHasOne: aBlock = (
+    ^ false
+  )
 
-    "planning"
+  markUnsatisfied = (
+    "Record the fact that I am unsatisfied."
+    satisfied := false.
+  )
 
-    chooseMethod: mark = (
-        "Decide if I can be satisfied and record that decision."
+  output = (
+    "Answer my current output variable."
+    ^ output
+  )
 
-        satisfied :=
-            (output mark ~= mark) and:
-            [strength stronger: output walkStrength].
-    )
+  recalculate = (
+    "Calculate the walkabout strength, the stay flag, and, if it is 'stay',
+     the value for the current output of this constraint. Assume this
+     constraint is satisfied."
 
-    execute = (
-        "Enforce this constraint. Assume that it is satisfied."
-        self subclassResponsibility
-    )
-
-    inputsDo: aBlock = (
-        "I have no input variables."
-    )
-
-    markUnsatisfied = (
-        "Record the fact that I am unsatisfied."
-        satisfied := false.
-    )
-
-    output = (
-        "Answer my current output variable."
-        ^ output
-    )
-
-    recalculate = (
-        "Calculate the walkabout strength, the stay flag, and, if it is 'stay',
-         the value for the current output of this constraint. Assume this
-         constraint is satisfied."
-
-        output walkStrength: strength.
-        output stay: (self isInput not).
-        (output stay) ifTrue: [self execute].   "stay optimization"
-    )
+    output walkStrength: strength.
+    output stay: self isInput not.
+    output stay ifTrue: [self execute].   "stay optimization"
+  )
 )

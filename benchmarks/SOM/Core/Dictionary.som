@@ -41,14 +41,14 @@ Dictionary = (
   
   at: aKey = (
     | pair |
+    pair := self pairAt: aKey.
     ^ pair isNil
         ifTrue:  [ nil ]
         ifFalse: [ pair value ]
   )
 
   pairAt: aKey = (
-    pairs getOne: [ :p | p key = aKey ].
-    ^ nil
+    ^ pairs getOne: [ :p | p key = aKey ].
   )
   
   keys   = ( ^ pairs collect: [ :p | p key ] )
