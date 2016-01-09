@@ -9,6 +9,6 @@ make clean; make
 OK TruffleSOM Build Completed.
 
 INFO Build TruffleSOM with TruffleObjectModel
-cd TruffleSOM-TOM
+cd ../TruffleSOM-TOM
 make clean; make
 OK TruffleSOM with TruffleObjectModel Build Completed.
