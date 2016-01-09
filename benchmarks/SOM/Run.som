@@ -43,7 +43,7 @@ Run = (
     ]
   )
 
-  reportBenchmark: bench result: result = (
+  reportBenchmark = (
     (name + ': iterations=' + numIterations +
      ' average: ' + (total / numIterations) + 'us total: ' + total +
      'us\n') println.
