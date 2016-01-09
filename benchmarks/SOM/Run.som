@@ -1,0 +1,65 @@
+Run = (
+  | total numIterations innerIterations benchmarkSuite name |
+  
+  initialize = (
+    total           := 0.
+    numIterations   := 1.
+    innerIterations := 1.
+    benchmarkSuite  := nil.
+    name            := nil.
+  )
+  
+  name = ( ^ name )
+  name: aString = ( name := aString )
+  
+  benchmarkSuite: aSuite = ( benchmarkSuite := aSuite )
+  
+  runBenchmark = (
+    | result |
+    ('Starting ' + name + ' benchmark ... ') println.
+    
+    self doRuns: benchmarkSuite new.
+    self reportBenchmark.
+
+    '' println
+  )
+  
+  measure: bench = (
+    | startTime endTime runTime |
+    startTime := system ticks.
+    (bench innerBenchmarkLoop: innerIterations) ifFalse: [
+      self error: 'Benchmark failed with incorrect result'. ].
+    endTime   := system ticks.
+
+    runTime := endTime - startTime.
+    self printResult: runTime.
+
+    total := total + runTime.
+  )
+  
+  doRuns: bench = (
+    1 to: numIterations do: [:i |
+      self measure: bench
+    ]
+  )
+
+  reportBenchmark: bench result: result = (
+    (name + ': iterations=' + numIterations +
+     ' average: ' + (total / numIterations) + 'us total: ' + total +
+     'us\n') println.
+  )
+  
+  printResult: runTime = (
+    (name + ': iterations=1 runtime: ' + runTime + 'us') println
+  )
+      
+  printTotal = (
+    ('Total Runtime: ' + total + 'us') println.
+  )
+  
+  ----
+  
+  new = (
+    ^ super new initialize
+  )
+)
