@@ -201,7 +201,7 @@ Guidelines
 ### Language Independent
 
  - code should pass a linter, if available for the language  
-   rational: gives some consistency with established rules
+   rationale: gives some consistency with established rules
  
  - code should be within the 'expected performance sweet spot'  
    for instance, fields and collections should be used well typed
