@@ -249,7 +249,6 @@ class JsonSuite usingPlatform: platform andHarness: harness = (
       ((self readChar: 'e') not and: [
         (self readChar: 'E') not]) ifTrue: [ ^ false ].
     
-    
       (self readChar: '+') ifFalse: [ self readChar: '-' ].
     
       self readDigit ifFalse: [ self expected: 'digit' ].

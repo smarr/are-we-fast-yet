@@ -65,7 +65,7 @@ class ListSuite usingPlatform: platform andHarness: harness = (
               talkWithX: (self talkWithX: x next withY: y withZ: z)
               withY: (self talkWithX: y next withY: z withZ: x)
               withZ: (self talkWithX: z next withY: x withZ: y)) ]
-        ifFalse: [ ^z ].
+        ifFalse: [ ^ z ].
     )
   )
 

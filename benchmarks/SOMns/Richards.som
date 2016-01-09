@@ -240,7 +240,6 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
       ^ queuePacketCount = 23246 and: holdCount = 9297
     )
 
-
     findTask: identity = (
       | t |
       t := taskTable at: identity.
