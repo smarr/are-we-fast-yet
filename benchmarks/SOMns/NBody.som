@@ -31,7 +31,7 @@ class NBodySuite usingPlatform: platform andHarness: harness = (
         ^ result = -0.1690859889909308
       ].
       
-      ('No verification result for ' + inner_iterations asString + ' found') println.
+      ('No verification result for ' + innerIterations asString + ' found') println.
       ('Result is: ' + result asString) println.
       ^ false
     )
