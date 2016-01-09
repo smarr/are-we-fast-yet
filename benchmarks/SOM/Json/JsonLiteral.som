@@ -1,0 +1,30 @@
+JsonLiteral = JsonValue (
+  | value isNull isTrue isFalse |
+
+  initializeWith: val = (
+    value   := val.
+    isNull  := 'null'  = val.
+    isTrue  := 'true'  = val.
+    isFalse := 'false' = val.
+  )
+
+  asString  = ( ^ value )
+  isNull    = ( ^ isNull )
+  isTrue    = ( ^ isTrue )
+  isFalse   = ( ^ isFalse )
+  isBoolean = ( ^ isTrue || isFalse )
+
+  ----
+
+  | NULL TRUE FALSE |
+
+  initialize = (
+    NULL  := self new initializeWith: 'null'.
+    TRUE  := self new initializeWith: 'true'.
+    FALSE := self new initializeWith: 'false'.
+  )
+
+  NULL  = ( ^ NULL )
+  TRUE  = ( ^ TRUE )
+  FALSE = ( ^ FALSE )  
+)

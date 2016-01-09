@@ -1,0 +1,30 @@
+JsonArray = JsonValue (
+  | values |
+
+  initialize = ( values := Vector new )
+
+  add: value = (
+    value ifNil: [ self error: 'value is null' ].
+    values append: value
+  )
+
+  size = (
+    ^ values size
+  )
+
+  at: index = (
+    ^ values at: index
+  )
+ 
+  isArray = (
+    ^ true
+  )
+
+  asArray = (
+    ^ self
+  )
+
+  ----
+  
+  new = ( ^ super new initialize )
+)

@@ -1,0 +1,53 @@
+JsonObject = JsonValue (
+  | names values table |
+  
+  initialize = (
+    names  := Vector new.
+    values := Vector new.
+    table  := HashIndexTable new
+  )
+
+  add: name with: aJsonValue = (
+    name ifNil: [ self error: 'name is null'  ].
+    aJsonValue ifNil: [ self error: 'aJsonValue is null' ].
+
+    table at: name put: names size + 1. "+ 1 for 1-based indexing"
+    names  append: name.
+    values append: aJsonValue.
+  )
+
+  at: name = (
+    | idx |
+    name ifNil: [ self error: 'name is null'  ].
+    idx := self indexOf: name.
+    idx = 0
+      ifTrue:  [ ^ nil ]
+      ifFalse: [ ^ values at: idx ]
+  )
+
+  size = (
+    ^ names size
+  )
+  
+  isEmpty = (
+    ^ names isEmpty
+  )
+  
+  isObject = ( ^ true )
+  asObject = ( ^ self )
+
+  indexOf: name = (
+    | idx |
+    idx := table at: name.    
+    idx <> 0 && name = (names at: idx) ifTrue: [ ^ idx ].
+    ^ self error: 'not implement'
+  )
+
+  ----
+  
+  new = ( ^ super new initialize )
+  
+  readFrom: string = (
+    ^ (JsonValue readFrom: string) asObject
+  )
+)

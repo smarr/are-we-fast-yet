@@ -1,0 +1,38 @@
+HashIndexTable = (
+  | hashTable |
+  
+  initialize = (
+    hashTable := Array new: 32 withAll: 0
+  )
+
+  at: name put: index = (
+    | slot |
+    slot := self hashSlotFor: name.
+    
+    index < 255
+      ifTrue:  [ hashTable at: slot put: index + 1 ]
+      ifFalse: [ hashTable at: slot put: 0 ]
+  )
+
+  at: name = (
+    | slot |
+    slot := self hashSlotFor: name.
+
+    " subtract 1, 0 stands for empty "
+    ^ ((hashTable at: slot) & 255) - 1
+  )
+  
+  stringHash: s = (
+    "this is not a proper hash, but sufficient for the benchmark,
+     and very portable!"
+     ^ s length * 1402589
+  )
+
+  hashSlotFor: element = (
+    ^ ((self stringHash: element) & (hashTable length - 1)) + 1
+  )
+  
+  ----
+  
+  new = ( ^ super new initialize )
+)

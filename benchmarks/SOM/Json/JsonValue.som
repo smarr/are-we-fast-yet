@@ -1,0 +1,20 @@
+JsonValue = (
+
+  isObject  = ( ^ false )
+  isArray   = ( ^ false )
+  isNumber  = ( ^ false )
+  isString  = ( ^ false )
+  isBoolean = ( ^ false )
+  
+  isTrue  = ( ^ false )
+  isFalse = ( ^ false )
+  isNull  = ( ^ false )
+
+  asObject = (
+    self error: 'Unsupported operation, not an object: ' + self asString
+  )
+
+  asArray = (
+    self error: 'Unsupported operation, not an array: ' + self asString
+  )
+)

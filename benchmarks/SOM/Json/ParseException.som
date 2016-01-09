@@ -1,0 +1,27 @@
+ParseException = (
+  | offset line column msg |
+  
+  initializeWith: message at: anOffset line: aLine column: aColumn = (
+    msg    := message.
+    offset := anOffset.
+    line   := aLine.
+    column := aColumn.
+  )
+  
+  message = ( ^ msg )
+  
+  offset = ( ^ offset )
+  line   = ( ^ line   )
+  column = ( ^ column )
+  
+  asString = ( ^ msg + ':' + line + ':' + column )
+  
+  ----
+
+  with: aMessageString at: offset line: line column: column = (
+    ^ self new initializeWith: aMessageString
+                           at: offset
+                         line: line
+                       column: column
+  )
+)

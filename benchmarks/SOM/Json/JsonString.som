@@ -1,0 +1,13 @@
+JsonString = JsonValue (
+  | string |
+  
+  initializeWith: str = ( string := str )
+
+  isString = (
+    ^ true
+  )
+
+  ----
+  
+  new: str = ( ^ self new initializeWith: str )
+)

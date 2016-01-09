@@ -1,0 +1,15 @@
+JsonNumber = JsonValue (
+  | string |
+  
+  initializeWith: str = ( string := str )
+
+  asString = ( ^ string )
+  isNumber = ( ^ true )
+
+  ----
+
+  new: string = (
+    string ifNil: [ self error: 'string is null' ].
+    ^ self new initializeWith: string
+  )
+)
