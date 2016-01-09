@@ -119,16 +119,16 @@ class Harness usingPlatform: platform = (
     )
      
     printResult: runTime = (
-      (name + ': iterations=1' + ' runtime: ' + runTime + 'us') println
+      (name + ': iterations=1 runtime: ' + runTime + 'us') println
     )
         
     public printTotal = (
-      ('Total Runtime: ' + total asString + 'us') println.
+      ('Total Runtime: ' + total + 'us') println.
     )
   )
 
   processArguments: args for: run = (
-    (* First argument is the BenchmarkHarness *)
+    (* First argument is the Harness *)
     run name: (args at: 2).
     run benchmarkSuite: (self loadBenchmarkSuite: (args at: 2)).
     args size > 2 ifTrue: [
@@ -151,7 +151,7 @@ class Harness usingPlatform: platform = (
   )
 
   printUsage = (
-    './som.sh core-lib/Benchmarks/Harness.som [benchmark] [num-iterations [inner-iter]]' println.
+    './som core-lib/Benchmarks/Harness.som [benchmark] [num-iterations [inner-iter]]' println.
     '' println.
     '  benchmark      - benchmark class name' println.
     '  num-iterations - number of times to execute benchmark, default: 1' println.
