@@ -1,4 +1,0 @@
-Time = Object (
-    ----
-    millisecondClockValue = (^system time)
-)

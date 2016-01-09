@@ -1,6 +1,0 @@
-Transcript = (
-    ----
-    cr = (system printNewline)
-    show: text = (system printString: text)
-)
-

@@ -1,8 +1,9 @@
 Richards = Benchmark (
-    benchmark = (
-        ^ RichardsBenchmarks new reBenchStart.
-    )
-    verifyResult: result = (
-      ^ result
-    )
+  benchmark = (
+    ^ Scheduler new start.
+  )
+
+  verifyResult: result = (
+    ^ result
+  )
 )

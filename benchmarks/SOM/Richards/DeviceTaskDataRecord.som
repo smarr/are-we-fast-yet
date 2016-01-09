@@ -1,13 +1,12 @@
 DeviceTaskDataRecord = RBObject (
-    |pending|
+  | pending |
 
-    pending = (^pending)
+  pending = ( ^ pending )
+  pending: packet = ( pending := packet )
 
-    pending: packet = (pending := packet)
-
-    create = (pending := RBObject NoWork)
-----
-    create = (
-        ^super new create
-    )
+  create = ( pending := RBObject NoWork )
+  ----
+  create = (
+    ^ super new create
+  )
 )

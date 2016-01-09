@@ -1,53 +1,51 @@
 TaskState = RBObject (
-    |packetPending taskWaiting taskHolding|
+  | packetPending taskWaiting taskHolding |
 
-    isPacketPending = (^packetPending)
+  isPacketPending = (^packetPending)
 
-    isTaskHolding = (^taskHolding)
+  isTaskHolding = (^taskHolding)
 
-    isTaskWaiting = (^taskWaiting)
+  isTaskWaiting = (^taskWaiting)
 
-    taskHolding: aBoolean   = (taskHolding   := aBoolean)
-    taskWaiting: aBoolean   = (taskWaiting   := aBoolean)
-    packetPending: aBoolean = (packetPending := aBoolean)
+  taskHolding: aBoolean   = (taskHolding   := aBoolean)
+  taskWaiting: aBoolean   = (taskWaiting   := aBoolean)
+  packetPending: aBoolean = (packetPending := aBoolean)
 
-    packetPending = (
-        packetPending := true.
-        taskWaiting := false.
-        taskHolding := false
-    )
+  packetPending = (
+      packetPending := true.
+      taskWaiting := false.
+      taskHolding := false
+  )
 
-    running = (
-        packetPending := taskWaiting := taskHolding := false
-    )
+  running = (
+      packetPending := taskWaiting := taskHolding := false
+  )
 
-    waiting = (
-        packetPending := taskHolding := false.
-        taskWaiting := true
-    )
+  waiting = (
+      packetPending := taskHolding := false.
+      taskWaiting := true
+  )
 
-    waitingWithPacket = (
-        taskHolding := false.
-        taskWaiting := packetPending := true
-    )
+  waitingWithPacket = (
+      taskHolding := false.
+      taskWaiting := packetPending := true
+  )
 
-    isRunning = (^packetPending not and: [taskWaiting not and: [taskHolding not]])
+  isRunning = (^packetPending not and: [taskWaiting not and: [taskHolding not]])
 
-    isTaskHoldingOrWaiting = (^taskHolding or: [packetPending not and: [taskWaiting]])
+  isTaskHoldingOrWaiting = (^taskHolding or: [packetPending not and: [taskWaiting]])
 
-    isWaiting = (^packetPending not and: [taskWaiting and: [taskHolding not]])
+  isWaiting = (^packetPending not and: [taskWaiting and: [taskHolding not]])
 
-    isWaitingWithPacket = (^packetPending and: [taskWaiting and: [taskHolding not]])
+  isWaitingWithPacket = (^packetPending and: [taskWaiting and: [taskHolding not]])
 
 
-    ----
-    packetPending = (^super new packetPending)
+  ----
+  packetPending = ( ^ super new packetPending )
 
-    running = (
-        ^super new running
-    )
+  running = ( ^ super new running )
 
-    waiting = (^super new waiting)
+  waiting = ( ^ super new waiting )
 
-    waitingWithPacket = (^super new waitingWithPacket)
+  waitingWithPacket = ( ^ super new waitingWithPacket )
 )

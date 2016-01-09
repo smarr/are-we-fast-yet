@@ -1,25 +1,24 @@
 IdleTaskDataRecord = RBObject (
+  | control count |
 
-    |control count|
+  control = ( ^ control )
 
-    control = (^control)
+  control: aNumber = (
+    control := aNumber
+  )
 
-    control: aNumber = (
-        control := aNumber
-    )
+  count = ( ^ count )
 
-    count = (^count)
+  count: aCount = (
+    count := aCount
+  )
 
-    count: aCount = (
-        count := aCount
-    )
+  create = (
+    control := 1.
+    count := 10000
+  )
 
-    create = (
-        control := 1.
-        count := 10000
-    )
+  ----
 
-    ----
-
-    create = (^super new create)
+  create = (^super new create)
 )
