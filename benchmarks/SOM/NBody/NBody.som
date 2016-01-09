@@ -1,0 +1,29 @@
+NBody = Benchmark (
+  innerBenchmarkLoop: innerIterations = (
+    | system |
+    system := NBodySystem new.
+    
+    1 to: innerIterations do: [:i |
+      system advance: 0.01.
+    ].
+    
+    ^ self verify: system energy for: innerIterations.
+  )
+  
+  verify: result for: innerIterations = (
+    innerIterations = 250000 ifTrue: [
+      ^ result = -0.1690859889909308
+    ].
+    
+    ('No verification result for ' + innerIterations asString + ' found') println.
+    ('Result is: ' + result asString) println.
+    ^ false
+  )
+  
+  ----
+  
+  new = (
+    Body initialize.
+      ^ super new
+  )
+)
