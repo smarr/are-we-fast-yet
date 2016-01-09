@@ -1,0 +1,5 @@
+IdentitySet = Set (
+  contains: anObject = (
+    ^ self hasSome: [ :it |  it == anObject ]
+  )
+)
