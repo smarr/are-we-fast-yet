@@ -100,8 +100,9 @@ def process_arguments(args, run)
 end
 
 def load_benchmark_suite(benchmark_name)
-  unless require_relative(benchmark_name.downcase)
-    raise "failed loading #{benchmark_name}"
+  benchmark_file = benchmark_name.gsub(/([a-z])([A-Z])/) { "#{$1}-#{$2.downcase}" }.downcase
+  unless require_relative(benchmark_file)
+    raise "failed loading #{benchmark_file}"
   end
   Object.const_get(benchmark_name)
 end
