@@ -77,12 +77,12 @@ class Harness usingPlatform: platform = (
     )
   )
 
-  public class Run = (
-    | public total           ::= 0.
+  public class Run new: name = (
+    | public name            = name.
+      public benchmarkSuite  = loadBenchmarkSuite: name.
+      public total           ::= 0.
       public numIterations   ::= 1.
       public innerIterations ::= 1.
-      public benchmarkSuite  ::= nil.
-      public name            ::= nil.
     |
   )(
     public runBenchmark = (
@@ -127,38 +127,38 @@ class Harness usingPlatform: platform = (
     )
   )
 
-  processArguments: args for: run = (
-    (* First argument is the Harness *)
-    run name: (args at: 2).
-    run benchmarkSuite: (self loadBenchmarkSuite: (args at: 2)).
+  processArguments: args = (
+    | run |
+    run := Run new: (args at: 2).
+
     args size > 2 ifTrue: [
       run numIterations: (args at: 3) asInteger.
       args size > 3 ifTrue: [
         run innerIterations: (args at: 4) asInteger.
-    ] ]
+    ] ].
+    ^ run
   )
 
   public main: args = (
     | run |
     args size < 2 ifTrue: [ self printUsage. ^ 1 ].
     
-    run := Run new.
-    self processArguments: args for: run.
+    run := self processArguments: args.
 
     run runBenchmark.
     run printTotal.
     ^ 0
   )
-
+  
   printUsage = (
-    './som core-lib/Benchmarks/Harness.som [benchmark] [num-iterations [inner-iter]]' println.
+    './som core-lib/Benchmarks/Harness.som benchmark [num-iterations [inner-iter]]' println.
     '' println.
     '  benchmark      - benchmark class name' println.
     '  num-iterations - number of times to execute benchmark, default: 1' println.
     '  inner-iter     - number of times the benchmark is executed in an inner loop, ' println.
     '                   which is measured in total, default: 1' println.
   )
-
+  
   loadBenchmarkSuite: className = (
     | file cls |
     file := className + '.som'.

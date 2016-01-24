@@ -1,12 +1,21 @@
 Run = (
   | total numIterations innerIterations benchmarkSuite name |
   
-  initialize = (
+  initialize: aName = (
+    name            := aName.
+    benchmarkSuite  := self loadBenchmarkSuite: aName.
     total           := 0.
     numIterations   := 1.
     innerIterations := 1.
-    benchmarkSuite  := nil.
-    name            := nil.
+  )
+  
+  loadBenchmarkSuite: className = (
+    | sym cls |
+    sym := className asSymbol.
+    cls := system load: sym.
+    cls ifNil: [
+        self error: 'Failed loading benchmark: ', className ].
+    ^ cls
   )
   
   name: aString = ( name := aString )
@@ -59,7 +68,7 @@ Run = (
   
   ----
   
-  new = (
-    ^ super new initialize
+  new: name = (
+    ^ self new initialize: name
   )
 )

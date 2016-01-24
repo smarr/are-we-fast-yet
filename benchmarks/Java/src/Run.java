@@ -1,13 +1,25 @@
 public final class Run {
-  private String name;
-  private Class<? extends Benchmark> benchmarkSuite;
+  private final String name;
+  private final Class<? extends Benchmark> benchmarkSuite;
   private int numIterations;
   private int innerIterations;
   private long total;
 
-  public Run() {
+  public Run(final String name) {
+    this.name = name;
+    this.benchmarkSuite = getSuiteFromName(name);
     numIterations   = 1;
     innerIterations = 1;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Class<? extends Benchmark> getSuiteFromName(final String name) {
+    try {
+      return (Class<? extends Benchmark>) Class.forName(name);
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
+      throw new RuntimeException(e);
+    }
   }
 
   public void runBenchmark() {
@@ -59,16 +71,8 @@ public final class Run {
     return name;
   }
 
-  public void setName(final String name) {
-    this.name = name;
-  }
-
   public Class<? extends Benchmark> getBenchmarkSuite() {
     return benchmarkSuite;
-  }
-
-  public void setBenchmarkSuite(final Class<? extends Benchmark> suite) {
-    benchmarkSuite = suite;
   }
 
   public int getNumIterations() {

@@ -1,18 +1,7 @@
 public final class Harness {
 
-  @SuppressWarnings("unchecked")
-  private static Class<? extends Benchmark> getSuiteFromName(final String name) {
-    try {
-      return (Class<? extends Benchmark>) Class.forName(name);
-    } catch (ClassNotFoundException e) {
-      e.printStackTrace();
-      throw new RuntimeException(e);
-    }
-  }
-
-  private static void processArguments(final String[] args, final Run run) {
-    run.setName(args[0]);
-    run.setBenchmarkSuite(getSuiteFromName(args[0]));
+  private static Run processArguments(final String[] args) {
+    Run run = new Run(args[0]);
 
     if (args.length > 1) {
       run.setNumIterations(Integer.valueOf(args[1]));
@@ -20,6 +9,8 @@ public final class Harness {
         run.setInnerIterations(Integer.valueOf(args[2]));
       }
     }
+
+    return run;
   }
 
   private static void printUsage() {
@@ -37,8 +28,7 @@ public final class Harness {
   	  System.exit(1);
   	}
 
-  	Run run = new Run();
-  	processArguments(args, run);
+  	Run run = processArguments(args);
   	run.runBenchmark();
   	run.printTotal();
   }

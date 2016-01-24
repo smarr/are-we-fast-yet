@@ -1,8 +1,12 @@
 'use strict';
 
-function Run() {
-  var name            = null,
-    benchmarkSuite  = null,
+function Run(name) {
+  function loadBenchmark() {
+    var filename = "./" + name.toLowerCase() + ".js";
+    return require(filename);
+  }
+
+  var benchmarkSuite  = loadBenchmark(),
     numIterations   = 1,
     innerIterations = 1,
     total           = 0;
@@ -64,14 +68,8 @@ function Run() {
   }
 }
 
-function loadBenchmark(name) {
-  var filename = "./" + name.toLowerCase() + ".js";
-  return require(filename);
-}
-
-function processArguments(args, run) {
-  run.setName(args[2]);
-  run.setBenchmarkSuite(loadBenchmark(args[2]));
+function processArguments(args) {
+  var run = new Run(args[2]);
 
   if (args.length > 3) {
     run.setNumIterations(parseInt(args[3]));
@@ -79,6 +77,7 @@ function processArguments(args, run) {
       run.setInnerIterations(parseInt(args[4]));
     }
   }
+  return run;
 }
 
 function printUsage() {
@@ -95,7 +94,6 @@ if (process.argv.length < 3) {
   process.exit(1);
 }
 
-var run = new Run();
-processArguments(process.argv, run);
+var run = processArguments(process.argv);
 run.runBenchmark();
 run.printTotal();
