@@ -28,7 +28,7 @@ class SieveSuite usingPlatform: platform andHarness: harness = (
 
     public benchmark = (
       | flags |
-      flags := Array new: 5000.
+      flags := Array new: 5000 withAll: true.
       ^ self sieve: flags size: 5000.
     )
 
@@ -39,7 +39,7 @@ class SieveSuite usingPlatform: platform andHarness: harness = (
     private sieve: flags size: size = (
       | primeCount |
       primeCount := 0.
-      flags putAll: true.
+
       2 to: size do: [ :i |
         (flags at: i - 1)
           ifTrue: [

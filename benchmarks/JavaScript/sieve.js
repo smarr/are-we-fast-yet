@@ -9,7 +9,6 @@ Sieve.prototype = Object.create(benchmark.Benchmark.prototype);
 
 function sieve(flags, size) {
   var primeCount = 0;
-  flags.fill(true);
 
   for (var i = 2; i <= size; i++) {
     if (flags[i - 1]) {
@@ -26,6 +25,7 @@ function sieve(flags, size) {
 
 Sieve.prototype.benchmark = function () {
   var flags = new Array(5000);
+  flags.fill(true);
   return sieve(flags, 5000);
 };
 

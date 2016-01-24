@@ -1,6 +1,6 @@
 class Sieve < Benchmark
   def benchmark
-    flags = Array.new(5000)
+    flags = Array.new(5000, true)
     sieve(flags, 5000)
   end
 
@@ -10,7 +10,6 @@ class Sieve < Benchmark
 
   def sieve(flags, size)
     prime_count = 0
-    flags.fill(true)
 
     (2..size).each { | i |
       if flags[i - 1]

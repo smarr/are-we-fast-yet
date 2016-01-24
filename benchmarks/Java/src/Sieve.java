@@ -6,12 +6,12 @@ public class Sieve extends Benchmark {
   @Override
   public Object benchmark() {
     boolean[] flags = new boolean[5000];
+    Arrays.fill(flags, true);
     return sieve(flags, 5000);
   }
 
   int sieve(final boolean[] flags, final int size) {
     int primeCount = 0;
-    Arrays.fill(flags, true);
 
     for (int i = 2; i <= size; i++) {
       if (flags[i - 1]) {
