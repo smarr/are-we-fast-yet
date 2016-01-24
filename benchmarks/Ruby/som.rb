@@ -118,7 +118,6 @@ class Vector
     end
   end
 
-
   def sort_range(i, j)  # &block
     # Sort elements i through j of self to be non-descending according to sortBlock.
     unless block_given?
