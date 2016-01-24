@@ -109,7 +109,7 @@ class Vector(T)
     @storage.size
   end
 
-  def sort(&block : T, T -> Int32)
+  def sort(&block : T, T -> Bool)
     sort_inner(block)
   end
 

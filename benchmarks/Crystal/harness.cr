@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 require "./bounce"
-# require "./deltablue"
+require "./deltablue"
 require "./json"
 require "./list"
 require "./mandelbrot"
@@ -48,8 +48,8 @@ class Run
     case benchmark_name
     when "Bounce"
       Bounce
-    # when "DeltaBlue"
-    #   DeltaBlue
+    when "DeltaBlue"
+      DeltaBlue
     when "Json"
       Json
     when "List"

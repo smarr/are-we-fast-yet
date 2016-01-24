@@ -30,13 +30,13 @@ class DeltaBlue < Benchmark
   end
 end
 
-class Plan < Vector(AbstractConstraint)
+class Plan < Vector(AbstractConstraint?)
   def initialize
     super(15)
   end
 
   def execute
-    each { | c | c.execute }
+    each { | c | c.not_nil!.execute }
   end
 end
 
@@ -45,30 +45,32 @@ class Planner
     @current_mark = 1
   end
 
-  def incremental_add(constraint)
+  def incremental_add(constraint : AbstractConstraint)
     mark = new_mark
     overridden = constraint.satisfy(mark, self)
 
-    until overridden.is_a?(Nil)
-      if overridden.is_a?(Nil)
-        raise "override is Nil"
-      end
-      overridden = overridden.satisfy(mark, self)
+    until overridden == nil
+      overridden = overridden.not_nil!.satisfy(mark, self)
     end
   end
 
-  def incremental_remove(constraint)
-    outx = constraint.output
-    constraint.mark_unsatisfied
-    constraint.remove_from_graph
-    unsatisfied = remove_propagate_from(outx)
-    unsatisfied.each { |u| incremental_add(u) }
+  def incremental_remove(constraint : AbstractConstraint)
+    out_v = constraint.output
+    if out_v.is_a?(Variable)
+      constraint.mark_unsatisfied
+      constraint.remove_from_graph
+      unsatisfied = remove_propagate_from(out_v)
+      unsatisfied.each { |u| incremental_add(u.not_nil!) }
+    else
+      raise "constraint.output is nil"
+    end
   end
 
   def extract_plan_from_constraints(constraints)
-    sources = Vector(AbstractConstraint).new
+    sources = Vector(AbstractConstraint?).new
 
-    constraints.each { | c |
+    constraints.each { | c_ |
+      c = c_.not_nil!
       if c.is_input && c.is_satisfied
         sources.append(c)
       end
@@ -123,7 +125,8 @@ class Planner
     
     determining_c = v.determined_by
 
-    v.constraints.each { | c |
+    v.constraints.each { | c_ |
+      c = c_.not_nil!
       if (!c == determining_c) && c.is_satisfied # Ruby uses .equal?
         coll.append(c)
       end
@@ -131,7 +134,7 @@ class Planner
   end
 
   def add_propagate(c, mark)
-    todo = Vector(AbstractConstraint).with(c)
+    todo = Vector(AbstractConstraint?).with(c)
 
     until todo.empty?
       d = todo.remove_first
@@ -154,7 +157,7 @@ class Planner
 
   def change_var(var, val)
     edit_constraint = EditConstraint.new(var, :preferred, self)
-    plan = extract_plan_from_constraints(Vector(AbstractConstraint).with(edit_constraint))
+    plan = extract_plan_from_constraints(Vector(AbstractConstraint?).with(edit_constraint))
     10.times {
       var.value = val
       plan.execute
@@ -162,10 +165,10 @@ class Planner
     edit_constraint.destroy_constraint(self)
   end
 
-  def constraints_consuming(v) # &block
+  def constraints_consuming(v : Variable) # &block
     determining_c = v.determined_by
     v.constraints.each { | c |
-      if c != determining_c && c.is_satisfied
+      if c != determining_c && c.not_nil!.is_satisfied
         yield c
       end
     }
@@ -175,33 +178,25 @@ class Planner
     @current_mark += 1
   end
 
-  def remove_propagate_from(outx)
-    unsatisfied = Vector(AbstractConstraint).new
+  def remove_propagate_from(out_v : Variable)
+    unsatisfied = Vector(AbstractConstraint?).new
 
-    if outx.is_a?(Nil)
-      raise "outx is nil"
-    end
+    out_v.determined_by = nil
+    out_v.walk_strength = ABSOLUTE_WEAKEST
+    out_v.stay = true
 
-    outx.determined_by = nil
-    outx.walk_strength = ABSOLUTE_WEAKEST
-    outx.stay = true
-
-    todo = Vector(Variable).with(outx)
+    todo = Vector(Variable?).with(out_v)
 
     until todo.empty?
-      v = todo.remove_first
-      
-      if v.is_a?(Nil)
-        raise "n even though not empty?"
-      end
-
-      v.constraints.each { | c |
-        unless c.is_satisfied
+      v = todo.remove_first.not_nil!
+      v.not_nil!.constraints.each { | c |
+        unless c.not_nil!.is_satisfied
           unsatisfied.append(c)
         end
       }
 
-      constraints_consuming(v) { | c |
+      constraints_consuming(v) { | c_ |
+        c = c_.not_nil!
         c.recalculate
         c_output = c.output
         if c_output.is_a?(Nil)
@@ -211,7 +206,7 @@ class Planner
       }
     end
 
-    unsatisfied.sort { |c1, c2| c1.strength.stronger(c2.strength) }
+    unsatisfied.sort { |c1, c2| c1.not_nil!.strength.stronger(c2.not_nil!.strength) }
     unsatisfied
   end
 
@@ -230,10 +225,7 @@ class Planner
     # two extremes.
 
     planner = Planner.new
-    vars = Array(Variable?).new(n + 1)# { Variable.new }
-    (0...n+1).each do |i|
-      vars[i] = Variable.new
-    end
+    vars = Array(Variable?).new(n + 1) { |i| Variable.new }
 
     # thread a chain of equality constraints through the variables
     (0..(n - 1)).each { | i |
@@ -278,7 +270,7 @@ class Planner
     # mapping and to change the scale and offset factors.
 
     planner = Planner.new
-    dests   = Vector(Variable).new
+    dests   = Vector(Variable?).new
     scale   = Variable.value(10)
     offset  = Variable.value(1000)
 
@@ -309,14 +301,14 @@ class Planner
 
     planner.change_var(scale, 5)
     (0..(n - 2)).each { | i |
-      if dests.at(i).value != ((i + 1) * 5 + 1000)
+      if dests.at(i).not_nil!.value != ((i + 1) * 5 + 1000)
         raise "Projection 3 failed"
       end
     }
 
     planner.change_var(offset, 2000)
     (0..(n - 2)).each { | i |
-      if dests.at(i).value != ((i + 1) * 5 + 2000)
+      if dests.at(i).not_nil!.value != ((i + 1) * 5 + 2000)
         raise "Projection 4 failed"
       end
     }
@@ -327,24 +319,24 @@ end
 class Strength
   property :arithmetic_value
 
-  def initialize(strength_sym)
+  def initialize(strength_sym : Symbol)
     @symbolic_value   = strength_sym
-    @arithmetic_value = STRENGHT_TABLE.at(strength_sym)
+    @arithmetic_value = STRENGHT_TABLE.at(strength_sym).not_nil!
   end
 
-  def same_as(strength)
+  def same_as(strength : Strength)
     @arithmetic_value == strength.arithmetic_value
   end
 
-  def stronger(strength)
+  def stronger(strength : Strength)
     @arithmetic_value < strength.arithmetic_value
   end
 
-  def weaker(strength)
+  def weaker(strength : Strength)
     @arithmetic_value > strength.arithmetic_value
   end
 
-  def strongest(strength)
+  def strongest(strength : Strength)
     if strength.stronger(self)
       strength
     else
@@ -352,7 +344,7 @@ class Strength
     end
   end
 
-  def weakest(strength)
+  def weakest(strength : Strength)
     if strength.weaker(self)
       strength
     else
@@ -361,7 +353,7 @@ class Strength
   end
 
   def self.create_strength_table
-    table = Dictionary.new
+    table = Dictionary(Symbol?, Int32?).new
     table.at_put(:absolute_strongest, -10000)
     table.at_put(:required,             -800)
     table.at_put(:strong_preferred,     -600)
@@ -374,8 +366,9 @@ class Strength
   end
 
   def self.create_strength_constants
-    constants = Dictionary.new
-    STRENGHT_TABLE.keys.each { | strength_sym |
+    constants = Dictionary(Symbol?, Strength?).new
+    STRENGHT_TABLE.keys.each { | strength_sym_ |
+      strength_sym = strength_sym_.not_nil!
       constants.at_put(strength_sym, self.new(strength_sym))
     }
     constants
@@ -385,13 +378,7 @@ class Strength
   STRENGHT_CONSTANTS = create_strength_constants
 
   def self.of(sym)
-    strength = STRENGHT_CONSTANTS.at(sym)
-    
-    if strength.is_a?(String)
-      strength
-    else
-      raise "unexpected strength"
-    end
+    STRENGHT_CONSTANTS.at(sym).not_nil!
   end
 end
 
@@ -533,7 +520,7 @@ class BinaryConstraint < AbstractConstraint
 
   def choose_method(mark)
     if @v1.mark == mark
-      if @v2.mark != mark and @strength.stronger(@v2.walk_strength)
+      if @v2.mark != mark && @strength.stronger(@v2.walk_strength)
         return @direction = :forward
       else
         return @direction = nil
@@ -541,7 +528,7 @@ class BinaryConstraint < AbstractConstraint
     end
 
     if @v2.mark == mark
-      if @v1.mark != mark and @strength.stronger(@v1.walk_strength)
+      if @v1.mark != mark && @strength.stronger(@v1.walk_strength)
         return @direction = :backward
       else
         return @direction = nil
@@ -649,7 +636,7 @@ class UnaryConstraint < AbstractConstraint
       raise "output is nil"
     end
     
-    @satisfied = output.mark != mark and @strength.stronger(output.walk_strength)
+    @satisfied = output.mark != mark && @strength.stronger(output.walk_strength)
   end
 
   def inputs_do
@@ -794,7 +781,7 @@ class Variable
 
   def initialize
     @value         = 0
-    @constraints   = Vector(AbstractConstraint).new(2)
+    @constraints   = Vector(AbstractConstraint?).new(2)
     @determined_by = nil
     @walk_strength = ABSOLUTE_WEAKEST
     @stay          = true
