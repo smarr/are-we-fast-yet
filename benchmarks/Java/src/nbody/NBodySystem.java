@@ -9,12 +9,11 @@ public class NBodySystem {
   }
 
   public Body[] createBodies() {
-    Body[] bodies = new Body[5];
-    bodies[0] = Body.sun();
-    bodies[1] = Body.jupiter();
-    bodies[2] = Body.saturn();
-    bodies[3] = Body.uranus();
-    bodies[4] = Body.neptune();
+    Body[] bodies = new Body[] {Body.sun(),
+                                Body.jupiter(),
+                                Body.saturn(),
+                                Body.uranus(),
+                                Body.neptune()};
 
     double px = 0.0;
     double py = 0.0;

@@ -37,12 +37,11 @@ class NBodySystem
   end
 
   def create_bodies
-    bodies = Array.new(5)
-    bodies[0] = Body.sun
-    bodies[1] = Body.jupiter
-    bodies[2] = Body.saturn
-    bodies[3] = Body.uranus
-    bodies[4] = Body.neptune
+    bodies = [Body.sun,
+              Body.jupiter,
+              Body.saturn,
+              Body.uranus,
+              Body.neptune]
 
     px = py = pz = 0.0
 

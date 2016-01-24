@@ -33,12 +33,11 @@ function NBodySystem () {
 }
 
 NBodySystem.prototype.createBodies = function () {
-  var bodies = new Array(5);
-  bodies[0] = Body.sun();
-  bodies[1] = Body.jupiter();
-  bodies[2] = Body.saturn();
-  bodies[3] = Body.uranus();
-  bodies[4] = Body.neptune();
+  var bodies = [Body.sun(),
+                Body.jupiter(),
+                Body.saturn(),
+                Body.uranus(),
+                Body.neptune()]
 
   var px = 0.0,
     py   = 0.0,
