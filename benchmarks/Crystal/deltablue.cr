@@ -445,41 +445,40 @@ class AbstractConstraint
   end
 
   def choose_method(mark)
-    raise "abstract"
+    raise "abstract choose_method"
   end
   
   def is_satisfied
-    raise "abstract"
+    raise "abstract is_satisfied"
   end
 
   def recalculate
-    raise "abstract"
+    raise "abstract recalculate"
   end
 
   def execute
-    raise "abstract"
+    raise "abstract execute"
   end
 
   def output
-    raise "abstract"
+    raise "abstract output"
   end
 
   def inputs_do(&block)
-    raise "abstract"
+    raise "abstract inputs_do"
   end
 
   def mark_unsatisfied
-    raise "abstract"
+    raise "abstract mark_unsatisfied"
   end
 
   def remove_from_graph
-    raise "abstract"
+    raise "abstract remove_from_graph"
   end
 
   def inputs_has_one(&block)
-    raise "abstract"
+    raise "abstract inputs_has_one"
   end
-  
 end
 
 class BinaryConstraint < AbstractConstraint
