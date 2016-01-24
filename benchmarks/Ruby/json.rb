@@ -172,9 +172,9 @@ class Parser
 
   def read_escape
     read
-    case current
+    case @current
     when '"', '/', '\\'
-      @capture_buffer += current
+      @capture_buffer += @current
     when 'b'
       @capture_buffer += "\b"
     when 'f'
