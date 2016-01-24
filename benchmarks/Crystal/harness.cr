@@ -17,6 +17,18 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+require "./bounce"
+# require "./deltablue"
+require "./json"
+require "./list"
+require "./mandelbrot"
+require "./nbody"
+require "./permute"
+require "./queens"
+# require "./richards"
+require "./sieve"
+# require "./storage"
+require "./towers"
 
 class Run
   property :name
@@ -24,12 +36,43 @@ class Run
   property :num_iterations
   property :inner_iterations
 
-  def initialize
+  def initialize(name)
     @total            = 0
     @num_iterations   = 1
     @inner_iterations = 1
-    @benchmark_suite  = TheBenchmark
-    @name             = nil
+    @benchmark_suite  = select_benchmark_suite(name)
+    @name             = name
+  end
+
+  def select_benchmark_suite(benchmark_name)
+    case benchmark_name
+    when "Bounce"
+      Bounce
+    # when "DeltaBlue"
+    #   DeltaBlue
+    when "Json"
+      Json
+    when "List"
+      List
+    when "Mandelbrot"
+      Mandelbrot
+    when "NBody"
+      NBody
+    when "Permute"
+      Permute
+    when "Queens"
+      Queens
+    # when "Richards"
+    #   Richards
+    when "Sieve"
+      Sieve
+    # when "Storage"
+    #   Storage
+    when "Towers"
+      Towers
+    else
+      Benchmark
+    end
   end
 
   def run_benchmark
@@ -68,8 +111,8 @@ class Run
   end
 end
 
-def process_arguments(args, run)
-  run.name = args[0]
+def process_arguments(args)
+  run = Run.new(args[0])
 
   if args.size > 1
     run.num_iterations = args[1].to_i
@@ -77,10 +120,11 @@ def process_arguments(args, run)
       run.inner_iterations = args[2].to_i
     end
   end
+  run
 end
 
 def print_usage
-  puts "./harness.rb [benchmark] [num-iterations [inner-iter]]"
+  puts "./harness.rb benchmark [num-iterations [inner-iter]]"
   puts ""
   puts "  benchmark      - benchmark class name "
   puts "  num-iterations - number of times to execute benchmark, default: 1"
@@ -93,7 +137,6 @@ if ARGV.size < 1
   exit 1
 end
 
-run = Run.new
-process_arguments(ARGV, run)
+run = process_arguments(ARGV)
 run.run_benchmark
 run.print_total

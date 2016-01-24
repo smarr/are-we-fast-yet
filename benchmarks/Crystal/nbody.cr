@@ -5,14 +5,13 @@
 # modified slightly by Chad Whipkey
 #
 # Based on nbody.java ported to SOM by Stefan Marr.
-
-require "benchmarkx"
+require "./benchmark"
 
 PI            = 3.141592653589793
 SOLAR_MASS    = 4.0 * PI * PI
 DAYS_PER_YEAR = 365.24
 
-class NBody < BenchmarkX
+class NBody < Benchmark
   def inner_benchmark_loop(inner_iterations)
     system = NBodySystem.new
 
@@ -179,7 +178,3 @@ class Body
     self.new(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0)
   end
 end
-
-TheBenchmark = NBody
-
-require "harness"

@@ -1,6 +1,6 @@
-require "benchmarkx"
+require "./benchmark"
 
-class Permute < BenchmarkX
+class Permute < Benchmark
   def initialize
     @count = 0
     @v     = nil
@@ -38,7 +38,3 @@ class Permute < BenchmarkX
     result == 8660
   end
 end
-
-TheBenchmark = Permute
-
-require "harness"

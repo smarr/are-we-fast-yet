@@ -18,11 +18,11 @@
 # the layout & logic from the original. (Ugh.)
 # 
 # .. _`V8's source code`: (http://code.google.com/p/v8/source/browse/branches/bleeding_edge/benchmarks/deltablue.js)
-require "benchmarkx"
-require "som"
+require "./benchmark"
+require "./som"
 
 
-class DeltaBlue < BenchmarkX
+class DeltaBlue < Benchmark
   def inner_benchmark_loop(inner_iterations)
     Planner.chain_test(inner_iterations)
     Planner.projection_test(inner_iterations)
@@ -678,7 +678,6 @@ class UnaryConstraint < AbstractConstraint
       execute
     end
   end
-  
 end
 
 class EditConstraint < UnaryConstraint
@@ -824,7 +823,3 @@ end
 ABSOLUTE_STRONGEST = Strength.of(:absolute_strongest)
 ABSOLUTE_WEAKEST   = Strength.of(:absolute_weakest)
 REQUIRED           = Strength.of(:required)
-
-TheBenchmark = DeltaBlue
-
-require "harness"

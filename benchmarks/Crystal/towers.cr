@@ -1,9 +1,9 @@
-require "benchmarkx"
-require "som"
+require "./benchmark"
+require "./som"
 
 class TowersDisk
   property :next
-  property   :size
+  property :size
 
   def initialize(size)
     @size = size
@@ -12,7 +12,7 @@ class TowersDisk
 
 end
 
-class Towers < BenchmarkX
+class Towers < Benchmark
 
   def initialize
     @piles = nil
@@ -74,7 +74,3 @@ class Towers < BenchmarkX
     end
   end
 end
-
-TheBenchmark = Towers
-
-require "harness"

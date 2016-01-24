@@ -1,6 +1,6 @@
-require "benchmarkx"
+require "./benchmark"
 
-class Sieve < BenchmarkX
+class Sieve < Benchmark
   def benchmark
     flags = Array(Bool).new(5000)
     sieve(flags, 5000)
@@ -27,7 +27,3 @@ class Sieve < BenchmarkX
     prime_count
   end
 end
-
-TheBenchmark = Sieve
-
-require "harness"

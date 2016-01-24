@@ -1,7 +1,7 @@
-require "benchmarkx"
-require "som"
+require "./benchmark"
+require "./som"
 
-class Bounce < BenchmarkX
+class Bounce < Benchmark
   def benchmark
     random = SomRandom.new
     ball_count = 100
@@ -57,7 +57,3 @@ class Ball
     bounced
   end
 end
-
-TheBenchmark = Bounce
-
-require "harness"

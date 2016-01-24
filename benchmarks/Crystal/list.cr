@@ -1,6 +1,6 @@
-require "benchmarkx"
+require "./benchmark"
 
-class List < BenchmarkX
+class List < Benchmark
 
   def benchmark
     result = tail(make_list(15),
@@ -65,7 +65,3 @@ class Element
     end
   end
 end
-
-TheBenchmark = List
-
-require "harness"

@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-class BenchmarkX
+class Benchmark
   def inner_benchmark_loop(inner_iterations)
     inner_iterations.times {
       unless verify_result(benchmark)

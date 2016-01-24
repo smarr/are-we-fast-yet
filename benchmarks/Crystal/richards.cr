@@ -1,7 +1,6 @@
 # Derived from http://pws.prserv.net/dlissett/ben/bench1.htm
 # Licensed CC BY-NC-SA 1.0
-
-require "benchmarkx"
+require "./benchmark"
 
 NO_TASK = nil
 NO_WORK = nil
@@ -22,9 +21,9 @@ DATA_SIZE = 4
 
 TRACING = false
 
-class Richards < BenchmarkX
+class Richards < Benchmark
   def benchmark
-    SchedulerX.new.start
+    RichardsScheduler.new.start
   end
 
   def verify_result(result)
@@ -49,7 +48,7 @@ class RBObject
   end
 end
 
-class SchedulerX < RBObject
+class RichardsScheduler < RBObject
 
   def initialize
     # init tracing
@@ -448,7 +447,3 @@ class WorkerTaskDataRecord < RBObject
     @count = 0
   end
 end
-
-TheBenchmark = Richards
-
-require "harness"

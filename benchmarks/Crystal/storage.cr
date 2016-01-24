@@ -1,7 +1,7 @@
-require "benchmarkx"
-require "som"
+require "./benchmark"
+require "./som"
 
-class Storage < BenchmarkX
+class Storage < Benchmark
 
   def initialize
     @count = 0
@@ -22,7 +22,7 @@ class Storage < BenchmarkX
     @count += 1
 
     if depth == 1
-      Array.new(random.next % 10 + 1)
+      Array(Array?).new(random.next % 10 + 1)
     else
       arr = Array.new(4)
       arr.fill { build_tree_depth(depth - 1, random) }
@@ -30,7 +30,3 @@ class Storage < BenchmarkX
     end
   end
 end
-
-TheBenchmark = Storage
-
-require "harness"

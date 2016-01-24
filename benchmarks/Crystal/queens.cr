@@ -1,6 +1,6 @@
-require "benchmarkx"
+require "./benchmark"
 
-class Queens < BenchmarkX
+class Queens < Benchmark
   def initialize
     @free_maxs  = nil
     @free_rows  = nil
@@ -58,7 +58,3 @@ class Queens < BenchmarkX
     @free_mins.not_nil![c - r + 7] = v
   end
 end
-
-TheBenchmark = Queens
-
-require "harness"

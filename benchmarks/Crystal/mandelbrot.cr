@@ -38,10 +38,9 @@
 #  modified by Peter Zotov
 
 # http://benchmarksgame.alioth.debian.org/u64q/program.php?test=mandelbrot&lang=yarv&id=3
+require "./benchmark"
 
-require "benchmarkx"
-
-class Mandelbrot < BenchmarkX
+class Mandelbrot < Benchmark
   def inner_benchmark_loop(inner_iterations)
     verify_result(mandelbrot(inner_iterations), inner_iterations)
   end
@@ -114,7 +113,3 @@ class Mandelbrot < BenchmarkX
     sum
   end
 end
-
-TheBenchmark = Mandelbrot
-
-require "harness"
