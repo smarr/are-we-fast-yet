@@ -20,10 +20,10 @@ class Towers < Benchmark
   end
 
   def benchmark
-    @piles = Array(TowersDisk).new(4)
-    build_tower_at(1, 13)
+    @piles = Array(TowersDisk?).new(3, nil)
+    build_tower_at(0, 13)
     @moves_done = 0
-    move_disks(13, 1, 2)
+    move_disks(13, 0, 1)
     @moves_done
   end
 
@@ -33,7 +33,7 @@ class Towers < Benchmark
 
   def push_disk(disk, pile)
     top = @piles.not_nil![pile]
-    if top != nil && disk.size >= top.size
+    if top != nil && disk.size >= top.not_nil!.size
       raise "Cannot put a big disk on a smaller one"
     end
 
@@ -46,10 +46,12 @@ class Towers < Benchmark
     if top.nil?
       raise "Attempting to remove a disk from an empty pile"
     end
+    
+    top_ = top.not_nil!
 
-    @piles.not_nil![pile.not_nil!] = top.next.not_nil!
-    top.next = nil
-    top
+    @piles.not_nil![pile] = top_.next
+    top_.next = nil
+    top_
   end
 
   def move_top_disk(from_pile, to_pile)
@@ -67,7 +69,7 @@ class Towers < Benchmark
     if disks == 1
       move_top_disk(from_pile, to_pile)
     else
-      other_pile = (6 - from_pile) - to_pile
+      other_pile = (3 - from_pile) - to_pile
       move_disks(disks - 1, from_pile, other_pile)
       move_top_disk(from_pile, to_pile)
       move_disks(disks - 1, other_pile, to_pile)
