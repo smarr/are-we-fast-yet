@@ -53,7 +53,7 @@ public final class Towers extends Benchmark {
     if (disks == 1) {
       moveTopDisk(fromPile, toPile);
     } else {
-      int otherPile = (6 - fromPile) - toPile;
+      int otherPile = (3 - fromPile) - toPile;
       moveDisks(disks - 1, fromPile, otherPile);
       moveTopDisk(fromPile, toPile);
       moveDisks(disks - 1, otherPile, toPile);
@@ -62,10 +62,10 @@ public final class Towers extends Benchmark {
 
   @Override
   public Object benchmark() {
-    piles = new TowersDisk[4];
-    buildTowerAt(1, 13);
+    piles = new TowersDisk[3];
+    buildTowerAt(0, 13);
     movesDone = 0;
-    moveDisks(13, 1, 2);
+    moveDisks(13, 0, 1);
     return movesDone;
   }
 

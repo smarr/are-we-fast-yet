@@ -6,7 +6,6 @@ class TowersDisk
     @size = size
     @next = nil
   end
-
 end
 
 class Towers < Benchmark
@@ -17,10 +16,10 @@ class Towers < Benchmark
   end
 
   def benchmark
-    @piles = Array.new(4)
-    build_tower_at(1, 13)
+    @piles = Array.new(3)
+    build_tower_at(0, 13)
     @moves_done = 0
-    move_disks(13, 1, 2)
+    move_disks(13, 0, 1)
     @moves_done
   end
 
@@ -64,7 +63,7 @@ class Towers < Benchmark
     if disks == 1
       move_top_disk(from_pile, to_pile)
     else
-      other_pile = (6 - from_pile) - to_pile
+      other_pile = (3 - from_pile) - to_pile
       move_disks(disks - 1, from_pile, other_pile)
       move_top_disk(from_pile, to_pile)
       move_disks(disks - 1, other_pile, to_pile)

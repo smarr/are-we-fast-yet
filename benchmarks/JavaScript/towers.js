@@ -16,10 +16,10 @@ function Towers() {
 Towers.prototype = Object.create(benchmark.Benchmark.prototype);
 
 Towers.prototype.benchmark = function () {
-  this.piles = new Array(4);
-  this.buildTowerAt(1, 13);
+  this.piles = new Array(3);
+  this.buildTowerAt(0, 13);
   this.movesDone = 0;
-  this.moveDisks(13, 1, 2);
+  this.moveDisks(13, 0, 1);
   return this.movesDone;
 };
 
@@ -63,7 +63,7 @@ Towers.prototype.moveDisks = function (disks, fromPile, toPile) {
   if (disks == 1) {
     this.moveTopDisk(fromPile, toPile);
   } else {
-    var otherPile = (6 - fromPile) - toPile;
+    var otherPile = (3 - fromPile) - toPile;
     this.moveDisks(disks - 1, fromPile, otherPile);
     this.moveTopDisk(fromPile, toPile);
     this.moveDisks(disks - 1, otherPile, toPile);
