@@ -1,10 +1,10 @@
 INITIAL_SIZE = 10
 
-class Pair
+class Pair(K, V)
   property :key
   property :value
 
-  def initialize(key, value)
+  def initialize(key : K, value : V)
     @key   = key
     @value = value
   end
@@ -19,7 +19,7 @@ class Vector(T)
   end
 
   def initialize(size = 50)
-    @storage   = Array(T).new(size)
+    @storage   = Array(T).new(size, nil)
     @first_idx = 0
     @last_idx  = 0
   end
@@ -28,10 +28,10 @@ class Vector(T)
     @storage[idx]
   end
 
-  def append(elem)
+  def append(elem : T)
     if @last_idx >= @storage.size
       # Need to expand capacity first
-      new_storage = Array(T).new(2 * @storage.size)
+      new_storage = Array(T).new(2 * @storage.size, nil)
       @storage.each_index { | i |
         new_storage[i] = @storage[i]
       }
@@ -82,7 +82,7 @@ class Vector(T)
   end
 
   def remove(obj)
-    new_array = Array(T).new(capacity)
+    new_array = Array(T).new(capacity, nil)
     new_last = 0
     found = false
 
@@ -222,14 +222,14 @@ class SomSet(T)
     end
   end
 
-  def add(obj)
+  def add(obj : T)
     unless contains(obj)
       @items.append(obj)
     end
   end
 
   def collect(&block : T -> U) # &block
-    coll = Vector(U).new
+    coll = Vector(U?).new
     each { | e | coll.append(yield e) }
     coll
   end
@@ -241,21 +241,21 @@ class IdentitySomSet(T) < SomSet(T)
   end
 end
 
-class Dictionary
+class Dictionary(K, V)
   def initialize(size = INITIAL_SIZE)
-    @pairs = IdentitySomSet(Pair).new(size)
+    @pairs = IdentitySomSet(Pair(K, V)?).new(size)
   end
 
-  def at_put(key, value)
+  def at_put(key : K, value : V)
     pair = pair_at(key)
-    if pair.is_a?(Nil)
-      @pairs.add(Pair.new(key, value))
+    if pair == nil
+      @pairs.add(Pair(K, V).new(key, value))
     else
-      pair.value = value
+      pair.not_nil!.value = value
     end
   end
 
-  def at(key)
+  def at(key : K)
     pair = pair_at(key)
     if pair.is_a?(Nil)
       nil
@@ -264,12 +264,12 @@ class Dictionary
     end
   end
 
-  def pair_at(key)
-    @pairs.get_one { | p | p.key == key }
+  def pair_at(key : K)
+    @pairs.get_one { | p | p.not_nil!.key == key }
   end
 
   def keys
-    @pairs.collect { | p | p.key }
+    @pairs.collect { | p | p.not_nil!.key }
   end
 end
 

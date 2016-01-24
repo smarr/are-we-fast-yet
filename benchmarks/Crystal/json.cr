@@ -190,11 +190,7 @@ class Parser
     read
     case @current
     when '"', '/', '\\'
-      current = @current
-      if current.is_a?(Nil)
-        raise "current is nil"
-      end
-      @capture_buffer += current
+      @capture_buffer += @current.not_nil!
     when 'b'
       @capture_buffer += "\b"
     when 'f'
@@ -436,21 +432,17 @@ class JsonValue
   end
   
   def as_string
-    raise "absract"
+    raise "abstract"
   end
-  
 end
 
 class JsonArray < JsonValue
 
   def initialize
-    @values = Vector(JsonValue).new
+    @values = Vector(JsonValue?).new
   end
 
-  def add(value)
-    if value.nil?
-      raise "value is null"
-    end
+  def add(value : JsonValue)
     @values.append(value)
     self
   end
@@ -527,17 +519,17 @@ end
 class JsonObject < JsonValue
 
   def initialize
-    @names  = Vector(String).new
-    @values = Vector(JsonValue).new
+    @names  = Vector(String?).new
+    @values = Vector(JsonValue?).new
     @table  = HashIndexTable.new
   end
 
-  def add(name, value)
-    if name.nil?
+  def add(name : String?, value : JsonValue?)
+    if !name.is_a?(String)
       raise "name is null"
     end
 
-    if value.nil?
+    if !value.is_a?(JsonValue)
       raise "value is null"
     end
 
