@@ -25,9 +25,9 @@ require "./mandelbrot"
 require "./nbody"
 require "./permute"
 require "./queens"
-# require "./richards"
+require "./richards"
 require "./sieve"
-# require "./storage"
+require "./storage"
 require "./towers"
 
 class Run
@@ -62,12 +62,12 @@ class Run
       Permute
     when "Queens"
       Queens
-    # when "Richards"
-    #   Richards
+    when "Richards"
+      Richards
     when "Sieve"
       Sieve
-    # when "Storage"
-    #   Storage
+    when "Storage"
+      Storage
     when "Towers"
       Towers
     else
