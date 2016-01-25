@@ -1,4 +1,5 @@
 #!/bin/sh
+rebench -d --scheduler=random --without-nice rebench.conf steady-crystal
 rebench -d --scheduler=random --without-nice rebench.conf all
 
 DATA_ROOT=~/benchmark-results/are-we-fast-yet
