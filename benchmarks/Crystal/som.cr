@@ -49,7 +49,7 @@ class Vector(T)
 
   def each # &block
     (@first_idx..(@last_idx - 1)).each { | i |
-      yield @storage[i]
+      yield @storage[i].not_nil!
     }
   end
 
@@ -64,7 +64,7 @@ class Vector(T)
 
   def get_one
     (@first_idx..(@last_idx - 1)).each { | i |
-      e = @storage[i]
+      e = @storage[i].not_nil!
       if yield e
         return e
       end

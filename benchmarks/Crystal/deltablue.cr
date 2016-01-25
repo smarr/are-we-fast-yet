@@ -36,7 +36,7 @@ class Plan < Vector(AbstractConstraint?)
   end
 
   def execute
-    each { | c | c.not_nil!.execute }
+    each { | c | c.execute }
   end
 end
 
@@ -56,21 +56,16 @@ class Planner
 
   def incremental_remove(constraint : AbstractConstraint)
     out_v = constraint.output
-    if out_v.is_a?(Variable)
-      constraint.mark_unsatisfied
-      constraint.remove_from_graph
-      unsatisfied = remove_propagate_from(out_v)
-      unsatisfied.each { |u| incremental_add(u.not_nil!) }
-    else
-      raise "constraint.output is nil"
-    end
+    constraint.mark_unsatisfied
+    constraint.remove_from_graph
+    unsatisfied = remove_propagate_from(out_v)
+    unsatisfied.each { |u| incremental_add(u) }
   end
 
   def extract_plan_from_constraints(constraints)
     sources = Vector(AbstractConstraint?).new
 
-    constraints.each { | c_ |
-      c = c_.not_nil!
+    constraints.each { | c |
       if c.is_input && c.is_satisfied
         sources.append(c)
       end
@@ -85,22 +80,12 @@ class Planner
     todo = sources
 
     until todo.empty?
-      c = todo.remove_first
-      
-      if c.is_a?(Nil)
-        raise "remove_first was Nil even though not empty?"
-      end
-    
-      c_output = c.output
-      
-      if c_output.is_a?(Nil)
-        raise "c.output is nil"
-      end
+      c = todo.remove_first.not_nil!
 
-      if c_output.mark != mark && c.inputs_known(mark)
+      if c.output.mark != mark && c.inputs_known(mark)
         plan.append(c)
-        c_output.mark = mark
-        add_constraints_consuming_to(c_output, todo)
+        c.output.mark = mark
+        add_constraints_consuming_to(c.output, todo)
       end
     end
 
@@ -118,15 +103,10 @@ class Planner
     end
   end
 
-  def add_constraints_consuming_to(v, coll)
-    if v.is_a?(Nil)
-      raise "v is nil"
-    end
-    
+  def add_constraints_consuming_to(v : Variable, coll)
     determining_c = v.determined_by
 
-    v.constraints.each { | c_ |
-      c = c_.not_nil!
+    v.constraints.each { | c |
       if (!c == determining_c) && c.is_satisfied # Ruby uses .equal?
         coll.append(c)
       end
@@ -137,15 +117,8 @@ class Planner
     todo = Vector(AbstractConstraint?).with(c)
 
     until todo.empty?
-      d = todo.remove_first
-      if d.is_a?(Nil)
-        raise "remove_first returned Nil but was not empty?"
-      end
-      d_output = d.output
-      if d_output.is_a?(Nil)
-        raise "output was nil"
-      end
-      if d_output.mark == mark
+      d = todo.remove_first.not_nil!
+      if d.output.mark == mark
         incremental_remove(c)
         return false
       end
@@ -168,7 +141,7 @@ class Planner
   def constraints_consuming(v : Variable) # &block
     determining_c = v.determined_by
     v.constraints.each { | c |
-      if c != determining_c && c.not_nil!.is_satisfied
+      if c != determining_c && c.is_satisfied
         yield c
       end
     }
@@ -189,20 +162,15 @@ class Planner
 
     until todo.empty?
       v = todo.remove_first.not_nil!
-      v.not_nil!.constraints.each { | c |
-        unless c.not_nil!.is_satisfied
+      v.constraints.each { | c |
+        unless c.is_satisfied
           unsatisfied.append(c)
         end
       }
 
-      constraints_consuming(v) { | c_ |
-        c = c_.not_nil!
+      constraints_consuming(v) { | c |
         c.recalculate
-        c_output = c.output
-        if c_output.is_a?(Nil)
-          raise "c.output is nil"
-        end
-        todo.append(c_output)
+        todo.append(c.output)
       }
     end
 
@@ -225,7 +193,7 @@ class Planner
     # two extremes.
 
     planner = Planner.new
-    vars = Array(Variable?).new(n + 1) { |i| Variable.new }
+    vars = Array(Variable).new(n + 1) { |i| Variable.new }
 
     # thread a chain of equality constraints through the variables
     (0..(n - 1)).each { | i |
@@ -240,22 +208,10 @@ class Planner
     plan = planner.extract_plan_from_constraints([edit])
 
     (1..100).each { | v |
-      first = vars.first
-      
-      if first.is_a?(Nil)
-        raise "first was nil"
-      end
-      
-      first.value = v
+      vars.first.value = v
       plan.execute
-    
-      last = vars.last
-      
-      if last.is_a?(Nil)
-        raise "last was nil"
-      end
 
-      if last.value != v
+      if vars.last.value != v
         raise "Chain test failed!!"
       end
     }
@@ -284,20 +240,12 @@ class Planner
       StayConstraint.new(src, :default, planner)
       ScaleConstraint.new(src, scale, offset, dst, :required, planner)
     }
-    
-    if src.is_a?(Nil)
-      raise "src is Nil"
-    end
-    
-    if dst.is_a?(Nil)
-      raise "dst is Nil"
-    end
 
-    planner.change_var(src, 17)
-    if dst.value != 1170; raise "Projection 1 failed" end
+    planner.change_var(src.not_nil!, 17)
+    if dst.not_nil!.value != 1170; raise "Projection 1 failed" end
 
-    planner.change_var(dst, 1050)
-    if src.value != 5; raise "Projection 2 failed" end
+    planner.change_var(dst.not_nil!, 1050)
+    if src.not_nil!.value != 5; raise "Projection 2 failed" end
 
     planner.change_var(scale, 5)
     (0..(n - 2)).each { | i |
@@ -367,8 +315,7 @@ class Strength
 
   def self.create_strength_constants
     constants = Dictionary(Symbol?, Strength?).new
-    STRENGHT_TABLE.keys.each { | strength_sym_ |
-      strength_sym = strength_sym_.not_nil!
+    STRENGHT_TABLE.keys.each { | strength_sym |
       constants.at_put(strength_sym, self.new(strength_sym))
     }
     constants
@@ -417,14 +364,9 @@ class AbstractConstraint
       inputs_do { | i | i.mark = mark }
 
       outx = output
-      
-      if outx.is_a?(Nil)
-        raise "outx is nil"
-      end
-      
       overridden = outx.determined_by
 
-      unless overridden.is_a?(Nil)
+      if overridden
         overridden.mark_unsatisfied
       end
 
@@ -482,15 +424,9 @@ class AbstractConstraint
 end
 
 class BinaryConstraint < AbstractConstraint
-  def initialize(v1, v2, strength, planner)
+  def initialize(v1 : Variable, v2 : Variable, strength : Symbol, planner : Planner)
     super(strength)
-    if v1.is_a?(Nil)
-      raise "v1 is nil"
-    end
     @v1 = v1
-    if v2.is_a?(Nil)
-      raise "v2 is nil"
-    end
     @v2 = v2
     @direction = nil
   end
@@ -579,10 +515,10 @@ class BinaryConstraint < AbstractConstraint
 
   def recalculate
     if @direction == :forward
-      ihn = @v1
+      ihn  = @v1
       outx = @v2
     else
-      ihn = @v2
+      ihn  = @v2
       outx = @v1
     end
 
@@ -598,7 +534,7 @@ end
 class UnaryConstraint < AbstractConstraint
   property :output
 
-  def initialize(v, strength, planner)
+  def initialize(v : Variable, strength : Symbol, planner : Planner)
     super(strength)
     @output    = v
     @satisfied = false
@@ -610,32 +546,19 @@ class UnaryConstraint < AbstractConstraint
   end
 
   def add_to_graph
-    output = @output
-    
-    if output.is_a?(Nil)
-      raise "output is nil"
-    end
-    
-    output.add_constraint(self)
+    @output.add_constraint(self)
     @satisfied = false
   end
 
   def remove_from_graph
-    output = @output
-    unless output.is_a?(Nil)
-      output.remove_constraint(self)
+    if @output
+      @output.remove_constraint(self)
     end
     @satisfied = false
   end
 
   def choose_method(mark)
-    output = @output
-    
-    if output.is_a?(Nil)
-      raise "output is nil"
-    end
-    
-    @satisfied = output.mark != mark && @strength.stronger(output.walk_strength)
+    @satisfied = @output.mark != mark && @strength.stronger(@output.walk_strength)
   end
 
   def inputs_do
@@ -651,16 +574,10 @@ class UnaryConstraint < AbstractConstraint
   end
 
   def recalculate
-    output = @output
-    
-    if output.is_a?(Nil)
-      raise "output is nil"
-    end
-    
-    output.walk_strength = @strength
-    output.stay          = !is_input
+    @output.walk_strength = @strength
+    @output.stay          = !is_input
 
-    if output.stay
+    if @output.stay
       execute
     end
   end
@@ -677,7 +594,7 @@ class EditConstraint < UnaryConstraint
 end
 
 class EqualityConstraint < BinaryConstraint
-  def initialize(var1, var2, strength, planner)
+  def initialize(var1 : Variable, var2 : Variable, strength : Symbol, planner : Planner)
     super(var1, var2, strength, planner)
     add_constraint(planner)
   end
@@ -692,7 +609,7 @@ class EqualityConstraint < BinaryConstraint
 end
 
 class ScaleConstraint < BinaryConstraint
-  def initialize(src, scale, offset, dest, strength, planner)
+  def initialize(src : Variable, scale : Variable, offset : Variable, dest : Variable, strength : Symbol, planner : Planner)
     super(src, dest, strength, planner)
     @scale  = scale
     @offset = offset
@@ -749,11 +666,11 @@ class ScaleConstraint < BinaryConstraint
 
   def recalculate
     if @direction == :forward
-      ihn = @v1
+      ihn  = @v1
       outx = @v2
     else
       outx = @v2
-      ihn = @v1
+      ihn  = @v1
     end
     outx.walk_strength = @strength.weakest(ihn.walk_strength)
     outx.stay = (ihn.stay && @scale.stay && @offset.stay)
