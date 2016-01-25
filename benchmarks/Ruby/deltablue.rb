@@ -54,10 +54,10 @@ class Planner
   end
 
   def incremental_remove(constraint)
-    out = constraint.output
+    out_v = constraint.output
     constraint.mark_unsatisfied
     constraint.remove_from_graph
-    unsatisfied = remove_propagate_from(out)
+    unsatisfied = remove_propagate_from(out_v)
     unsatisfied.each { |u| incremental_add(u) }
   end
 
@@ -65,7 +65,7 @@ class Planner
     sources = Vector.new
 
     constraints.each { | c |
-      if c.is_input and c.is_satisfied
+      if c.is_input && c.is_satisfied
         sources.append(c)
       end
     }
@@ -81,7 +81,7 @@ class Planner
     until todo.empty?
       c = todo.remove_first
 
-      if c.output.mark != mark and c.inputs_known(mark)
+      if c.output.mark != mark && c.inputs_known(mark)
         plan.append(c)
         c.output.mark = mark
         add_constraints_consuming_to(c.output, todo)
@@ -106,7 +106,7 @@ class Planner
     determining_c = v.determined_by
 
     v.constraints.each { | c |
-      if (!c.equal? determining_c) and c.is_satisfied
+      if (!c.equal? determining_c) && c.is_satisfied
         coll.append(c)
       end
     }
@@ -140,7 +140,7 @@ class Planner
   def constraints_consuming(v) # &block
     determining_c = v.determined_by
     v.constraints.each { | c |
-      if c != determining_c and c.is_satisfied
+      if c != determining_c && c.is_satisfied
         yield c
       end
     }
@@ -150,14 +150,14 @@ class Planner
     @current_mark += 1
   end
 
-  def remove_propagate_from(out)
+  def remove_propagate_from(out_v)
     unsatisfied = Vector.new
 
-    out.determined_by = nil
-    out.walk_strength = ABSOLUTE_WEAKEST
-    out.stay = true
+    out_v.determined_by = nil
+    out_v.walk_strength = ABSOLUTE_WEAKEST
+    out_v.stay = true
 
-    todo = Vector.with(out)
+    todo = Vector.with(out_v)
 
     until todo.empty?
       v = todo.remove_first
