@@ -1,6 +1,8 @@
 require "./benchmark"
 require "./som"
 
+alias StorageArray = Array(Nil) | Array(StorageArray)
+
 class Storage < Benchmark
 
   def initialize
@@ -22,11 +24,9 @@ class Storage < Benchmark
     @count += 1
 
     if depth == 1
-      Array(Array?).new(random.next % 10 + 1)
+      Array(StorageArray).new(random.next % 10 + 1)
     else
-      arr = Array.new(4)
-      arr.fill { build_tree_depth(depth - 1, random) }
-      arr
+      Array(StorageArray).new(4) { |i| build_tree_depth(depth - 1, random) }
     end
   end
 end

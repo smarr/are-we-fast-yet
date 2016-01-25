@@ -23,9 +23,7 @@ class Storage < Benchmark
     if depth == 1
       Array.new(random.next % 10 + 1)
     else
-      arr = Array.new(4)
-      arr.fill { build_tree_depth(depth - 1, random) }
-      arr
+      Array.new(4) { build_tree_depth(depth - 1, random) }
     end
   end
 end
