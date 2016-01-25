@@ -330,7 +330,7 @@ class Strength
 end
 
 
-class AbstractConstraint
+abstract class AbstractConstraint
   property :strength
 
   def initialize(strength_sym)
@@ -386,44 +386,18 @@ class AbstractConstraint
     end
   end
 
-  def choose_method(mark)
-    raise "abstract choose_method"
-  end
-  
-  def is_satisfied
-    raise "abstract is_satisfied"
-  end
-
-  def recalculate
-    raise "abstract recalculate"
-  end
-
-  def execute
-    raise "abstract execute"
-  end
-
-  def output
-    raise "abstract output"
-  end
-
-  def inputs_do(&block)
-    raise "abstract inputs_do"
-  end
-
-  def mark_unsatisfied
-    raise "abstract mark_unsatisfied"
-  end
-
-  def remove_from_graph
-    raise "abstract remove_from_graph"
-  end
-
-  def inputs_has_one(&block)
-    raise "abstract inputs_has_one"
-  end
+  abstract def choose_method(mark)
+  abstract def execute
+  abstract def inputs_do(&block : Variable -> Void)
+  abstract def inputs_has_one(&block : Variable -> Bool)
+  abstract def is_satisfied
+  abstract def mark_unsatisfied
+  abstract def output
+  abstract def recalculate
+  abstract def remove_from_graph
 end
 
-class BinaryConstraint < AbstractConstraint
+abstract class BinaryConstraint < AbstractConstraint
   def initialize(v1 : Variable, v2 : Variable, strength : Symbol, planner : Planner)
     super(strength)
     @v1 = v1
@@ -485,7 +459,7 @@ class BinaryConstraint < AbstractConstraint
     end
   end
 
-  def inputs_do # &block
+  def inputs_do(&block : Variable -> Void)
     if @direction == :forward
       yield @v1
     else
@@ -493,7 +467,7 @@ class BinaryConstraint < AbstractConstraint
     end
   end
 
-  def inputs_has_one # &block
+  def inputs_has_one(&block : Variable -> Bool)
     if @direction == :forward
       yield @v1
     else
@@ -531,7 +505,7 @@ class BinaryConstraint < AbstractConstraint
   end
 end
 
-class UnaryConstraint < AbstractConstraint
+abstract class UnaryConstraint < AbstractConstraint
   property :output
 
   def initialize(v : Variable, strength : Symbol, planner : Planner)
@@ -561,11 +535,11 @@ class UnaryConstraint < AbstractConstraint
     @satisfied = @output.mark != mark && @strength.stronger(@output.walk_strength)
   end
 
-  def inputs_do
+  def inputs_do(&block : Variable -> Void)
     # No-op. I have no input variable.
   end
 
-  def inputs_has_one
+  def inputs_has_one(&block : Variable -> Bool)
     false
   end
 
@@ -652,7 +626,7 @@ class ScaleConstraint < BinaryConstraint
     end
   end
 
-  def inputs_do # &block
+  def inputs_do(&block : Variable -> Void)
     if @direction == :forward
       yield @v1
       yield @scale
