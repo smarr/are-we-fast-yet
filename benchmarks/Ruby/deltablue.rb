@@ -354,7 +354,7 @@ class AbstractConstraint
   end
 
   def inputs_known(mark)
-    !inputs_has_one { | v | !(v.mark == mark or v.stay or v.determined_by nil?) }
+    !inputs_has_one { | v | !(v.mark == mark || v.stay || v.determined_by.nil?) }
   end
 
   def satisfy(mark, planner)
@@ -363,20 +363,20 @@ class AbstractConstraint
     if is_satisfied
       inputs_do { | i | i.mark = mark }
 
-      out = output
-      overridden = out.determined_by
+      outx = output
+      overridden = outx.determined_by
 
       unless overridden.nil?
         overridden.mark_unsatisfied
       end
 
-      out.determined_by = self
+      outx.determined_by = self
 
       unless planner.add_propagate(self, mark)
         raise 'Cycle encountered adding: Constraint removed'
       end
 
-      out.mark = mark
+      outx.mark = mark
       overridden
     else
       if @strength.same_as(REQUIRED)
@@ -419,7 +419,7 @@ class BinaryConstraint < AbstractConstraint
 
   def choose_method(mark)
     if @v1.mark == mark
-      if @v2.mark != mark and @strength.stronger(@v2.walk_strength)
+      if @v2.mark != mark && @strength.stronger(@v2.walk_strength)
         return @direction = :forward
       else
         return @direction = nil
@@ -427,7 +427,7 @@ class BinaryConstraint < AbstractConstraint
     end
 
     if @v2.mark == mark
-      if @v1.mark != mark and @strength.stronger(@v1.walk_strength)
+      if @v1.mark != mark && @strength.stronger(@v1.walk_strength)
         return @direction = :backward
       else
         return @direction = nil
@@ -479,17 +479,17 @@ class BinaryConstraint < AbstractConstraint
 
   def recalculate
     if @direction == :forward
-      ihn = @v1
-      out = @v2
+      ihn  = @v1
+      outx = @v2
     else
-      ihn = @v2
-      out = @v1
+      ihn  = @v2
+      outx = @v1
     end
 
-    out.walk_strength = @strength.weakest(ihn.walk_strength)
-    out.stay = ihn.stay
+    outx.walk_strength = @strength.weakest(ihn.walk_strength)
+    outx.stay = ihn.stay
 
-    if out.stay
+    if outx.stay
       execute
     end
   end
@@ -522,7 +522,7 @@ class UnaryConstraint < AbstractConstraint
   end
 
   def choose_method(mark)
-    @satisfied = @output.mark != mark and @strength.stronger(@output.walk_strength)
+    @satisfied = @output.mark != mark && @strength.stronger(@output.walk_strength)
   end
 
   def inputs_do
@@ -630,16 +630,16 @@ class ScaleConstraint < BinaryConstraint
 
   def recalculate
     if @direction == :forward
-      ihn = @v1
-      out = @v2
+      ihn  = @v1
+      outx = @v2
     else
-      out = @v2
-      ihn = @v1
+      outx = @v2
+      ihn  = @v1
     end
-    out.walk_strength = @strength.weakest(ihn.walk_strength)
-    out.stay = (ihn.stay and @scale.stay and @offset.stay)
+    outx.walk_strength = @strength.weakest(ihn.walk_strength)
+    outx.stay = (ihn.stay && @scale.stay && @offset.stay)
 
-    if out.stay
+    if outx.stay
       execute
     end
   end
