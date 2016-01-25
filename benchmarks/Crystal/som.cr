@@ -248,7 +248,7 @@ class Dictionary(K, V)
 
   def at_put(key : K, value : V)
     pair = pair_at(key)
-    if pair == nil
+    if pair.nil?
       @pairs.add(Pair(K, V).new(key, value))
     else
       pair.not_nil!.value = value

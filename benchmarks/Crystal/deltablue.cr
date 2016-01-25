@@ -49,7 +49,7 @@ class Planner
     mark = new_mark
     overridden = constraint.satisfy(mark, self)
 
-    until overridden == nil
+    until overridden.nil?
       overridden = overridden.not_nil!.satisfy(mark, self)
     end
   end
@@ -265,7 +265,7 @@ end
 
 
 class Strength
-  property :arithmetic_value
+  getter :arithmetic_value
 
   def initialize(strength_sym : Symbol)
     @symbolic_value   = strength_sym
@@ -331,7 +331,7 @@ end
 
 
 abstract class AbstractConstraint
-  property :strength
+  getter :strength
 
   def initialize(strength_sym)
     @strength = Strength.of(strength_sym)
@@ -506,7 +506,7 @@ abstract class BinaryConstraint < AbstractConstraint
 end
 
 abstract class UnaryConstraint < AbstractConstraint
-  property :output
+  getter :output
 
   def initialize(v : Variable, strength : Symbol, planner : Planner)
     super(strength)
