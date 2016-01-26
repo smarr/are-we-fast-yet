@@ -165,12 +165,12 @@ class Vector
         l = j - 1
 
         while (
-          while k <= l and yield dij, @storage[l]  # i.e. while dl succeeds dij
+          while k <= l && (yield dij, @storage[l])  # i.e. while dl succeeds dij
             l -= 1
           end
 
           k += 1
-          while k <= l and yield @storage[k], dij  # i.e. while dij succeeds dk
+          while k <= l && (yield @storage[k], dij)  # i.e. while dij succeeds dk
             k += 1
           end
           k <= l)
