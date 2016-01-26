@@ -89,7 +89,7 @@ class Run
     end
     end_time = Time.now # Process.clock_gettime(Process::CLOCK_MONOTONIC, :nanosecond)
 
-    run_time = (end_time - start_time).total_milliseconds * 1000
+    run_time = ((end_time - start_time).total_milliseconds * 1000).to_i
     print_result(run_time)
     @total += run_time
   end
