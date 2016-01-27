@@ -52,7 +52,7 @@ class Run
   end
 
   def load_benchmark_suite(benchmark_name)
-    if File.exist?("#{benchmark_name}.rb")
+    if File.exist?("#{File.dirname(__FILE__)}/#{benchmark_name}.rb")
       benchmark_file = benchmark_name
     else
       # fallback, for benchmark files that use Ruby naming conventions instead of classic names
