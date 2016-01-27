@@ -1,11 +1,15 @@
+require "./benchmark"
+require "./som"
+
 class TowersDisk
-  attr_accessor :next
-  attr_reader   :size
+  property :next
+  property :size
 
   def initialize(size)
     @size = size
     @next = nil
   end
+
 end
 
 class Towers < Benchmark
@@ -16,7 +20,7 @@ class Towers < Benchmark
   end
 
   def benchmark
-    @piles = Array.new(3)
+    @piles = Array(TowersDisk?).new(3, nil)
     build_tower_at(0, 13)
     @moves_done = 0
     move_disks(13, 0, 1)
@@ -28,24 +32,26 @@ class Towers < Benchmark
   end
 
   def push_disk(disk, pile)
-    top = @piles[pile]
-    if top != nil and disk.size >= top.size
-      raise 'Cannot put a big disk on a smaller one'
+    top = @piles.not_nil![pile]
+    if top != nil && disk.size >= top.not_nil!.size
+      raise "Cannot put a big disk on a smaller one"
     end
 
     disk.next = top
-    @piles[pile] = disk
+    @piles.not_nil![pile] = disk
   end
 
   def pop_disk_from(pile)
-    top = @piles[pile]
+    top = @piles.not_nil![pile]
     if top.nil?
-      raise 'Attempting to remove a disk from an empty pile'
+      raise "Attempting to remove a disk from an empty pile"
     end
+    
+    top_ = top.not_nil!
 
-    @piles[pile] = top.next
-    top.next = nil
-    top
+    @piles.not_nil![pile] = top_.next
+    top_.next = nil
+    top_
   end
 
   def move_top_disk(from_pile, to_pile)

@@ -3,5 +3,9 @@ source ./script.inc
 source ./config.inc
 export JAVA_HOME=$JAVA8_HOME
 INFO Build Java Benchmarks
-cd ../benchmarks/Java
+pushd ../benchmarks/Java
 ant jar
+popd
+pushd ../benchmarks/Crystal
+./build.sh
+popd

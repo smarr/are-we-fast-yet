@@ -5,6 +5,8 @@
 # modified slightly by Chad Whipkey
 #
 # Based on nbody.java ported to SOM by Stefan Marr.
+require "./benchmark"
+
 PI            = 3.141592653589793
 SOLAR_MASS    = 4.0 * PI * PI
 DAYS_PER_YEAR = 365.24
@@ -25,8 +27,8 @@ class NBody < Benchmark
       return result == -0.1690859889909308
     end
 
-    puts ('No verification result for ' + inner_iterations.to_s + ' found')
-    puts ('Result is: ' + result.to_s)
+    puts ("No verification result for " + inner_iterations.to_s + " found")
+    puts ("Result is: " + result.to_s)
     false
   end
 end
@@ -113,7 +115,7 @@ class NBodySystem
 end
 
 class Body
-  attr_accessor :x, :y, :z, :vx, :vy, :vz, :mass
+  property :x, :y, :z, :vx, :vy, :vz, :mass
 
   def initialize(x, y, z, vx, vy, vz, mass)
     @x = x

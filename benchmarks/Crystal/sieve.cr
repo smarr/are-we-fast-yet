@@ -1,6 +1,8 @@
+require "./benchmark"
+
 class Sieve < Benchmark
   def benchmark
-    flags = Array.new(5000, true)
+    flags = Array(Bool).new(5000, true)
     sieve(flags, 5000)
   end
 

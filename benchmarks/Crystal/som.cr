@@ -1,16 +1,16 @@
 INITIAL_SIZE = 10
 
-class Pair
-  attr_accessor :key
-  attr_accessor :value
+class Pair(K, V)
+  property :key
+  property :value
 
-  def initialize(key, value)
+  def initialize(key : K, value : V)
     @key   = key
     @value = value
   end
 end
 
-class Vector
+class Vector(T)
 
   def self.with(elem)
     new_vector = self.new(1)
@@ -19,7 +19,7 @@ class Vector
   end
 
   def initialize(size = 50)
-    @storage   = Array.new(size)
+    @storage   = Array(T).new(size, nil)
     @first_idx = 0
     @last_idx  = 0
   end
@@ -28,10 +28,10 @@ class Vector
     @storage[idx]
   end
 
-  def append(elem)
+  def append(elem : T)
     if @last_idx >= @storage.size
       # Need to expand capacity first
-      new_storage = Array.new(2 * @storage.size)
+      new_storage = Array(T).new(2 * @storage.size, nil)
       @storage.each_index { | i |
         new_storage[i] = @storage[i]
       }
@@ -49,7 +49,7 @@ class Vector
 
   def each # &block
     (@first_idx..(@last_idx - 1)).each { | i |
-      yield @storage[i]
+      yield @storage[i].not_nil!
     }
   end
 
@@ -64,7 +64,7 @@ class Vector
 
   def get_one
     (@first_idx..(@last_idx - 1)).each { | i |
-      e = @storage[i]
+      e = @storage[i].not_nil!
       if yield e
         return e
       end
@@ -82,12 +82,12 @@ class Vector
   end
 
   def remove(obj)
-    new_array = Array.new(capacity)
+    new_array = Array(T).new(capacity, nil)
     new_last = 0
     found = false
 
     each { | it |
-      if it.equal? obj
+      if it == obj # Ruby uses .equal?
         found = true
       else
         new_array[new_last] = it
@@ -109,20 +109,32 @@ class Vector
     @storage.size
   end
 
-  def sort(&block)
+  def sort(&block : T, T -> Bool)
+    sort_inner(block)
+  end
+
+  def sort_inner(block)
     # Make the argument, block, be the criterion for ordering elements of
     # the receiver.
     # Sort blocks with side effects may not work right.
     if size > 0
-      sort_range(@first_idx, @last_idx - 1, &block)
+      sort_range_inner(@first_idx, @last_idx - 1, block)
     end
   end
+  
+  def sort_range_no_block(i, j)  # &block
+    default_sort(i, j)
+  end
 
-  def sort_range(i, j)  # &block
+  def sort_range(i, j, &block)  # &block
+    sort_range_inner(i, j, block)
+  end
+
+  def sort_range_inner(i, j, block)  # &block
     # Sort elements i through j of self to be non-descending according to sortBlock.
-    unless block_given?
-      default_sort(i, j)
-    end
+    #unless block_given?
+    #  default_sort(i, j)
+    #end
 
     # The prefix d means the data at that index.
 
@@ -136,7 +148,7 @@ class Vector
     dj = @storage[j]
 
     # i.e., should di precede dj?
-    unless yield di, dj
+    unless block.call(di, dj)
       @storage.swap(i, j)
       tt = di
       di = dj
@@ -148,8 +160,8 @@ class Vector
       ij  = ((i + j) / 2).floor  # ij is the midpoint of i and j.
       dij = @storage[ij]         # Sort di,dij,dj.  Make dij be their median.
 
-      if yield di, dij           # i.e. should di precede dij?
-        unless yield dij, dj     # i.e., should dij precede dj?
+      if block.call(di, dij)           # i.e. should di precede dij?
+        unless block.call(dij, dj)     # i.e., should dij precede dj?
           @storage.swap(j, ij)
           dij = dj
         end
@@ -165,12 +177,12 @@ class Vector
         l = j - 1
 
         while (
-          while k <= l && (yield dij, @storage[l])  # i.e. while dl succeeds dij
+          while k <= l && block.call(dij, @storage[l])  # i.e. while dl succeeds dij
             l -= 1
           end
 
           k += 1
-          while k <= l && (yield @storage[k], dij)  # i.e. while dij succeeds dk
+          while k <= l && block.call(@storage[k], dij)  # i.e. while dij succeeds dk
             k += 1
           end
           k <= l)
@@ -180,82 +192,88 @@ class Vector
         # Now l < k (either 1 or 2 less), and di through dl are all less than or equal to dk
         # through dj.  Sort those two segments.
 
-        sort_range(i, l, &block)
-        sort_range(k, j, &block)
+        sort_range_inner(i, l, block)
+        sort_range_inner(k, j, block)
       end
     end
   end
 end
 
-class Set
+class SomSet(T)
   def initialize(size = INITIAL_SIZE)
-    @items = Vector.new(size)
+    @items = Vector(T).new(size)
   end
 
-  def each(&block)
-    @items.each(&block)
+  def each
+    @items.each do |v|
+      yield v
+    end
   end
 
-  def has_some(&block)
-    @items.has_some(&block)
+  def has_some
+    @items.has_some do |v|
+      yield v
+    end
   end
 
-  def get_one(&block)
-    @items.get_one(&block)
+  def get_one
+    @items.get_one do |v|
+      yield v
+    end
   end
 
-  def add(obj)
+  def add(obj : T)
     unless contains(obj)
       @items.append(obj)
     end
   end
 
-  def collect # &block
-    coll = Vector.new
+  def collect(&block : T -> U) # &block
+    coll = Vector(U?).new
     each { | e | coll.append(yield e) }
     coll
   end
 end
 
-class IdentitySet < Set
+class IdentitySomSet(T) < SomSet(T)
   def contains(obj)
-    has_some { | it | it.equal? obj }
+    has_some { | it | it == obj } # in Ruby we use .equal? - is == always identity?
   end
 end
 
-class Dictionary
+class Dictionary(K, V)
   def initialize(size = INITIAL_SIZE)
-    @pairs = IdentitySet.new(size)
+    @pairs = IdentitySomSet(Pair(K, V)?).new(size)
   end
 
-  def at_put(key, value)
+  def at_put(key : K, value : V)
     pair = pair_at(key)
     if pair.nil?
-      @pairs.add(Pair.new(key, value))
+      @pairs.add(Pair(K, V).new(key, value))
     else
-      pair.value = value
+      pair.not_nil!.value = value
     end
   end
 
-  def at(key)
+  def at(key : K)
     pair = pair_at(key)
-    if pair.nil?
+    if pair.is_a?(Nil)
       nil
     else
       pair.value
     end
   end
 
-  def pair_at(key)
-    @pairs.get_one { | p | p.key == key }
+  def pair_at(key : K)
+    @pairs.get_one { | p | p.not_nil!.key == key }
   end
 
   def keys
-    @pairs.collect { | p | p.key }
+    @pairs.collect { | p | p.not_nil!.key }
   end
 end
 
-class Random
+class SomRandom
   def initialize
     @seed = 74755
   end

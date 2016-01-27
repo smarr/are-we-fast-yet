@@ -1,4 +1,7 @@
-require_relative 'som'
+require "./benchmark"
+require "./som"
+
+alias StorageArray = Array(Nil) | Array(StorageArray)
 
 class Storage < Benchmark
 
@@ -7,7 +10,7 @@ class Storage < Benchmark
   end
 
   def benchmark
-    random = Random.new
+    random = SomRandom.new
     @count = 0
     build_tree_depth(7, random)
     @count
@@ -21,9 +24,9 @@ class Storage < Benchmark
     @count += 1
 
     if depth == 1
-      Array.new(random.next % 10 + 1)
+      Array(StorageArray).new(random.next % 10 + 1)
     else
-      Array.new(4) { build_tree_depth(depth - 1, random) }
+      Array(StorageArray).new(4) { |i| build_tree_depth(depth - 1, random) }
     end
   end
 end

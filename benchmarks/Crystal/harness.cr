@@ -17,68 +17,79 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-class Benchmark
-  def inner_benchmark_loop(inner_iterations)
-    inner_iterations.times {
-      unless verify_result(benchmark)
-        return false
-      end
-    }
-    true
-  end
-
-  def benchmark
-    raise "subclass_responsibility"
-  end
-
-  # noinspection RubyUnusedLocalVariable
-  def verify_result(result)
-    raise "subclass_responsibility"
-  end
-end
+require "./bounce"
+require "./deltablue"
+require "./json"
+require "./list"
+require "./mandelbrot"
+require "./nbody"
+require "./permute"
+require "./queens"
+require "./richards"
+require "./sieve"
+require "./storage"
+require "./towers"
 
 class Run
-  attr_accessor :name
-  attr_accessor :benchmark_suite
-  attr_accessor :num_iterations
-  attr_accessor :inner_iterations
+  property :name
+  property :benchmark_suite
+  property :num_iterations
+  property :inner_iterations
 
   def initialize(name)
-    @name             = name
-    @benchmark_suite  = load_benchmark_suite(name)
     @total            = 0
     @num_iterations   = 1
     @inner_iterations = 1
+    @benchmark_suite  = select_benchmark_suite(name)
+    @name             = name
   end
 
-  def load_benchmark_suite(benchmark_name)
-    if File.exist?("#{benchmark_name}.rb")
-      benchmark_file = benchmark_name
+  def select_benchmark_suite(benchmark_name)
+    case benchmark_name
+    when "Bounce"
+      Bounce
+    when "DeltaBlue"
+      DeltaBlue
+    when "Json"
+      Json
+    when "List"
+      List
+    when "Mandelbrot"
+      Mandelbrot
+    when "NBody"
+      NBody
+    when "Permute"
+      Permute
+    when "Queens"
+      Queens
+    when "Richards"
+      Richards
+    when "Sieve"
+      Sieve
+    when "Storage"
+      Storage
+    when "Towers"
+      Towers
     else
-      # fallback, for benchmark files that use Ruby naming conventions instead of classic names
-      benchmark_file = benchmark_name.gsub(/([a-z])([A-Z])/) { "#{$1}-#{$2.downcase}" }.downcase
+      Benchmark
     end
-    unless require_relative(benchmark_file)
-      raise "failed loading #{benchmark_file}"
-    end
-    Object.const_get(benchmark_name)
   end
 
   def run_benchmark
     puts "Starting #{@name} benchmark ..."
     do_runs(@benchmark_suite.new)
     report_benchmark
-    puts ''
+    puts ""
   end
 
   def measure(bench)
-    start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC, :nanosecond)
+    start_time = Time.now # Process.clock_gettime(Process::CLOCK_MONOTONIC, :nanosecond)
     unless bench.inner_benchmark_loop(@inner_iterations)
-      raise 'Benchmark failed with incorrect result'
+      raise "Benchmark failed with incorrect result"
     end
-    end_time = Process.clock_gettime(Process::CLOCK_MONOTONIC, :nanosecond)
+    end_time = Time.now # Process.clock_gettime(Process::CLOCK_MONOTONIC, :nanosecond)
 
-    run_time = (end_time - start_time) / 1000
+    run_time = ((end_time - start_time).total_milliseconds * 1000).to_i
     print_result(run_time)
     @total += run_time
   end
@@ -104,21 +115,21 @@ def process_arguments(args)
   run = Run.new(args[0])
 
   if args.size > 1
-    run.num_iterations = Integer(args[1])
+    run.num_iterations = args[1].to_i
     if args.size > 2
-      run.inner_iterations = Integer(args[2])
+      run.inner_iterations = args[2].to_i
     end
   end
   run
 end
 
 def print_usage
-  puts './harness.rb [benchmark] [num-iterations [inner-iter]]'
-  puts ''
-  puts '  benchmark      - benchmark class name '
-  puts '  num-iterations - number of times to execute benchmark, default: 1'
-  puts '  inner-iter     - number of times the benchmark is executed in an inner loop, '
-  puts '                   which is measured in total, default: 1'
+  puts "./harness.rb benchmark [num-iterations [inner-iter]]"
+  puts ""
+  puts "  benchmark      - benchmark class name "
+  puts "  num-iterations - number of times to execute benchmark, default: 1"
+  puts "  inner-iter     - number of times the benchmark is executed in an inner loop, "
+  puts "                   which is measured in total, default: 1"
 end
 
 if ARGV.size < 1
