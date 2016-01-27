@@ -52,11 +52,11 @@ class Run
   end
 
   def load_benchmark_suite(benchmark_name)
-    if File.exist?("#{File.dirname(__FILE__)}/#{benchmark_name}.rb")
-      benchmark_file = benchmark_name
+    if File.exist?("#{File.dirname(__FILE__)}/#{benchmark_name.downcase}.rb")
+      benchmark_file = benchmark_name.downcase
     else
       # fallback, for benchmark files that use Ruby naming conventions instead of classic names
-      benchmark_file = benchmark_name.gsub(/([a-z])([A-Z])/) { "#{$1}-#{$2.downcase}" }.downcase
+      benchmark_file = benchmark_name.gsub(/([a-z])([A-Z])/) { "#{$1}-#{$2}" }.downcase
     end
     unless require_relative(benchmark_file)
       raise "failed loading #{benchmark_file}"
