@@ -107,7 +107,7 @@ class Planner
     determining_c = v.determined_by
 
     v.constraints.each { | c |
-      if (!c == determining_c) && c.is_satisfied # Ruby uses .equal?
+      if (!(c == determining_c)) && c.is_satisfied # Ruby uses .equal?
         coll.append(c)
       end
     }
@@ -162,6 +162,7 @@ class Planner
 
     until todo.empty?
       v = todo.remove_first.not_nil!
+
       v.constraints.each { | c |
         unless c.is_satisfied
           unsatisfied.append(c)
