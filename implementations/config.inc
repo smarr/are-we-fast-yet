@@ -28,7 +28,7 @@ then
     export GRAAL_ENTER_CMD=/home/smarr/Projects/graal-e/jvmci/jdk1.8.0_66/product/bin/java
 
     export MX=/home/smarr/Projects/mx/mx
-    export GRAAL_JS=/home/smarr/Projects/graal-js/graal-js
+    export GRAAL_JS=/home/smarr/Projects/graal-js/graal-js-extensions
   else
     WARN Graal-enabled VMs not configured, please check config.inc.
   fi
