@@ -20,8 +20,9 @@ data <- subset(data, select = c(Value, Unit, Benchmark, VM, Iteration))
 jit <- droplevels(subset(data, Iteration >= 700 & Iteration <= 999))
 mri <- droplevels(subset(data, VM == "MRI22"))
 ruby_indy <- droplevels(subset(data, Iteration >= 90 & Iteration <= 170 & VM %in% c("JRubyC2", "JRubyGraal", "JRubyJ8")))
+crystal <- droplevels(subset(data, Iteration >= 200 & Iteration <= 400))
 
-peak <- rbind(jit, mri, ruby_indy)
+peak <- rbind(jit, mri, ruby_indy, crystal)
 
 norm <- ddply(peak, ~ Benchmark, transform,
               RuntimeRatio = Value / mean(Value[VM == "GraalEnterprise"]))
