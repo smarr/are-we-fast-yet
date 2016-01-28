@@ -133,7 +133,7 @@ overview_box_plot(stats_j8, c("Java8U66", "JRubyJ8", "Node", "MRI22", "SOMns", "
 ```
 
 <a id="benoit"></a>
-```{r candidate-plot, echo=FALSE, fig.keep='all', fig.width=8, fig.height=3}
+```{r benoits-plot, echo=FALSE, fig.keep='all', fig.width=8, fig.height=3}
 ## For Benoit
 vm_stats <- droplevels(subset(stats_j8, VM %in% c("Java8U66", "JRubyJ8", "Node", "MRI23", "JRubyTruffleEnterprise")))
   vm_stats <- prep(vm_stats)
