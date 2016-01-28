@@ -18,7 +18,7 @@ data <- subset(data, select = c(Value, Unit, Benchmark, VM, Iteration))
 # levels(data$VM)
 
 jit <- droplevels(subset(data, Iteration >= 700 & Iteration <= 999))
-mri <- droplevels(subset(data, VM == "MRI22"))
+mri <- droplevels(subset(data, VM == "MRI22" | VM == "MRI23"))
 ruby_indy <- droplevels(subset(data, Iteration >= 90 & Iteration <= 170 & VM %in% c("JRubyC2", "JRubyGraal", "JRubyJ8")))
 crystal <- droplevels(subset(data, Iteration >= 200 & Iteration <= 400))
 
@@ -112,11 +112,11 @@ More details on the methodology and all benchmarks are available in the
 <a id="all"></a>
 
 ```{r truffle-langs-overview, echo=FALSE, fig.keep='all', fig.width=8, fig.height=3}
-overview_box_plot(stats_j8, c("GraalEnterprise", "GraalJS", "JRubyTruffle", "JRubyTruffleEnterprise", "JRubyTruffleMaster07", "SOMns", "SOMns-Enterprise"))
+overview_box_plot(stats_j8, c("GraalEnterprise", "GraalJS", "JRubyTruffle", "JRubyTruffleEnterprise", "JRubyTruffleMaster07", "SOMns", "SOMns-Enterprise", "TruffleSOM-TOM-Enterprise"))
 
 
-overview_box_plot(stats_j8, c("Java8U66", "GraalJS", "JRubyTruffleEnterprise", "SOMns"))
-overview_box_plot(stats_j8, c("Java8U66", "GraalJS", "JRubyTruffle", "SOMns"))
+overview_box_plot(stats_j8, c("Java8U66", "GraalJS", "JRubyTruffleEnterprise", "SOMns", "TruffleSOM-TOM-Enterprise"))
+overview_box_plot(stats_j8, c("Java8U66", "GraalJS", "JRubyTruffle", "SOMns", "TruffleSOM-TOM-Enterprise"))
 
 overview_box_plot(stats_j8, c("Java8U66", "JRubyJ8", "Node", "MRI22"))
 ```
@@ -132,6 +132,30 @@ prep <- function (d) {
 overview_box_plot(stats_j8, c("Java8U66", "JRubyJ8", "Node", "MRI22", "SOMns", "JRubyTruffleEnterprise"), prep)
 ```
 
+<a id="benoit"></a>
+```{r candidate-plot, echo=FALSE, fig.keep='all', fig.width=8, fig.height=3}
+## For Benoit
+vm_stats <- droplevels(subset(stats_j8, VM %in% c("Java8U66", "JRubyJ8", "Node", "MRI23", "JRubyTruffleEnterprise")))
+  vm_stats <- prep(vm_stats)
+
+  plot <- ggplot(vm_stats, aes(x=VM, y=RuntimeFactor, fill = VM)) +
+    geom_hline(aes(yintercept=2.25), colour="#333333", linetype="dashed") +
+    #geom_hline(aes(yintercept=5), colour="#cccccc", linetype="dashed") +
+    geom_boxplot() + #fill=get_color(5, 7)
+    theme_bw() + theme_simple() + theme(axis.text.x = element_text(size=16, angle= 90, vjust=0.5, hjust=1),
+                                        axis.text.y = element_text(size=16),
+                                        legend.position="none") +
+    scale_y_continuous(breaks = c(1, 5, 10, 25, 50, 75)) +
+    #scale_y_log10(breaks=c(1,2,3,10,20,30,50,100,200,300,500,1000)) + #limit=c(0,30), breaks=seq(0,100,5), expand = c(0,0)
+    ggtitle("Runtime Factor, normalized to Java 1.8.0_66 (lower is better)") + coord_flip() + xlab("")
+  
+    #labeller = label_parsed
+  print(plot)
+
+
+```
+
+<a id="data-table"></a>
 ```{r truffle-lang-table, results='asis', echo=FALSE}
 vm_stats_j8 <- ddply(stats_j8, ~ VM, summarise,
                      geomean = geometric.mean(RuntimeFactor),
@@ -149,11 +173,42 @@ table_options(justification="c ")
 html(t)
 ```
 
+<a id="all-benchmarks"></a>
 ```{r truffle-langs, echo=FALSE, fig.keep='all', fig.width=4, fig.height=16}
-plot_benchmarks_speedup_for_vms_faceted(stats, c("GraalEnterprise", "GraalJS", "JRubyTruffleEnterprise", "SOMns"))
+plot_benchmarks_speedup_for_vms_faceted(stats, c("GraalEnterprise", "GraalJS", "JRubyTruffleEnterprise", "SOMns", "SOMns-Enterprise", "TruffleSOM-TOM-Enterprise"))
 
 #plot_benchmarks_speedup_for_vms_faceted(stats, c("GraalEnterprise", "GraalJS", "JRubyTruffle", "JRubyTruffleEnterprise", "JRubyTruffleMaster07", "SOMns", "SOMns-Enterprise"))
 ```
+
+<a id="benchmark-table"></a>
+```{r benchmark-table, results='asis', echo=FALSE}
+vm_stats <- ddply(stats, ~ Benchmark + VM, summarise,
+                     geomean = geometric.mean(RuntimeFactor),
+                     sd      = sd(RuntimeFactor),
+                     min     = min(RuntimeFactor),
+                     max     = max(RuntimeFactor),
+                     median  = median(RuntimeFactor))
+
+deltablue <- subset(vm_stats, Benchmark == "DeltaBlue")
+deltablue$VM <- reorder(deltablue$VM, X=deltablue$geomean)
+
+t <- tabular(Justify("l")*Heading()*VM ~ 
+             Heading('Runtime Factor over Java8U66')*Justify("r")*Format(sprintf("%.2f"))*((geomean)*Heading()*identity), data=deltablue)
+table_options(justification="c ")
+cat("<h3>DeltaBlue</h3>")
+html(t)
+
+richards <- subset(vm_stats, Benchmark == "Richards")
+richards$VM <- reorder(richards$VM, X=richards$geomean)
+
+t <- tabular(Justify("l")*Heading()*VM ~ 
+             Heading('Runtime Factor over Java8U66')*Justify("r")*Format(sprintf("%.2f"))*((geomean)*Heading()*identity), data=richards)
+table_options(justification="c ")
+cat("<h3>Richards</h3>")
+html(t)
+```
+
+
 
 ### Is Graal Fast Yet? (Baseline Graal Enterprise)
 <a id="graal"></a>
@@ -194,11 +249,11 @@ plot_benchmarks_speedup_for_vms_faceted(stats, c("GraalEnterprise", "GraalJS", "
 <a id="ruby"></a>
 
 ```{r jruby-truffle-overview, echo=FALSE, fig.keep='all', fig.width=8, fig.height=3}
-overview_box_plot(stats, c("GraalEnterprise", "JRubyTruffle", "JRubyTruffleEnterprise", "JRubyTruffleMaster07"))
+overview_box_plot(stats, c("GraalEnterprise", "JRubyTruffle", "JRubyTruffleEnterprise", "JRubyTruffleMaster07", "Crystal"))
 ```
 
 ```{r jruby-truffle, echo=FALSE, fig.keep='all', fig.width=4, fig.height=16}
-plot_benchmarks_speedup_for_vms_faceted(stats, c("GraalEnterprise", "JRubyTruffle", "JRubyTruffleEnterprise", "JRubyTruffleMaster07"))
+plot_benchmarks_speedup_for_vms_faceted(stats, c("GraalEnterprise", "JRubyTruffle", "JRubyTruffleEnterprise", "JRubyTruffleMaster07", "Crystal"))
 ```
 
 Including JRuby-Indy (w/o Truffle) and MRI
@@ -210,6 +265,22 @@ overview_box_plot(stats,  c("GraalEnterprise", "JRubyC2", "JRubyGraal", "JRubyJ8
 plot_benchmarks_speedup_for_vms_faceted(stats, c("GraalEnterprise", "JRubyC2", "JRubyGraal", "JRubyJ8", "JRubyTruffle", "JRubyTruffleEnterprise", "JRubyTruffleMaster07", "MRI22"))
 ```
 
+
+### Is SOM Fast Yet?
+
+```{r som-overview, echo=FALSE, fig.keep='all', fig.width=8, fig.height=3}
+prep <- function (d) {
+  #d <- prepare_vm_names(d)
+  d$VM <- reorder(d$VM, X=-d$RuntimeFactor)
+  d
+}
+overview_box_plot(stats, c("GraalEnterprise", "SOMns", "SOMns-Enterprise", "TruffleSOM", "TruffleSOM-Enterprise", "TruffleSOM-TOM", "TruffleSOM-TOM-Enterprise"), prep)
+```
+
+
+```{r som-benchmarks, echo=FALSE, fig.keep='all', fig.width=2, fig.height=16}
+plot_benchmarks_speedup_for_vms_faceted(stats, c("SOMns", "SOMns-Enterprise", "TruffleSOM", "TruffleSOM-Enterprise", "TruffleSOM-TOM", "TruffleSOM-TOM-Enterprise"))
+```
 
 # Other Plots
 
