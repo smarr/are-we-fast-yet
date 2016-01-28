@@ -18,12 +18,13 @@ load_data_file <- function (file, row_names) {
 
 prepare_vm_names <- function(data) {
   name_map <-     list("Java8U66"              = "Java, 1.8.0_66",
-                       "JRubyJ8"               = "Ruby, JRuby 9.0.4.0 + invokedyanmic",
+                       "JRubyJ8"               = "Ruby, JRuby 9.0.4.0 + indy", #invokedynamic
                        "MRI22"                 = "Ruby, MRI 2.2",
-                       "Node"                  = "JavaScript, Node.js 5.3.0",
+                       "MRI23"                 = "Ruby, MRI 2.3",
+                       "Node"                  = "JavaScript, Node.js 5.4.0",
                        "SOMns"                 = "SOMns, Newspeak, master",
-                       "JRubyTruffle"          = "Ruby, JRuby + Truffle, truffle head (basic)",
-                       "JRubyTruffleEnterprise" = "Ruby, JRuby + Truffle, truffle head",
+                       "JRubyTruffle"          = "Ruby, JRuby+Truffle, truffle head (basic)",
+                       "JRubyTruffleEnterprise" = "Ruby, JRuby+Truffle", # , truffle head
                        
                        "TruffleSOM-graal"      = "TruffleSOM",
                        "TruffleSOM-graal-no-split" = "TruffleSOM.ns",
