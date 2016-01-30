@@ -1,0 +1,138 @@
+# Comparing Performance of Crystal 0.11.1 with other Languages
+
+## Comparing Peak Performance of Language Implementations
+
+```{r prepare-data, echo=FALSE, message=FALSE, warning=TRUE, dev='svg'}
+## Basic Setup
+# load libraries, the data, and prepare it
+if (Sys.getenv("RSTUDIO") == "1") { setwd("/Users/smarr/Projects/PostDoc/FASTXX/are-we-fast-yet/report") }
+
+source("scripts/libraries.R", chdir=TRUE)
+opts_chunk$set(dev = 'svg')
+
+data <- load_data_file("data/benchmark.data")
+data <- subset(data, select = c(Value, Unit, Benchmark, VM, Iteration))
+#data <- prepare_vm_names(data)
+
+# summary(data)
+# levels(data$VM)
+
+jit <- droplevels(subset(data, Iteration >= 700 & Iteration <= 999))
+mri <- droplevels(subset(data, VM == "MRI22" | VM == "MRI23"))
+ruby_indy <- droplevels(subset(data, Iteration >= 90 & Iteration <= 170 & VM %in% c("JRubyC2", "JRubyGraal", "JRubyJ8")))
+crystal <- droplevels(subset(data, Iteration >= 200 & Iteration <= 400))
+
+peak <- rbind(jit, mri, ruby_indy, crystal)
+
+norm_j8 <- ddply(peak, ~ Benchmark, transform,
+              RuntimeRatio = Value / mean(Value[VM == "Java8U66"]))
+stats_j8 <- ddply(norm_j8, ~ VM + Benchmark, summarise,
+               Time.ms = mean(Value),
+               sd      = sd(Value),
+               RuntimeFactor = geometric.mean(RuntimeRatio),
+               RR.sd         = sd(RuntimeRatio))
+stats_j8 <- droplevels(subset(stats_j8, Benchmark != "DeltaBlueV8"))
+
+
+plot_benchmarks_speedup_for_vms <- function(stats, vms) {
+  vm_stats <- droplevels(subset(stats, VM %in% vms))
+  
+  for (b in levels(vm_stats$Benchmark)) {
+    data_b <- droplevels(subset(vm_stats, Benchmark == b))
+    
+    p <- ggplot(data_b, aes(x = VM, y = RuntimeFactor, fill = VM)) +
+      geom_bar(stat = "identity") +
+      geom_errorbar(aes(ymax = RuntimeFactor + RR.sd, ymin = RuntimeFactor - RR.sd), width=0.25) +
+      coord_flip() + theme_bw() + # scale_fill_manual(values=col) +
+      theme(legend.position="none") + ggtitle(b)
+    tryCatch({print(p)})
+  }
+}
+
+plot_benchmarks_speedup_for_vms_faceted <- function(stats, vms, prepare_data = NULL) {
+  vm_stats <- droplevels(subset(stats, VM %in% vms))
+  
+  if (!is.null(prepare_data)) {
+    vm_stats <- prepare_data(vm_stats)
+  }
+  
+  p <- ggplot(vm_stats, aes(x = VM, y = RuntimeFactor, fill = VM)) +
+      geom_bar(stat = "identity") +
+      geom_errorbar(aes(ymax = RuntimeFactor + RR.sd, ymin = RuntimeFactor - RR.sd), width=0.25) +
+      facet_wrap(~ Benchmark, ncol = 1, scales="free_y") +
+       theme_bw() + theme_simple() + # scale_fill_manual(values=col) + coord_flip() +
+      theme(legend.position="none", axis.text.x=element_text(angle=90, hjust = 1, vjust = 0.5))
+  print(p)
+}
+
+overview_box_plot <- function(stats, vms, prepare_data = NULL) {
+  # cat(vms)
+  vm_stats <- droplevels(subset(stats, VM %in% vms))
+  
+  if (!is.null(prepare_data)) {
+    vm_stats <- prepare_data(vm_stats)
+  }
+  
+  plot <- ggplot(vm_stats, aes(x=VM, y=RuntimeFactor, fill = VM)) +
+    #geom_hline(aes(yintercept=1), colour="#cccccc", linetype="dashed") +
+    #geom_hline(aes(yintercept=5), colour="#cccccc", linetype="dashed") +
+    geom_boxplot() + #fill=get_color(5, 7)
+    theme_bw() + theme_simple() + theme(axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1), legend.position="none") +
+    #scale_y_log10(breaks=c(1,2,3,10,20,30,50,100,200,300,500,1000)) + #limit=c(0,30), breaks=seq(0,100,5), expand = c(0,0)
+    ggtitle("Runtime Factor, normalized to Java 1.8.0_66 (lower is better)") + coord_flip() + xlab("")
+  
+    #labeller = label_parsed
+  print(plot)
+}
+```
+
+The following plots show the runtime factor over Java 8 (1.8.0_66)
+
+The benchmarks are implemented as identical as possible, trying to exercise a
+'core' language common to the benchmarked system.
+More details on the methodology and all benchmarks are available in the
+[Are We Fast Yet?](https://github.com/smarr/are-we-fast-yet#are-we-fast-yet) repository.
+All results reported are after sufficient warmup time, thus, reflect peak performance.
+
+### Overview Comparing Crystal, Java, JavaScript, and Ruby Implementations
+<a id="all"></a>
+
+```{r all-plot, echo=FALSE, fig.keep='all', fig.width=8, fig.height=3}
+prep <- function (d) {
+  d <- prepare_vm_names(d)
+  d$VM <- reorder(d$VM, X=-d$RuntimeFactor)
+  d
+}
+crystal_vs_others_all = c("Java8U66", "JRubyJ8", "Crystal", "Node", "MRI23", "JRubyTruffleEnterprise")
+overview_box_plot(stats_j8, crystal_vs_others_all, prep)
+```
+
+### Plot excluding >10x slower implementations
+<a id="only-fast-plot"></a>
+```{r only-fast-plot, echo=FALSE, fig.keep='all', fig.width=8, fig.height=3}
+crystal_vs_fast <- c("Java8U66", "Crystal", "Node", "JRubyTruffleEnterprise")
+overview_box_plot(stats_j8, crystal_vs_fast, prep)
+```
+
+
+<a id="data-table"></a>
+```{r truffle-lang-table, results='asis', echo=FALSE}
+vm_stats_j8 <- ddply(prepare_vm_names(droplevels(subset(stats_j8, VM %in% crystal_vs_others_all))), ~ VM, summarise,
+                     geomean = geometric.mean(RuntimeFactor),
+                     sd      = sd(RuntimeFactor),
+                     min     = min(RuntimeFactor),
+                     max     = max(RuntimeFactor),
+                     median  = median(RuntimeFactor))
+vm_stats_j8$VM <- reorder(vm_stats_j8$VM, X=vm_stats_j8$geomean)
+
+t <- tabular(Justify("l")*Heading()*VM ~ 
+             Heading('Runtime Factor over Java8U66')*Justify("r")*Format(sprintf("%.2f"))*((geomean + sd + min + max + median)*Heading()*identity), data=vm_stats_j8)
+table_options(justification="c ")
+html(t)
+```
+
+<a id="all-benchmarks"></a>
+```{r truffle-langs, echo=FALSE, fig.keep='all', fig.width=4, fig.height=16}
+plot_benchmarks_speedup_for_vms_faceted(stats_j8, crystal_vs_fast, prepare_vm_names)
+plot_benchmarks_speedup_for_vms_faceted(stats_j8, crystal_vs_others_all, prepare_vm_names)
+```
