@@ -22,13 +22,8 @@ then
   export JAVA8_HOME=${jvm_info[2]}
 
   if [ -x /home/smarr/Projects/graal-graal/jvmci/jdk1.8.0_66/product/bin/java ]; then
-    export GRAAL_GRAAL_BASIC_CMD=/home/smarr/Projects/graal-graal/jvmci/jdk1.8.0_66/product/bin/java
-    export GRAAL_GRAAL_ENTER_CMD=/home/smarr/Projects/graal-e-graal/jvmci/jdk1.8.0_66/product/bin/java
-    export GRAAL_BASIC_CMD=/home/smarr/Projects/graal/jvmci/jdk1.8.0_66/product/bin/java
-    export GRAAL_ENTER_CMD=/home/smarr/Projects/graal-e/jvmci/jdk1.8.0_66/product/bin/java
-
-    export MX=/home/smarr/Projects/mx/mx
-    export GRAAL_JS=/home/smarr/Projects/graal-js/graal-js-extensions
+    export GRAAL_GRAAL_ENTER_CMD=/home/smarr/Projects/GraalVM/GraalVM-0.10-dev/bin/java
+    export GRAAL_ENTER_CMD=/home/smarr/Projects/GraalVM/GraalVM-0.10-dev/bin/java
   else
     WARN Graal-enabled VMs not configured, please check config.inc.
   fi
@@ -36,7 +31,8 @@ else
   WARN Java directories could not be guessed, please check config.inc
 fi
 
-export JRUBY_CMD=$SCRIPT_PATH/JRuby/bin/jruby
+export JRUBY_CMD=/home/smarr/Projects/GraalVM/GraalVM-0.10-dev/bin/ruby
+export GRAALJS_CMD=/home/smarr/Projects/GraalVM/GraalVM-0.10-dev/bin/node
 
 function home_from_command() {
   HOME=`dirname $1`

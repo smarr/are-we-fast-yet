@@ -6,13 +6,13 @@ source script.inc
 check_for_tools git ant tar make javac mv unzip uname cc c++
 get_web_getter
 
-./build-jruby.sh
-./build-somns.sh
-./build-trufflesom.sh
+# ./build-jruby.sh
+# ./build-somns.sh
+# ./build-trufflesom.sh
 
 ./build-benchmarks.sh
 
-get_jdk9ea
+# get_jdk9ea
 
 # ./build-graal.sh
 
