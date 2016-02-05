@@ -23,7 +23,7 @@ then
 
   if [ -x /home/smarr/Projects/graal-graal/jvmci/jdk1.8.0_66/product/bin/java ]; then
     export GRAAL_GRAAL_ENTER_CMD=/home/smarr/Projects/GraalVM/GraalVM-0.10-dev/bin/java
-    export GRAAL_ENTER_CMD=/home/smarr/Projects/GraalVM/GraalVM-0.10-dev/bin/java
+    export GRAAL_ENTER_CMD=/home/smarr/Projects/GraalVM/GraalVM-0.10-dev/bin/java -server
   else
     WARN Graal-enabled VMs not configured, please check config.inc.
   fi
