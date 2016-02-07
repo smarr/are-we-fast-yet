@@ -33,6 +33,7 @@ fi
 
 export JRUBY_CMD=/home/smarr/Projects/GraalVM/GraalVM-0.10-dev/bin/ruby
 export GRAALJS_CMD=/home/smarr/Projects/GraalVM/GraalVM-0.10-dev/bin/node
+export RBX_314_CMD=/home/smarr/Projects/rubinius/3.14/bin/rbx
 
 function home_from_command() {
   HOME=`dirname $1`
