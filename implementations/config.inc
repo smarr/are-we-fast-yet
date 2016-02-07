@@ -37,6 +37,7 @@ else
 fi
 
 export JRUBY_CMD=$SCRIPT_PATH/JRuby/bin/jruby
+export RBX_314_CMD=/home/smarr/Projects/rubinius/3.14/bin/rbx
 
 function home_from_command() {
   HOME=`dirname $1`
