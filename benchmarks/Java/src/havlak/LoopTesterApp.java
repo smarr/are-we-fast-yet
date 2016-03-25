@@ -64,28 +64,20 @@ public class LoopTesterApp {
     return footer;
   }
 
-  public static int[] main(final int numDummyLoops, final int findLoopIteration,
+  public int[] main(final int numDummyLoops, final int findLoopIteration,
       final int parLoops, final int pparLoops, final int ppparLoops) {
-    // Constructing App
-    LoopTesterApp app = new LoopTesterApp();
-    app.constructSimpleCFG();
-
-    app.addDummyLoops(numDummyLoops);
-
-    // Constructing CFG...
-    app.constructCFG(parLoops, pparLoops, ppparLoops);
+    constructSimpleCFG();
+    addDummyLoops(numDummyLoops);
+    constructCFG(parLoops, pparLoops, ppparLoops);
 
     // Performing Loop Recognition, 1 Iteration, then findLoopIteration
-    app.findLoops(app.lsg);
+    findLoops(lsg);
     for (int i = 0; i < findLoopIteration; i++) {
-      app.findLoops(new LoopStructureGraph());
+      findLoops(new LoopStructureGraph());
     }
 
-    app.lsg.calculateNestingLevel();
-
-    int numBasicBlocks = BasicBlock.getNumBasicBlocks();
-    BasicBlock.resetNumBasicBlocks();
-    return new int[] { app.lsg.getNumLoops(), numBasicBlocks };
+    lsg.calculateNestingLevel();
+    return new int[] { lsg.getNumLoops(), cfg.getNumNodes() };
   }
 
   void constructCFG(final int parLoops, final int pparLoops,
