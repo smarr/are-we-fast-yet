@@ -39,25 +39,30 @@ import java.util.Set;
  */
 final class SimpleLoop {
 
-  private BasicBlock             header;
   private final Set<BasicBlock> basicBlocks;
   private final Set<SimpleLoop> children;
   private SimpleLoop            parent;
+  private final BasicBlock      header;
 
   private boolean      isRoot;
-  private boolean      isReducible;
+  private final boolean isReducible;
   private int          counter;
   private int          nestingLevel;
   private int          depthLevel;
 
-  public SimpleLoop() {
+  public SimpleLoop(final BasicBlock bb, final boolean isReducible) {
+    this.isReducible = isReducible;
     parent = null;
     isRoot = false;
-    isReducible  = true;
     nestingLevel = 0;
     depthLevel   = 0;
     basicBlocks  = new HashSet<BasicBlock>();
     children     = new HashSet<SimpleLoop>();
+
+    if (bb != null) {
+      basicBlocks.add(bb);
+    }
+    header = bb;
   }
 
   public void addNode(final BasicBlock bb) {
@@ -97,10 +102,6 @@ final class SimpleLoop {
     this.parent = parent;
     this.parent.addChildLoop(this);
   }
-  public void setHeader(final BasicBlock bb) {
-    basicBlocks.add(bb);
-    header = bb;
-  }
 
   public void setIsRoot() {
     isRoot = true;
@@ -119,8 +120,5 @@ final class SimpleLoop {
 
   public void setDepthLevel(final int level) {
     depthLevel = level;
-  }
-  public void setIsReducible(final boolean isReducible) {
-    this.isReducible = isReducible;
   }
 }

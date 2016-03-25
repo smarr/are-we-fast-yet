@@ -42,14 +42,14 @@ final class LoopStructureGraph {
   public LoopStructureGraph() {
     loopCounter = 0;
     loops = new ArrayList<SimpleLoop>();
-    root = new SimpleLoop();
+    root = new SimpleLoop(null, true);
     root.setNestingLevel(0);
     root.setCounter(loopCounter++);
     addLoop(root);
   }
 
-  public SimpleLoop createNewLoop() {
-    SimpleLoop loop = new SimpleLoop();
+  public SimpleLoop createNewLoop(final BasicBlock bb, final boolean isReducible) {
+    SimpleLoop loop = new SimpleLoop(bb, isReducible);
     loop.setCounter(loopCounter++);
     return loop;
   }

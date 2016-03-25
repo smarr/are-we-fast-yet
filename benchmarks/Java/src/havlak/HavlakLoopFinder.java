@@ -371,10 +371,7 @@ final class HavlakLoopFinder {
       // For every SCC found, create a loop descriptor and link it in.
       //
       if ((nodePool.size() > 0) || (type[w] == BasicBlockClass.BB_SELF)) {
-        SimpleLoop loop = lsg.createNewLoop();
-
-        loop.setHeader(nodeW);
-        loop.setIsReducible(type[w] != BasicBlockClass.BB_IRREDUCIBLE);
+        SimpleLoop loop = lsg.createNewLoop(nodeW, type[w] != BasicBlockClass.BB_IRREDUCIBLE);
 
         // At this point, one can set attributes to the loop, such as:
         //
