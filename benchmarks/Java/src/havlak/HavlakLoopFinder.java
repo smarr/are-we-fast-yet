@@ -30,8 +30,23 @@ import java.util.Set;
  */
 final class HavlakLoopFinder {
 
-  private final ControlFlowGraph cfg;      // Control Flow Graph
+  private final ControlFlowGraph   cfg;      // Control Flow Graph
   private final LoopStructureGraph lsg;      // Loop Structure Graph
+
+  // Marker for uninitialized nodes.
+  private static final int UNVISITED = Integer.MAX_VALUE;
+
+  // Safeguard against pathological algorithm behavior.
+  private static final int MAXNONBACKPREDS = (32 * 1024);
+
+  private final List<Set<Integer>>  nonBackPreds = new ArrayList<Set<Integer>>();
+  private final List<List<Integer>> backPreds    = new ArrayList<List<Integer>>();
+  private final Map<BasicBlock, Integer> number  = new HashMap<BasicBlock, Integer>();
+  private int                      maxSize = 0;
+  private int[]                    header;
+  private BasicBlockClass[]        type;
+  private int[]                    last;
+  private UnionFindNode[]          nodes;
 
   HavlakLoopFinder(final ControlFlowGraph cfg, final LoopStructureGraph lsg) {
     this.cfg = cfg;
@@ -53,15 +68,6 @@ final class HavlakLoopFinder {
     BB_DEAD,         // a dead BB
     BB_LAST          // Sentinel
   }
-
-  //
-  // Constants
-  //
-  // Marker for uninitialized nodes.
-  static final int UNVISITED = Integer.MAX_VALUE;
-
-  // Safeguard against pathologic algorithm behavior.
-  static final int MAXNONBACKPREDS = (32 * 1024);
 
   //
   // IsAncestor
@@ -101,14 +107,6 @@ final class HavlakLoopFinder {
     return lastid;
   }
 
-  static List<Set<Integer>>       nonBackPreds = new ArrayList<Set<Integer>>();
-  static List<List<Integer>>      backPreds = new ArrayList<List<Integer>>();
-  static Map<BasicBlock, Integer> number = new HashMap<BasicBlock, Integer>();
-  static int                      maxSize = 0;
-  static int[]                    header;
-  static BasicBlockClass[]        type;
-  static int[]                    last;
-  static UnionFindNode[]          nodes;
   //
   // findLoops
   //
