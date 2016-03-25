@@ -29,21 +29,10 @@ final class BasicBlock {
   private final List<BasicBlock> inEdges, outEdges;
   private final int name;
 
-  static int numBasicBlocks = 0;
-
-  public static void resetNumBasicBlocks() {
-    System.out.println("REMOVE!!! resetNumBasicBlocks()");
-    numBasicBlocks = 0;
-  }
-  public static int getNumBasicBlocks() {
-    return numBasicBlocks;
-  }
-
   public BasicBlock(final int name) {
     this.name = name;
     inEdges   = new ArrayList<BasicBlock>();
     outEdges  = new ArrayList<BasicBlock>();
-    ++numBasicBlocks;
   }
 
   public void dump() {
