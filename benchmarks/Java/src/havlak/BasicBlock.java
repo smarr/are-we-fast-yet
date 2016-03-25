@@ -29,37 +29,37 @@ final class BasicBlock {
   private final List<BasicBlock> inEdges, outEdges;
   private final int name;
 
-  public BasicBlock(final int name) {
+  BasicBlock(final int name) {
     this.name = name;
     inEdges   = new ArrayList<BasicBlock>();
     outEdges  = new ArrayList<BasicBlock>();
   }
 
-  public int getName() {
+  int getName() {
     return name;
   }
 
-  public List<BasicBlock> getInEdges() {
+  List<BasicBlock> getInEdges() {
     return inEdges;
   }
 
-  public List<BasicBlock> getOutEdges() {
+  List<BasicBlock> getOutEdges() {
     return outEdges;
   }
 
-  public int getNumPred() {
+  int getNumPred() {
     return inEdges.size();
   }
 
-  public int getNumSucc() {
+  int getNumSucc() {
     return outEdges.size();
   }
 
-  public void addOutEdge(final BasicBlock to) {
+  void addOutEdge(final BasicBlock to) {
     outEdges.add(to);
   }
 
-  public void addInEdge(final BasicBlock from) {
+  void addInEdge(final BasicBlock from) {
     inEdges.add(from);
   }
 }

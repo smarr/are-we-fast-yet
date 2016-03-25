@@ -33,7 +33,7 @@ final class HavlakLoopFinder {
   private final ControlFlowGraph cfg;      // Control Flow Graph
   private final LoopStructureGraph lsg;      // Loop Structure Graph
 
-  public HavlakLoopFinder(final ControlFlowGraph cfg, final LoopStructureGraph lsg) {
+  HavlakLoopFinder(final ControlFlowGraph cfg, final LoopStructureGraph lsg) {
     this.cfg = cfg;
     this.lsg = lsg;
   }
@@ -44,7 +44,7 @@ final class HavlakLoopFinder {
    * Basic Blocks and Loops are being classified as regular, irreducible,
    * and so on. This enum contains a symbolic name for all these classifications
    */
-  public enum BasicBlockClass {
+  enum BasicBlockClass {
     BB_TOP,          // uninitialized
     BB_NONHEADER,    // a regular BB
     BB_REDUCIBLE,    // reducible loop
@@ -53,7 +53,6 @@ final class HavlakLoopFinder {
     BB_DEAD,         // a dead BB
     BB_LAST          // Sentinel
   }
-
 
   /**
    * class UnionFindNode
@@ -201,7 +200,7 @@ final class HavlakLoopFinder {
   // been chosen to be identical to the nomenclature in Havlak's
   // paper (which, in turn, is similar to the one used by Tarjan).
   //
-  public void findLoops() {
+  void findLoops() {
     if (cfg.getStartBasicBlock() == null) {
       return;
     }

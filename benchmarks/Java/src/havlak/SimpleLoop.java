@@ -51,7 +51,7 @@ final class SimpleLoop {
   private int          nestingLevel;
   private int          depthLevel;
 
-  public SimpleLoop(final BasicBlock bb, final boolean isReducible) {
+  SimpleLoop(final BasicBlock bb, final boolean isReducible) {
     this.isReducible = isReducible;
     parent = null;
     isRoot = false;
@@ -66,60 +66,60 @@ final class SimpleLoop {
     header = bb;
   }
 
-  public void addNode(final BasicBlock bb) {
+  void addNode(final BasicBlock bb) {
     basicBlocks.add(bb);
   }
 
-  public void addChildLoop(final SimpleLoop loop) {
+  void addChildLoop(final SimpleLoop loop) {
     children.add(loop);
   }
 
   // Getters/Setters
-  public Set<SimpleLoop> getChildren() {
+  Set<SimpleLoop> getChildren() {
     return children;
   }
 
-  public SimpleLoop getParent() {
+  SimpleLoop getParent() {
     return parent;
   }
 
-  public int getNestingLevel(){
+  int getNestingLevel(){
     return nestingLevel;
   }
 
-  public int getDepthLevel() {
+  int getDepthLevel() {
     return depthLevel;
   }
 
-  public int getCounter() {
+  int getCounter() {
     return counter;
   }
 
-  public boolean isRoot() {   // Note: fct and var are same!
+  boolean isRoot() {   // Note: fct and var are same!
     return isRoot;
   }
 
-  public void setParent(final SimpleLoop parent) {
+  void setParent(final SimpleLoop parent) {
     this.parent = parent;
     this.parent.addChildLoop(this);
   }
 
-  public void setIsRoot() {
+  void setIsRoot() {
     isRoot = true;
   }
 
-  public void setCounter(final int value) {
+  void setCounter(final int value) {
     counter = value;
   }
 
-  public void setNestingLevel(final int level) {
+  void setNestingLevel(final int level) {
     nestingLevel = level;
     if (level == 0) {
       setIsRoot();
     }
   }
 
-  public void setDepthLevel(final int level) {
+  void setDepthLevel(final int level) {
     depthLevel = level;
   }
 }

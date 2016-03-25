@@ -26,7 +26,7 @@ public class LoopTesterApp {
 
   // Create 4 basic blocks, corresponding to and if/then/else clause
   // with a CFG that looks like a diamond
-  public int buildDiamond(final int start) {
+  private int buildDiamond(final int start) {
     int bb0 = start;
     new BasicBlockEdge(cfg, bb0, bb0 + 1);
     new BasicBlockEdge(cfg, bb0, bb0 + 2);
@@ -37,12 +37,12 @@ public class LoopTesterApp {
   }
 
   // Connect two existing nodes
-  public void buildConnect(final int start, final int end) {
+  private void buildConnect(final int start, final int end) {
     new BasicBlockEdge(cfg, start, end);
   }
 
   // Form a straight connected sequence of n basic blocks
-  public int buildStraight(final int start, final int n) {
+  private int buildStraight(final int start, final int n) {
     for (int i = 0; i < n; i++) {
       buildConnect(start + i, start + i + 1);
     }
@@ -50,7 +50,7 @@ public class LoopTesterApp {
   }
 
   // Construct a simple loop with two diamonds in it
-  public int buildBaseLoop(final int from) {
+  private int buildBaseLoop(final int from) {
     int header = buildStraight(from, 1);
     int diamond1 = buildDiamond(header);
     int d11 = buildStraight(diamond1, 1);
@@ -80,7 +80,7 @@ public class LoopTesterApp {
     return new int[] { lsg.getNumLoops(), cfg.getNumNodes() };
   }
 
-  void constructCFG(final int parLoops, final int pparLoops,
+  private void constructCFG(final int parLoops, final int pparLoops,
       final int ppparLoops) {
     int n = 2;
 
@@ -103,19 +103,19 @@ public class LoopTesterApp {
     }
   }
 
-  void addDummyLoops(final int numDummyLoops) {
+  private void addDummyLoops(final int numDummyLoops) {
     for (int dummyloop = 0; dummyloop < numDummyLoops; dummyloop++) {
       HavlakLoopFinder finder = new HavlakLoopFinder(cfg, lsg);
       finder.findLoops();
     }
   }
 
-  void findLoops(final LoopStructureGraph loopStructure) {
+  private void findLoops(final LoopStructureGraph loopStructure) {
     HavlakLoopFinder finder = new HavlakLoopFinder(cfg, loopStructure);
     finder.findLoops();
   }
 
-  void constructSimpleCFG() {
+  private void constructSimpleCFG() {
     cfg.createNode(0);
     buildBaseLoop(0);
     cfg.createNode(1);

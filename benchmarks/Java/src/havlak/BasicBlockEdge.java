@@ -32,7 +32,7 @@ final class BasicBlockEdge {
 
   private final BasicBlock from, to;
 
-  public BasicBlockEdge(final ControlFlowGraph cfg, final int fromName, final int toName) {
+  BasicBlockEdge(final ControlFlowGraph cfg, final int fromName, final int toName) {
     from = cfg.createNode(fromName);
     to   = cfg.createNode(toName);
 
@@ -42,6 +42,6 @@ final class BasicBlockEdge {
     cfg.addEdge(this);
   }
 
-  public BasicBlock getSrc() { return from; }
-  public BasicBlock getDst() { return to; }
+  BasicBlock getSrc() { return from; }
+  BasicBlock getDst() { return to; }
 }

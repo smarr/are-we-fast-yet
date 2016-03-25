@@ -39,7 +39,7 @@ final class LoopStructureGraph {
   private final List<SimpleLoop> loops;
   private int              loopCounter;
 
-  public LoopStructureGraph() {
+  LoopStructureGraph() {
     loopCounter = 0;
     loops = new ArrayList<SimpleLoop>();
     root = new SimpleLoop(null, true);
@@ -48,17 +48,17 @@ final class LoopStructureGraph {
     addLoop(root);
   }
 
-  public SimpleLoop createNewLoop(final BasicBlock bb, final boolean isReducible) {
+  SimpleLoop createNewLoop(final BasicBlock bb, final boolean isReducible) {
     SimpleLoop loop = new SimpleLoop(bb, isReducible);
     loop.setCounter(loopCounter++);
     return loop;
   }
 
-  public void addLoop(final SimpleLoop loop) {
+  void addLoop(final SimpleLoop loop) {
     loops.add(loop);
   }
 
-  public void calculateNestingLevel() {
+  void calculateNestingLevel() {
     // link up all 1st level loops to artificial root node.
     for (SimpleLoop liter : loops) {
       if (liter.isRoot()) {
@@ -73,7 +73,7 @@ final class LoopStructureGraph {
     calculateNestingLevelRec(root, 0);
   }
 
-  public void calculateNestingLevelRec(final SimpleLoop loop, final int depth) {
+  void calculateNestingLevelRec(final SimpleLoop loop, final int depth) {
     loop.setDepthLevel(depth);
     for (SimpleLoop liter : loop.getChildren()) {
       calculateNestingLevelRec(liter, depth + 1);
@@ -83,11 +83,11 @@ final class LoopStructureGraph {
     }
   }
 
-  public int getNumLoops() {
+  int getNumLoops() {
     return loops.size();
   }
 
-  public SimpleLoop getRoot() {
+  SimpleLoop getRoot() {
     return root;
   }
 }
