@@ -17,7 +17,7 @@ public class LoopTesterApp {
   public LoopTesterApp() {
     cfg = new ControlFlowGraph();
     lsg = new LoopStructureGraph();
-    root = cfg.createNode(0);
+    cfg.createNode(0);
   }
 
   // Create 4 basic blocks, corresponding to and if/then/else clause
@@ -128,5 +128,4 @@ public class LoopTesterApp {
 
   public  final ControlFlowGraph   cfg;
   private final LoopStructureGraph lsg;
-  private final BasicBlock root;
 }

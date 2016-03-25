@@ -24,7 +24,7 @@ import java.util.List;
  *
  * @author rhundt
  */
-public class BasicBlock {
+final class BasicBlock {
 
   static int numBasicBlocks = 0;
 

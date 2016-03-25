@@ -11,16 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-//======================================================
-// Scaffold Code
-//======================================================
-
-/**
- * Loop Structure Graph - Scaffold Code
- *
- * @author rhundt
- */
 package havlak;
 
 import java.util.ArrayList;
@@ -40,8 +30,10 @@ import java.util.List;
  *   loop-1    1                1
  *   loop-3    1                1
  *     loop-2  0                2
+ *
+ * @author rhundt
  */
-public class LoopStructureGraph {
+final class LoopStructureGraph {
   public LoopStructureGraph() {
     loopCounter = 0;
     loops = new ArrayList<SimpleLoop>();

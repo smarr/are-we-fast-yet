@@ -11,16 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-//======================================================
-// Main Algorithm
-//======================================================
-
-/**
- * The Havlak loop finding algorithm.
- *
- * @author rhundt
- */
 package havlak;
 
 import java.util.ArrayList;
@@ -32,11 +22,13 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * class HavlakLoopFinder
+ * The Havlak loop finding algorithm.
  *
  * This class encapsulates the complete finder algorithm
+ *
+ * @author rhundt
  */
-public class HavlakLoopFinder {
+final class HavlakLoopFinder {
 
   public HavlakLoopFinder(final ControlFlowGraph cfg, final LoopStructureGraph lsg) {
     this.cfg = cfg;
@@ -211,9 +203,7 @@ public class HavlakLoopFinder {
       return;
     }
 
-    long                     startMillis = System.currentTimeMillis();
-
-    int                      size = cfg.getNumNodes();
+    int size = cfg.getNumNodes();
 
     nonBackPreds.clear();
     backPreds.clear();

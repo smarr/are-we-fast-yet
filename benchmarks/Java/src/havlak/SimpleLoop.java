@@ -37,7 +37,7 @@ import java.util.Set;
  * it can be an irreducible loop, have control flow, be
  * a candidate for transformations, and what not.
  */
-public class SimpleLoop {
+final class SimpleLoop {
   public SimpleLoop() {
     parent = null;
     isRoot = false;

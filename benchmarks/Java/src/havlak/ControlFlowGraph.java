@@ -11,13 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-/**
- * A simple class simulating the concept of
- * a control flow graph.
- *
- * @author rhundt
- */
 package havlak;
 
 import java.util.ArrayList;
@@ -27,12 +20,15 @@ import java.util.Map;
 
 
 /**
- * class CFG
+ * A simple class simulating the concept of
+ * a control flow graph.
  *
  * CFG maintains a list of nodes, plus a start node.
  * That's it.
+ *
+ * @author rhundt
  */
-public class ControlFlowGraph {
+final class ControlFlowGraph {
   public ControlFlowGraph() {
     startNode = null;
     basicBlockMap = new HashMap<Integer, BasicBlock>();

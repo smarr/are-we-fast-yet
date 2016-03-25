@@ -28,7 +28,7 @@ package havlak;
  *
  * BasicBlockEdge only maintains two pointers to BasicBlocks.
  */
-public class BasicBlockEdge {
+final class BasicBlockEdge {
   public BasicBlockEdge(final ControlFlowGraph cfg, final int fromName, final int toName) {
     from = cfg.createNode(fromName);
     to   = cfg.createNode(toName);
