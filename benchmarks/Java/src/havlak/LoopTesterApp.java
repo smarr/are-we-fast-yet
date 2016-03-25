@@ -13,7 +13,7 @@
 // limitations under the License.
 package havlak;
 
-class LoopTesterApp {
+public class LoopTesterApp {
   public LoopTesterApp() {
     cfg = new ControlFlowGraph();
     lsg = new LoopStructureGraph();
