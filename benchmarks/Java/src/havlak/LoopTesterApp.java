@@ -60,32 +60,25 @@ public class LoopTesterApp {
     return footer;
   }
 
-  public void getMem() {
-    Runtime runtime = Runtime.getRuntime();
-    long val = runtime.totalMemory() / 1024;
-    System.out.println("  Total Memory: " + val + " KB");
-  }
-
   public static void main(final String[] args) {
     System.out.println("Welcome to LoopTesterApp, Java edition");
 
-    System.out.println("Constructing App...");
+    // Constructing App
     LoopTesterApp app = new LoopTesterApp();
-    app.getMem();
 
-    System.out.println("Constructing Simple CFG...");
+    // Constructing Simple CFG
     app.cfg.createNode(0);
     app.buildBaseLoop(0);
     app.cfg.createNode(1);
     new BasicBlockEdge(app.cfg, 0, 2);
 
-    System.out.println("15000 dummy loops");
+    // 15000 dummy loops
     for (int dummyloop = 0; dummyloop < 15000; dummyloop++) {
       HavlakLoopFinder finder = new HavlakLoopFinder(app.cfg, app.lsg);
       finder.findLoops();
     }
 
-    System.out.println("Constructing CFG...");
+    // Constructing CFG...
     int n = 2;
 
     for (int parlooptrees = 0; parlooptrees < 10; parlooptrees++) {
@@ -106,28 +99,18 @@ public class LoopTesterApp {
       app.buildConnect(n, 1);
     }
 
-    app.getMem();
-    System.out.format("Performing Loop Recognition\n1 Iteration\n");
+    // Performing Loop Recognition, 1 Iteration
     HavlakLoopFinder finder = new HavlakLoopFinder(app.cfg, app.lsg);
     finder.findLoops();
-    app.getMem();
 
-    System.out.println("Another 50 iterations...");
+    // Another 50 iterations...
     for (int i = 0; i < 50; i++) {
       System.out.format(".");
       HavlakLoopFinder finder2 = new HavlakLoopFinder(app.cfg, new LoopStructureGraph());
       finder2.findLoops();
     }
 
-    System.out.println("");
-    app.getMem();
-    System.out.println("# of loops: " + app.lsg.getNumLoops() +
-                       " (including 1 artificial root node)");
-    System.out.println("# of BBs  : " + BasicBlock.getNumBasicBlocks());
-    System.out.println("# max time: " + finder.getMaxMillis());
-    System.out.println("# min time: " + finder.getMinMillis());
     app.lsg.calculateNestingLevel();
-    //app.lsg.Dump();
   }
 
   public  ControlFlowGraph        cfg;

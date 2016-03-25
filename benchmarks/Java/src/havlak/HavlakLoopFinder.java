@@ -43,14 +43,6 @@ public class HavlakLoopFinder {
     this.lsg = lsg;
   }
 
-  public long getMaxMillis() {
-    return maxMillis;
-  }
-
-  public long getMinMillis() {
-    return minMillis;
-  }
-
   /**
    * enum BasicBlockClass
    *
@@ -421,22 +413,8 @@ public class HavlakLoopFinder {
         lsg.addLoop(loop);
       }  // nodePool.size
     }  // Step c
-
-    long totalMillis = System.currentTimeMillis() - startMillis;
-
-    if (totalMillis > maxMillis) {
-      maxMillis = totalMillis;
-    }
-    if (totalMillis < minMillis) {
-      minMillis = totalMillis;
-    }
   }  // findLoops
 
   private final ControlFlowGraph cfg;      // Control Flow Graph
   private final LoopStructureGraph lsg;      // Loop Structure Graph
-
-  private static long maxMillis = 0;
-  private static long minMillis = Integer.MAX_VALUE;
-
-
 }
