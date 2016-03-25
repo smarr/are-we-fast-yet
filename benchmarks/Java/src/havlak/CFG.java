@@ -18,7 +18,7 @@
  *
  * @author rhundt
  */
-package havlak.cfg;
+package havlak;
 
 import java.util.ArrayList;
 import java.util.HashMap;

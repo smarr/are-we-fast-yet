@@ -21,12 +21,10 @@
  *
  * @author rhundt
  */
-package havlak.lsg;
+package havlak;
 
 import java.util.HashSet;
 import java.util.Set;
-
-import havlak.cfg.BasicBlock;
 
 /**
  * class SimpleLoop

@@ -13,16 +13,10 @@
 // limitations under the License.
 package havlak;
 
-import havlak.cfg.BasicBlock;
-import havlak.cfg.BasicBlockEdge;
-import havlak.cfg.CFG;
-import havlak.havlakloopfinder.HavlakLoopFinder;
-import havlak.lsg.LSG;
-
 class LoopTesterApp {
   public LoopTesterApp() {
     cfg = new CFG();
-    lsg = new LSG();
+    lsg = new LoopStructureGraph();
     root = cfg.createNode(0);
   }
 
@@ -121,7 +115,7 @@ class LoopTesterApp {
     System.out.println("Another 50 iterations...");
     for (int i = 0; i < 50; i++) {
       System.out.format(".");
-      HavlakLoopFinder finder2 = new HavlakLoopFinder(app.cfg, new LSG());
+      HavlakLoopFinder finder2 = new HavlakLoopFinder(app.cfg, new LoopStructureGraph());
       finder2.findLoops();
     }
 
@@ -137,6 +131,6 @@ class LoopTesterApp {
   }
 
   public  CFG        cfg;
-  private final LSG        lsg;
+  private final LoopStructureGraph        lsg;
   private final BasicBlock root;
 }

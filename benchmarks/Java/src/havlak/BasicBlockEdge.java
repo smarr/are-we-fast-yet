@@ -18,7 +18,7 @@
  *
  * @author rhundt
  */
-package havlak.cfg;
+package havlak;
 
 /**
  * class BasicBlockEdga

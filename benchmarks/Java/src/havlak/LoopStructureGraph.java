@@ -21,7 +21,7 @@
  *
  * @author rhundt
  */
-package havlak.lsg;
+package havlak;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,8 +41,8 @@ import java.util.List;
  *   loop-3    1                1
  *     loop-2  0                2
  */
-public class LSG {
-  public LSG() {
+public class LoopStructureGraph {
+  public LoopStructureGraph() {
     loopCounter = 0;
     loops = new ArrayList<SimpleLoop>();
     root = new SimpleLoop();

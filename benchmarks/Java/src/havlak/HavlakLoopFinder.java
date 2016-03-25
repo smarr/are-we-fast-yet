@@ -21,7 +21,7 @@
  *
  * @author rhundt
  */
-package havlak.havlakloopfinder;
+package havlak;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,11 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import havlak.cfg.BasicBlock;
-import havlak.cfg.CFG;
-import havlak.lsg.LSG;
-import havlak.lsg.SimpleLoop;
-
 /**
  * class HavlakLoopFinder
  *
@@ -43,7 +38,7 @@ import havlak.lsg.SimpleLoop;
  */
 public class HavlakLoopFinder {
 
-  public HavlakLoopFinder(final CFG cfg, final LSG lsg) {
+  public HavlakLoopFinder(final CFG cfg, final LoopStructureGraph lsg) {
     this.cfg = cfg;
     this.lsg = lsg;
   }
@@ -438,7 +433,7 @@ public class HavlakLoopFinder {
   }  // findLoops
 
   private final CFG cfg;      // Control Flow Graph
-  private final LSG lsg;      // Loop Structure Graph
+  private final LoopStructureGraph lsg;      // Loop Structure Graph
 
   private static long maxMillis = 0;
   private static long minMillis = Integer.MAX_VALUE;
