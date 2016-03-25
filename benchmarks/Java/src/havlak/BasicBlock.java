@@ -28,6 +28,10 @@ public class BasicBlock {
 
   static int numBasicBlocks = 0;
 
+  public static void resetNumBasicBlocks() {
+    System.out.println("REMOVE!!! resetNumBasicBlocks()");
+    numBasicBlocks = 0;
+  }
   public static int getNumBasicBlocks() {
     return numBasicBlocks;
   }

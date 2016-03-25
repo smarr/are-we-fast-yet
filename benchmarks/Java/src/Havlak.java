@@ -25,14 +25,12 @@ public final class Havlak extends Benchmark {
 
   @Override
   public Object benchmark() {
-    LoopTesterApp.main(null);
-    return null;
+    return LoopTesterApp.main(null);
   }
 
   @Override
   public boolean verifyResult(final Object result) {
-    // TODO Auto-generated method stub
-    return false;
+    int[] r = (int[]) result;
+    return r[0] == 52602 && r[1] == 25213;
   }
-
 }

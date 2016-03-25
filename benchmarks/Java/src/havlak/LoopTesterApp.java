@@ -60,7 +60,7 @@ public class LoopTesterApp {
     return footer;
   }
 
-  public static void main(final String[] args) {
+  public static int[] main(final String[] args) {
     System.out.println("Welcome to LoopTesterApp, Java edition");
 
     // Constructing App
@@ -111,6 +111,10 @@ public class LoopTesterApp {
     }
 
     app.lsg.calculateNestingLevel();
+
+    int numBasicBlocks = BasicBlock.getNumBasicBlocks();
+    BasicBlock.resetNumBasicBlocks();
+    return new int[] { app.lsg.getNumLoops(), numBasicBlocks };
   }
 
   public  ControlFlowGraph        cfg;
