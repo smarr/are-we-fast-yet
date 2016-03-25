@@ -25,7 +25,7 @@ public final class Havlak extends Benchmark {
 
   @Override
   public Object benchmark() {
-    return LoopTesterApp.main(null);
+    return LoopTesterApp.main(15000, 50, 10 /* was 100 */, 10, 25);
   }
 
   @Override

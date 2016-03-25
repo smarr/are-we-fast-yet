@@ -60,54 +60,21 @@ public class LoopTesterApp {
     return footer;
   }
 
-  public static int[] main(final String[] args) {
-    System.out.println("Welcome to LoopTesterApp, Java edition");
-
+  public static int[] main(final int numDummyLoops, final int findLoopIteration,
+      final int parLoops, final int pparLoops, final int ppparLoops) {
     // Constructing App
     LoopTesterApp app = new LoopTesterApp();
+    app.constructSimpleCFG();
 
-    // Constructing Simple CFG
-    app.cfg.createNode(0);
-    app.buildBaseLoop(0);
-    app.cfg.createNode(1);
-    new BasicBlockEdge(app.cfg, 0, 2);
-
-    // 15000 dummy loops
-    for (int dummyloop = 0; dummyloop < 15000; dummyloop++) {
-      HavlakLoopFinder finder = new HavlakLoopFinder(app.cfg, app.lsg);
-      finder.findLoops();
-    }
+    app.addDummyLoops(numDummyLoops);
 
     // Constructing CFG...
-    int n = 2;
+    app.constructCFG(parLoops, pparLoops, ppparLoops);
 
-    for (int parlooptrees = 0; parlooptrees < 10; parlooptrees++) {
-      app.cfg.createNode(n + 1);
-      app.buildConnect(2, n + 1);
-      n = n + 1;
-
-      for (int i = 0; i < 10; i++) { // 10 used to be 100
-        int top = n;
-        n = app.buildStraight(n, 1);
-        for (int j = 0; j < 25; j++) {
-          n = app.buildBaseLoop(n);
-        }
-        int bottom = app.buildStraight(n, 1);
-        app.buildConnect(n, top);
-        n = bottom;
-      }
-      app.buildConnect(n, 1);
-    }
-
-    // Performing Loop Recognition, 1 Iteration
-    HavlakLoopFinder finder = new HavlakLoopFinder(app.cfg, app.lsg);
-    finder.findLoops();
-
-    // Another 50 iterations...
-    for (int i = 0; i < 50; i++) {
-      System.out.format(".");
-      HavlakLoopFinder finder2 = new HavlakLoopFinder(app.cfg, new LoopStructureGraph());
-      finder2.findLoops();
+    // Performing Loop Recognition, 1 Iteration, then findLoopIteration
+    app.findLoops(app.lsg);
+    for (int i = 0; i < findLoopIteration; i++) {
+      app.findLoops(new LoopStructureGraph());
     }
 
     app.lsg.calculateNestingLevel();
@@ -117,7 +84,49 @@ public class LoopTesterApp {
     return new int[] { app.lsg.getNumLoops(), numBasicBlocks };
   }
 
-  public  ControlFlowGraph        cfg;
-  private final LoopStructureGraph        lsg;
+  void constructCFG(final int parLoops, final int pparLoops,
+      final int ppparLoops) {
+    int n = 2;
+
+    for (int parlooptrees = 0; parlooptrees < parLoops; parlooptrees++) {
+      cfg.createNode(n + 1);
+      buildConnect(2, n + 1);
+      n = n + 1;
+
+      for (int i = 0; i < pparLoops; i++) {
+        int top = n;
+        n = buildStraight(n, 1);
+        for (int j = 0; j < ppparLoops; j++) {
+          n = buildBaseLoop(n);
+        }
+        int bottom = buildStraight(n, 1);
+        buildConnect(n, top);
+        n = bottom;
+      }
+      buildConnect(n, 1);
+    }
+  }
+
+  void addDummyLoops(final int numDummyLoops) {
+    for (int dummyloop = 0; dummyloop < numDummyLoops; dummyloop++) {
+      HavlakLoopFinder finder = new HavlakLoopFinder(cfg, lsg);
+      finder.findLoops();
+    }
+  }
+
+  void findLoops(final LoopStructureGraph loopStructure) {
+    HavlakLoopFinder finder = new HavlakLoopFinder(cfg, loopStructure);
+    finder.findLoops();
+  }
+
+  void constructSimpleCFG() {
+    cfg.createNode(0);
+    buildBaseLoop(0);
+    cfg.createNode(1);
+    new BasicBlockEdge(cfg, 0, 2);
+  }
+
+  public  final ControlFlowGraph   cfg;
+  private final LoopStructureGraph lsg;
   private final BasicBlock root;
 }
