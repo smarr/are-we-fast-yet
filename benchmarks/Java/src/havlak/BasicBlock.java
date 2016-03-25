@@ -35,23 +35,6 @@ final class BasicBlock {
     outEdges  = new ArrayList<BasicBlock>();
   }
 
-  public void dump() {
-    System.out.format("BB#%03d: ", getName());
-    if (inEdges.size() > 0) {
-      System.out.format("in : ");
-      for (BasicBlock bb : inEdges) {
-        System.out.format("BB#%03d ", bb.getName());
-      }
-    }
-    if (outEdges.size() > 0) {
-      System.out.format("out: ");
-      for (BasicBlock bb : outEdges) {
-        System.out.format("BB#%03d ", bb.getName());
-      }
-    }
-    System.out.println();
-  }
-
   public int getName() {
     return name;
   }

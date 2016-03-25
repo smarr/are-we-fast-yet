@@ -56,12 +56,6 @@ final class ControlFlowGraph {
     return node;
   }
 
-  public void dump() {
-    for (BasicBlock bb : basicBlockMap.values()) {
-      bb.dump();
-    }
-  }
-
   public void addEdge(final BasicBlockEdge edge) {
     edgeList.add(edge);
   }
