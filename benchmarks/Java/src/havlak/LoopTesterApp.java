@@ -93,7 +93,7 @@ public class LoopTesterApp {
       app.buildConnect(2, n + 1);
       n = n + 1;
 
-      for (int i = 0; i < 100; i++) {
+      for (int i = 0; i < 10; i++) { // 10 used to be 100
         int top = n;
         n = app.buildStraight(n, 1);
         for (int j = 0; j < 25; j++) {
