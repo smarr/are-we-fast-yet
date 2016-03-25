@@ -23,8 +23,7 @@
  */
 package havlak;
 
-import java.util.HashSet;
-import java.util.Set;
+import som.IdentitySet;
 
 /**
  * class SimpleLoop
@@ -39,8 +38,8 @@ import java.util.Set;
  */
 final class SimpleLoop {
 
-  private final Set<BasicBlock> basicBlocks;
-  private final Set<SimpleLoop> children;
+  private final IdentitySet<BasicBlock> basicBlocks;
+  private final IdentitySet<SimpleLoop> children;
   private SimpleLoop            parent;
 
   @SuppressWarnings("unused") private final BasicBlock header;
@@ -57,8 +56,8 @@ final class SimpleLoop {
     isRoot = false;
     nestingLevel = 0;
     depthLevel   = 0;
-    basicBlocks  = new HashSet<BasicBlock>();
-    children     = new HashSet<SimpleLoop>();
+    basicBlocks  = new IdentitySet<>();
+    children     = new IdentitySet<>();
 
     if (bb != null) {
       basicBlocks.add(bb);
@@ -75,7 +74,7 @@ final class SimpleLoop {
   }
 
   // Getters/Setters
-  Set<SimpleLoop> getChildren() {
+  IdentitySet<SimpleLoop> getChildren() {
     return children;
   }
 

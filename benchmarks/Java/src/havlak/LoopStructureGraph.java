@@ -34,9 +34,9 @@ import som.Vector;
  */
 final class LoopStructureGraph {
 
-  private final SimpleLoop       root;
+  private final SimpleLoop         root;
   private final Vector<SimpleLoop> loops;
-  private int              loopCounter;
+  private int                      loopCounter;
 
   LoopStructureGraph() {
     loopCounter = 0;
@@ -73,12 +73,12 @@ final class LoopStructureGraph {
 
   void calculateNestingLevelRec(final SimpleLoop loop, final int depth) {
     loop.setDepthLevel(depth);
-    for (SimpleLoop liter : loop.getChildren()) {
+    loop.getChildren().forEach(liter -> {
       calculateNestingLevelRec(liter, depth + 1);
 
       loop.setNestingLevel(Math.max(loop.getNestingLevel(),
                                     1 + liter.getNestingLevel()));
-    }
+    });
   }
 
   int getNumLoops() {
