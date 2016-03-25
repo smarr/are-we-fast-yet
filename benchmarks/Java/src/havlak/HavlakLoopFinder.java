@@ -38,7 +38,7 @@ import java.util.Set;
  */
 public class HavlakLoopFinder {
 
-  public HavlakLoopFinder(final CFG cfg, final LoopStructureGraph lsg) {
+  public HavlakLoopFinder(final ControlFlowGraph cfg, final LoopStructureGraph lsg) {
     this.cfg = cfg;
     this.lsg = lsg;
   }
@@ -432,7 +432,7 @@ public class HavlakLoopFinder {
     }
   }  // findLoops
 
-  private final CFG cfg;      // Control Flow Graph
+  private final ControlFlowGraph cfg;      // Control Flow Graph
   private final LoopStructureGraph lsg;      // Loop Structure Graph
 
   private static long maxMillis = 0;

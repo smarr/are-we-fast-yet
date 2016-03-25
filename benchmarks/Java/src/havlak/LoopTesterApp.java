@@ -15,7 +15,7 @@ package havlak;
 
 class LoopTesterApp {
   public LoopTesterApp() {
-    cfg = new CFG();
+    cfg = new ControlFlowGraph();
     lsg = new LoopStructureGraph();
     root = cfg.createNode(0);
   }
@@ -130,7 +130,7 @@ class LoopTesterApp {
     //app.lsg.Dump();
   }
 
-  public  CFG        cfg;
+  public  ControlFlowGraph        cfg;
   private final LoopStructureGraph        lsg;
   private final BasicBlock root;
 }

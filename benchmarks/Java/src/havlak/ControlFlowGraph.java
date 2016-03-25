@@ -32,8 +32,8 @@ import java.util.Map;
  * CFG maintains a list of nodes, plus a start node.
  * That's it.
  */
-public class CFG {
-  public CFG() {
+public class ControlFlowGraph {
+  public ControlFlowGraph() {
     startNode = null;
     basicBlockMap = new HashMap<Integer, BasicBlock>();
     edgeList = new ArrayList<BasicBlockEdge>();
