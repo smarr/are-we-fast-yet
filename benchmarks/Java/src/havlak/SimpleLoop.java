@@ -39,10 +39,10 @@ import java.util.Set;
  */
 final class SimpleLoop {
 
-  private final Set<BasicBlock>        basicBlocks;
-  private final Set<SimpleLoop>        children;
-  private SimpleLoop             parent;
   private BasicBlock             header;
+  private final Set<BasicBlock> basicBlocks;
+  private final Set<SimpleLoop> children;
+  private SimpleLoop            parent;
 
   private boolean      isRoot;
   private boolean      isReducible;
@@ -96,21 +96,27 @@ final class SimpleLoop {
   public Set<SimpleLoop> getChildren() {
     return children;
   }
-  public SimpleLoop   getParent() {
+
+  public SimpleLoop getParent() {
     return parent;
   }
-  public int          getNestingLevel(){
+
+  public int getNestingLevel(){
     return nestingLevel;
   }
-  public int          getDepthLevel() {
+
+  public int getDepthLevel() {
     return depthLevel;
   }
-  public int          getCounter() {
+
+  public int getCounter() {
     return counter;
   }
-  public boolean      isRoot() {   // Note: fct and var are same!
+
+  public boolean isRoot() {   // Note: fct and var are same!
     return isRoot;
   }
+
   public void setParent(final SimpleLoop parent) {
     this.parent = parent;
     this.parent.addChildLoop(this);
@@ -119,18 +125,22 @@ final class SimpleLoop {
     basicBlocks.add(bb);
     header = bb;
   }
+
   public void setIsRoot() {
     isRoot = true;
   }
+
   public void setCounter(final int value) {
     counter = value;
   }
+
   public void setNestingLevel(final int level) {
     nestingLevel = level;
     if (level == 0) {
       setIsRoot();
     }
   }
+
   public void setDepthLevel(final int level) {
     depthLevel = level;
   }

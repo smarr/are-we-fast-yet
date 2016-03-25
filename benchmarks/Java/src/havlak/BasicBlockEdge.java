@@ -42,6 +42,6 @@ final class BasicBlockEdge {
     cfg.addEdge(this);
   }
 
-  public  BasicBlock getSrc() { return from; }
-  public  BasicBlock getDst() { return to; }
+  public BasicBlock getSrc() { return from; }
+  public BasicBlock getDst() { return to; }
 }

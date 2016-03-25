@@ -99,6 +99,7 @@ final class LoopStructureGraph {
   public int getNumLoops() {
     return loops.size();
   }
+
   public SimpleLoop getRoot() {
     return root;
   }

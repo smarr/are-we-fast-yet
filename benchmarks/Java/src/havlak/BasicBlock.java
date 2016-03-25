@@ -59,6 +59,7 @@ final class BasicBlock {
   public List<BasicBlock> getInEdges() {
     return inEdges;
   }
+
   public List<BasicBlock> getOutEdges() {
     return outEdges;
   }
@@ -66,6 +67,7 @@ final class BasicBlock {
   public int getNumPred() {
     return inEdges.size();
   }
+
   public int getNumSucc() {
     return outEdges.size();
   }
@@ -73,6 +75,7 @@ final class BasicBlock {
   public void addOutEdge(final BasicBlock to) {
     outEdges.add(to);
   }
+
   public void addInEdge(final BasicBlock from) {
     inEdges.add(from);
   }
