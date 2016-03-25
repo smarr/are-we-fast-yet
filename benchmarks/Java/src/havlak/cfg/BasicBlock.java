@@ -11,22 +11,18 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+package havlak.cfg;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple class simulating the concept of Basic Blocks
  *
- * @author rhundt
- */
-
-package cfg;
-
-import java.util.*;
-
-/**
- * class BasicBlock
- *
  * BasicBlock only maintains a vector of in-edges and
  * a vector of out-edges.
+ *
+ * @author rhundt
  */
 public class BasicBlock {
 
@@ -36,7 +32,7 @@ public class BasicBlock {
     return numBasicBlocks;
   }
 
-  public BasicBlock(int name) {
+  public BasicBlock(final int name) {
     this.name = name;
     inEdges   = new ArrayList<BasicBlock>();
     outEdges  = new ArrayList<BasicBlock>();
@@ -78,13 +74,13 @@ public class BasicBlock {
     return outEdges.size();
   }
 
-  public void addOutEdge(BasicBlock to) {
+  public void addOutEdge(final BasicBlock to) {
     outEdges.add(to);
   }
-  public void addInEdge(BasicBlock from) {
+  public void addInEdge(final BasicBlock from) {
     inEdges.add(from);
   }
 
-  private List<BasicBlock> inEdges, outEdges;
-  private int name;
+  private final List<BasicBlock> inEdges, outEdges;
+  private final int name;
 };

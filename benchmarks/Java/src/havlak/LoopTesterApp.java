@@ -11,25 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+package havlak;
 
-//======================================================
-// Test Code
-//======================================================
-
-/**
- * Test Program for the Havlak loop finder.
- *
- * This program constructs a fairly large control flow
- * graph and performs loop recognition. This is the Java
- * version.
- *
- * @author rhundt
- */
-import cfg.BasicBlock;
-import cfg.BasicBlockEdge;
-import cfg.CFG;
-import havlakloopfinder.HavlakLoopFinder;
-import lsg.LSG;
+import havlak.cfg.BasicBlock;
+import havlak.cfg.BasicBlockEdge;
+import havlak.cfg.CFG;
+import havlak.havlakloopfinder.HavlakLoopFinder;
+import havlak.lsg.LSG;
 
 class LoopTesterApp {
   public LoopTesterApp() {
@@ -40,7 +28,7 @@ class LoopTesterApp {
 
   // Create 4 basic blocks, corresponding to and if/then/else clause
   // with a CFG that looks like a diamond
-  public int buildDiamond(int start) {
+  public int buildDiamond(final int start) {
     int bb0 = start;
     new BasicBlockEdge(cfg, bb0, bb0 + 1);
     new BasicBlockEdge(cfg, bb0, bb0 + 2);
@@ -51,12 +39,12 @@ class LoopTesterApp {
   }
 
   // Connect two existing nodes
-  public void buildConnect(int start, int end) {
+  public void buildConnect(final int start, final int end) {
     new BasicBlockEdge(cfg, start, end);
   }
 
   // Form a straight connected sequence of n basic blocks
-  public int buildStraight(int start, int n) {
+  public int buildStraight(final int start, final int n) {
     for (int i = 0; i < n; i++) {
       buildConnect(start + i, start + i + 1);
     }
@@ -64,7 +52,7 @@ class LoopTesterApp {
   }
 
   // Construct a simple loop with two diamonds in it
-  public int buildBaseLoop(int from) {
+  public int buildBaseLoop(final int from) {
     int header = buildStraight(from, 1);
     int diamond1 = buildDiamond(header);
     int d11 = buildStraight(diamond1, 1);
@@ -84,7 +72,7 @@ class LoopTesterApp {
     System.out.println("  Total Memory: " + val + " KB");
   }
 
-  public static void main(String[] args) {
+  public static void main(final String[] args) {
     System.out.println("Welcome to LoopTesterApp, Java edition");
 
     System.out.println("Constructing App...");
@@ -149,6 +137,6 @@ class LoopTesterApp {
   }
 
   public  CFG        cfg;
-  private LSG        lsg;
-  private BasicBlock root;
+  private final LSG        lsg;
+  private final BasicBlock root;
 }

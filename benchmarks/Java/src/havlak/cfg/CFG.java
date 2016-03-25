@@ -18,9 +18,12 @@
  *
  * @author rhundt
  */
-package cfg;
+package havlak.cfg;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -36,7 +39,7 @@ public class CFG {
     edgeList = new ArrayList<BasicBlockEdge>();
   }
 
-  public BasicBlock createNode(int name) {
+  public BasicBlock createNode(final int name) {
     BasicBlock node;
     if (!basicBlockMap.containsKey(name)) {
       node = new BasicBlock(name);
@@ -58,7 +61,7 @@ public class CFG {
     }
   }
 
-  public void addEdge(BasicBlockEdge edge) {
+  public void addEdge(final BasicBlockEdge edge) {
     edgeList.add(edge);
   }
 
@@ -70,11 +73,11 @@ public class CFG {
     return startNode;
   }
 
-  public BasicBlock getDst(BasicBlockEdge edge) {
+  public BasicBlock getDst(final BasicBlockEdge edge) {
     return edge.getDst();
   }
 
-  public BasicBlock getSrc(BasicBlockEdge edge) {
+  public BasicBlock getSrc(final BasicBlockEdge edge) {
     return edge.getSrc();
   }
 
@@ -82,7 +85,7 @@ public class CFG {
     return basicBlockMap;
   }
 
-  private Map<Integer, BasicBlock>  basicBlockMap;
+  private final Map<Integer, BasicBlock>  basicBlockMap;
   private BasicBlock                startNode;
-  private List<BasicBlockEdge>      edgeList;
+  private final List<BasicBlockEdge>      edgeList;
 };

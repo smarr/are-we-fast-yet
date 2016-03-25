@@ -18,7 +18,7 @@
  *
  * @author rhundt
  */
-package cfg;
+package havlak.cfg;
 
 /**
  * class BasicBlockEdga
@@ -29,7 +29,7 @@ package cfg;
  * BasicBlockEdge only maintains two pointers to BasicBlocks.
  */
 public class BasicBlockEdge {
-  public BasicBlockEdge(CFG cfg, int fromName, int toName) {
+  public BasicBlockEdge(final CFG cfg, final int fromName, final int toName) {
     from = cfg.createNode(fromName);
     to   = cfg.createNode(toName);
 
@@ -42,5 +42,5 @@ public class BasicBlockEdge {
   public  BasicBlock getSrc() { return from; }
   public  BasicBlock getDst() { return to; }
 
-  private BasicBlock from, to;
+  private final BasicBlock from, to;
 };

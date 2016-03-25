@@ -21,10 +21,10 @@
  *
  * @author rhundt
  */
-package lsg;
+package havlak.lsg;
 
-import cfg.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * LoopStructureGraph
@@ -57,7 +57,7 @@ public class LSG {
     return loop;
   }
 
-  public void addLoop(SimpleLoop loop) {
+  public void addLoop(final SimpleLoop loop) {
     loops.add(loop);
   }
 
@@ -65,12 +65,13 @@ public class LSG {
     dumpRec(root, 0);
   }
 
-  private void dumpRec(SimpleLoop loop, int indent) {
+  private void dumpRec(final SimpleLoop loop, final int indent) {
     // Simplified for readability purposes.
     loop.dump(indent);
 
-    for (SimpleLoop liter : loop.getChildren())
+    for (SimpleLoop liter : loop.getChildren()) {
       dumpRec(liter,  indent + 1);
+    }
   }
 
   public void calculateNestingLevel() {
@@ -88,7 +89,7 @@ public class LSG {
     calculateNestingLevelRec(root, 0);
   }
 
-  public void calculateNestingLevelRec(SimpleLoop loop, int depth) {
+  public void calculateNestingLevelRec(final SimpleLoop loop, final int depth) {
     loop.setDepthLevel(depth);
     for (SimpleLoop liter : loop.getChildren()) {
       calculateNestingLevelRec(liter, depth + 1);
@@ -105,7 +106,7 @@ public class LSG {
     return root;
   }
 
-  private SimpleLoop       root;
-  private List<SimpleLoop> loops;
+  private final SimpleLoop       root;
+  private final List<SimpleLoop> loops;
   private int              loopCounter;
 };

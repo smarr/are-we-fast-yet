@@ -21,11 +21,12 @@
  *
  * @author rhundt
  */
-package lsg;
+package havlak.lsg;
 
-import cfg.BasicBlock;
+import java.util.HashSet;
+import java.util.Set;
 
-import java.util.*;
+import havlak.cfg.BasicBlock;
 
 /**
  * class SimpleLoop
@@ -49,17 +50,18 @@ public class SimpleLoop {
     children     = new HashSet<SimpleLoop>();
   }
 
-  public void addNode(BasicBlock bb) {
+  public void addNode(final BasicBlock bb) {
     basicBlocks.add(bb);
   }
 
-  public void addChildLoop(SimpleLoop loop) {
+  public void addChildLoop(final SimpleLoop loop) {
     children.add(loop);
   }
 
-  public void dump(int indent) {
-    for (int i = 0; i < indent; i++)
+  public void dump(final int indent) {
+    for (int i = 0; i < indent; i++) {
       System.out.format("  ");
+    }
 
     System.out.format("loop-%d nest: %d depth %d %s",
                       counter, nestingLevel, depthLevel,
@@ -99,35 +101,35 @@ public class SimpleLoop {
   public boolean      isRoot() {   // Note: fct and var are same!
     return isRoot;
   }
-  public void setParent(SimpleLoop parent) {
+  public void setParent(final SimpleLoop parent) {
     this.parent = parent;
     this.parent.addChildLoop(this);
   }
-  public void setHeader(BasicBlock bb) {
+  public void setHeader(final BasicBlock bb) {
     basicBlocks.add(bb);
     header = bb;
   }
   public void setIsRoot() {
     isRoot = true;
   }
-  public void setCounter(int value) {
+  public void setCounter(final int value) {
     counter = value;
   }
-  public void setNestingLevel(int level) {
+  public void setNestingLevel(final int level) {
     nestingLevel = level;
     if (level == 0) {
       setIsRoot();
     }
   }
-  public void setDepthLevel(int level) {
+  public void setDepthLevel(final int level) {
     depthLevel = level;
   }
-  public void setIsReducible(boolean isReducible) {
+  public void setIsReducible(final boolean isReducible) {
     this.isReducible = isReducible;
   }
 
-  private Set<BasicBlock>        basicBlocks;
-  private Set<SimpleLoop>        children;
+  private final Set<BasicBlock>        basicBlocks;
+  private final Set<SimpleLoop>        children;
   private SimpleLoop             parent;
   private BasicBlock             header;
 

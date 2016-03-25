@@ -21,15 +21,20 @@
  *
  * @author rhundt
  */
-package havlakloopfinder;
+package havlak.havlakloopfinder;
 
-import cfg.BasicBlock;
-import cfg.CFG;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import lsg.LSG;
-import lsg.SimpleLoop;
-
-import java.util.*;
+import havlak.cfg.BasicBlock;
+import havlak.cfg.CFG;
+import havlak.lsg.LSG;
+import havlak.lsg.SimpleLoop;
 
 /**
  * class HavlakLoopFinder
@@ -38,7 +43,7 @@ import java.util.*;
  */
 public class HavlakLoopFinder {
 
-  public HavlakLoopFinder(CFG cfg, LSG lsg) {
+  public HavlakLoopFinder(final CFG cfg, final LSG lsg) {
     this.cfg = cfg;
     this.lsg = lsg;
   }
@@ -82,7 +87,7 @@ public class HavlakLoopFinder {
 
     // Initialize this node.
     //
-    public void initNode(BasicBlock bb, int dfsNumber) {
+    public void initNode(final BasicBlock bb, final int dfsNumber) {
       this.parent     = this;
       this.bb         = bb;
       this.dfsNumber  = dfsNumber;
@@ -108,8 +113,9 @@ public class HavlakLoopFinder {
       }
 
       // Path Compression, all nodes' parents point to the 1st level parent.
-      for (UnionFindNode iter : nodeList)
+      for (UnionFindNode iter : nodeList) {
         iter.setParent(node.getParent());
+      }
       return node;
     }
 
@@ -118,7 +124,7 @@ public class HavlakLoopFinder {
     // Trivial. Assigning parent pointer is enough,
     // we rely on path compression.
     //
-    void union(UnionFindNode basicBlock) {
+    void union(final UnionFindNode basicBlock) {
       setParent(basicBlock);
     }
 
@@ -137,10 +143,10 @@ public class HavlakLoopFinder {
       return dfsNumber;
     }
 
-    void          setParent(UnionFindNode parent) {
+    void          setParent(final UnionFindNode parent) {
       this.parent = parent;
     }
-    void          setLoop(SimpleLoop loop) {
+    void          setLoop(final SimpleLoop loop) {
       this.loop = loop;
     }
 
@@ -169,7 +175,7 @@ public class HavlakLoopFinder {
   // for depth-first spanning trees. This is why DFS is the first
   // thing we run below.
   //
-  boolean isAncestor(int w, int v, int[] last) {
+  boolean isAncestor(final int w, final int v, final int[] last) {
     return ((w <= v) && (v <= last[w]));
   }
 
@@ -179,10 +185,10 @@ public class HavlakLoopFinder {
   // DESCRIPTION:
   // Simple depth first traversal along out edges with node numbering.
   //
-  int doDFS(BasicBlock             currentNode,
-            UnionFindNode[]          nodes,
-            Map<BasicBlock, Integer> number,
-            int[]                    last,
+  int doDFS(final BasicBlock             currentNode,
+            final UnionFindNode[]          nodes,
+            final Map<BasicBlock, Integer> number,
+            final int[]                    last,
             final int current) {
     nodes[current].initNode(currentNode, current);
     number.put(currentNode, current);
@@ -332,8 +338,9 @@ public class HavlakLoopFinder {
       // Copy nodePool to workList.
       //
       LinkedList<UnionFindNode> workList = new LinkedList<UnionFindNode>();
-      for (UnionFindNode niter : nodePool)
+      for (UnionFindNode niter : nodePool) {
         workList.add(niter);
+      }
 
       if (nodePool.size() != 0) {
         type[w] = BasicBlockClass.BB_REDUCIBLE;
@@ -430,8 +437,8 @@ public class HavlakLoopFinder {
     }
   }  // findLoops
 
-  private CFG cfg;      // Control Flow Graph
-  private LSG lsg;      // Loop Structure Graph
+  private final CFG cfg;      // Control Flow Graph
+  private final LSG lsg;      // Loop Structure Graph
 
   private static long maxMillis = 0;
   private static long minMillis = Integer.MAX_VALUE;
