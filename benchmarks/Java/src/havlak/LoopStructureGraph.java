@@ -58,19 +58,6 @@ final class LoopStructureGraph {
     loops.add(loop);
   }
 
-  public void dump() {
-    dumpRec(root, 0);
-  }
-
-  private void dumpRec(final SimpleLoop loop, final int indent) {
-    // Simplified for readability purposes.
-    loop.dump(indent);
-
-    for (SimpleLoop liter : loop.getChildren()) {
-      dumpRec(liter,  indent + 1);
-    }
-  }
-
   public void calculateNestingLevel() {
     // link up all 1st level loops to artificial root node.
     for (SimpleLoop liter : loops) {

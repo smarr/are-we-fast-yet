@@ -68,30 +68,6 @@ final class SimpleLoop {
     children.add(loop);
   }
 
-  public void dump(final int indent) {
-    for (int i = 0; i < indent; i++) {
-      System.out.format("  ");
-    }
-
-    System.out.format("loop-%d nest: %d depth %d %s",
-                      counter, nestingLevel, depthLevel,
-                      isReducible ? "" : "(Irreducible) ");
-    if (!getChildren().isEmpty()) {
-      System.out.format("Children: ");
-      for (SimpleLoop loop : getChildren()) {
-        System.out.format("loop-%d ", loop.getCounter());
-      }
-    }
-    if (!basicBlocks.isEmpty()) {
-      System.out.format("(");
-      for (BasicBlock bb : basicBlocks) {
-        System.out.format("BB#%d%s", bb.getName(), header == bb ? "* " : " ");
-      }
-      System.out.format("\b)");
-    }
-    System.out.format("\n");
-  }
-
   // Getters/Setters
   public Set<SimpleLoop> getChildren() {
     return children;
