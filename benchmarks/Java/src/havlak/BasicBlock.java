@@ -13,8 +13,7 @@
 // limitations under the License.
 package havlak;
 
-import java.util.ArrayList;
-import java.util.List;
+import som.Vector;
 
 /**
  * A simple class simulating the concept of Basic Blocks
@@ -26,24 +25,24 @@ import java.util.List;
  */
 final class BasicBlock {
 
-  private final List<BasicBlock> inEdges, outEdges;
+  private final Vector<BasicBlock> inEdges, outEdges;
   private final int name;
 
   BasicBlock(final int name) {
     this.name = name;
-    inEdges   = new ArrayList<BasicBlock>();
-    outEdges  = new ArrayList<BasicBlock>();
+    inEdges   = new Vector<BasicBlock>(2);
+    outEdges  = new Vector<BasicBlock>(2);
   }
 
   int getName() {
     return name;
   }
 
-  List<BasicBlock> getInEdges() {
+  Vector<BasicBlock> getInEdges() {
     return inEdges;
   }
 
-  List<BasicBlock> getOutEdges() {
+  Vector<BasicBlock> getOutEdges() {
     return outEdges;
   }
 
@@ -56,10 +55,10 @@ final class BasicBlock {
   }
 
   void addOutEdge(final BasicBlock to) {
-    outEdges.add(to);
+    outEdges.append(to);
   }
 
   void addInEdge(final BasicBlock from) {
-    inEdges.add(from);
+    inEdges.append(from);
   }
 }

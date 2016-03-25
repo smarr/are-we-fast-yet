@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import som.Vector;
+
 /**
  * The Havlak loop finding algorithm.
  *
@@ -98,13 +100,70 @@ final class HavlakLoopFinder {
     number.put(currentNode, current);
 
     int lastid = current;
-    for (BasicBlock target : currentNode.getOutEdges()) {
+    Vector<BasicBlock> outer = currentNode.getOutEdges();
+
+    for (int i = 0; i < outer.size(); i++) {
+      BasicBlock target = outer.at(i);
       if (number.get(target) == UNVISITED) {
         lastid = doDFS(target, nodes, number, last, lastid + 1);
       }
     }
+
     last[number.get(currentNode)] = lastid;
     return lastid;
+  }
+
+  private void initAllNodes() {
+    // Step a:
+    //   - initialize all nodes as unvisited.
+    //   - depth-first traversal and numbering.
+    //   - unreached BB's are marked as dead.
+    //
+    for (BasicBlock bbIter : cfg.getBasicBlocks().values()) {
+      number.put(bbIter, UNVISITED);
+    }
+
+    doDFS(cfg.getStartBasicBlock(), nodes, number, last, 0);
+  }
+
+  private void identifyEdges(final int size) {
+    // Step b:
+    //   - iterate over all nodes.
+    //
+    //   A backedge comes from a descendant in the DFS tree, and non-backedges
+    //   from non-descendants (following Tarjan).
+    //
+    //   - check incoming edges 'v' and add them to either
+    //     - the list of backedges (backPreds) or
+    //     - the list of non-backedges (nonBackPreds)
+    //
+    for (int w = 0; w < size; w++) {
+      header[w] = 0;
+      type[w] = BasicBlockClass.BB_NONHEADER;
+
+      BasicBlock nodeW = nodes[w].getBb();
+      if (nodeW == null) {
+        type[w] = BasicBlockClass.BB_DEAD;
+        continue;  // dead BB
+      }
+      processEdges(nodeW, w);
+
+    }
+  }
+
+  private void processEdges(final BasicBlock nodeW, final int w) {
+    if (nodeW.getNumPred() > 0) {
+      nodeW.getInEdges().forEach(nodeV -> {
+        int v = number.get(nodeV);
+        if (v != UNVISITED) {
+          if (isAncestor(w, v, last)) {
+            backPreds.get(w).add(v);
+          } else {
+            nonBackPreds.get(w).add(v);
+          }
+        }
+      });
+    }
   }
 
   //
@@ -149,52 +208,8 @@ final class HavlakLoopFinder {
       nodes[i] = new UnionFindNode();
     }
 
-    // Step a:
-    //   - initialize all nodes as unvisited.
-    //   - depth-first traversal and numbering.
-    //   - unreached BB's are marked as dead.
-    //
-    for (BasicBlock bbIter : cfg.getBasicBlocks().values()) {
-      number.put(bbIter, UNVISITED);
-    }
-
-    doDFS(cfg.getStartBasicBlock(), nodes, number, last, 0);
-
-    // Step b:
-    //   - iterate over all nodes.
-    //
-    //   A backedge comes from a descendant in the DFS tree, and non-backedges
-    //   from non-descendants (following Tarjan).
-    //
-    //   - check incoming edges 'v' and add them to either
-    //     - the list of backedges (backPreds) or
-    //     - the list of non-backedges (nonBackPreds)
-    //
-    for (int w = 0; w < size; w++) {
-      header[w] = 0;
-      type[w] = BasicBlockClass.BB_NONHEADER;
-
-      BasicBlock nodeW = nodes[w].getBb();
-      if (nodeW == null) {
-        type[w] = BasicBlockClass.BB_DEAD;
-        continue;  // dead BB
-      }
-
-      if (nodeW.getNumPred() > 0) {
-        for (BasicBlock nodeV : nodeW.getInEdges()) {
-          int v = number.get(nodeV);
-          if (v == UNVISITED) {
-            continue;  // dead node
-          }
-
-          if (isAncestor(w, v, last)) {
-            backPreds.get(w).add(v);
-          } else {
-            nonBackPreds.get(w).add(v);
-          }
-        }
-      }
-    }
+    initAllNodes();
+    identifyEdges(size);
 
     // Start node is root of all other loops.
     header[0] = 0;
