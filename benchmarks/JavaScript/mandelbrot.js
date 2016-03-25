@@ -1,5 +1,5 @@
-'use strict';
-
+// This benchmark is adapted to match the SOM version.
+//
 // Copyright © 2004-2013 Brent Fulgham
 //
 // All rights reserved.
@@ -40,6 +40,7 @@
 //  modified by Peter Zotov
 
 // http://benchmarksgame.alioth.debian.org/u64q/program.php?test=mandelbrot&lang=yarv&id=3
+'use strict';
 
 var benchmark = require('./benchmark.js');
 

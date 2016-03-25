@@ -1,3 +1,5 @@
+# Ported from Ruby to Crystal.
+#
 # Copyright © 2004-2013 Brent Fulgham
 #
 # All rights reserved.

@@ -1,3 +1,5 @@
+# Adapted based on SOM benchmark.
+#
 # Copyright © 2004-2013 Brent Fulgham
 #
 # All rights reserved.

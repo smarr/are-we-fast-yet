@@ -1,8 +1,5 @@
 "
-
-$Id: List.som 31 2009-07-31 12:25:18Z michael.haupt $
-
-Copyright (c) 2001-2013 see AUTHORS file
+Copyright (c) 2001-2016 see AUTHORS.md file
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the 'Software'), to deal
@@ -22,7 +19,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 "
-
 List = Benchmark (
 
   benchmark = ( | result |

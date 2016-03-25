@@ -1,3 +1,8 @@
+// The benchmark in its current state is a derivation from the SOM version,
+// which is derived from Mario Wolczko's Smalltalk version of DeltaBlue.
+//
+// The original license details are availble here:
+// http://web.archive.org/web/20050825101121/http://www.sunlabs.com/people/mario/java_benchmarking/index.html
 'use strict';
 
 var benchmark = require('./benchmark.js');

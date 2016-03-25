@@ -1,3 +1,10 @@
+"This benchmark is derived from Mario Wolczko's Smalltalk version of DeltaBlue.
+
+It is modified to use the SOM class library.
+License details:
+
+http://web.archive.org/web/20050825101121/http://www.sunlabs.com/people/mario/java_benchmarking/index.html
+"
 ScaleConstraint = BinaryConstraint (
   "I relate two variables by the linear scaling relationship:
   `v2 = (v1 * scale) + offset`. Either v1 or v2 may be changed to maintain

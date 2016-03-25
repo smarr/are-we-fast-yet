@@ -1,3 +1,10 @@
+// The Computer Language Benchmarks Game
+// http://shootout.alioth.debian.org/
+//
+//     contributed by Mark C. Lewis
+// modified slightly by Chad Whipkey
+//
+// Based on nbody.java ported to SOM, and then JavaScript by Stefan Marr.
 'use strict';
 
 var benchmark = require('./benchmark.js'),

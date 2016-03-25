@@ -5,6 +5,7 @@
   modified slightly by Chad Whipkey
   
   Based on nbody.java ported to SOM by Stefan Marr.
+  See LICENSE.md file.
 "
 NBodySystem = (
   | bodies |

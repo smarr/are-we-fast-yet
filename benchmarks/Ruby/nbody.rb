@@ -4,7 +4,7 @@
 #     contributed by Mark C. Lewis
 # modified slightly by Chad Whipkey
 #
-# Based on nbody.java ported to SOM by Stefan Marr.
+# Based on nbody.java ported to SOM and Ruby by Stefan Marr.
 PI            = 3.141592653589793
 SOLAR_MASS    = 4.0 * PI * PI
 DAYS_PER_YEAR = 365.24

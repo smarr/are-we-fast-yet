@@ -5,6 +5,7 @@
 # modified slightly by Chad Whipkey
 #
 # Based on nbody.java ported to SOM by Stefan Marr.
+# And then ported to Ruby, and later Crystal.
 require "./benchmark"
 
 PI            = 3.141592653589793

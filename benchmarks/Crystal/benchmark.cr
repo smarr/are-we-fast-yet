@@ -1,4 +1,6 @@
-# Copyright (c) 2015 Stefan Marr <git@stefan-marr.de>
+# This code is derived from the SOM benchmarks, see AUTHORS.md file.
+#
+# Copyright (c) 2015-2016 Stefan Marr <git@stefan-marr.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the 'Software'), to deal

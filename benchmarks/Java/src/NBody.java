@@ -1,3 +1,8 @@
+/* The Computer Language Benchmarks Game
+ * http://shootout.alioth.debian.org/
+ *
+ * Based on nbody.java and adapted basde on the SOM version.
+ */
 import nbody.NBodySystem;
 
 public final class NBody extends Benchmark {

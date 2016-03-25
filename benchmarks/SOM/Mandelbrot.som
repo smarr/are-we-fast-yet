@@ -2,6 +2,8 @@
   found with JRuby
   https://raw.githubusercontent.com/jruby/jruby/3e43676ee6dc3c13e70fe4a52cce685128c23b8e/bench/truffle/mandelbrot.rb
 
+  Since then it has been modified in a number of ways by Stefan Marr.
+
   The original copyright statement reads as follows:
 
 # Copyright © 2004-2013 Brent Fulgham
@@ -45,7 +47,6 @@
 # 
 # http://benchmarksgame.alioth.debian.org/u64q/program.php?test=mandelbrot&lang=yarv&id=3
 "
-
 Mandelbrot = Benchmark (
 
   innerBenchmarkLoop: innerIterations = ( 

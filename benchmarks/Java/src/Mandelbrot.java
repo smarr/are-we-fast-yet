@@ -1,3 +1,5 @@
+// This benchmark has been modified based on the SOM benchmark.
+// 
 // Copyright © 2004-2013 Brent Fulgham
 //
 // All rights reserved.

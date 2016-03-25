@@ -1,3 +1,13 @@
+# The benchmark in its current state is a derivation from the SOM version,
+# which is derived from Mario Wolczko's Smalltalk version of DeltaBlue.
+#
+# The original license details are availble here:
+# http://web.archive.org/web/20050825101121/http://www.sunlabs.com/people/mario/java_benchmarking/index.html
+
+# This file itself, and its souce control history is however based on the
+# following. It is unclear whether this still bears any relevance since the
+# nature of the code was essentially reverted back to the Smalltalk version.
+#
 # Derived from http://pws.prserv.net/dlissett/ben/bench1.htm
 # Licensed CC BY-NC-SA 1.0
 require "./benchmark"
