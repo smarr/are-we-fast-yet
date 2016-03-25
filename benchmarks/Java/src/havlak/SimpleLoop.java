@@ -42,10 +42,11 @@ final class SimpleLoop {
   private final Set<BasicBlock> basicBlocks;
   private final Set<SimpleLoop> children;
   private SimpleLoop            parent;
-  private final BasicBlock      header;
+
+  @SuppressWarnings("unused") private final BasicBlock header;
+  @SuppressWarnings("unused") private final boolean isReducible;
 
   private boolean      isRoot;
-  private final boolean isReducible;
   private int          counter;
   private int          nestingLevel;
   private int          depthLevel;
