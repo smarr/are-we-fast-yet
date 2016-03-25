@@ -34,6 +34,11 @@ import java.util.List;
  * @author rhundt
  */
 final class LoopStructureGraph {
+
+  private final SimpleLoop       root;
+  private final List<SimpleLoop> loops;
+  private int              loopCounter;
+
   public LoopStructureGraph() {
     loopCounter = 0;
     loops = new ArrayList<SimpleLoop>();
@@ -97,8 +102,4 @@ final class LoopStructureGraph {
   public SimpleLoop getRoot() {
     return root;
   }
-
-  private final SimpleLoop       root;
-  private final List<SimpleLoop> loops;
-  private int              loopCounter;
-};
+}

@@ -29,6 +29,11 @@ import java.util.Map;
  * @author rhundt
  */
 final class ControlFlowGraph {
+
+  private final Map<Integer, BasicBlock>  basicBlockMap;
+  private BasicBlock                startNode;
+  private final List<BasicBlockEdge>      edgeList;
+
   public ControlFlowGraph() {
     startNode = null;
     basicBlockMap = new HashMap<Integer, BasicBlock>();
@@ -80,8 +85,4 @@ final class ControlFlowGraph {
   public Map<Integer, BasicBlock> getBasicBlocks() {
     return basicBlockMap;
   }
-
-  private final Map<Integer, BasicBlock>  basicBlockMap;
-  private BasicBlock                startNode;
-  private final List<BasicBlockEdge>      edgeList;
-};
+}

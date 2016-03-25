@@ -26,6 +26,9 @@ import java.util.List;
  */
 final class BasicBlock {
 
+  private final List<BasicBlock> inEdges, outEdges;
+  private final int name;
+
   static int numBasicBlocks = 0;
 
   public static void resetNumBasicBlocks() {
@@ -84,7 +87,4 @@ final class BasicBlock {
   public void addInEdge(final BasicBlock from) {
     inEdges.add(from);
   }
-
-  private final List<BasicBlock> inEdges, outEdges;
-  private final int name;
-};
+}

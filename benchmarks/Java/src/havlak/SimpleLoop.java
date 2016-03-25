@@ -38,6 +38,18 @@ import java.util.Set;
  * a candidate for transformations, and what not.
  */
 final class SimpleLoop {
+
+  private final Set<BasicBlock>        basicBlocks;
+  private final Set<SimpleLoop>        children;
+  private SimpleLoop             parent;
+  private BasicBlock             header;
+
+  private boolean      isRoot;
+  private boolean      isReducible;
+  private int          counter;
+  private int          nestingLevel;
+  private int          depthLevel;
+
   public SimpleLoop() {
     parent = null;
     isRoot = false;
@@ -125,15 +137,4 @@ final class SimpleLoop {
   public void setIsReducible(final boolean isReducible) {
     this.isReducible = isReducible;
   }
-
-  private final Set<BasicBlock>        basicBlocks;
-  private final Set<SimpleLoop>        children;
-  private SimpleLoop             parent;
-  private BasicBlock             header;
-
-  private boolean      isRoot;
-  private boolean      isReducible;
-  private int          counter;
-  private int          nestingLevel;
-  private int          depthLevel;
-};
+}
