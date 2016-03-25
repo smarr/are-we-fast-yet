@@ -1,7 +1,6 @@
 package havlak;
 
-import java.util.ArrayList;
-import java.util.List;
+import som.Vector;
 
 
 /**
@@ -36,22 +35,23 @@ class UnionFindNode {
   // result in significant traversals).
   //
   UnionFindNode findSet() {
-
-    List<UnionFindNode> nodeList = new ArrayList<UnionFindNode>();
+    Vector<UnionFindNode> nodeList = new Vector<>();
 
     UnionFindNode node = this;
     while (node != node.getParent()) {
       if (node.getParent() != node.getParent().getParent()) {
-        nodeList.add(node);
+        nodeList.append(node);
       }
       node = node.getParent();
     }
 
-    // Path Compression, all nodes' parents point to the 1st level parent.
-    for (UnionFindNode iter : nodeList) {
-      iter.setParent(node.getParent());
-    }
+    setParent(nodeList, node.getParent());
     return node;
+  }
+
+  private void setParent(final Vector<UnionFindNode> nodeList, final UnionFindNode parent) {
+    // Path Compression, all nodes' parents point to the 1st level parent.
+    nodeList.forEach(iter -> iter.setParent(parent));
   }
 
   // Union/Find Algorithm - The union routine.

@@ -13,8 +13,7 @@
 // limitations under the License.
 package havlak;
 
-import java.util.ArrayList;
-import java.util.List;
+import som.Vector;
 
 /**
  * LoopStructureGraph
@@ -36,12 +35,12 @@ import java.util.List;
 final class LoopStructureGraph {
 
   private final SimpleLoop       root;
-  private final List<SimpleLoop> loops;
+  private final Vector<SimpleLoop> loops;
   private int              loopCounter;
 
   LoopStructureGraph() {
     loopCounter = 0;
-    loops = new ArrayList<SimpleLoop>();
+    loops = new Vector<>();
     root = new SimpleLoop(null, true);
     root.setNestingLevel(0);
     root.setCounter(loopCounter++);
@@ -55,19 +54,18 @@ final class LoopStructureGraph {
   }
 
   void addLoop(final SimpleLoop loop) {
-    loops.add(loop);
+    loops.append(loop);
   }
 
   void calculateNestingLevel() {
     // link up all 1st level loops to artificial root node.
-    for (SimpleLoop liter : loops) {
-      if (liter.isRoot()) {
-        continue;
+    loops.forEach(liter -> {
+      if (!liter.isRoot()) {
+        if (liter.getParent() == null) {
+          liter.setParent(root);
+        }
       }
-      if (liter.getParent() == null) {
-        liter.setParent(root);
-      }
-    }
+    });
 
     // recursively traverse the tree and assign levels.
     calculateNestingLevelRec(root, 0);

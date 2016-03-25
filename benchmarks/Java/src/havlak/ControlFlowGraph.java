@@ -13,10 +13,10 @@
 // limitations under the License.
 package havlak;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+import som.Vector;
 
 
 /**
@@ -32,12 +32,12 @@ final class ControlFlowGraph {
 
   private final Map<Integer, BasicBlock>  basicBlockMap;
   private BasicBlock                startNode;
-  private final List<BasicBlockEdge>      edgeList;
+  private final Vector<BasicBlockEdge> edgeList;
 
   ControlFlowGraph() {
     startNode = null;
     basicBlockMap = new HashMap<Integer, BasicBlock>();
-    edgeList = new ArrayList<BasicBlockEdge>();
+    edgeList = new Vector<>();
   }
 
   BasicBlock createNode(final int name) {
@@ -57,7 +57,7 @@ final class ControlFlowGraph {
   }
 
   void addEdge(final BasicBlockEdge edge) {
-    edgeList.add(edge);
+    edgeList.append(edge);
   }
 
   int getNumNodes() {
