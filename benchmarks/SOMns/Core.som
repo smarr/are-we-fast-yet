@@ -80,6 +80,12 @@ class Core with: kernel = (
       firstIdx := firstIdx + 1.
       ^ storage at: firstIdx - 1
     )
+    
+    public removeAll = (
+      firstIdx := 1.
+      lastIdx  := 1.
+      storage  := Array new: storage size
+    )
 
     public remove: object = (
       | newArray newLast found |
@@ -196,6 +202,9 @@ class Core with: kernel = (
       self forEach: [ :e | coll append: (block value: e) ].
       ^ coll
     )
+    
+    public size = ( ^ items size )
+    public removeAll = ( ^ items removeAll )
   ) : (
     public new = ( ^ self new: initialSize )
   )
@@ -209,7 +218,7 @@ class Core with: kernel = (
   )
   
   public class Dictionary new: size = (
-  | private pairs = IdentitySet new: size. |
+  | protected pairs = IdentitySet new: size. |
   )(
     public at: aKey put: aValue = (
       | pair |
@@ -226,12 +235,30 @@ class Core with: kernel = (
         ifTrue:  [ nil ]
         ifFalse: [ pair value ]
     )
+
+    public containsKey: aKey = (
+      | pair |
+      pair := self pairAt: aKey.
+      ^ pair notNil
+    )
     
-    private pairAt: aKey = (
+    public size = ( ^ pairs size )
+    public removeAll = ( ^ pairs removeAll )
+    
+    protected pairAt: aKey = (
       ^ pairs getOne: [ :p | p key = aKey ]
     )
     
     public keys = ( ^ pairs collect: [ :p | p key ] )
+    public values = ( ^ pairs collect: [ :p | p value ] )
+  ) : (
+    public new = ( ^ self new: initialSize )
+  )
+  
+  public class IdentityDictionary new: size = Dictionary new: size ()(
+    protected pairAt: aKey = (
+      ^ pairs getOne: [ :p | p key == aKey ]
+    )
   ) : (
     public new = ( ^ self new: initialSize )
   )
