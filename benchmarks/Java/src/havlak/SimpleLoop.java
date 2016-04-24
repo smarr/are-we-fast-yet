@@ -45,10 +45,12 @@ final class SimpleLoop {
   @SuppressWarnings("unused") private final BasicBlock header;
   @SuppressWarnings("unused") private final boolean isReducible;
 
-  private boolean      isRoot;
-  private int          counter;
-  private int          nestingLevel;
-  private int          depthLevel;
+  private boolean isRoot;
+  private int     nestingLevel;
+
+  @SuppressWarnings("unused") private int counter;
+  @SuppressWarnings("unused") private int depthLevel;
+
 
   SimpleLoop(final BasicBlock bb, final boolean isReducible) {
     this.isReducible = isReducible;
@@ -65,60 +67,52 @@ final class SimpleLoop {
     header = bb;
   }
 
-  void addNode(final BasicBlock bb) {
+  public void addNode(final BasicBlock bb) {
     basicBlocks.add(bb);
   }
 
-  void addChildLoop(final SimpleLoop loop) {
+  private void addChildLoop(final SimpleLoop loop) {
     children.add(loop);
   }
 
   // Getters/Setters
-  IdentitySet<SimpleLoop> getChildren() {
+  public IdentitySet<SimpleLoop> getChildren() {
     return children;
   }
 
-  SimpleLoop getParent() {
+  public SimpleLoop getParent() {
     return parent;
   }
 
-  int getNestingLevel(){
+  public int getNestingLevel(){
     return nestingLevel;
   }
 
-  int getDepthLevel() {
-    return depthLevel;
-  }
-
-  int getCounter() {
-    return counter;
-  }
-
-  boolean isRoot() {   // Note: fct and var are same!
+  public boolean isRoot() {   // Note: fct and var are same!
     return isRoot;
   }
 
-  void setParent(final SimpleLoop parent) {
+  public void setParent(final SimpleLoop parent) {
     this.parent = parent;
     this.parent.addChildLoop(this);
   }
 
-  void setIsRoot() {
+  public void setIsRoot() {
     isRoot = true;
   }
 
-  void setCounter(final int value) {
+  public void setCounter(final int value) {
     counter = value;
   }
 
-  void setNestingLevel(final int level) {
+  public void setNestingLevel(final int level) {
     nestingLevel = level;
     if (level == 0) {
       setIsRoot();
     }
   }
 
-  void setDepthLevel(final int level) {
+  public void setDepthLevel(final int level) {
     depthLevel = level;
   }
 }

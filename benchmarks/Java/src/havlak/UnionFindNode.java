@@ -21,7 +21,7 @@ class UnionFindNode {
 
   // Initialize this node.
   //
-  void initNode(final BasicBlock bb, final int dfsNumber) {
+  public void initNode(final BasicBlock bb, final int dfsNumber) {
     this.parent     = this;
     this.bb         = bb;
     this.dfsNumber  = dfsNumber;
@@ -34,24 +34,20 @@ class UnionFindNode {
   // visited and collapsed once, however, deep nests would still
   // result in significant traversals).
   //
-  UnionFindNode findSet() {
+  public UnionFindNode findSet() {
     Vector<UnionFindNode> nodeList = new Vector<>();
 
     UnionFindNode node = this;
-    while (node != node.getParent()) {
-      if (node.getParent() != node.getParent().getParent()) {
+    while (node != node.parent) {
+      if (node.parent != node.parent.parent) {
         nodeList.append(node);
       }
-      node = node.getParent();
+      node = node.parent;
     }
 
-    setParent(nodeList, node.getParent());
-    return node;
-  }
-
-  private void setParent(final Vector<UnionFindNode> nodeList, final UnionFindNode parent) {
     // Path Compression, all nodes' parents point to the 1st level parent.
-    nodeList.forEach(iter -> iter.setParent(parent));
+    nodeList.forEach(iter -> iter.parent = parent);
+    return node;
   }
 
   // Union/Find Algorithm - The union routine.
@@ -59,33 +55,25 @@ class UnionFindNode {
   // Trivial. Assigning parent pointer is enough,
   // we rely on path compression.
   //
-  void union(final UnionFindNode basicBlock) {
-    setParent(basicBlock);
+  public void union(final UnionFindNode basicBlock) {
+    parent = basicBlock;
   }
 
   // Getters/Setters
   //
-  UnionFindNode getParent() {
-    return parent;
-  }
-
-  BasicBlock getBb() {
+  public BasicBlock getBb() {
     return bb;
   }
 
-  SimpleLoop getLoop() {
+  public SimpleLoop getLoop() {
     return loop;
   }
 
-  int getDfsNumber() {
+  public int getDfsNumber() {
     return dfsNumber;
   }
 
-  void setParent(final UnionFindNode parent) {
-    this.parent = parent;
-  }
-
-  void setLoop(final SimpleLoop loop) {
+  public void setLoop(final SimpleLoop loop) {
     this.loop = loop;
   }
 }

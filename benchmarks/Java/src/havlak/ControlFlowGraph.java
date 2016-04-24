@@ -40,13 +40,13 @@ final class ControlFlowGraph {
     edgeList = new Vector<>();
   }
 
-  BasicBlock createNode(final int name) {
+  public BasicBlock createNode(final int name) {
     BasicBlock node;
-    if (!basicBlockMap.containsKey(name)) {
-      node = new BasicBlock(name);
-      basicBlockMap.put(name, node);
+    if (basicBlockMap.containsKey(name)) {
+      node = basicBlockMap.at(name);
     } else {
-      node = basicBlockMap.get(name);
+      node = new BasicBlock(name);
+      basicBlockMap.atPut(name, node);
     }
 
     if (getNumNodes() == 1) {
@@ -56,24 +56,16 @@ final class ControlFlowGraph {
     return node;
   }
 
-  void addEdge(final BasicBlockEdge edge) {
+  public void addEdge(final BasicBlockEdge edge) {
     edgeList.append(edge);
   }
 
-  int getNumNodes() {
+  public int getNumNodes() {
     return basicBlockMap.size();
   }
 
-  BasicBlock getStartBasicBlock() {
+  public BasicBlock getStartBasicBlock() {
     return startNode;
-  }
-
-  BasicBlock getDst(final BasicBlockEdge edge) {
-    return edge.getDst();
-  }
-
-  BasicBlock getSrc(final BasicBlockEdge edge) {
-    return edge.getSrc();
   }
 
   Map<Integer, BasicBlock> getBasicBlocks() {

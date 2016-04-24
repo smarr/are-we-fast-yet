@@ -15,7 +15,7 @@ package havlak;
 
 public class LoopTesterApp {
 
-  public  final ControlFlowGraph   cfg;
+  private final ControlFlowGraph   cfg;
   private final LoopStructureGraph lsg;
 
   public LoopTesterApp() {
@@ -51,11 +51,11 @@ public class LoopTesterApp {
 
   // Construct a simple loop with two diamonds in it
   private int buildBaseLoop(final int from) {
-    int header = buildStraight(from, 1);
+    int header   = buildStraight(from, 1);
     int diamond1 = buildDiamond(header);
-    int d11 = buildStraight(diamond1, 1);
+    int d11      = buildStraight(diamond1, 1);
     int diamond2 = buildDiamond(d11);
-    int footer = buildStraight(diamond2, 1);
+    int footer   = buildStraight(diamond2, 1);
     buildConnect(diamond2, d11);
     buildConnect(diamond1, header);
 
@@ -64,7 +64,7 @@ public class LoopTesterApp {
     return footer;
   }
 
-  public int[] main(final int numDummyLoops, final int findLoopIteration,
+  public int[] main(final int numDummyLoops, final int findLoopIterations,
       final int parLoops, final int pparLoops, final int ppparLoops) {
     constructSimpleCFG();
     addDummyLoops(numDummyLoops);
@@ -72,7 +72,7 @@ public class LoopTesterApp {
 
     // Performing Loop Recognition, 1 Iteration, then findLoopIteration
     findLoops(lsg);
-    for (int i = 0; i < findLoopIteration; i++) {
+    for (int i = 0; i < findLoopIterations; i++) {
       findLoops(new LoopStructureGraph());
     }
 
@@ -87,7 +87,7 @@ public class LoopTesterApp {
     for (int parlooptrees = 0; parlooptrees < parLoops; parlooptrees++) {
       cfg.createNode(n + 1);
       buildConnect(2, n + 1);
-      n = n + 1;
+      n += 1;
 
       for (int i = 0; i < pparLoops; i++) {
         int top = n;
@@ -105,8 +105,7 @@ public class LoopTesterApp {
 
   private void addDummyLoops(final int numDummyLoops) {
     for (int dummyloop = 0; dummyloop < numDummyLoops; dummyloop++) {
-      HavlakLoopFinder finder = new HavlakLoopFinder(cfg, lsg);
-      finder.findLoops();
+      findLoops(lsg);
     }
   }
 

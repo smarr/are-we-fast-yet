@@ -26,39 +26,33 @@ import som.Vector;
 final class BasicBlock {
 
   private final Vector<BasicBlock> inEdges, outEdges;
+
+  @SuppressWarnings("unused")
   private final int name;
 
-  BasicBlock(final int name) {
+  public BasicBlock(final int name) {
     this.name = name;
     inEdges   = new Vector<BasicBlock>(2);
     outEdges  = new Vector<BasicBlock>(2);
   }
 
-  int getName() {
-    return name;
-  }
-
-  Vector<BasicBlock> getInEdges() {
+  public Vector<BasicBlock> getInEdges() {
     return inEdges;
   }
 
-  Vector<BasicBlock> getOutEdges() {
+  public Vector<BasicBlock> getOutEdges() {
     return outEdges;
   }
 
-  int getNumPred() {
+  public int getNumPred() {
     return inEdges.size();
   }
 
-  int getNumSucc() {
-    return outEdges.size();
-  }
-
-  void addOutEdge(final BasicBlock to) {
+  public void addOutEdge(final BasicBlock to) {
     outEdges.append(to);
   }
 
-  void addInEdge(final BasicBlock from) {
+  public void addInEdge(final BasicBlock from) {
     inEdges.append(from);
   }
 }
