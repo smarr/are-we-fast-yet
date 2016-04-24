@@ -155,7 +155,7 @@ class Havlak usingPlatform: platform andHarness: harness = (
       basicBlocks add: bb
     )
     
-    private addChildLoop: loop = (
+    public addChildLoop: loop = (
       children add: loop
     )
     
@@ -199,7 +199,7 @@ class Havlak usingPlatform: platform andHarness: harness = (
           nodeList append: node ].
         node := node parent ].
     
-      nodeList forEach: [:iter | iter parent: parent ].
+      nodeList forEach: [:iter | iter union: parent_ ].
       ^ node
     )
     
@@ -207,6 +207,7 @@ class Havlak usingPlatform: platform andHarness: harness = (
       parent_ := basicBlock
     )
     
+    public parent    = ( ^ parent_ )
     public bb        = ( ^ bb_ )
     public dfsNumber = ( ^ dfsNumber_ )
   )
@@ -262,7 +263,7 @@ class Havlak usingPlatform: platform andHarness: harness = (
         findLoops: LoopStructureGraph new ].
     
       lsg calculateNestingLevel.
-      ^ Array with: lsg numLoops with: lsg numNodes
+      ^ Array with: lsg numLoops with: cfg numNodes
     )
     
     private constructCFG: parLoops p: pparLoops p: ppparLoops = (
@@ -342,13 +343,12 @@ class Havlak usingPlatform: platform andHarness: harness = (
         (number at: target) = Unvisited ifTrue: [
           lastId := doDFS: target current: lastId + 1 ] ].
       
-      last at: (number at: current) put: lastId.
+      last at: current put: lastId.
       ^ lastId
     )
     
     private initAllNodes = (
       cfg basicBlocks values forEach: [:bbIter |
-      bbIter println.
         number at: bbIter put: Unvisited ].
 
       doDFS: cfg startBasicBlock current: 1
