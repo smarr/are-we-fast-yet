@@ -64,6 +64,13 @@ class Core with: kernel = (
           ifTrue: [ ^ true ] ].
       ^ false
     )
+
+    public contains: val = (
+      firstIdx to: lastIdx - 1 do: [ :i |
+        (val == (storage at: i))
+          ifTrue: [ ^ true ] ].
+      ^ false
+    )
     
     public getOne: block = (
       firstIdx to: lastIdx - 1 do: [ :i |
@@ -201,6 +208,10 @@ class Core with: kernel = (
       coll := Vector new.
       self forEach: [ :e | coll append: (block value: e) ].
       ^ coll
+    )
+    
+    public contains: anObject = (
+      ^ self hasSome: [ :it | it = anObject ]
     )
     
     public size = ( ^ items size )
