@@ -1,17 +1,17 @@
 /* This code is based on the SOM class library.
  *
  * Copyright (c) 2001-2016 see AUTHORS.md file
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the 'Software'), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,41 +22,215 @@
  */
 package som;
 
+public class Dictionary<K, V> {
 
-public final class Dictionary<K, V> {
-  private final IdentitySet<Pair<K, V>> pairs;
+  protected static final int INITIAL_CAPACITY = 16;
 
+  private Entry<K, V>[] buckets;
+  private int          size;
+
+  static class Entry<K, V> {
+
+    final int   hash;
+    final K     key;
+    V           value;
+    Entry<K, V> next;
+
+    Entry(final int hash, final K key, final V value, final Entry<K, V> next) {
+      this.hash  = hash;
+      this.key   = key;
+      this.value = value;
+      this.next  = next;
+    }
+
+    boolean match(final int hash, final K key) {
+      return this.hash == hash && key.equals(this.key);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
   public Dictionary(final int size) {
-    pairs = new IdentitySet<>(size);
+    this.buckets = new Entry[size];
   }
 
   public Dictionary() {
-    this(Constants.INITIAL_SIZE);
+    this(INITIAL_CAPACITY);
   }
 
-  public void atPut(final K key, final V value) {
-    Pair<K, V> pair = pairAt(key);
-    if (pair == null) {
-      pairs.add(new Pair<>(key, value));
-    } else {
-      pair.setValue(value);
+  private static final <K> int hash(final K key) {
+    if (key == null) {
+      return 0;
     }
+    int hash = key.hashCode();
+    return hash ^ hash >>> 16;
+  }
+
+  public int size() {
+    return size;
+  }
+
+  public boolean isEmpty() {
+    return size == 0;
+  }
+
+  private int getBucketIdx(final int hash) {
+    return (buckets.length - 1) & hash;
+  }
+
+  private Entry<K, V> getBucket(final int hash) {
+    return buckets[getBucketIdx(hash)];
   }
 
   public V at(final K key) {
-    Pair<K, V> pair = pairAt(key);
-    if (pair == null) {
-      return null;
+    int hash = hash(key);
+    Entry<K, V> e = getBucket(hash);
+
+    while (e != null) {
+      if (e.match(hash, key)) {
+        return e.value;
+      }
+      e = e.next;
+    }
+    return null;
+  }
+
+  public boolean containsKey(final K key) {
+    int hash = hash(key);
+    Entry<K, V> e = getBucket(hash);
+
+    while (e != null) {
+      if (e.match(hash, key)) {
+        return true;
+      }
+      e = e.next;
+    }
+    return false;
+  }
+
+  public void atPut(final K key, final V value) {
+    int hash = hash(key);
+    int i = getBucketIdx(hash);
+
+    Entry<K, V> current = buckets[i];
+
+    if (current == null) {
+      buckets[i] = newEntry(key, value, hash);
     } else {
-      return pair.getValue();
+      insertBucketEntry(key, value, hash, current);
+    }
+
+    size += 1;
+    if (size > buckets.length) {
+      resize();
     }
   }
 
-  private Pair<K, V> pairAt(final K key) {
-    return pairs.getOne(p -> {return p.getKey() == key; });
+  protected Entry<K, V> newEntry(final K key, final V value, final int hash) {
+    return new Entry<>(hash, key, value, null);
+  }
+
+  private void insertBucketEntry(final K key,
+      final V value, final int hash, final Entry<K, V> head) {
+    Entry<K, V> current = head;
+
+    while (true) {
+      if (current.match(hash, key)) {
+        current.value = value;
+        return;
+      }
+      if (current.next == null) {
+        current.next = newEntry(key, value, hash);
+        return;
+      }
+      current = current.next;
+    }
+  }
+
+  private void resize() {
+    Entry<K, V>[] oldStorage = buckets;
+
+    @SuppressWarnings("unchecked")
+    Entry<K, V>[] newStorage = new Entry[oldStorage.length * 2];
+    buckets = newStorage;
+    transferEntries(oldStorage);
+  }
+
+  private void transferEntries(final Entry<K, V>[] oldStorage) {
+    for (int i = 0; i < oldStorage.length; ++i) {
+      Entry<K, V> current = oldStorage[i];
+      if (current != null) {
+        oldStorage[i] = null;
+
+        if (current.next == null) {
+          buckets[current.hash & (buckets.length - 1)] = current;
+        } else {
+          splitBucket(oldStorage, i, current);
+        }
+      }
+    }
+  }
+
+  private void splitBucket(final Entry<K, V>[] oldStorage, final int i,
+      final Entry<K, V> head) {
+    Entry<K, V> loHead = null, loTail = null;
+    Entry<K, V> hiHead = null, hiTail = null;
+    Entry<K, V> current = head;
+
+    while (current != null) {
+      if ((current.hash & oldStorage.length) == 0) {
+        if (loTail == null) {
+          loHead = current;
+        } else {
+          loTail.next = current;
+        }
+        loTail = current;
+      } else {
+        if (hiTail == null) {
+          hiHead = current;
+        } else {
+          hiTail.next = current;
+        }
+        hiTail = current;
+      }
+      current = current.next;
+    }
+
+    if (loTail != null) {
+      loTail.next = null;
+      buckets[i] = loHead;
+    }
+    if (hiTail != null) {
+      hiTail.next = null;
+      buckets[i + oldStorage.length] = hiHead;
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  public void removeAll() {
+    buckets = new Entry[buckets.length];
   }
 
   public Vector<K> getKeys() {
-    return pairs.collect(p -> p.getKey());
+    Vector<K> keys = new Vector<>(size);
+    for (int i = 0; i < buckets.length; ++i) {
+      Entry<K, V> current = buckets[i];
+      while (current != null) {
+        keys.append(current.key);
+        current = current.next;
+      }
+    }
+    return keys;
+  }
+
+  public Vector<V> getValues() {
+    Vector<V> values = new Vector<>(size);
+    for (int i = 0; i < buckets.length; ++i) {
+      Entry<K, V> current = buckets[i];
+      while (current != null) {
+        values.append(current.value);
+        current = current.next;
+      }
+    }
+    return values;
   }
 }

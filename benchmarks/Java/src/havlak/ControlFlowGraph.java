@@ -13,9 +13,7 @@
 // limitations under the License.
 package havlak;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import som.Dictionary;
 import som.Vector;
 
 
@@ -30,13 +28,13 @@ import som.Vector;
  */
 final class ControlFlowGraph {
 
-  private final Map<Integer, BasicBlock>  basicBlockMap;
+  private final Dictionary<Integer, BasicBlock>  basicBlockMap;
   private BasicBlock                startNode;
   private final Vector<BasicBlockEdge> edgeList;
 
   ControlFlowGraph() {
     startNode = null;
-    basicBlockMap = new HashMap<Integer, BasicBlock>();
+    basicBlockMap = new Dictionary<Integer, BasicBlock>();
     edgeList = new Vector<>();
   }
 
@@ -68,7 +66,7 @@ final class ControlFlowGraph {
     return startNode;
   }
 
-  Map<Integer, BasicBlock> getBasicBlocks() {
+  public Dictionary<Integer, BasicBlock> getBasicBlocks() {
     return basicBlockMap;
   }
 }

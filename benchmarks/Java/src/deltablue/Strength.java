@@ -1,14 +1,14 @@
 /*
  * This benchmark is derived from Mario Wolczko's Java and Smalltalk version of
  * DeltaBlue.
- * 
+ *
  * It is modified to use the SOM class library and Java 8 features.
  * License details:
  *   http://web.archive.org/web/20050825101121/http://www.sunlabs.com/people/mario/java_benchmarking/index.html
  */
 package deltablue;
 
-import som.Dictionary;
+import som.IdentityDictionary;
 
 /*
  * Strengths are used to measure the relative importance of constraints. New
@@ -58,8 +58,8 @@ public class Strength {
     return strengthConstant.at(strength);
   }
 
-  private static Dictionary<S, Integer> createStrengthTable() {
-    Dictionary<S, Integer> strengthTable = new Dictionary<>();
+  private static IdentityDictionary<S, Integer> createStrengthTable() {
+    IdentityDictionary<S, Integer> strengthTable = new IdentityDictionary<>();
     strengthTable.atPut(S.ABSOLUTE_STRONGEST, -10000);
     strengthTable.atPut(S.REQUIRED,           -800);
     strengthTable.atPut(S.STRONG_PREFERRED,   -600);
@@ -71,8 +71,8 @@ public class Strength {
     return strengthTable;
   }
 
-  private static Dictionary<S, Strength> createStrengthConstants() {
-    Dictionary<S, Strength> strengthConstant = new Dictionary<>();
+  private static IdentityDictionary<S, Strength> createStrengthConstants() {
+    IdentityDictionary<S, Strength> strengthConstant = new IdentityDictionary<>();
     strengthTable.getKeys().forEach(key ->
       strengthConstant.atPut(key, new Strength(key))
     );
@@ -99,6 +99,6 @@ public class Strength {
   private static final Strength absoluteWeakest;
   private static final Strength required;
 
-  private static final Dictionary<S, Integer>  strengthTable;
-  private static final Dictionary<S, Strength> strengthConstant;
+  private static final IdentityDictionary<S, Integer>  strengthTable;
+  private static final IdentityDictionary<S, Strength> strengthConstant;
 }

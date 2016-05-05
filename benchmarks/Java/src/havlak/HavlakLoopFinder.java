@@ -13,14 +13,8 @@
 // limitations under the License.
 package havlak;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import som.IdentityDictionary;
+import som.Set;
 import som.Vector;
 
 /**
@@ -43,7 +37,7 @@ final class HavlakLoopFinder {
 
   private final Vector<Set<Integer>>  nonBackPreds = new Vector<Set<Integer>>();
   private final Vector<Vector<Integer>> backPreds  = new Vector<>();
-  private final Map<BasicBlock, Integer> number  = new HashMap<BasicBlock, Integer>();
+  private final IdentityDictionary<BasicBlock, Integer> number = new IdentityDictionary<>();
   private int                      maxSize = 0;
   private int[]                    header;
   private BasicBlockClass[]        type;
@@ -274,7 +268,7 @@ final class HavlakLoopFinder {
         nonBackPreds.at(w).add(ydash.getDfsNumber());
       } else {
         if (ydash.getDfsNumber() != w) {
-          if (!nodePool.contains(ydash)) {
+          if (!nodePool.hasSome(e -> e == ydash)) {
             workList.append(ydash);
             nodePool.append(ydash);
           }
