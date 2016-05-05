@@ -24,12 +24,22 @@ class Havlak usingPlatform: platform andHarness: harness = (
 |
 )(
   private class HavlakBenchmark = Benchmark ()(
-    benchmark = (
-      ^ LoopTesterApp new main: 15000 loop: 50 p: 10 p: 10 p: 25
+    public innerBenchmarkLoop: innerIterations = (
+      ^ verifyResult: 
+         (LoopTesterApp new main: innerIterations loop: 50 p: 10 p: 10 p: 5)
+        iterations: innerIterations
     )
     
-    verifyResult: result = (
-      ^ (result at: 1) = 52602 and: [(result at: 2) = 25213]
+    private verifyResult: result iterations: innerIterations = (
+      innerIterations = 15000 ifTrue: [ ^ (result at: 1) = 46602 and: [(result at: 2) = 5213] ].
+      innerIterations =  1500 ifTrue: [ ^ (result at: 1) =  6102 and: [(result at: 2) = 5213] ].
+      innerIterations =   150 ifTrue: [ ^ (result at: 1) =  2052 and: [(result at: 2) = 5213] ].
+      innerIterations =    15 ifTrue: [ ^ (result at: 1) =  1647 and: [(result at: 2) = 5213] ].
+      innerIterations =     1 ifTrue: [ ^ (result at: 1) =  1605 and: [(result at: 2) = 5213] ].
+    
+      ('No verification result for' + innerIterations + ' found') println.
+      ('Result is ' + (result at: 1) + ', ' + (result at: 2)) println.
+      ^ false
     )
   )
   
