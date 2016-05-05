@@ -1,17 +1,17 @@
 /* This code is based on the SOM class library.
  *
  * Copyright (c) 2001-2016 see AUTHORS.md file
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the 'Software'), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,7 +22,7 @@
  */
 package som;
 
-public abstract class Set<E> {
+public class Set<E> {
   private final Vector<E> items;
 
   public Set() {
@@ -31,6 +31,10 @@ public abstract class Set<E> {
 
   public Set(final int size) {
     items = new Vector<E>(size);
+  }
+
+  public int size() {
+    return items.size();
   }
 
   public void forEach(final ForEachInterface<E> fn) {
@@ -60,6 +64,11 @@ public abstract class Set<E> {
     return coll;
   }
 
-  // TODO: made Set abstract, because we did not need it as a concrete type yet.
-  public abstract boolean contains(E obj);
+  public boolean contains(final E obj) {
+    return hasSome(e -> { return e.equals(obj); } );
+  }
+
+  public void removeAll() {
+    items.removeAll();
+  }
 }
