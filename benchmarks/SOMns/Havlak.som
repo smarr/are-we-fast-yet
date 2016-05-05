@@ -275,7 +275,7 @@ class Havlak usingPlatform: platform andHarness: harness = (
     
     private constructCFG: parLoops p: pparLoops p: ppparLoops = (
       | n |
-      n := 2.
+      n := 3.
       
       parLoops timesRepeat: [
         cfg createNode: n + 1.
