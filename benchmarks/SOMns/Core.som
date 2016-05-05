@@ -23,6 +23,7 @@ Simplified version of Kernel and Collection modules to suite the rules of
 class Core with: kernel = (
 | private Array = kernel Array.
   private initialSize = 10.
+  private initialCapacity = 16.
 |
 )(
   public class Pair withKey: aKey andValue: aValue = (
@@ -65,13 +66,6 @@ class Core with: kernel = (
       ^ false
     )
 
-    public contains: val = (
-      firstIdx to: lastIdx - 1 do: [ :i |
-        (val == (storage at: i))
-          ifTrue: [ ^ true ] ].
-      ^ false
-    )
-    
     public getOne: block = (
       firstIdx to: lastIdx - 1 do: [ :i |
         | e |
@@ -227,50 +221,189 @@ class Core with: kernel = (
   ) : (
     public new = ( ^ self new: initialSize )
   )
-  
+
   public class Dictionary new: size = (
-  | protected pairs = IdentitySet new: size. |
-  )(
-    public at: aKey put: aValue = (
-      | pair |
-      pair := self pairAt: aKey.
-      pair isNil
-        ifTrue:  [ pairs add: (Pair withKey: aKey andValue: aValue) ]
-        ifFalse: [ pair value: aValue ]
+  | protected buckets ::= Array new: size.
+    protected size_   ::= 0.
+  |)(
+    protected class Entry new: hash key: key value: val next: next = (
+    | public hash  = hash.
+      public key   = key.
+      public value ::= val.
+      public next  ::= next.
+    |)(
+      public match: aHash key: aKey = (
+        ^ hash = aHash and: [key = aKey]
+      )
+    )
+
+    private hash: key = (
+      | hash |
+      key isNil ifTrue: [ ^ 0 ].
+      hash := key hashcode.
+      ^ hash bitXor: (hash >>> 16)
     )
     
+    private bucketIdx: hash = (
+      ^ 1 + ((buckets size - 1) & hash)
+    )
+    
+    private bucket: hash = (
+      ^ buckets at: (bucketIdx: hash)
+    )
+
     public at: aKey = (
-      | pair |
-      pair := self pairAt: aKey.
-      ^ pair isNil
-        ifTrue:  [ nil ]
-        ifFalse: [ pair value ]
+      | hash e |
+      hash := hash: aKey.
+      e := bucket: hash.
+    
+      [ e notNil ] whileTrue: [
+        (e match: hash key: aKey)
+          ifTrue: [ ^ e value ].
+        e := e next ].
+      ^ nil
     )
 
     public containsKey: aKey = (
-      | pair |
-      pair := self pairAt: aKey.
-      ^ pair notNil
+      | hash e |
+      hash := hash: aKey.
+      e := bucket: hash.
+    
+      [ e notNil ] whileTrue: [
+        (e match: hash key: aKey)
+          ifTrue: [ ^ true ].
+        e := e next ].
+      ^ false
     )
     
-    public size = ( ^ pairs size )
-    public removeAll = ( ^ pairs removeAll )
+    public at: aKey put: aVal = (
+      | hash i current |
+      hash := hash: aKey.
+      i := bucketIdx: hash.
+      current := buckets at: i.
+      
+      current isNil
+        ifTrue: [
+          buckets at: i put: (newEntry: aKey value: aVal hash: hash) ]
+        ifFalse: [
+          insertBucketEntry: aKey value: aVal hash: hash head: current ].
+
+      size_ := size_ + 1.
+      size_ > buckets size ifTrue: [ resize ]
+    )
+
+    protected newEntry: aKey value: value hash: hash = (
+      ^ Entry new: hash key: aKey value: value next: nil
+    )
+
+    private insertBucketEntry: key value: value hash: hash head: head = (
+      | current |
+      current := head.
+      
+      [true] whileTrue: [
+        (current match: hash key: key) ifTrue: [
+          current value: value.
+          ^ self ].
+        current next isNil ifTrue: [
+          current next: (newEntry: key value: value hash: hash).
+          ^ self ].
+        current := current next ]
+    )
+
+    private resize = (
+      | oldStorage |
+      oldStorage := buckets.
+      buckets := Array new: oldStorage size * 2.
+      transferEntries: oldStorage
+    )
+
+    private transferEntries: oldStorage = (
+      1 to: oldStorage size do: [:i |
+        | current |
+        current := oldStorage at: i.
+        current notNil ifTrue: [
+          oldStorage at: i put: nil.
+          current next isNil
+            ifTrue: [
+              buckets at: 1 + (current hash & (buckets size - 1)) put: current ]
+            ifFalse: [
+              splitBucket: oldStorage bucket: i head: current ] ] ]
+    )
+
+    private splitBucket: oldStorage bucket: i head: head = (
+      | loHead loTail hiHead hiTail current |
+      loHead := nil. loTail := nil.
+      hiHead := nil. hiTail := nil.
+      current := head.
+      
+      [current notNil] whileTrue: [
+        (current hash & oldStorage size) = 0
+          ifTrue: [
+            loTail isNil
+              ifTrue:  [ loHead := current ]
+              ifFalse: [ loTail next: current ].
+            loTail := current ]
+          ifFalse: [
+            hiTail isNil
+              ifTrue:  [ hiHead := current ]
+              ifFalse: [ hiTail next: current ].
+            hiTail := current ].
+        current := current next ].
     
-    protected pairAt: aKey = (
-      ^ pairs getOne: [ :p | p key = aKey ]
+      loTail notNil ifTrue: [
+        loTail next: nil.
+        buckets at: i put: loHead ].
+      hiTail notNil ifTrue: [
+        hiTail next: nil.
+        buckets at: i + oldStorage size put: hiHead ]
+    )
+
+    public size      = ( ^ size_ )
+    public isEmpty   = ( ^ size_ = 0 )
+    public removeAll = (
+      buckets := Array new: buckets size.
+      size_ := 0.
     )
     
-    public keys = ( ^ pairs collect: [ :p | p key ] )
-    public values = ( ^ pairs collect: [ :p | p value ] )
+    public keys = (
+      | keys |
+      keys := Vector new: size_.
+      buckets do: [:b |
+        | current |
+        current := b.
+        [ current notNil ] whileTrue: [
+          keys append: current key.
+          current := current next ] ].
+      ^ keys
+    )
+
+    public values = (
+      | values |
+      values := Vector new: size_.
+      buckets do: [:b |
+        | current |
+        current := b.
+        [ current notNil ] whileTrue: [
+          values append: current value.
+          current := current next ] ].
+      ^ values
+    )
   ) : (
-    public new = ( ^ self new: initialSize )
+    public new = ( ^ self new: initialCapacity )
   )
   
   public class IdentityDictionary new: size = Dictionary new: size ()(
-    protected pairAt: aKey = (
-      ^ pairs getOne: [ :p | p key == aKey ]
+    protected class IdEntry new: hash key: key value: val next: next = Entry new: hash key: key value: val next: next (
+    )(
+      public match: aHash key: aKey = (
+        ^ hash = aHash and: [key == aKey]
+      )
+    )
+    
+    protected newEntry: aKey value: value hash: hash = (
+      ^ IdEntry new: hash key: aKey value: value next: nil
     )
   ) : (
-    public new = ( ^ self new: initialSize )
+    public new = ( ^ self new: initialCapacity )
   )
 )
