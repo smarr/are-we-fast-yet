@@ -45,17 +45,15 @@ final class LoopStructureGraph {
     root.setNestingLevel(0);
     root.setCounter(loopCounter);
     loopCounter += 1;
-    addLoop(root);
+    loops.append(root);
   }
 
   public SimpleLoop createNewLoop(final BasicBlock bb, final boolean isReducible) {
     SimpleLoop loop = new SimpleLoop(bb, isReducible);
-    loop.setCounter(loopCounter++);
-    return loop;
-  }
-
-  public void addLoop(final SimpleLoop loop) {
+    loop.setCounter(loopCounter);
+    loopCounter += 1;
     loops.append(loop);
+    return loop;
   }
 
   public void calculateNestingLevel() {

@@ -251,7 +251,6 @@ final class HavlakLoopFinder {
         if ((nodePool.size() > 0) || (type[w] == BasicBlockClass.BB_SELF)) {
           SimpleLoop loop = lsg.createNewLoop(nodeW, type[w] != BasicBlockClass.BB_IRREDUCIBLE);
           setLoopAttributes(w, nodePool, loop);
-          lsg.addLoop(loop);
         }
       }
     }  // Step c
