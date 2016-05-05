@@ -452,7 +452,7 @@ class Havlak usingPlatform: platform andHarness: harness = (
             (nonBackPreds at: w) add: ydash dfsNumber ]
           ifFalse: [
             ydash dfsNumber <> w ifTrue: [
-              (nodePool contains: ydash) ifFalse: [
+              (nodePool hasSome: [:e | e == ydash]) ifFalse: [
                 workList append: ydash.
                 nodePool append: ydash ] ] ] ]
     )
