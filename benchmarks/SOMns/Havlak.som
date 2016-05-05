@@ -112,18 +112,15 @@ class Havlak usingPlatform: platform andHarness: harness = (
     root nestingLevel: 0.
     root counter: loopCounter.
     loopCounter := loopCounter + 1.
-    addLoop: root
+    loops append: root
   )(
     public createNewLoop: bb reducible: isReducible = (
       | loop |
       loop := SimpleLoop basicBlock: bb reducible: isReducible.
       loop counter: loopCounter.
       loopCounter := loopCounter + 1.
-      ^ loop
-    )
-    
-    public addLoop: loop = (
       loops append: loop
+      ^ loop
     )
     
     public calculateNestingLevel = (
@@ -440,8 +437,7 @@ class Havlak usingPlatform: platform andHarness: harness = (
           (nodePool size > 0 or: [(type at: w) = #BBSelf]) ifTrue: [
             | loop |
             loop := lsg createNewLoop: nodeW reducible: ((type at: w) <> #BBIrreducible).
-            setLoopAttribute: w nodePool: nodePool loop: loop.
-            lsg addLoop: loop ] ] ]
+            setLoopAttribute: w nodePool: nodePool loop: loop ] ] ]
     )
     
     private stepEProcessNonBackPreds: w nodePool: nodePool workList: workList x: x = (
