@@ -24,13 +24,32 @@ import havlak.LoopTesterApp;
 public final class Havlak extends Benchmark {
 
   @Override
+  public boolean innerBenchmarkLoop(final int innerIterations) {
+    return verifyResult((new LoopTesterApp()).main(
+        innerIterations, 50, 10 /* was 100 */, 10, 5), innerIterations);
+  }
+
+  public boolean verifyResult(final Object result, final int innerIterations) {
+    int[] r = (int[]) result;
+
+    if (innerIterations == 15000) { return r[0] == 46602 && r[1] == 5213; }
+    if (innerIterations ==  1500) { return r[0] ==  6102 && r[1] == 5213; }
+    if (innerIterations ==   150) { return r[0] ==  2052 && r[1] == 5213; }
+    if (innerIterations ==    15) { return r[0] ==  1647 && r[1] == 5213; }
+    if (innerIterations ==     1) { return r[0] ==  1605 && r[1] == 5213; }
+
+    System.out.println("No verification result for " + innerIterations + " found");
+    System.out.println("Result is: " + r[0] + ", " + r[1]);
+    return false;
+  }
+
+  @Override
   public Object benchmark() {
-    return (new LoopTesterApp()).main(15000, 50, 10 /* was 100 */, 10, 25);
+    throw new RuntimeException("Should never be reached");
   }
 
   @Override
   public boolean verifyResult(final Object result) {
-    int[] r = (int[]) result;
-    return r[0] == 52602 && r[1] == 25213;
+    throw new RuntimeException("Should never be reached");
   }
 }
