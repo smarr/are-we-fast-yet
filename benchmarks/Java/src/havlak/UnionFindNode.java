@@ -46,7 +46,7 @@ class UnionFindNode {
     }
 
     // Path Compression, all nodes' parents point to the 1st level parent.
-    nodeList.forEach(iter -> iter.parent = parent);
+    nodeList.forEach(iter -> iter.union(parent));
     return node;
   }
 
