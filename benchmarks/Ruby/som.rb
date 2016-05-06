@@ -21,6 +21,7 @@
 # THE SOFTWARE.
 
 INITIAL_SIZE = 10
+INITIAL_CAPACITY = 16
 
 class Pair
   attr_accessor :key
@@ -245,35 +246,207 @@ class IdentitySet < Set
   end
 end
 
-class Dictionary
-  def initialize(size = INITIAL_SIZE)
-    @pairs = IdentitySet.new(size)
+class Entry
+  attr_reader :hash, :key
+  attr_accessor :value, :next
+
+  def initialize(hash, key, value, next_)
+    @hash  = hash
+    @key   = key
+    @value = value
+    @next  = next_
   end
 
-  def at_put(key, value)
-    pair = pair_at(key)
-    if pair.nil?
-      @pairs.add(Pair.new(key, value))
-    else
-      pair.value = value
+  def match(hash, key)
+    @hash == hash && @key == key
+  end
+end
+
+class Dictionary
+  attr_reader :size
+
+  def initialize(size = INITIAL_CAPACITY)
+    @buckets = Array.new(size)
+    @size    = 0
+  end
+
+  def hash(key)
+    if key.nil?
+      return 0
     end
+
+    hash = key.hash
+    hash ^ hash >> 16
+  end
+
+  def is_empty
+    @size == 0
+  end
+
+  def get_bucket_idx(hash)
+    (@buckets.size - 1) & hash
+  end
+
+  def get_bucket(hash)
+    @buckets[get_bucket_idx(hash)]
   end
 
   def at(key)
-    pair = pair_at(key)
-    if pair.nil?
-      nil
+    hash = hash(key)
+    e = get_bucket(hash)
+
+    until e.nil?
+      if e.match(hash, key)
+        return e.value
+      end
+      e = e.next
+    end
+    nil
+  end
+
+  def contains_key(key)
+    hash = hash(key)
+    e = get_bucket(hash)
+
+    until e.nil?
+      if e.match(hash, key)
+        return true
+      end
+      e = e.next
+    end
+    false
+  end
+
+  def at_put(key, value)
+    hash = hash(key)
+    i = get_bucket_idx(hash)
+    current = @buckets[i]
+
+    if current.nil?
+      @buckets[i] = new_entry(key, value, hash)
     else
-      pair.value
+      insert_bucket_entry(key, value, hash, current)
+    end
+
+    @size += 1
+    if @size > @buckets.size
+      resize
     end
   end
 
-  def pair_at(key)
-    @pairs.get_one { | p | p.key == key }
+  def new_entry(key, value, hash)
+    Entry.new(hash, key, value, nil)
+  end
+
+  def insert_bucket_entry(key, value, hash, head)
+    current = head
+
+    while true
+      if current.match(hash, key)
+        current.value = value
+        return
+      end
+      if current.next.nil?
+        current.next = new_entry(key, value, hash)
+        return
+      end
+      current = current.next
+    end
+  end
+
+  def resize
+    old_storage = @buckets
+    @buckets = Array.new(old_storage.size * 2)
+    transfer_entries(old_storage)
+  end
+
+  def transfer_entries(old_storage)
+    old_storage.each_with_index { |current, i|
+      unless current.nil?
+        old_storage[i] = nil
+
+        if current.next.nil?
+          @buckets[current.hash & (@buckets.size - 1)] = current
+        else
+          split_bucket(old_storage, i, current)
+        end
+      end
+    }
+  end
+
+  def split_bucket(old_storage, i, head)
+    lo_head = nil, lo_tail = nil
+    hi_head = nil, hi_tail = nil
+    current = head
+
+    until current.nil?
+      if (current.hash & old_storage.size) == 0
+        if lo_tail.nil?
+          lo_head = current
+        else
+          lo_tail.next = current
+        end
+        lo_tail = current
+      else
+        if hi_tail.nil?
+          hi_head = current
+        else
+          hi_tail.next = current
+        end
+        hi_tail = current
+      end
+      current = current.next
+    end
+
+    unless lo_tail.nil?
+      lo_tail.next = nil
+      @buckets[i] = lo_head
+    end
+    unless hi_tail.nil?
+      hi_tail.next = nil
+      @buckets[i + old_storage.size] = hi_head
+    end
+  end
+
+  def remove_all
+    @buckets = Array.new(@buckets.size)
+    @size = 0
   end
 
   def keys
-    @pairs.collect { | p | p.key }
+    keys = Vector.new(@size)
+    @buckets.each_index { |i|
+      current = @buckets[i]
+      until current.nil?
+        keys.append(current.key)
+        current = current.next
+      end
+    }
+    keys
+  end
+
+  def values
+    vals = Vector.new(@size)
+    @buckets.each_char { |i|
+      current = @buckets[i]
+      until current.nil?
+        vals.append(current.value)
+        current = current.next
+      end
+    }
+    vals
+  end
+end
+
+class IdEntry < Entry
+  def match(hash, key)
+    @hash == hash && (@key.equal? key)
+  end
+end
+
+class IdentityDictionary < Dictionary
+  def new_entry(key, value, hash)
+    IdEntry.new(hash, key, value, nil)
   end
 end
 
