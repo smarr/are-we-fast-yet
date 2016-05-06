@@ -208,6 +208,7 @@ public class Dictionary<K, V> {
   @SuppressWarnings("unchecked")
   public void removeAll() {
     buckets = new Entry[buckets.length];
+    size = 0;
   }
 
   public Vector<K> getKeys() {
