@@ -76,7 +76,7 @@ final class HavlakLoopFinder {
   // thing we run below.
   //
   private boolean isAncestor(final int w, final int v) {
-    return ((w <= v) && (v <= last[w]));
+    return w <= v && v <= last[w];
   }
 
   //
