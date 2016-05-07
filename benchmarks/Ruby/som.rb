@@ -124,6 +124,10 @@ class Vector
     found
   end
 
+  def remove_all
+    @storage = Array.new(@storage.size)
+  end
+
   def size
     @last_idx - @first_idx
   end
@@ -215,6 +219,10 @@ class Set
     @items = Vector.new(size)
   end
 
+  def size
+    @items.size
+  end
+
   def each(&block)
     @items.each(&block)
   end
@@ -237,6 +245,10 @@ class Set
     coll = Vector.new
     each { | e | coll.append(yield e) }
     coll
+  end
+
+  def contains(obj)
+    has_some { | it | it == obj }
   end
 end
 
@@ -279,7 +291,7 @@ class Dictionary
     hash ^ hash >> 16
   end
 
-  def is_empty
+  def empty?
     @size == 0
   end
 
@@ -427,7 +439,7 @@ class Dictionary
 
   def values
     vals = Vector.new(@size)
-    @buckets.each_char { |i|
+    @buckets.each_index { |i|
       current = @buckets[i]
       until current.nil?
         vals.append(current.value)
