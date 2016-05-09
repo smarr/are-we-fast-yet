@@ -24,7 +24,8 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 "use strict";
 
-var benchmark = require('./benchmark.js');
+var benchmark = require('./benchmark.js'),
+  som = require('./som.js');
 
 function Vector2D(x, y) {
   this.x = x;
@@ -125,7 +126,7 @@ CollisionDetector.prototype.handleNewFrame = function(frame) {
     this._state.remove(toRemove[i]);
 
   var allReduced = reduceCollisionSet(motions);
-  var collisions = [];
+  var collisions = new som.Vector();
   for (var reductionIndex = 0; reductionIndex < allReduced.length; ++reductionIndex) {
     var reduced = allReduced[reductionIndex];
     for (var i = 0; i < reduced.length; ++i) {
@@ -134,7 +135,7 @@ CollisionDetector.prototype.handleNewFrame = function(frame) {
         var motion2 = reduced[j];
         var collision = motion1.findIntersection(motion2);
         if (collision)
-          collisions.push(new Collision([motion1.callsign, motion2.callsign], collision));
+          collisions.append(new Collision([motion1.callsign, motion2.callsign], collision));
       }
     }
   }
