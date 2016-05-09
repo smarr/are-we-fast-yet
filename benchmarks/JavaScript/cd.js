@@ -31,17 +31,17 @@ function Vector2D(x, y) {
   this.y = y;
 }
 
-Vector2D.prototype.plus = function(other) {
+Vector2D.prototype.plus = function (other) {
   return new Vector2D(this.x + other.x,
     this.y + other.y);
 };
 
-Vector2D.prototype.minus = function(other) {
+Vector2D.prototype.minus = function (other) {
   return new Vector2D(this.x - other.x,
     this.y - other.y);
 };
 
-Vector2D.prototype.toString = function() {
+Vector2D.prototype.toString = function () {
   return "[" + this.x + ", " + this.y + "]";
 };
 
@@ -90,11 +90,11 @@ function CallSign(value) {
   this._value = value;
 }
 
-CallSign.prototype.compareTo = function(other) {
+CallSign.prototype.compareTo = function (other) {
   return this._value.localeCompare(other._value);
 };
 
-CallSign.prototype.toString = function() {
+CallSign.prototype.toString = function () {
   return this._value;
 };
 
@@ -103,7 +103,7 @@ function Collision(aircraft, position) {
   this.position = position;
 }
 
-Collision.prototype.toString = function() {
+Collision.prototype.toString = function () {
   return "Collision(" + this.aircraft + " at " + this.position + ")";
 };
 
@@ -175,15 +175,15 @@ function Motion(callsign, posOne, posTwo) {
   this.posTwo = posTwo;
 }
 
-Motion.prototype.toString = function() {
+Motion.prototype.toString = function () {
   return "Motion(" + this.callsign + " from " + this.posOne + " to " + this.posTwo + ")";
 };
 
-Motion.prototype.delta = function() {
+Motion.prototype.delta = function () {
   return this.posTwo.minus(this.posOne);
 };
 
-Motion.prototype.findIntersection = function(other) {
+Motion.prototype.findIntersection = function (other) {
   var init1 = this.posOne;
   var init2 = other.posOne;
   var vec1 = this.delta();
@@ -281,7 +281,7 @@ Motion.prototype.findIntersection = function(other) {
 };
 
 
-var RedBlackTree = (function(){
+var RedBlackTree = (function (){
   function compare(a, b) {
     return a.compareTo(b);
   }
@@ -307,7 +307,7 @@ var RedBlackTree = (function(){
     this.color = "red";
   }
 
-  Node.prototype.successor = function() {
+  Node.prototype.successor = function () {
     var x = this;
     if (x.right)
       return treeMinimum(x.right);
@@ -319,7 +319,7 @@ var RedBlackTree = (function(){
     return y;
   };
 
-  Node.prototype.predecessor = function() {
+  Node.prototype.predecessor = function () {
     var x = this;
     if (x.left)
       return treeMaximum(x.left);
@@ -331,7 +331,7 @@ var RedBlackTree = (function(){
     return y;
   };
 
-  Node.prototype.toString = function() {
+  Node.prototype.toString = function () {
     return this.key + "=>" + this.value + " (" + this.color + ")";
   };
 
@@ -339,7 +339,7 @@ var RedBlackTree = (function(){
     this._root = null;
   }
 
-  RedBlackTree.prototype.put = function(key, value) {
+  RedBlackTree.prototype.put = function (key, value) {
     var insertionResult = this._treeInsert(key, value);
     if (!insertionResult.isNewEntry)
       return insertionResult.oldValue;
@@ -392,7 +392,7 @@ var RedBlackTree = (function(){
     return null;
   };
 
-  RedBlackTree.prototype.remove = function(key) {
+  RedBlackTree.prototype.remove = function (key) {
     var z = this._findNode(key);
     if (!z)
       return null;
@@ -454,32 +454,32 @@ var RedBlackTree = (function(){
     return z.value;
   };
 
-  RedBlackTree.prototype.get = function(key) {
+  RedBlackTree.prototype.get = function (key) {
     var node = this._findNode(key);
     if (!node)
       return null;
     return node.value;
   };
 
-  RedBlackTree.prototype.forEach = function(callback) {
+  RedBlackTree.prototype.forEach = function (callback) {
     if (!this._root)
       return;
     for (var current = treeMinimum(this._root); current; current = current.successor())
       callback(current.key, current.value);
   };
 
-  RedBlackTree.prototype.asArray = function() {
+  RedBlackTree.prototype.asArray = function () {
     var result = [];
-    this.forEach(function(key, value) {
+    this.forEach(function (key, value) {
       result.push({key: key, value: value});
     });
     return result;
   };
 
-  RedBlackTree.prototype.toString = function() {
+  RedBlackTree.prototype.toString = function () {
     var result = "[";
     var first = true;
-    this.forEach(function(key, value) {
+    this.forEach(function (key, value) {
       if (first)
         first = false;
       else
@@ -489,7 +489,7 @@ var RedBlackTree = (function(){
     return result + "]";
   };
 
-  RedBlackTree.prototype._findNode = function(key) {
+  RedBlackTree.prototype._findNode = function (key) {
     for (var current = this._root; current;) {
       var comparisonResult = compare(key, current.key);
       if (!comparisonResult)
@@ -502,7 +502,7 @@ var RedBlackTree = (function(){
     return null;
   };
 
-  RedBlackTree.prototype._treeInsert = function(key, value) {
+  RedBlackTree.prototype._treeInsert = function (key, value) {
     var y = null;
     var x = this._root;
     while (x) {
@@ -531,7 +531,7 @@ var RedBlackTree = (function(){
     return {isNewEntry:true, newNode:z};
   };
 
-  RedBlackTree.prototype._leftRotate = function(x) {
+  RedBlackTree.prototype._leftRotate = function (x) {
     var y = x.right;
 
     // Turn y's left subtree into x's right subtree.
@@ -557,7 +557,7 @@ var RedBlackTree = (function(){
     return y;
   };
 
-  RedBlackTree.prototype._rightRotate = function(y) {
+  RedBlackTree.prototype._rightRotate = function (y) {
     var x = y.left;
 
     // Turn x's right subtree into y's left subtree.
@@ -582,7 +582,7 @@ var RedBlackTree = (function(){
     return x;
   };
 
-  RedBlackTree.prototype._removeFixup = function(x, xParent) {
+  RedBlackTree.prototype._removeFixup = function (x, xParent) {
     while (x != this._root && (!x || x.color == "black")) {
       if (x == xParent.left) {
         // Note: the text points out that w cannot be null. The reason is not obvious from
@@ -662,7 +662,7 @@ var RedBlackTree = (function(){
   return RedBlackTree;
 })();
 
-var drawMotionOnVoxelMap = (function() {
+var drawMotionOnVoxelMap = (function () {
   var voxelSize = Constants.GOOD_VOXEL_SIZE;
   var horizontal = new Vector2D(voxelSize, 0);
   var vertical = new Vector2D(0, voxelSize);
@@ -683,7 +683,7 @@ var drawMotionOnVoxelMap = (function() {
     return result;
   }
 
-  return function(voxelMap, motion) {
+  return function (voxelMap, motion) {
     var seen = new RedBlackTree();
 
     function putIntoMap(voxel) {
@@ -778,7 +778,7 @@ function reduceCollisionSet(motions) {
     drawMotionOnVoxelMap(voxelMap, motions[i]);
 
   var result = [];
-  voxelMap.forEach(function(key, value) {
+  voxelMap.forEach(function (key, value) {
     if (value.length > 1)
       result.push(value);
   });
@@ -791,7 +791,7 @@ function Simulator(numAircraft) {
     this._aircraft.push(new CallSign("foo" + i));
 }
 
-Simulator.prototype.simulate = function(time) {
+Simulator.prototype.simulate = function (time) {
   var frame = [];
   for (var i = 0; i < this._aircraft.length; i += 2) {
     frame.push({
@@ -826,7 +826,7 @@ function averageAbovePercentile(numbers, percentile) {
   numbers = numbers.slice();
 
   // Sort in ascending order.
-  numbers.sort(function(a, b) { return a - b; });
+  numbers.sort(function (a, b) { return a - b; });
 
   // Now the elements we want are at the end. Keep removing them until the array size shrinks too much.
   // Examples assuming percentile = 99:
@@ -863,31 +863,31 @@ function Vector3D(x, y, z) {
   this.z = z;
 }
 
-Vector3D.prototype.plus = function(other) {
+Vector3D.prototype.plus = function (other) {
   return new Vector3D(this.x + other.x,
     this.y + other.y,
     this.z + other.z);
 };
 
-Vector3D.prototype.minus = function(other) {
+Vector3D.prototype.minus = function (other) {
   return new Vector3D(this.x - other.x,
     this.y - other.y,
     this.z - other.z);
 };
 
-Vector3D.prototype.dot = function(other) {
+Vector3D.prototype.dot = function (other) {
   return this.x * other.x + this.y * other.y + this.z * other.z;
 };
 
-Vector3D.prototype.squaredMagnitude = function() {
+Vector3D.prototype.squaredMagnitude = function () {
   return this.dot(this);
 };
 
-Vector3D.prototype.magnitude = function() {
+Vector3D.prototype.magnitude = function () {
   return Math.sqrt(this.squaredMagnitude());
 };
 
-Vector3D.prototype.times = function(amount) {
+Vector3D.prototype.times = function (amount) {
   return new Vector3D(this.x * amount,
     this.y * amount,
     this.z * amount);
@@ -897,7 +897,7 @@ Vector3D.prototype.as2D = function() {
   return new Vector2D(this.x, this.y);
 };
 
-Vector3D.prototype.toString = function() {
+Vector3D.prototype.toString = function () {
   return "[" + this.x + ", " + this.y + ", " + this.z + "]";
 };
 
