@@ -863,10 +863,6 @@ Vector3D.prototype.times = function (amount) {
     this.z * amount);
 };
 
-Vector3D.prototype.as2D = function() {
-  return new Vector2D(this.x, this.y);
-};
-
 Vector3D.prototype.toString = function () {
   return "[" + this.x + ", " + this.y + ", " + this.z + "]";
 };
