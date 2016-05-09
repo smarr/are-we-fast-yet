@@ -82,9 +82,9 @@ function benchmark() {
       var string = "Frame " + i + ": " + results[i].time + " ms.";
       if (results[i].numCollisions)
         string += " (" + results[i].numCollisions + " collisions.)";
-      print(string);
+      process.stdout.write(string);
       if (verbosity >= 2 && results[i].collisions.length)
-        print("    Collisions: " + results[i].collisions);
+        process.stdout.write("    Collisions: " + results[i].collisions);
     }
   }
 
@@ -92,6 +92,7 @@ function benchmark() {
   var actualCollisions = 0;
   for (var i = 0; i < results.length; ++i)
     actualCollisions += results[i].numCollisions;
+  process.stdout.write("Excepected Collisions: " + expectedCollisions);
   if (actualCollisions != expectedCollisions) {
     throw new Error("Bad number of collisions: " + actualCollisions + " (expected " +
       expectedCollisions + ")");
@@ -754,7 +755,7 @@ var drawMotionOnVoxelMap = (function() {
       }
 
       if (false) {
-        print("v_x = " + v_x + ", x0 = " + x0 + ", xv = " + xv + ", v_y = " + v_y + ", y0 = " + y0 + ", yv = " + yv + ", low_x = " + low_x + ", low_y = " + low_y + ", high_x = " + high_x + ", high_y = " + high_y);
+        process.stdout.write("v_x = " + v_x + ", x0 = " + x0 + ", xv = " + xv + ", v_y = " + v_y + ", y0 = " + y0 + ", yv = " + yv + ", low_x = " + low_x + ", low_y = " + low_y + ", high_x = " + high_x + ", high_y = " + high_y);
       }
 
       return (((xv == 0 && v_x <= x0 + r && x0 - r <= v_x + v_s) /* no motion in x */ ||
@@ -879,8 +880,6 @@ function averageAbovePercentile(numbers, percentile) {
 var currentTime;
 if (this.performance && performance.now)
   currentTime = function() { return performance.now() };
-else if (preciseTime)
-  currentTime = function() { return preciseTime() * 1000; };
 else
   currentTime = function() { return 0 + new Date(); };
 
