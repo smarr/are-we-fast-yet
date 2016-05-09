@@ -76,12 +76,9 @@ CallSign.prototype.compareTo = function (other) {
   return this._value == other._value ? 0 : this._value < other._value ? -1 : 1;
 };
 
-CallSign.prototype.toString = function () {
-  return this._value;
-};
-
-function Collision(aircraft, position) {
-  this.aircraft = aircraft;
+function Collision(aircraftA, aircraftB, position) {
+  this.aircraftA = aircraftA;
+  this.aircraftB = aircraftB;
   this.position = position;
 }
 
@@ -89,14 +86,12 @@ function CollisionDetector() {
   this._state = new RedBlackTree();
 }
 
-CollisionDetector.prototype.handleNewFrame = function(frame) {
-  var motions = [];
+CollisionDetector.prototype.handleNewFrame = function (frame) {
+  var motions = new som.Vector();
   var seen = new RedBlackTree();
-
-  for (var i = 0; i < frame.length; ++i) {
-    var aircraft = frame[i];
-
-    var oldPosition = this._state.put(aircraft.callsign, aircraft.position);
+  var _that = this;
+  frame.forEach(function (aircraft) {
+    var oldPosition = _that._state.put(aircraft.callsign, aircraft.position);
     var newPosition = aircraft.position;
     seen.put(aircraft.callsign, true);
 
@@ -104,37 +99,37 @@ CollisionDetector.prototype.handleNewFrame = function(frame) {
       // Treat newly introduced aircraft as if they were stationary.
       oldPosition = newPosition;
     }
-
-    motions.push(new Motion(aircraft.callsign, oldPosition, newPosition));
-  }
+    motions.append(new Motion(aircraft.callsign, oldPosition, newPosition));
+  });
 
   // Remove aircraft that are no longer present.
-  var toRemove = [];
+  var toRemove = new som.Vector();
   this._state.forEach(function(callsign, position) {
-    if (!seen.get(callsign))
-      toRemove.push(callsign);
+    if (!seen.get(callsign)) {
+      toRemove.append(callsign);
+    }
   });
-  for (var i = 0; i < toRemove.length; ++i)
-    this._state.remove(toRemove[i]);
+
+  toRemove.forEach(function (e) { _that._state.remove(e); });
 
   var allReduced = reduceCollisionSet(motions);
   var collisions = new som.Vector();
-  for (var reductionIndex = 0; reductionIndex < allReduced.length; ++reductionIndex) {
-    var reduced = allReduced[reductionIndex];
+
+  allReduced.forEach(function (reduced) {
     for (var i = 0; i < reduced.length; ++i) {
       var motion1 = reduced[i];
       for (var j = i + 1; j < reduced.length; ++j) {
         var motion2 = reduced[j];
         var collision = motion1.findIntersection(motion2);
-        if (collision)
-          collisions.append(new Collision([motion1.callsign, motion2.callsign], collision));
+        if (collision) {
+          collisions.append(new Collision(motion1.callsign, motion2.callsign, collision));
+        }
       }
     }
-  }
+  });
 
   return collisions;
 };
-
 
 var Constants = {};
 Constants.MIN_X = 0;
@@ -146,16 +141,11 @@ Constants.MAX_Z = 10;
 Constants.PROXIMITY_RADIUS = 1;
 Constants.GOOD_VOXEL_SIZE = Constants.PROXIMITY_RADIUS * 2;
 
-
 function Motion(callsign, posOne, posTwo) {
   this.callsign = callsign;
   this.posOne = posOne;
   this.posTwo = posTwo;
 }
-
-Motion.prototype.toString = function () {
-  return "Motion(" + this.callsign + " from " + this.posOne + " to " + this.posTwo + ")";
-};
 
 Motion.prototype.delta = function () {
   return this.posTwo.minus(this.posOne);
@@ -191,7 +181,6 @@ Motion.prototype.findIntersection = function (other) {
 
     // if the planes are not moving in parallel, then
 
-
     // point P1 = I1 + vV1
     // point P2 = I2 + vV2
     //   - looking for v, such that dist(P1,P2) = || P1 - P2 || = r
@@ -204,7 +193,6 @@ Motion.prototype.findIntersection = function (other) {
     //   0 = c + bv + av^2
 
     // b = 2 * <I1-I2, V1-V2>
-
     var b = 2 * init1.minus(init2).dot(vec1.minus(vec2));
 
     // c = -r^2 + (I2 - I1)^T * (I2 - I1)
@@ -217,9 +205,9 @@ Motion.prototype.findIntersection = function (other) {
     var v1 = (-b - Math.sqrt(discr)) / (2 * a);
     var v2 = (-b + Math.sqrt(discr)) / (2 * a);
 
-    if (v1 <= v2 && ((v1 <= 1 && 1 <= v2) ||
-      (v1 <= 0 && 0 <= v2) ||
-      (0 <= v1 && v2 <= 1))) {
+    if (v1 <= v2 && ((v1 <= 1  &&  1 <= v2) ||
+                     (v1 <= 0  &&  0 <= v2) ||
+                     (0  <= v1 && v2 <= 1))) {
       // Pick a good "time" at which to report the collision.
       var v;
       if (v1 <= 0) {
@@ -250,29 +238,18 @@ Motion.prototype.findIntersection = function (other) {
   // they  thus have the same distance all the time ; we calculate it from the initial point
 
   // dist = || i2 - i1 || = sqrt(  ( i2 - i1 )^T * ( i2 - i1 ) )
-
   var dist = init2.minus(init1).magnitude();
-  if (dist <= radius)
+  if (dist <= radius) {
     return init1.plus(init2).times(0.5);
+  }
 
   return null;
 };
 
-
 var RedBlackTree = (function (){
-  function compare(a, b) {
-    return a.compareTo(b);
-  }
-
   function treeMinimum(x) {
     while (x.left)
       x = x.left;
-    return x;
-  }
-
-  function treeMaximum(x) {
-    while (x.right)
-      x = x.right;
     return x;
   }
 
@@ -295,22 +272,6 @@ var RedBlackTree = (function (){
       y = y.parent;
     }
     return y;
-  };
-
-  Node.prototype.predecessor = function () {
-    var x = this;
-    if (x.left)
-      return treeMaximum(x.left);
-    var y = x.parent;
-    while (y && x == y.left) {
-      x = y;
-      y = y.parent;
-    }
-    return y;
-  };
-
-  Node.prototype.toString = function () {
-    return this.key + "=>" + this.value + " (" + this.color + ")";
   };
 
   function RedBlackTree() {
@@ -469,7 +430,7 @@ var RedBlackTree = (function (){
 
   RedBlackTree.prototype._findNode = function (key) {
     for (var current = this._root; current;) {
-      var comparisonResult = compare(key, current.key);
+      var comparisonResult = key.compareTo(current.key);
       if (!comparisonResult)
         return current;
       if (comparisonResult < 0)
@@ -752,13 +713,15 @@ var drawMotionOnVoxelMap = (function () {
 
 function reduceCollisionSet(motions) {
   var voxelMap = new RedBlackTree();
-  for (var i = 0; i < motions.length; ++i)
-    drawMotionOnVoxelMap(voxelMap, motions[i]);
+  motions.forEach(function (motion) {
+    drawMotionOnVoxelMap(voxelMap, motion);
+  });
 
-  var result = [];
+  var result = new som.Vector();
   voxelMap.forEach(function (key, value) {
-    if (value.length > 1)
-      result.push(value);
+    if (value.length > 1) {
+      result.append(value);
+    }
   });
   return result;
 }
