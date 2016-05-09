@@ -45,46 +45,31 @@ Vector2D.prototype.toString = function () {
   return "[" + this.x + ", " + this.y + "]";
 };
 
-Vector2D.prototype.compareTo = function(other) {
+function compareNumbers(a, b) {
+  if (a === b) {
+    return 0;
+  }
+  if (a < b) {
+    return -1;
+  }
+  if (a > b) {
+    return 1;
+  }
+
+  // We say that NaN is smaller than non-NaN.
+  if (a == a) {
+    return 1;
+  }
+  return -1;
+}
+
+Vector2D.prototype.compareTo = function (other) {
   var result = compareNumbers(this.x, other.x);
-  if (result)
+  if (result) {
     return result;
+  }
   return compareNumbers(this.y, other.y);
 };
-
-function CD() {
-  benchmark.Benchmark.call(this);
-
-  function cd(numAircrafts) {
-    var numFrames = 200;
-    var simulator = new Simulator(numAircrafts);
-    var detector = new CollisionDetector();
-
-    var actualCollisions = 0;
-    for (var i = 0; i < numFrames; ++i) {
-      var time = i / 10;
-
-      var collisions = detector.handleNewFrame(simulator.simulate(time));
-      actualCollisions += collisions.length;
-    }
-    return actualCollisions;
-  }
-
-  function verifyResult(actualCollisions, numAircrafts) {
-    var expectedCollisions = 14484;
-    process.stdout.write("Excepected Collisions: " + expectedCollisions);
-    if (actualCollisions != expectedCollisions) {
-      throw new Error("Bad number of collisions: " + actualCollisions + " (expected " +
-        expectedCollisions + ")");
-    }
-    return true;
-  }
-
-  this.innerBenchmarkLoop = function (innerIterations) {
-    var numAircrafts = 1000;
-    return verifyResult(cd(numAircrafts), numAircrafts);
-  };
-}
 
 function CallSign(value) {
   this._value = value;
@@ -806,21 +791,6 @@ Simulator.prototype.simulate = function (time) {
   return frame;
 };
 
-
-function compareNumbers(a, b) {
-  if (a == b)
-    return 0;
-  if (a < b)
-    return -1;
-  if (a > b)
-    return 1;
-
-  // We say that NaN is smaller than non-NaN.
-  if (a == a)
-    return 1;
-  return -1;
-}
-
 function averageAbovePercentile(numbers, percentile) {
   // Don't change the original array.
   numbers = numbers.slice();
@@ -900,6 +870,40 @@ Vector3D.prototype.as2D = function() {
 Vector3D.prototype.toString = function () {
   return "[" + this.x + ", " + this.y + ", " + this.z + "]";
 };
+
+function CD() {
+  benchmark.Benchmark.call(this);
+
+  function cd(numAircrafts) {
+    var numFrames = 200;
+    var simulator = new Simulator(numAircrafts);
+    var detector = new CollisionDetector();
+
+    var actualCollisions = 0;
+    for (var i = 0; i < numFrames; ++i) {
+      var time = i / 10;
+
+      var collisions = detector.handleNewFrame(simulator.simulate(time));
+      actualCollisions += collisions.size();
+    }
+    return actualCollisions;
+  }
+
+  function verifyResult(actualCollisions, numAircrafts) {
+    var expectedCollisions = 14484;
+    process.stdout.write("Excepected Collisions: " + expectedCollisions);
+    if (actualCollisions != expectedCollisions) {
+      throw new Error("Bad number of collisions: " + actualCollisions + " (expected " +
+        expectedCollisions + ")");
+    }
+    return true;
+  }
+
+  this.innerBenchmarkLoop = function (innerIterations) {
+    var numAircrafts = 1000;
+    return verifyResult(cd(numAircrafts), numAircrafts);
+  };
+}
 
 exports.newInstance = function () {
   return new CD();
