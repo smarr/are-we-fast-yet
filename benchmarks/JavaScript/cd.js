@@ -73,7 +73,7 @@ function CallSign(value) {
 }
 
 CallSign.prototype.compareTo = function (other) {
-  return this._value.localeCompare(other._value);
+  return this._value == other._value ? 0 : this._value < other._value ? -1 : 1;
 };
 
 CallSign.prototype.toString = function () {
@@ -766,7 +766,7 @@ function reduceCollisionSet(motions) {
 function Simulator(numAircraft) {
   this._aircraft = [];
   for (var i = 0; i < numAircraft; ++i)
-    this._aircraft.push(new CallSign("foo" + i));
+    this._aircraft.push(new CallSign(i));
 }
 
 Simulator.prototype.simulate = function (time) {
