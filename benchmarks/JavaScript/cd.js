@@ -34,16 +34,12 @@ function Vector2D(x, y) {
 
 Vector2D.prototype.plus = function (other) {
   return new Vector2D(this.x + other.x,
-    this.y + other.y);
+                      this.y + other.y);
 };
 
 Vector2D.prototype.minus = function (other) {
   return new Vector2D(this.x - other.x,
-    this.y - other.y);
-};
-
-Vector2D.prototype.toString = function () {
-  return "[" + this.x + ", " + this.y + "]";
+                      this.y - other.y);
 };
 
 function compareNumbers(a, b) {
@@ -88,10 +84,6 @@ function Collision(aircraft, position) {
   this.aircraft = aircraft;
   this.position = position;
 }
-
-Collision.prototype.toString = function () {
-  return "Collision(" + this.aircraft + " at " + this.position + ")";
-};
 
 function CollisionDetector() {
   this._state = new RedBlackTree();
