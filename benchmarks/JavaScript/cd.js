@@ -22,6 +22,9 @@
 // ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"use strict";
+
+var benchmark = require('./benchmark.js');
 
 function Vector2D(x, y) {
   this.x = x;
@@ -49,61 +52,38 @@ Vector2D.prototype.compareTo = function(other) {
   return compareNumbers(this.y, other.y);
 };
 
-function benchmark() {
-  var verbosity = 0;
-  var numAircraft = 1000;
-  var numFrames = 200;
-  var expectedCollisions = 14484;
-  var percentile = 95;
+function CD() {
+  benchmark.Benchmark.call(this);
 
-  var simulator = new Simulator(numAircraft);
-  var detector = new CollisionDetector();
-  var lastTime = currentTime();
-  var results = [];
-  for (var i = 0; i < numFrames; ++i) {
-    var time = i / 10;
+  function cd(numAircrafts) {
+    var numFrames = 200;
+    var simulator = new Simulator(numAircrafts);
+    var detector = new CollisionDetector();
 
-    var collisions = detector.handleNewFrame(simulator.simulate(time));
+    var actualCollisions = 0;
+    for (var i = 0; i < numFrames; ++i) {
+      var time = i / 10;
 
-    var before = lastTime;
-    var after = currentTime();
-    lastTime = after;
-    var result = {
-      time: after - before,
-      numCollisions: collisions.length
-    };
-    if (verbosity >= 2)
-      result.collisions = collisions;
-    results.push(result);
-  }
-
-  if (verbosity >= 1) {
-    for (var i = 0; i < results.length; ++i) {
-      var string = "Frame " + i + ": " + results[i].time + " ms.";
-      if (results[i].numCollisions)
-        string += " (" + results[i].numCollisions + " collisions.)";
-      process.stdout.write(string);
-      if (verbosity >= 2 && results[i].collisions.length)
-        process.stdout.write("    Collisions: " + results[i].collisions);
+      var collisions = detector.handleNewFrame(simulator.simulate(time));
+      actualCollisions += collisions.length;
     }
+    return actualCollisions;
   }
 
-  // Check results.
-  var actualCollisions = 0;
-  for (var i = 0; i < results.length; ++i)
-    actualCollisions += results[i].numCollisions;
-  process.stdout.write("Excepected Collisions: " + expectedCollisions);
-  if (actualCollisions != expectedCollisions) {
-    throw new Error("Bad number of collisions: " + actualCollisions + " (expected " +
-      expectedCollisions + ")");
+  function verifyResult(actualCollisions, numAircrafts) {
+    var expectedCollisions = 14484;
+    process.stdout.write("Excepected Collisions: " + expectedCollisions);
+    if (actualCollisions != expectedCollisions) {
+      throw new Error("Bad number of collisions: " + actualCollisions + " (expected " +
+        expectedCollisions + ")");
+    }
+    return true;
   }
 
-  // Find the worst 5%
-  var times = [];
-  for (var i = 0; i < results.length; ++i)
-    times.push(results[i].time);
-
-  return averageAbovePercentile(times, percentile);
+  this.innerBenchmarkLoop = function (innerIterations) {
+    var numAircrafts = 1000;
+    return verifyResult(cd(numAircrafts), numAircrafts);
+  };
 }
 
 function CallSign(value) {
@@ -112,11 +92,11 @@ function CallSign(value) {
 
 CallSign.prototype.compareTo = function(other) {
   return this._value.localeCompare(other._value);
-}
+};
 
 CallSign.prototype.toString = function() {
   return this._value;
-}
+};
 
 function Collision(aircraft, position) {
   this.aircraft = aircraft;
@@ -877,14 +857,6 @@ function averageAbovePercentile(numbers, percentile) {
   return result;
 }
 
-var currentTime;
-if (this.performance && performance.now)
-  currentTime = function() { return performance.now() };
-else
-  currentTime = function() { return 0 + new Date(); };
-
-
-
 function Vector3D(x, y, z) {
   this.x = x;
   this.y = y;
@@ -929,6 +901,6 @@ Vector3D.prototype.toString = function() {
   return "[" + this.x + ", " + this.y + ", " + this.z + "]";
 };
 
-
-
-benchmark();
+exports.newInstance = function () {
+  return new CD();
+};
