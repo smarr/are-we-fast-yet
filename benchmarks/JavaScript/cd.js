@@ -246,7 +246,6 @@ Motion.prototype.findIntersection = function (other) {
   return null;
 };
 
-var RedBlackTree = (function (){
   function treeMinimum(x) {
     while (x.left)
       x = x.left;
@@ -597,9 +596,6 @@ var RedBlackTree = (function (){
     if (x)
       x.color = "black";
   };
-
-  return RedBlackTree;
-})();
 
 var drawMotionOnVoxelMap = (function () {
   var voxelSize = Constants.GOOD_VOXEL_SIZE;
