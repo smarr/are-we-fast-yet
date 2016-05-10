@@ -22,7 +22,14 @@
  */
 package som;
 
-public class Dictionary<K, V> {
+import som.Dictionary.CustomHash;
+
+
+public class Dictionary<K extends CustomHash, V> {
+
+  public interface CustomHash {
+    int customHash();
+  }
 
   protected static final int INITIAL_CAPACITY = 16;
 
@@ -57,11 +64,11 @@ public class Dictionary<K, V> {
     this(INITIAL_CAPACITY);
   }
 
-  private static final <K> int hash(final K key) {
+  private static final <K extends CustomHash> int hash(final K key) {
     if (key == null) {
       return 0;
     }
-    int hash = key.hashCode();
+    int hash = key.customHash();
     return hash ^ hash >>> 16;
   }
 

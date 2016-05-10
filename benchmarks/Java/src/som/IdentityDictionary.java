@@ -1,7 +1,9 @@
 package som;
 
+import som.Dictionary.CustomHash;
 
-public class IdentityDictionary<K, V> extends Dictionary<K, V> {
+
+public class IdentityDictionary<K extends CustomHash, V> extends Dictionary<K, V> {
 
   static class IdEntry<K, V> extends Entry<K, V> {
     IdEntry(final int hash, final K key, final V value, final Entry<K, V> next) {
