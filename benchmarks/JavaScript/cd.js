@@ -68,210 +68,40 @@ Vector2D.prototype.compareTo = function (other) {
   return compareNumbers(this.y, other.y);
 };
 
-function CallSign(value) {
-  this._value = value;
+function Vector3D(x, y, z) {
+  this.x = x;
+  this.y = y;
+  this.z = z;
 }
 
-CallSign.prototype.compareTo = function (other) {
-  return this._value == other._value ? 0 : this._value < other._value ? -1 : 1;
+Vector3D.prototype.plus = function (other) {
+  return new Vector3D(this.x + other.x,
+    this.y + other.y,
+    this.z + other.z);
 };
 
-function Collision(aircraftA, aircraftB, position) {
-  this.aircraftA = aircraftA;
-  this.aircraftB = aircraftB;
-  this.position = position;
-}
-
-function CollisionDetector() {
-  this._state = new RedBlackTree();
-}
-
-CollisionDetector.prototype.handleNewFrame = function (frame) {
-  var motions = new som.Vector();
-  var seen = new RedBlackTree();
-  var _that = this;
-  frame.forEach(function (aircraft) {
-    var oldPosition = _that._state.put(aircraft.callsign, aircraft.position);
-    var newPosition = aircraft.position;
-    seen.put(aircraft.callsign, true);
-
-    if (!oldPosition) {
-      // Treat newly introduced aircraft as if they were stationary.
-      oldPosition = newPosition;
-    }
-    motions.append(new Motion(aircraft.callsign, oldPosition, newPosition));
-  });
-
-  // Remove aircraft that are no longer present.
-  var toRemove = new som.Vector();
-  this._state.forEach(function(callsign, position) {
-    if (!seen.get(callsign)) {
-      toRemove.append(callsign);
-    }
-  });
-
-  toRemove.forEach(function (e) { _that._state.remove(e); });
-
-  var allReduced = reduceCollisionSet(motions);
-  var collisions = new som.Vector();
-
-  allReduced.forEach(function (reduced) {
-    for (var i = 0; i < reduced.length; ++i) {
-      var motion1 = reduced[i];
-      for (var j = i + 1; j < reduced.length; ++j) {
-        var motion2 = reduced[j];
-        var collision = motion1.findIntersection(motion2);
-        if (collision) {
-          collisions.append(new Collision(motion1.callsign, motion2.callsign, collision));
-        }
-      }
-    }
-  });
-
-  return collisions;
+Vector3D.prototype.minus = function (other) {
+  return new Vector3D(this.x - other.x,
+    this.y - other.y,
+    this.z - other.z);
 };
 
-var Constants = {};
-Constants.MIN_X = 0;
-Constants.MIN_Y = 0;
-Constants.MAX_X = 1000;
-Constants.MAX_Y = 1000;
-Constants.MIN_Z = 0;
-Constants.MAX_Z = 10;
-Constants.PROXIMITY_RADIUS = 1;
-Constants.GOOD_VOXEL_SIZE = Constants.PROXIMITY_RADIUS * 2;
-
-function Motion(callsign, posOne, posTwo) {
-  this.callsign = callsign;
-  this.posOne = posOne;
-  this.posTwo = posTwo;
-}
-
-Motion.prototype.delta = function () {
-  return this.posTwo.minus(this.posOne);
+Vector3D.prototype.dot = function (other) {
+  return this.x * other.x + this.y * other.y + this.z * other.z;
 };
 
-Motion.prototype.findIntersection = function (other) {
-  var init1 = this.posOne;
-  var init2 = other.posOne;
-  var vec1 = this.delta();
-  var vec2 = other.delta();
-  var radius = Constants.PROXIMITY_RADIUS;
-
-  // this test is not geometrical 3-d intersection test, it takes the fact that the aircraft move
-  // into account ; so it is more like a 4d test
-  // (it assumes that both of the aircraft have a constant speed over the tested interval)
-
-  // we thus have two points, each of them moving on its line segment at constant speed ; we are looking
-  // for times when the distance between these two points is smaller than r
-
-  // vec1 is vector of aircraft 1
-  // vec2 is vector of aircraft 2
-
-  // a = (V2 - V1)^T * (V2 - V1)
-  var a = vec2.minus(vec1).squaredMagnitude();
-
-  if (a != 0) {
-    // we are first looking for instances of time when the planes are exactly r from each other
-    // at least one plane is moving ; if the planes are moving in parallel, they do not have constant speed
-
-    // if the planes are moving in parallel, then
-    //   if the faster starts behind the slower, we can have 2, 1, or 0 solutions
-    //   if the faster plane starts in front of the slower, we can have 0 or 1 solutions
-
-    // if the planes are not moving in parallel, then
-
-    // point P1 = I1 + vV1
-    // point P2 = I2 + vV2
-    //   - looking for v, such that dist(P1,P2) = || P1 - P2 || = r
-
-    // it follows that || P1 - P2 || = sqrt( < P1-P2, P1-P2 > )
-    //   0 = -r^2 + < P1 - P2, P1 - P2 >
-    //  from properties of dot product
-    //   0 = -r^2 + <I1-I2,I1-I2> + v * 2<I1-I2, V1-V2> + v^2 *<V1-V2,V1-V2>
-    //   so we calculate a, b, c - and solve the quadratic equation
-    //   0 = c + bv + av^2
-
-    // b = 2 * <I1-I2, V1-V2>
-    var b = 2 * init1.minus(init2).dot(vec1.minus(vec2));
-
-    // c = -r^2 + (I2 - I1)^T * (I2 - I1)
-    var c = -radius * radius + init2.minus(init1).squaredMagnitude();
-
-    var discr = b * b - 4 * a * c;
-    if (discr < 0)
-      return null;
-
-    var v1 = (-b - Math.sqrt(discr)) / (2 * a);
-    var v2 = (-b + Math.sqrt(discr)) / (2 * a);
-
-    if (v1 <= v2 && ((v1 <= 1  &&  1 <= v2) ||
-                     (v1 <= 0  &&  0 <= v2) ||
-                     (0  <= v1 && v2 <= 1))) {
-      // Pick a good "time" at which to report the collision.
-      var v;
-      if (v1 <= 0) {
-        // The collision started before this frame. Report it at the start of the frame.
-        v = 0;
-      } else {
-        // The collision started during this frame. Report it at that moment.
-        v = v1;
-      }
-
-      var result1 = init1.plus(vec1.times(v));
-      var result2 = init2.plus(vec2.times(v));
-
-      var result = result1.plus(result2).times(0.5);
-      if (result.x >= Constants.MIN_X &&
-        result.x <= Constants.MAX_X &&
-        result.y >= Constants.MIN_Y &&
-        result.y <= Constants.MAX_Y &&
-        result.z >= Constants.MIN_Z &&
-        result.z <= Constants.MAX_Z)
-        return result;
-    }
-
-    return null;
-  }
-
-  // the planes have the same speeds and are moving in parallel (or they are not moving at all)
-  // they  thus have the same distance all the time ; we calculate it from the initial point
-
-  // dist = || i2 - i1 || = sqrt(  ( i2 - i1 )^T * ( i2 - i1 ) )
-  var dist = init2.minus(init1).magnitude();
-  if (dist <= radius) {
-    return init1.plus(init2).times(0.5);
-  }
-
-  return null;
+Vector3D.prototype.squaredMagnitude = function () {
+  return this.dot(this);
 };
 
-function treeMinimum(x) {
-  while (x.left)
-    x = x.left;
-  return x;
-}
+Vector3D.prototype.magnitude = function () {
+  return Math.sqrt(this.squaredMagnitude());
+};
 
-function Node(key, value) {
-  this.key = key;
-  this.value = value;
-  this.left = null;
-  this.right = null;
-  this.parent = null;
-  this.color = "red";
-}
-
-Node.prototype.successor = function () {
-  var x = this;
-  if (x.right) {
-    return treeMinimum(x.right);
-  }
-  var y = x.parent;
-  while (y && x == y.right) {
-    x = y;
-    y = y.parent;
-  }
-  return y;
+Vector3D.prototype.times = function (amount) {
+  return new Vector3D(this.x * amount,
+    this.y * amount,
+    this.z * amount);
 };
 
 function RedBlackTree() {
@@ -601,6 +431,212 @@ RedBlackTree.prototype._removeFixup = function (x, xParent) {
   }
 };
 
+function CallSign(value) {
+  this._value = value;
+}
+
+CallSign.prototype.compareTo = function (other) {
+  return this._value == other._value ? 0 : this._value < other._value ? -1 : 1;
+};
+
+function Collision(aircraftA, aircraftB, position) {
+  this.aircraftA = aircraftA;
+  this.aircraftB = aircraftB;
+  this.position = position;
+}
+
+function CollisionDetector() {
+  this._state = new RedBlackTree();
+}
+
+CollisionDetector.prototype.handleNewFrame = function (frame) {
+  var motions = new som.Vector();
+  var seen = new RedBlackTree();
+  var _that = this;
+  frame.forEach(function (aircraft) {
+    var oldPosition = _that._state.put(aircraft.callsign, aircraft.position);
+    var newPosition = aircraft.position;
+    seen.put(aircraft.callsign, true);
+
+    if (!oldPosition) {
+      // Treat newly introduced aircraft as if they were stationary.
+      oldPosition = newPosition;
+    }
+    motions.append(new Motion(aircraft.callsign, oldPosition, newPosition));
+  });
+
+  // Remove aircraft that are no longer present.
+  var toRemove = new som.Vector();
+  this._state.forEach(function(callsign, position) {
+    if (!seen.get(callsign)) {
+      toRemove.append(callsign);
+    }
+  });
+
+  toRemove.forEach(function (e) { _that._state.remove(e); });
+
+  var allReduced = reduceCollisionSet(motions);
+  var collisions = new som.Vector();
+
+  allReduced.forEach(function (reduced) {
+    for (var i = 0; i < reduced.length; ++i) {
+      var motion1 = reduced[i];
+      for (var j = i + 1; j < reduced.length; ++j) {
+        var motion2 = reduced[j];
+        var collision = motion1.findIntersection(motion2);
+        if (collision) {
+          collisions.append(new Collision(motion1.callsign, motion2.callsign, collision));
+        }
+      }
+    }
+  });
+
+  return collisions;
+};
+
+var Constants = {};
+Constants.MIN_X = 0;
+Constants.MIN_Y = 0;
+Constants.MAX_X = 1000;
+Constants.MAX_Y = 1000;
+Constants.MIN_Z = 0;
+Constants.MAX_Z = 10;
+Constants.PROXIMITY_RADIUS = 1;
+Constants.GOOD_VOXEL_SIZE = Constants.PROXIMITY_RADIUS * 2;
+
+function Motion(callsign, posOne, posTwo) {
+  this.callsign = callsign;
+  this.posOne = posOne;
+  this.posTwo = posTwo;
+}
+
+Motion.prototype.delta = function () {
+  return this.posTwo.minus(this.posOne);
+};
+
+Motion.prototype.findIntersection = function (other) {
+  var init1 = this.posOne;
+  var init2 = other.posOne;
+  var vec1 = this.delta();
+  var vec2 = other.delta();
+  var radius = Constants.PROXIMITY_RADIUS;
+
+  // this test is not geometrical 3-d intersection test, it takes the fact that the aircraft move
+  // into account ; so it is more like a 4d test
+  // (it assumes that both of the aircraft have a constant speed over the tested interval)
+
+  // we thus have two points, each of them moving on its line segment at constant speed ; we are looking
+  // for times when the distance between these two points is smaller than r
+
+  // vec1 is vector of aircraft 1
+  // vec2 is vector of aircraft 2
+
+  // a = (V2 - V1)^T * (V2 - V1)
+  var a = vec2.minus(vec1).squaredMagnitude();
+
+  if (a != 0) {
+    // we are first looking for instances of time when the planes are exactly r from each other
+    // at least one plane is moving ; if the planes are moving in parallel, they do not have constant speed
+
+    // if the planes are moving in parallel, then
+    //   if the faster starts behind the slower, we can have 2, 1, or 0 solutions
+    //   if the faster plane starts in front of the slower, we can have 0 or 1 solutions
+
+    // if the planes are not moving in parallel, then
+
+    // point P1 = I1 + vV1
+    // point P2 = I2 + vV2
+    //   - looking for v, such that dist(P1,P2) = || P1 - P2 || = r
+
+    // it follows that || P1 - P2 || = sqrt( < P1-P2, P1-P2 > )
+    //   0 = -r^2 + < P1 - P2, P1 - P2 >
+    //  from properties of dot product
+    //   0 = -r^2 + <I1-I2,I1-I2> + v * 2<I1-I2, V1-V2> + v^2 *<V1-V2,V1-V2>
+    //   so we calculate a, b, c - and solve the quadratic equation
+    //   0 = c + bv + av^2
+
+    // b = 2 * <I1-I2, V1-V2>
+    var b = 2 * init1.minus(init2).dot(vec1.minus(vec2));
+
+    // c = -r^2 + (I2 - I1)^T * (I2 - I1)
+    var c = -radius * radius + init2.minus(init1).squaredMagnitude();
+
+    var discr = b * b - 4 * a * c;
+    if (discr < 0)
+      return null;
+
+    var v1 = (-b - Math.sqrt(discr)) / (2 * a);
+    var v2 = (-b + Math.sqrt(discr)) / (2 * a);
+
+    if (v1 <= v2 && ((v1 <= 1  &&  1 <= v2) ||
+                     (v1 <= 0  &&  0 <= v2) ||
+                     (0  <= v1 && v2 <= 1))) {
+      // Pick a good "time" at which to report the collision.
+      var v;
+      if (v1 <= 0) {
+        // The collision started before this frame. Report it at the start of the frame.
+        v = 0;
+      } else {
+        // The collision started during this frame. Report it at that moment.
+        v = v1;
+      }
+
+      var result1 = init1.plus(vec1.times(v));
+      var result2 = init2.plus(vec2.times(v));
+
+      var result = result1.plus(result2).times(0.5);
+      if (result.x >= Constants.MIN_X &&
+        result.x <= Constants.MAX_X &&
+        result.y >= Constants.MIN_Y &&
+        result.y <= Constants.MAX_Y &&
+        result.z >= Constants.MIN_Z &&
+        result.z <= Constants.MAX_Z)
+        return result;
+    }
+
+    return null;
+  }
+
+  // the planes have the same speeds and are moving in parallel (or they are not moving at all)
+  // they  thus have the same distance all the time ; we calculate it from the initial point
+
+  // dist = || i2 - i1 || = sqrt(  ( i2 - i1 )^T * ( i2 - i1 ) )
+  var dist = init2.minus(init1).magnitude();
+  if (dist <= radius) {
+    return init1.plus(init2).times(0.5);
+  }
+
+  return null;
+};
+
+function treeMinimum(x) {
+  while (x.left)
+    x = x.left;
+  return x;
+}
+
+function Node(key, value) {
+  this.key = key;
+  this.value = value;
+  this.left = null;
+  this.right = null;
+  this.parent = null;
+  this.color = "red";
+}
+
+Node.prototype.successor = function () {
+  var x = this;
+  if (x.right) {
+    return treeMinimum(x.right);
+  }
+  var y = x.parent;
+  while (y && x == y.right) {
+    x = y;
+    y = y.parent;
+  }
+  return y;
+};
+
 var drawMotionOnVoxelMap = (function () {
   var voxelSize = Constants.GOOD_VOXEL_SIZE;
   var horizontal = new Vector2D(voxelSize, 0);
@@ -785,42 +821,6 @@ function averageAbovePercentile(numbers, percentile) {
 
   return result;
 }
-
-function Vector3D(x, y, z) {
-  this.x = x;
-  this.y = y;
-  this.z = z;
-}
-
-Vector3D.prototype.plus = function (other) {
-  return new Vector3D(this.x + other.x,
-    this.y + other.y,
-    this.z + other.z);
-};
-
-Vector3D.prototype.minus = function (other) {
-  return new Vector3D(this.x - other.x,
-    this.y - other.y,
-    this.z - other.z);
-};
-
-Vector3D.prototype.dot = function (other) {
-  return this.x * other.x + this.y * other.y + this.z * other.z;
-};
-
-Vector3D.prototype.squaredMagnitude = function () {
-  return this.dot(this);
-};
-
-Vector3D.prototype.magnitude = function () {
-  return Math.sqrt(this.squaredMagnitude());
-};
-
-Vector3D.prototype.times = function (amount) {
-  return new Vector3D(this.x * amount,
-    this.y * amount,
-    this.z * amount);
-};
 
 function CD() {
   benchmark.Benchmark.call(this);
