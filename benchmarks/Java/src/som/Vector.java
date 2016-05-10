@@ -51,7 +51,24 @@ public class Vector<E> {
 
   @SuppressWarnings("unchecked")
   public E at(final int idx) {
+    if (idx >= storage.length) {
+      return null;
+    }
     return (E) storage[idx];
+  }
+
+  public void atPut(final int idx, final E val) {
+    if (idx >= storage.length) {
+      int newLength = storage.length;
+      while (newLength <= idx) {
+        newLength *= 2;
+      }
+      storage = Arrays.copyOf(storage, newLength);
+    }
+    storage[idx] = val;
+    if (lastIdx < idx + 1) {
+      lastIdx = idx + 1;
+    }
   }
 
   public void append(final E elem) {
