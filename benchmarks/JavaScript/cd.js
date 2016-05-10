@@ -263,8 +263,9 @@ function Node(key, value) {
 
 Node.prototype.successor = function () {
   var x = this;
-  if (x.right)
+  if (x.right) {
     return treeMinimum(x.right);
+  }
   var y = x.parent;
   while (y && x == y.right) {
     x = y;
@@ -279,8 +280,9 @@ function RedBlackTree() {
 
 RedBlackTree.prototype.put = function (key, value) {
   var insertionResult = this._treeInsert(key, value);
-  if (!insertionResult.isNewEntry)
+  if (!insertionResult.isNewEntry) {
     return insertionResult.oldValue;
+  }
   var x = insertionResult.newNode;
 
   while (x != this._root && x.parent.color == "red") {
@@ -332,22 +334,25 @@ RedBlackTree.prototype.put = function (key, value) {
 
 RedBlackTree.prototype.remove = function (key) {
   var z = this._findNode(key);
-  if (!z)
+  if (!z) {
     return null;
+  }
 
   // Y is the node to be unlinked from the tree.
   var y;
-  if (!z.left || !z.right)
+  if (!z.left || !z.right) {
     y = z;
-  else
+  } else {
     y = z.successor();
+  }
 
   // Y is guaranteed to be non-null at this point.
   var x;
-  if (y.left)
+  if (y.left) {
     x = y.left;
-  else
+  } else {
     x = y.right;
+  }
 
   // X is the child of y which might potentially replace y in the tree. X might be null at
   // this point.
@@ -355,47 +360,56 @@ RedBlackTree.prototype.remove = function (key) {
   if (x) {
     x.parent = y.parent;
     xParent = x.parent;
-  } else
+  } else {
     xParent = y.parent;
-  if (!y.parent)
+  }
+  if (!y.parent) {
     this._root = x;
-  else {
-    if (y == y.parent.left)
+  } else {
+    if (y == y.parent.left) {
       y.parent.left = x;
-    else
+    } else {
       y.parent.right = x;
+    }
   }
 
   if (y != z) {
-    if (y.color == "black")
+    if (y.color == "black") {
       this._removeFixup(x, xParent);
+    }
 
     y.parent = z.parent;
     y.color = z.color;
     y.left = z.left;
     y.right = z.right;
 
-    if (z.left)
+    if (z.left) {
       z.left.parent = y;
-    if (z.right)
+    }
+    if (z.right) {
       z.right.parent = y;
+    }
     if (z.parent) {
-      if (z.parent.left == z)
+      if (z.parent.left == z) {
         z.parent.left = y;
-      else
+      } else {
         z.parent.right = y;
-    } else
+      }
+    } else {
       this._root = y;
-  } else if (y.color == "black")
+    }
+  } else if (y.color == "black") {
     this._removeFixup(x, xParent);
+  }
 
   return z.value;
 };
 
 RedBlackTree.prototype.get = function (key) {
   var node = this._findNode(key);
-  if (!node)
+  if (!node) {
     return null;
+  }
   return node.value;
 };
 
@@ -406,36 +420,17 @@ RedBlackTree.prototype.forEach = function (callback) {
     callback(current.key, current.value);
 };
 
-RedBlackTree.prototype.asArray = function () {
-  var result = [];
-  this.forEach(function (key, value) {
-    result.push({key: key, value: value});
-  });
-  return result;
-};
-
-RedBlackTree.prototype.toString = function () {
-  var result = "[";
-  var first = true;
-  this.forEach(function (key, value) {
-    if (first)
-      first = false;
-    else
-      result += ", ";
-    result += key + "=>" + value;
-  });
-  return result + "]";
-};
-
 RedBlackTree.prototype._findNode = function (key) {
   for (var current = this._root; current;) {
     var comparisonResult = key.compareTo(current.key);
-    if (!comparisonResult)
+    if (!comparisonResult) {
       return current;
-    if (comparisonResult < 0)
+    }
+    if (comparisonResult < 0) {
       current = current.left;
-    else
+    } else {
       current = current.right;
+    }
   }
   return null;
 };
@@ -446,25 +441,27 @@ RedBlackTree.prototype._treeInsert = function (key, value) {
   while (x) {
     y = x;
     var comparisonResult = key.compareTo(x.key);
-    if (comparisonResult < 0)
+    if (comparisonResult < 0) {
       x = x.left;
-    else if (comparisonResult > 0)
+    } else if (comparisonResult > 0) {
       x = x.right;
-    else {
+    } else {
       var oldValue = x.value;
       x.value = value;
       return {isNewEntry:false, oldValue:oldValue};
     }
   }
+
   var z = new Node(key, value);
   z.parent = y;
-  if (!y)
+  if (!y) {
     this._root = z;
-  else {
-    if (key.compareTo(y.key) < 0)
+  } else {
+    if (key.compareTo(y.key) < 0) {
       y.left = z;
-    else
+    } else {
       y.right = z;
+    }
   }
   return {isNewEntry:true, newNode:z};
 };
@@ -474,18 +471,20 @@ RedBlackTree.prototype._leftRotate = function (x) {
 
   // Turn y's left subtree into x's right subtree.
   x.right = y.left;
-  if (y.left)
+  if (y.left) {
     y.left.parent = x;
+  }
 
   // Link x's parent to y.
   y.parent = x.parent;
-  if (!x.parent)
+  if (!x.parent) {
     this._root = y;
-  else {
-    if (x == x.parent.left)
+  } else {
+    if (x == x.parent.left) {
       x.parent.left = y;
-    else
+    } else {
       x.parent.right = y;
+    }
   }
 
   // Put x on y's left.
@@ -500,18 +499,20 @@ RedBlackTree.prototype._rightRotate = function (y) {
 
   // Turn x's right subtree into y's left subtree.
   y.left = x.right;
-  if (x.right)
+  if (x.right) {
     x.right.parent = y;
+  }
 
   // Link y's parent to x;
   x.parent = y.parent;
-  if (!y.parent)
+  if (!y.parent) {
     this._root = x;
-  else {
-    if (y == y.parent.left)
+  } else {
+    if (y == y.parent.left) {
       y.parent.left = x;
-    else
+    } else {
       y.parent.right = x;
+    }
   }
 
   x.right = y;
@@ -551,8 +552,9 @@ RedBlackTree.prototype._removeFixup = function (x, xParent) {
         // Case 4
         w.color = xParent.color;
         xParent.color = "black";
-        if (w.right)
+        if (w.right) {
           w.right.color = "black";
+        }
         this._leftRotate(xParent);
         x = this._root;
         xParent = x.parent;
@@ -585,16 +587,18 @@ RedBlackTree.prototype._removeFixup = function (x, xParent) {
         // Case 4
         w.color = xParent.color;
         xParent.color = "black";
-        if (w.left)
+        if (w.left) {
           w.left.color = "black";
+        }
         this._rightRotate(xParent);
         x = this._root;
         xParent = x.parent;
       }
     }
   }
-  if (x)
+  if (x) {
     x.color = "black";
+  }
 };
 
 var drawMotionOnVoxelMap = (function () {
@@ -623,8 +627,9 @@ var drawMotionOnVoxelMap = (function () {
 
     function putIntoMap(voxel) {
       var array = voxelMap.get(voxel);
-      if (!array)
+      if (!array) {
         voxelMap.put(voxel, array = []);
+      }
       array.push(motion);
     }
 
@@ -632,8 +637,9 @@ var drawMotionOnVoxelMap = (function () {
       if (voxel.x > Constants.MAX_X ||
         voxel.x < Constants.MIN_X ||
         voxel.y > Constants.MAX_Y ||
-        voxel.y < Constants.MIN_Y)
+        voxel.y < Constants.MIN_Y) {
         return false;
+      }
 
       var init = motion.posOne;
       var fin = motion.posTwo;
@@ -669,10 +675,6 @@ var drawMotionOnVoxelMap = (function () {
         high_y = tmp;
       }
 
-      if (false) {
-        process.stdout.write("v_x = " + v_x + ", x0 = " + x0 + ", xv = " + xv + ", v_y = " + v_y + ", y0 = " + y0 + ", yv = " + yv + ", low_x = " + low_x + ", low_y = " + low_y + ", high_x = " + high_x + ", high_y = " + high_y);
-      }
-
       return (((xv == 0 && v_x <= x0 + r && x0 - r <= v_x + v_s) /* no motion in x */ ||
       ((low_x <= 1 && 1 <= high_x) || (low_x <= 0 && 0 <= high_x) ||
       (0 <= low_x && high_x <= 1))) &&
@@ -686,10 +688,12 @@ var drawMotionOnVoxelMap = (function () {
     }
 
     function recurse(nextVoxel) {
-      if (!isInVoxel(nextVoxel, motion))
+      if (!isInVoxel(nextVoxel, motion)) {
         return;
-      if (seen.put(nextVoxel, true))
+      }
+      if (seen.put(nextVoxel, true)) {
         return;
+      }
 
       putIntoMap(nextVoxel);
 
@@ -724,8 +728,9 @@ function reduceCollisionSet(motions) {
 
 function Simulator(numAircraft) {
   this._aircraft = [];
-  for (var i = 0; i < numAircraft; ++i)
+  for (var i = 0; i < numAircraft; ++i) {
     this._aircraft.push(new CallSign(i));
+  }
 }
 
 Simulator.prototype.simulate = function (time) {
@@ -761,12 +766,14 @@ function averageAbovePercentile(numbers, percentile) {
   // - numbers.length starts at 10: we will remove just the worst.
   var numbersWeWant = [];
   var originalLength = numbers.length;
-  while (numbers.length / originalLength > percentile / 100)
+  while (numbers.length / originalLength > percentile / 100) {
     numbersWeWant.push(numbers.pop());
+  }
 
   var sum = 0;
-  for (var i = 0; i < numbersWeWant.length; ++i)
+  for (var i = 0; i < numbersWeWant.length; ++i) {
     sum += numbersWeWant[i];
+  }
 
   var result = sum / numbersWeWant.length;
 
@@ -815,10 +822,6 @@ Vector3D.prototype.times = function (amount) {
     this.z * amount);
 };
 
-Vector3D.prototype.toString = function () {
-  return "[" + this.x + ", " + this.y + ", " + this.z + "]";
-};
-
 function CD() {
   benchmark.Benchmark.call(this);
 
@@ -839,7 +842,7 @@ function CD() {
 
   function verifyResult(actualCollisions, numAircrafts) {
     var expectedCollisions = 14484;
-    process.stdout.write("Excepected Collisions: " + expectedCollisions);
+    process.stdout.write("Expected Collisions: " + expectedCollisions);
     if (actualCollisions != expectedCollisions) {
       throw new Error("Bad number of collisions: " + actualCollisions + " (expected " +
         expectedCollisions + ")");
