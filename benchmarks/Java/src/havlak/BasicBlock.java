@@ -13,6 +13,7 @@
 // limitations under the License.
 package havlak;
 
+import som.Dictionary.CustomHash;
 import som.Vector;
 
 /**
@@ -23,11 +24,9 @@ import som.Vector;
  *
  * @author rhundt
  */
-final class BasicBlock {
+final class BasicBlock implements CustomHash {
 
   private final Vector<BasicBlock> inEdges, outEdges;
-
-  @SuppressWarnings("unused")
   private final int name;
 
   public BasicBlock(final int name) {
@@ -54,5 +53,10 @@ final class BasicBlock {
 
   public void addInEdge(final BasicBlock from) {
     inEdges.append(from);
+  }
+
+  @Override
+  public int customHash() {
+    return name;
   }
 }
