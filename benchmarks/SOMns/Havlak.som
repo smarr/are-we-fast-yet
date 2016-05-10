@@ -46,7 +46,7 @@ class Havlak usingPlatform: platform andHarness: harness = (
   private class BasicBlock new: name = (
   | public inEdges  = Vector new: 2.
     public outEdges = Vector new: 2.
-    public name = name.
+    private name = name.
   |
   )(
     public numPred = ( ^ inEdges size )
@@ -57,6 +57,10 @@ class Havlak usingPlatform: platform andHarness: harness = (
     
     public addInEdge: from = (
       inEdges append: from
+    )
+    
+    public customHash = (
+      ^ name
     )
   )
   
@@ -70,14 +74,14 @@ class Havlak usingPlatform: platform andHarness: harness = (
   )()
   
   private class ControlFlowGraph = (
-  | private basicBlockMap = Dictionary new.
+  | private basicBlockMap = Vector new.
     private startNode ::= nil.
     private edgeList = Vector new.
   |)(
     public createNode: name = (
       | node |
 
-      (basicBlockMap containsKey: name)
+      (basicBlockMap at: name) notNil
         ifTrue:  [ node := basicBlockMap at: name ]
         ifFalse: [
           node := BasicBlock new: name.
@@ -355,8 +359,8 @@ class Havlak usingPlatform: platform andHarness: harness = (
     )
     
     private initAllNodes = (
-      cfg basicBlocks values forEach: [:bbIter |
-        number at: bbIter put: Unvisited ].
+      cfg basicBlocks forEach: [:bb |
+        number at: bb put: Unvisited ].
 
       doDFS: cfg startBasicBlock current: 1
     )

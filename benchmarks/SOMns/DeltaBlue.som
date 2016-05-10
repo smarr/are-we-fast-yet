@@ -28,13 +28,23 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
     private Array             = platform kernel Array.
     private Core              = (platform system loadModule: 'Core.som' nextTo: self) with: platform kernel.
     private Vector            = Core Vector.
-    private Dictionary        = Core Dictionary.
+    private IdentityDictionary = Core IdentityDictionary.
+
+    private SymAbsoluteStrongest = Sym new: 0.
+    private SymRequired          = Sym new: 1.
+    private SymStrongPreferred   = Sym new: 2.
+    private SymPreferred         = Sym new: 3.
+    private SymStrongDefault     = Sym new: 4.
+    private SymDefault           = Sym new: 5.
+    private SymWeakDefault       = Sym new: 6.
+    private SymAbsoluteWeakest   = Sym new: 7.
+
     private strengthTable     = Strength createStrengthTable.
     private strengthConstants = Strength createStrengthConstants.
-    
-    private AbsoluteStrongest = Strength of: #absoluteStrongest.
-    private AbsoluteWeakest   = Strength of: #absoluteWeakest.
-    private Required          = Strength of: #required.
+
+    private AbsoluteStrongest = Strength of: SymAbsoluteStrongest.
+    private AbsoluteWeakest   = Strength of: SymAbsoluteWeakest.
+    private Required          = Strength of: SymRequired.
   |
 )(
   class DeltaBlue = Benchmark ()(
@@ -196,7 +206,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
 
     public changeVar: aVariable newValue: newValue = (
       | editConstraint plan |
-      editConstraint := EditConstraint var: aVariable strength: #preferred addTo: self.
+      editConstraint := EditConstraint var: aVariable strength: SymPreferred addTo: self.
       plan := self extractPlanFromConstraints: (Vector with: editConstraint).
       10 timesRepeat: [
         aVariable value: newValue.
@@ -259,11 +269,11 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
         | v1 v2 |
         v1 := vars at: i.
         v2 := vars at: i + 1.
-        EqualityConstraint var: v1 var: v2 strength: #required addTo: planner
+        EqualityConstraint var: v1 var: v2 strength: SymRequired addTo: planner
       ].
 
-      StayConstraint var: vars last strength: #strongDefault addTo: planner.
-      editConstraint := EditConstraint var: vars first strength: #preferred addTo: planner.
+      StayConstraint var: vars last strength: SymStrongDefault addTo: planner.
+      editConstraint := EditConstraint var: vars first strength: SymPreferred addTo: planner.
       plan := planner extractPlanFromConstraints: (Vector with: editConstraint).
 
       1 to: 100 do: [:v | 
@@ -288,8 +298,8 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
         src := Variable value: i.
         dst := Variable value: i.
         dests append: dst.
-        StayConstraint var: src strength: #default addTo: planner.
-        ScaleConstraint src: src scale: scale offset: offset dst: dst strength: #required addTo: planner
+        StayConstraint var: src strength: SymDefault addTo: planner.
+        ScaleConstraint src: src scale: scale offset: offset dst: dst strength: SymRequired addTo: planner
       ].
 
       planner changeVar: src newValue: 17.
@@ -310,17 +320,19 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
     )
   )
 
+  class Sym new: hash = (| public customHash = hash. |)()
+
   class Strength new: symVal = (
   (* Strengths are used to measure the relative importance of constraints. The
      hierarchy of available strengths is determined by the class variable
      StrengthTable (see my class initialization method). Because Strengths are
      invariant, references to Strength instances are shared (i.e. all references
-     to `Strength of: #required` point to a single, shared instance). New
+     to `Strength of: SymRequired` point to a single, shared instance). New
      strengths may be inserted in the strength hierarchy without disrupting
      current constraints.
 
      Instance variables:
-         symbolicValue      symbolic strength name (e.g. #required) <Symbol>
+         symbolicValue      symbolic strength name (e.g. SymRequired) <Symbol>
          arithmeticValue    index of the constraint in the hierarchy, used for comparisons <Number> *)
     | private symbolicValue   = symVal.
       public  arithmeticValue = strengthTable at: symVal. |
@@ -359,21 +371,21 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
     public createStrengthTable = (
       | table |
       (* Initialize the symbolic strength table. *)
-      table := Dictionary new.
-      table at: #absoluteStrongest put: -10000.
-      table at: #required put: -800.
-      table at: #strongPreferred put: -600.
-      table at: #preferred put: -400.
-      table at: #strongDefault put: -200.
-      table at: #default put: 0.
-      table at: #weakDefault put: 500.
-      table at: #absoluteWeakest put: 10000.
+      table := IdentityDictionary new.
+      table at: SymAbsoluteStrongest put: -10000.
+      table at: SymRequired put: -800.
+      table at: SymStrongPreferred put: -600.
+      table at: SymPreferred put: -400.
+      table at: SymStrongDefault put: -200.
+      table at: SymDefault put: 0.
+      table at: SymWeakDefault put: 500.
+      table at: SymAbsoluteWeakest put: 10000.
       ^ table
     )
     
     public createStrengthConstants = (
       | constants |
-      constants := Dictionary new.
+      constants := IdentityDictionary new.
       strengthTable keys forEach: [:strengthSymbol |
         constants
           at: strengthSymbol

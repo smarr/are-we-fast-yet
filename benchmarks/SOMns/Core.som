@@ -37,9 +37,25 @@ class Core with: kernel = (
     private storage  ::= Array new: size.
   |) (
     public at: index = (
+      index > storage size ifTrue: [ ^ nil ].
       ^ storage at: index
     )
-    
+
+    public at: index put: val = (
+      index > storage size ifTrue: [
+        | newLength newStorage |
+        newLength := storage size.
+        [ newLength < index ] whileTrue: [
+          newLength := newLength * 2 ].
+        newStorage := Array new: newLength.
+        storage doIndexes: [:i | newStorage at: i put: (storage at: i) ].
+        storage := newStorage ].
+
+      storage at: index put: val.
+      lastIdx < (index + 1) ifTrue: [
+        lastIdx := index + 1 ]
+    )
+
     public append: element = (
       (lastIdx > storage size) ifTrue: [
         (* Need to expand capacity first *)
@@ -240,7 +256,7 @@ class Core with: kernel = (
     private hash: key = (
       | hash |
       key isNil ifTrue: [ ^ 0 ].
-      hash := key hashcode.
+      hash := key customHash.
       ^ hash bitXor: (hash >>> 16)
     )
     
