@@ -1,7 +1,7 @@
 /*
  * This benchmark is derived from Mario Wolczko's Java and Smalltalk version of
  * DeltaBlue.
- * 
+ *
  * It is modified to use the SOM class library and Java 8 features.
  * License details:
  *   http://web.archive.org/web/20050825101121/http://www.sunlabs.com/people/mario/java_benchmarking/index.html
@@ -10,7 +10,6 @@ package deltablue;
 
 import java.util.Arrays;
 
-import deltablue.Strength.S;
 import som.ForEachInterface;
 import som.Vector;
 
@@ -163,7 +162,7 @@ public class Planner {
   }
 
   private void change(final Variable var, final int newValue) {
-    EditConstraint editC = new EditConstraint(var, S.PREFERRED, this);
+    EditConstraint editC = new EditConstraint(var, Strength.PREFERRED, this);
 
     Vector<AbstractConstraint> editV = Vector.with(editC);
     Plan plan = extractPlanFromConstraints(editV);
@@ -241,11 +240,11 @@ public class Planner {
     for (int i = 0; i < n; i++) {
       Variable v1 = vars[i];
       Variable v2 = vars[i + 1];
-      new EqualityConstraint(v1, v2, S.REQUIRED, planner);
+      new EqualityConstraint(v1, v2, Strength.REQUIRED, planner);
     }
 
-    new StayConstraint(vars[n], S.STRONG_DEFAULT, planner);
-    AbstractConstraint editC = new EditConstraint(vars[0], S.PREFERRED, planner);
+    new StayConstraint(vars[n], Strength.STRONG_DEFAULT, planner);
+    AbstractConstraint editC = new EditConstraint(vars[0], Strength.PREFERRED, planner);
 
     Vector<AbstractConstraint> editV = Vector.with(editC);
     Plan plan = planner.extractPlanFromConstraints(editV);
@@ -277,8 +276,8 @@ public class Planner {
       src = Variable.value(i);
       dst = Variable.value(i);
       dests.append(dst);
-      new StayConstraint(src, S.DEFAULT, planner);
-      new ScaleConstraint(src, scale, offset, dst, S.REQUIRED, planner);
+      new StayConstraint(src, Strength.DEFAULT, planner);
+      new ScaleConstraint(src, scale, offset, dst, Strength.REQUIRED, planner);
     }
 
     planner.change(src, 17);

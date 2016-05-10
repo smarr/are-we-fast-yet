@@ -1,14 +1,14 @@
 /*
  * This benchmark is derived from Mario Wolczko's Java and Smalltalk version of
  * DeltaBlue.
- * 
+ *
  * It is modified to use the SOM class library and Java 8 features.
  * License details:
  *   http://web.archive.org/web/20050825101121/http://www.sunlabs.com/people/mario/java_benchmarking/index.html
  */
 package deltablue;
 
-import deltablue.Strength.S;
+import deltablue.Strength.Sym;
 import som.ForEachInterface;
 import som.TestInterface;
 
@@ -19,7 +19,8 @@ abstract class BinaryConstraint extends AbstractConstraint {
   protected Variable v1, v2;          // possible output variables
   protected Direction direction;       // one of the following...
 
-  public BinaryConstraint(final Variable var1, final Variable var2, final S strength, final Planner planner) {
+  public BinaryConstraint(final Variable var1, final Variable var2,
+      final Sym strength, final Planner planner) {
     super(strength);
     v1 = var1;
     v2 = var2;

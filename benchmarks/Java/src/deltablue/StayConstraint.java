@@ -1,14 +1,14 @@
 /*
  * This benchmark is derived from Mario Wolczko's Java and Smalltalk version of
  * DeltaBlue.
- * 
+ *
  * It is modified to use the SOM class library and Java 8 features.
  * License details:
  *   http://web.archive.org/web/20050825101121/http://www.sunlabs.com/people/mario/java_benchmarking/index.html
  */
 package deltablue;
 
-import deltablue.Strength.S;
+import deltablue.Strength.Sym;
 
 // I mark variables that should, with some level of preference, stay
 // the same. I have one method with zero inputs and one output, which
@@ -19,7 +19,8 @@ import deltablue.Strength.S;
 class StayConstraint extends UnaryConstraint {
 
   // Install a stay constraint with the given strength on the given variable.
-  public StayConstraint(final Variable v, final S strength, final Planner planner) {
+  public StayConstraint(final Variable v, final Sym strength,
+      final Planner planner) {
    super(v, strength, planner);
   }
 

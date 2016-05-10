@@ -1,14 +1,14 @@
 /*
  * This benchmark is derived from Mario Wolczko's Java and Smalltalk version of
  * DeltaBlue.
- * 
+ *
  * It is modified to use the SOM class library and Java 8 features.
  * License details:
  *   http://web.archive.org/web/20050825101121/http://www.sunlabs.com/people/mario/java_benchmarking/index.html
  */
 package deltablue;
 
-import deltablue.Strength.S;
+import deltablue.Strength.Sym;
 import som.ForEachInterface;
 
 
@@ -19,7 +19,8 @@ abstract class UnaryConstraint extends AbstractConstraint {
   protected final Variable output; // possible output variable
   protected boolean  satisfied; // true if I am currently satisfied
 
-  public UnaryConstraint(final Variable v, final S strength, final Planner planner) {
+  public UnaryConstraint(final Variable v, final Sym strength,
+      final Planner planner) {
     super(strength);
     this.output = v;
     addConstraint(planner);

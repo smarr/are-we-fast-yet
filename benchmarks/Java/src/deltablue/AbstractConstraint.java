@@ -1,14 +1,14 @@
 /*
  * This benchmark is derived from Mario Wolczko's Java and Smalltalk version of
  * DeltaBlue.
- * 
+ *
  * It is modified to use the SOM class library and Java 8 features.
  * License details:
  *   http://web.archive.org/web/20050825101121/http://www.sunlabs.com/people/mario/java_benchmarking/index.html
  */
 package deltablue;
 
-import deltablue.Strength.S;
+import deltablue.Strength.Sym;
 import som.ForEachInterface;
 import som.TestInterface;
 
@@ -23,7 +23,7 @@ abstract class AbstractConstraint {
 
   protected final Strength strength; // the strength of this constraint
 
-  public AbstractConstraint(final S strength) {
+  public AbstractConstraint(final Sym strength) {
     this.strength = Strength.of(strength);
   }
 

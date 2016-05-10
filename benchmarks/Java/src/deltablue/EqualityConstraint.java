@@ -1,14 +1,14 @@
 /*
  * This benchmark is derived from Mario Wolczko's Java and Smalltalk version of
  * DeltaBlue.
- * 
+ *
  * It is modified to use the SOM class library and Java 8 features.
  * License details:
  *   http://web.archive.org/web/20050825101121/http://www.sunlabs.com/people/mario/java_benchmarking/index.html
  */
 package deltablue;
 
-import deltablue.Strength.S;
+import deltablue.Strength.Sym;
 
 // I constrain two variables to have the same value: "v1 = v2".
 class EqualityConstraint extends BinaryConstraint {
@@ -16,7 +16,7 @@ class EqualityConstraint extends BinaryConstraint {
   // Install a constraint with the given strength equating the given
   // variables.
   public EqualityConstraint(final Variable var1, final Variable var2,
-      final S strength, final Planner planner) {
+      final Sym strength, final Planner planner) {
     super(var1, var2, strength, planner);
     addConstraint(planner);
   }

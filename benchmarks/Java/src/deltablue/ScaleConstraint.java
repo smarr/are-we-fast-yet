@@ -1,14 +1,14 @@
 /*
  * This benchmark is derived from Mario Wolczko's Java and Smalltalk version of
  * DeltaBlue.
- * 
+ *
  * It is modified to use the SOM class library and Java 8 features.
  * License details:
  *   http://web.archive.org/web/20050825101121/http://www.sunlabs.com/people/mario/java_benchmarking/index.html
  */
 package deltablue;
 
-import deltablue.Strength.S;
+import deltablue.Strength.Sym;
 import som.ForEachInterface;
 
 // I relate two variables by the linear scaling relationship: "v2 =
@@ -21,7 +21,7 @@ class ScaleConstraint extends BinaryConstraint {
   protected final Variable offset; // offset input variable
 
   public ScaleConstraint(final Variable src, final Variable scale,
-      final Variable offset, final Variable dest, final S strength,
+      final Variable offset, final Variable dest, final Sym strength,
       final Planner planner) {
     super(src, dest, strength, planner);
     this.scale = scale;

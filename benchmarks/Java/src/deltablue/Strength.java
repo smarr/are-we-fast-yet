@@ -8,6 +8,7 @@
  */
 package deltablue;
 
+import som.Dictionary.CustomHash;
 import som.IdentityDictionary;
 
 /*
@@ -18,14 +19,34 @@ import som.IdentityDictionary;
  */
 public class Strength {
 
-  public enum S { ABSOLUTE_STRONGEST, REQUIRED, STRONG_PREFERRED, PREFERRED,
-    STRONG_DEFAULT, DEFAULT, WEAK_DEFAULT, ABSOLUTE_WEAKEST };
+  public static class Sym implements CustomHash {
+
+    private final int hash;
+
+    Sym(final int hash) {
+      this.hash = hash;
+    }
+
+    @Override
+    public int customHash() {
+      return hash;
+    }
+  }
+
+  public static final Sym ABSOLUTE_STRONGEST = new Sym(0);
+  public static final Sym REQUIRED           = new Sym(1);
+  public static final Sym STRONG_PREFERRED   = new Sym(2);
+  public static final Sym PREFERRED          = new Sym(3);
+  public static final Sym STRONG_DEFAULT     = new Sym(4);
+  public static final Sym DEFAULT            = new Sym(5);
+  public static final Sym WEAK_DEFAULT       = new Sym(6);
+  public static final Sym ABSOLUTE_WEAKEST   = new Sym(7);
 
   private final int arithmeticValue;
   @SuppressWarnings("unused")
-  private final S   symbolicValue;
+  private final Sym   symbolicValue;
 
-  private Strength(final S symbolicValue) {
+  private Strength(final Sym symbolicValue) {
     this.symbolicValue = symbolicValue;
     this.arithmeticValue = strengthTable.at(symbolicValue);
   }
@@ -54,25 +75,25 @@ public class Strength {
     return arithmeticValue;
   }
 
-  public static Strength of(final S strength) {
+  public static Strength of(final Sym strength) {
     return strengthConstant.at(strength);
   }
 
-  private static IdentityDictionary<S, Integer> createStrengthTable() {
-    IdentityDictionary<S, Integer> strengthTable = new IdentityDictionary<>();
-    strengthTable.atPut(S.ABSOLUTE_STRONGEST, -10000);
-    strengthTable.atPut(S.REQUIRED,           -800);
-    strengthTable.atPut(S.STRONG_PREFERRED,   -600);
-    strengthTable.atPut(S.PREFERRED,          -400);
-    strengthTable.atPut(S.STRONG_DEFAULT,     -200);
-    strengthTable.atPut(S.DEFAULT,             0);
-    strengthTable.atPut(S.WEAK_DEFAULT,        500);
-    strengthTable.atPut(S.ABSOLUTE_WEAKEST,    10000);
+  private static IdentityDictionary<Sym, Integer> createStrengthTable() {
+    IdentityDictionary<Sym, Integer> strengthTable = new IdentityDictionary<>();
+    strengthTable.atPut(ABSOLUTE_STRONGEST, -10000);
+    strengthTable.atPut(REQUIRED,           -800);
+    strengthTable.atPut(STRONG_PREFERRED,   -600);
+    strengthTable.atPut(PREFERRED,          -400);
+    strengthTable.atPut(STRONG_DEFAULT,     -200);
+    strengthTable.atPut(DEFAULT,             0);
+    strengthTable.atPut(WEAK_DEFAULT,        500);
+    strengthTable.atPut(ABSOLUTE_WEAKEST,    10000);
     return strengthTable;
   }
 
-  private static IdentityDictionary<S, Strength> createStrengthConstants() {
-    IdentityDictionary<S, Strength> strengthConstant = new IdentityDictionary<>();
+  private static IdentityDictionary<Sym, Strength> createStrengthConstants() {
+    IdentityDictionary<Sym, Strength> strengthConstant = new IdentityDictionary<>();
     strengthTable.getKeys().forEach(key ->
       strengthConstant.atPut(key, new Strength(key))
     );
@@ -83,8 +104,8 @@ public class Strength {
     strengthTable     = createStrengthTable();
     strengthConstant  = createStrengthConstants();
 
-    absoluteWeakest   = of(S.ABSOLUTE_WEAKEST);
-    required          = of(S.REQUIRED);
+    absoluteWeakest   = of(ABSOLUTE_WEAKEST);
+    required          = of(REQUIRED);
   }
 
 
@@ -99,6 +120,6 @@ public class Strength {
   private static final Strength absoluteWeakest;
   private static final Strength required;
 
-  private static final IdentityDictionary<S, Integer>  strengthTable;
-  private static final IdentityDictionary<S, Strength> strengthConstant;
+  private static final IdentityDictionary<Sym, Integer>  strengthTable;
+  private static final IdentityDictionary<Sym, Strength> strengthConstant;
 }
