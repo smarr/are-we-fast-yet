@@ -13,7 +13,6 @@
 // limitations under the License.
 package havlak;
 
-import som.Dictionary;
 import som.Vector;
 
 
@@ -28,19 +27,19 @@ import som.Vector;
  */
 final class ControlFlowGraph {
 
-  private final Dictionary<Integer, BasicBlock>  basicBlockMap;
+  private final Vector<BasicBlock>  basicBlockMap;
   private BasicBlock                startNode;
   private final Vector<BasicBlockEdge> edgeList;
 
   ControlFlowGraph() {
     startNode = null;
-    basicBlockMap = new Dictionary<Integer, BasicBlock>();
+    basicBlockMap = new Vector<>();
     edgeList = new Vector<>();
   }
 
   public BasicBlock createNode(final int name) {
     BasicBlock node;
-    if (basicBlockMap.containsKey(name)) {
+    if (basicBlockMap.at(name) != null) {
       node = basicBlockMap.at(name);
     } else {
       node = new BasicBlock(name);
@@ -50,7 +49,6 @@ final class ControlFlowGraph {
     if (getNumNodes() == 1) {
       startNode = node;
     }
-
     return node;
   }
 
@@ -66,7 +64,7 @@ final class ControlFlowGraph {
     return startNode;
   }
 
-  public Dictionary<Integer, BasicBlock> getBasicBlocks() {
+  public Vector<BasicBlock> getBasicBlocks() {
     return basicBlockMap;
   }
 }

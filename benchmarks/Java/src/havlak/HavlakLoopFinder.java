@@ -109,8 +109,8 @@ final class HavlakLoopFinder {
     //   - depth-first traversal and numbering.
     //   - unreached BB's are marked as dead.
     //
-    cfg.getBasicBlocks().getValues().forEach(
-        bbIter -> number.atPut(bbIter, UNVISITED));
+    cfg.getBasicBlocks().forEach(
+        bb -> number.atPut(bb, UNVISITED));
 
     doDFS(cfg.getStartBasicBlock(), 0);
   }
