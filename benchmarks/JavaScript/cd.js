@@ -637,9 +637,8 @@ Node.prototype.successor = function () {
   return y;
 };
 
-var voxelSize = Constants.GOOD_VOXEL_SIZE;
-var horizontal = new Vector2D(voxelSize, 0);
-var vertical = new Vector2D(0, voxelSize);
+var horizontal = new Vector2D(Constants.GOOD_VOXEL_SIZE, 0);
+var vertical = new Vector2D(0, Constants.GOOD_VOXEL_SIZE);
 
 function isInVoxel(voxel, motion) {
   if (voxel.x > Constants.MAX_X ||
@@ -652,7 +651,7 @@ function isInVoxel(voxel, motion) {
   var init = motion.posOne;
   var fin = motion.posTwo;
 
-  var v_s = voxelSize;
+  var v_s = Constants.GOOD_VOXEL_SIZE;
   var r = Constants.PROXIMITY_RADIUS / 2;
 
   var v_x = voxel.x;
@@ -704,17 +703,17 @@ function putIntoMap(voxelMap, voxel, motion) {
 }
 
 function voxelHash(position) {
-  var xDiv = (position.x / voxelSize) | 0;
-  var yDiv = (position.y / voxelSize) | 0;
+  var xDiv = (position.x / Constants.GOOD_VOXEL_SIZE) | 0;
+  var yDiv = (position.y / Constants.GOOD_VOXEL_SIZE) | 0;
 
   var result = new Vector2D();
-  result.x = voxelSize * xDiv;
-  result.y = voxelSize * yDiv;
+  result.x = Constants.GOOD_VOXEL_SIZE * xDiv;
+  result.y = Constants.GOOD_VOXEL_SIZE * yDiv;
 
   if (position.x < 0)
-    result.x -= voxelSize;
+    result.x -= Constants.GOOD_VOXEL_SIZE;
   if (position.y < 0)
-    result.y -= voxelSize;
+    result.y -= Constants.GOOD_VOXEL_SIZE;
 
   return result;
 }
