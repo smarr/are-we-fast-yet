@@ -54,7 +54,7 @@ function compareNumbers(a, b) {
   }
 
   // We say that NaN is smaller than non-NaN.
-  if (a == a) {
+  if (a === a) {
     return 1;
   }
   return -1;
@@ -115,17 +115,17 @@ RedBlackTree.prototype.put = function (key, value) {
   }
   var x = insertionResult.newNode;
 
-  while (x != this.root && x.parent.color == "red") {
-    if (x.parent == x.parent.parent.left) {
+  while (x !== this.root && x.parent.color === "red") {
+    if (x.parent === x.parent.parent.left) {
       var y = x.parent.parent.right;
-      if (y && y.color == "red") {
+      if (y && y.color === "red") {
         // Case 1
         x.parent.color = "black";
         y.color = "black";
         x.parent.parent.color = "red";
         x = x.parent.parent;
       } else {
-        if (x == x.parent.right) {
+        if (x === x.parent.right) {
           // Case 2
           x = x.parent;
           this.leftRotate(x);
@@ -138,14 +138,14 @@ RedBlackTree.prototype.put = function (key, value) {
     } else {
       // Same as "then" clause with "right" and "left" exchanged.
       var y = x.parent.parent.left;
-      if (y && y.color == "red") {
+      if (y && y.color === "red") {
         // Case 1
         x.parent.color = "black";
         y.color = "black";
         x.parent.parent.color = "red";
         x = x.parent.parent;
       } else {
-        if (x == x.parent.left) {
+        if (x === x.parent.left) {
           // Case 2
           x = x.parent;
           this.rightRotate(x);
@@ -196,15 +196,15 @@ RedBlackTree.prototype.remove = function (key) {
   if (!y.parent) {
     this.root = x;
   } else {
-    if (y == y.parent.left) {
+    if (y === y.parent.left) {
       y.parent.left = x;
     } else {
       y.parent.right = x;
     }
   }
 
-  if (y != z) {
-    if (y.color == "black") {
+  if (y !== z) {
+    if (y.color === "black") {
       this.removeFixup(x, xParent);
     }
 
@@ -220,7 +220,7 @@ RedBlackTree.prototype.remove = function (key) {
       z.right.parent = y;
     }
     if (z.parent) {
-      if (z.parent.left == z) {
+      if (z.parent.left === z) {
         z.parent.left = y;
       } else {
         z.parent.right = y;
@@ -228,7 +228,7 @@ RedBlackTree.prototype.remove = function (key) {
     } else {
       this.root = y;
     }
-  } else if (y.color == "black") {
+  } else if (y.color === "black") {
     this.removeFixup(x, xParent);
   }
 
