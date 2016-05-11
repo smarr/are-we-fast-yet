@@ -68,7 +68,6 @@ class CDSuite usingPlatform: platform andHarness: harness = (
     )
     
     private verify: actualCollisions resultFor: numAircrafts = (
-      'actualCollisions: ' print. actualCollisions println.
       numAircrafts = 1000 ifTrue: [ ^ actualCollisions = 14484 ].
       
       ('No verification result for ' + numAircrafts + ' found.') println.
@@ -541,7 +540,6 @@ class CDSuite usingPlatform: platform andHarness: harness = (
       (* Remove aircraft that are no longer present *)
       toRemove := Vector new.
       state forEach: [:e |
-        (* e println. *)
         (seen at: e key) ifFalse: [ toRemove append: e key ] ].
 
       toRemove forEach: [:e | state remove: e ].
@@ -558,22 +556,16 @@ class CDSuite usingPlatform: platform andHarness: harness = (
             collision := motion1 findIntersection: motion2.
             collision notNil ifTrue: [
               collisions append: (Collision a: motion1 callsign b: motion2 callsign pos: collision) ] ] ] ].
-      
-(*      collisions forEach: [:c |
-        c println]. *)
 
       ^ collisions
     )
 
     private isInVoxel: voxel motion: motion = (
       | init fin v_s r v_x x0 xv v_y y0 yv low_x high_x low_y high_y |
-(*      voxel println. *)
       (voxel x > MaxX or: [
        voxel x < MinX or: [
        voxel y > MaxY or: [
        voxel y < MinY ]]]) ifTrue: [ ^ false ].
-      
-(*      'MAYBE in voxel' println. *)
 
       init := motion posOne.
       fin  := motion posTwo.
@@ -634,8 +626,8 @@ class CDSuite usingPlatform: platform andHarness: harness = (
     )
 
     private recurse: voxelMap seen: seen voxel: nextVoxel motion: motion = (
-      (isInVoxel: nextVoxel motion: motion) ifFalse: [ (* 'isInVoxel == false' println. *)  ^ self ].
-      (seen at: nextVoxel put: true) = true ifTrue: [ (* 'seen == true' println. *)  ^ self ].
+      (isInVoxel: nextVoxel motion: motion) ifFalse: [ ^ self ].
+      (seen at: nextVoxel put: true) = true ifTrue: [ ^ self ].
 
       put: motion and: nextVoxel into: voxelMap.
 
@@ -651,17 +643,12 @@ class CDSuite usingPlatform: platform andHarness: harness = (
 
     private reduceCollisionSet: motions = (
       | voxelMap result |
-      '\n\n###  reduceCollisionSet' println.
       voxelMap := RedBlackTree new.
       motions forEach: [:motion | draw: motion on: voxelMap ].
 
       result := Vector new.
       voxelMap forEach: [:e |
-        e value size > 1 ifTrue: [
-        (* e value forEach: [:i | ' ' print. i println. ]. '' println. *)
-         result append: e value ] ].
-        
-        
+        e value size > 1 ifTrue: [ result append: e value ] ].
       ^ result
     )
 
@@ -719,8 +706,6 @@ class CDSuite usingPlatform: platform andHarness: harness = (
          
          a = (V2 - V1)^T * (V2 - V1) *)
       a := (vec2 minus: vec1) squaredMagnitude.
-      
-      (* 'A: ' print. a println. *)
 
       a <> 0.0 ifTrue: [
         | b c discr v1 v2 |
@@ -755,8 +740,6 @@ class CDSuite usingPlatform: platform andHarness: harness = (
 
         v1 := ((0.0 - b) - discr sqrt) // (2.0 * a).
         v2 := ((0.0 - b) + discr sqrt) // (2.0 * a).
-        
-        (* 'v1: ' print. v1 print. ' v2: ' print. v2 println. *)
 
         (v1 <= v2 and: [((v1  <= 1.0 and: [1.0 <= v2]) or: [
                          (v1  <= 0.0 and: [0.0 <= v2]) or: [
@@ -810,14 +793,12 @@ class CDSuite usingPlatform: platform andHarness: harness = (
   | private aircrafts = Vector new.
   |
     0 to: numAircrafts - 1 do: [:i |
-      (* i println. *)
       aircrafts append: (CallSign new: i)]
   )(
     public simulate: time = (
       | frame |
       frame := Vector new.
       0 to: aircrafts size - 2 by: 2 do: [:i |
-        (* i println. *)
         frame append: (Aircraft new: (aircrafts at: i + 1)
                                 pos: (Vector3D x: time
                                                y: (time cos * 2.0) + (i * 3.0)
@@ -826,8 +807,6 @@ class CDSuite usingPlatform: platform andHarness: harness = (
                                 pos: (Vector3D x: time
                                                y: (time sin * 2.0) + (i * 3.0)
                                                z: 10.0)) ].
-(* 'frame:' println.
-      frame forEach: [:e | '  ' print. e println ].*)
       ^ frame
     )
   )
