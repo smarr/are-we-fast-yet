@@ -667,8 +667,8 @@ class CDSuite usingPlatform: platform andHarness: harness = (
 
     private voxelHash: position = (
       | xDiv yDiv x y |
-      xDiv := (position x // GoodVoxelSize) round.
-      yDiv := (position y // GoodVoxelSize) round.
+      xDiv := (position x // GoodVoxelSize) asInteger.
+      yDiv := (position y // GoodVoxelSize) asInteger.
 
       x := GoodVoxelSize * xDiv.
       y := GoodVoxelSize * yDiv.
