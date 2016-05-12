@@ -22,11 +22,11 @@ public final class Vector2D implements Comparable<Vector2D> {
 
   @Override
   public int compareTo(final Vector2D other) {
-      int result = compareNumbers(this.x, other.x);
-      if (result != 0) {
-        return result;
-      }
-      return compareNumbers(this.y, other.y);
+    int result = compareNumbers(this.x, other.x);
+    if (result != 0) {
+      return result;
+    }
+    return compareNumbers(this.y, other.y);
   }
 
   private static int compareNumbers(final double a, final double b) {

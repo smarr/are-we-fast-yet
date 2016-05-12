@@ -29,9 +29,9 @@ public final class CollisionDetector {
     // Remove aircraft that are no longer present.
     Vector<CallSign> toRemove = new Vector<>();
     state.forEach(e -> {
-        if (!seen.get(e.key)) {
-          toRemove.append(e.key);
-        }
+      if (!seen.get(e.key)) {
+        toRemove.append(e.key);
+      }
     });
 
     toRemove.forEach(e -> state.remove(e));

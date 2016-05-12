@@ -398,7 +398,6 @@ public final class RedBlackTree<K extends Comparable<K>, V> {
         }
       }
     }
-
     if (x != null) {
       x.color = Color.BLACK;
     }
