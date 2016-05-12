@@ -799,44 +799,6 @@ Simulator.prototype.simulate = function (time) {
   return frame;
 };
 
-function averageAbovePercentile(numbers, percentile) {
-  // Don't change the original array.
-  numbers = numbers.slice();
-
-  // Sort in ascending order.
-  numbers.sort(function (a, b) { return a - b; });
-
-  // Now the elements we want are at the end. Keep removing them until the array size shrinks too much.
-  // Examples assuming percentile = 99:
-  //
-  // - numbers.length starts at 100: we will remove just the worst entry and then not remove anymore,
-  //   since then numbers.length / originalLength = 0.99.
-  //
-  // - numbers.length starts at 1000: we will remove the ten worst.
-  //
-  // - numbers.length starts at 10: we will remove just the worst.
-  var numbersWeWant = [];
-  var originalLength = numbers.length;
-  while (numbers.length / originalLength > percentile / 100) {
-    numbersWeWant.push(numbers.pop());
-  }
-
-  var sum = 0;
-  for (var i = 0; i < numbersWeWant.length; ++i) {
-    sum += numbersWeWant[i];
-  }
-
-  var result = sum / numbersWeWant.length;
-
-  // Do a sanity check.
-  if (numbers.length && result < numbers[numbers.length - 1]) {
-    throw "Sanity check fail: the worst case result is " + result +
-    " but we didn't take into account " + numbers;
-  }
-
-  return result;
-}
-
 function CD() {
   benchmark.Benchmark.call(this);
 
