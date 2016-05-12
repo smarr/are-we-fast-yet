@@ -97,8 +97,8 @@ public final class CollisionDetector {
     }
 
     return (((xv == 0.0 && v_x <= x0 + r && x0 - r <= v_x + v_s) /* no motion in x */ ||
-             ((low_x <= 1.0 && 1.0 <= high_x) || (low_x <= 0.0 && 0.0 <= high_x) ||
-              (0.0 <= low_x && high_x <= 1.0))) &&
+             (low_x <= 1.0 && 1.0 <= high_x) || (low_x <= 0.0 && 0.0 <= high_x) ||
+              (0.0 <= low_x && high_x <= 1.0)) &&
             ((yv == 0.0 && v_y <= y0 + r && y0 - r <= v_y + v_s) /* no motion in y */ ||
              ((low_y <= 1.0 && 1.0 <= high_y) || (low_y <= 0.0 && 0.0 <= high_y) ||
               (0.0 <= low_y && high_y <= 1.0))) &&
