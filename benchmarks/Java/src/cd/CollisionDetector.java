@@ -130,7 +130,7 @@ public final class CollisionDetector {
       return;
     }
 
-    if (seen.put(nextVoxel, true) == Boolean.TRUE) { // hurray for Java boxing. not.
+    if (seen.put(nextVoxel, true) == Boolean.TRUE) {
       return;
     }
 
