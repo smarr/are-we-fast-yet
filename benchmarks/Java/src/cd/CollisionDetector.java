@@ -126,8 +126,6 @@ public final class CollisionDetector {
       final RedBlackTree<Vector2D, Vector<Motion>> voxelMap,
       final RedBlackTree<Vector2D, Boolean> seen,
       final Vector2D nextVoxel, final Motion motion) {
-    assert seen != null;
-
     if (!isInVoxel(nextVoxel, motion)) {
       return;
     }
