@@ -69,6 +69,8 @@ class CDSuite usingPlatform: platform andHarness: harness = (
     
     private verify: actualCollisions resultFor: numAircrafts = (
       numAircrafts = 1000 ifTrue: [ ^ actualCollisions = 14484 ].
+      numAircrafts =  100 ifTrue: [ ^ actualCollisions =  4305 ].
+      numAircrafts =   10 ifTrue: [ ^ actualCollisions =   390 ].
       
       ('No verification result for ' + numAircrafts + ' found.') println.
       ('Result is: ' + actualCollisions) println.
