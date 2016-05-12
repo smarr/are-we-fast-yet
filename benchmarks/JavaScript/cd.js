@@ -243,12 +243,19 @@ RedBlackTree.prototype.get = function (key) {
   return node.value;
 };
 
+function Entry(key, value) {
+  this.key   = key;
+  this.value = value;
+}
+
 RedBlackTree.prototype.forEach = function (callback) {
   if (!this.root) {
     return;
   }
-  for (var current = treeMinimum(this.root); current; current = current.successor()) {
-    callback(current.key, current.value);
+  var current = treeMinimum(this.root);
+  while (current) {
+    callback(new Entry(current.key, current.value));
+    current = current.successor();
   }
 };
 
@@ -267,6 +274,12 @@ RedBlackTree.prototype.findNode = function (key) {
   return null;
 };
 
+function InsertResult(isNewEntry, newNode, oldValue) {
+  this.isNewEntry = isNewEntry;
+  this.newNode    = newNode;
+  this.oldValue   = oldValue;
+}
+
 RedBlackTree.prototype.treeInsert = function (key, value) {
   var y = null;
   var x = this.root;
@@ -280,7 +293,7 @@ RedBlackTree.prototype.treeInsert = function (key, value) {
     } else {
       var oldValue = x.value;
       x.value = value;
-      return {isNewEntry:false, oldValue:oldValue};
+      return new InsertResult(false, null, oldValue);
     }
   }
 
@@ -295,7 +308,7 @@ RedBlackTree.prototype.treeInsert = function (key, value) {
       y.right = z;
     }
   }
-  return {isNewEntry:true, newNode:z};
+  return new InsertResult(true, z, null);
 };
 
 RedBlackTree.prototype.leftRotate = function (x) {
@@ -469,9 +482,9 @@ CollisionDetector.prototype.handleNewFrame = function (frame) {
 
   // Remove aircraft that are no longer present.
   var toRemove = new som.Vector();
-  this.state.forEach(function(callsign, position) {
-    if (!seen.get(callsign)) {
-      toRemove.append(callsign);
+  this.state.forEach(function(e) {
+    if (!seen.get(e.key)) {
+      toRemove.append(e.key);
     }
   });
 
@@ -481,10 +494,10 @@ CollisionDetector.prototype.handleNewFrame = function (frame) {
   var collisions = new som.Vector();
 
   allReduced.forEach(function (reduced) {
-    for (var i = 0; i < reduced.length; ++i) {
-      var motion1 = reduced[i];
-      for (var j = i + 1; j < reduced.length; ++j) {
-        var motion2 = reduced[j];
+    for (var i = 0; i < reduced.size(); ++i) {
+      var motion1 = reduced.at(i);
+      for (var j = i + 1; j < reduced.size(); ++j) {
+        var motion2 = reduced.at(j);
         var collision = motion1.findIntersection(motion2);
         if (collision) {
           collisions.append(new Collision(motion1.callsign, motion2.callsign, collision));
@@ -612,9 +625,11 @@ Motion.prototype.findIntersection = function (other) {
 };
 
 function treeMinimum(x) {
-  while (x.left)
-    x = x.left;
-  return x;
+  var current = x;
+  while (current.left) {
+    current = current.left;
+  }
+  return current;
 }
 
 function Node(key, value) {
@@ -697,11 +712,12 @@ function isInVoxel(voxel, motion) {
 }
 
 function putIntoMap(voxelMap, voxel, motion) {
-  var array = voxelMap.get(voxel);
-  if (!array) {
-    voxelMap.put(voxel, array = []);
+  var vec = voxelMap.get(voxel);
+  if (!vec) {
+    vec = new som.Vector();
+    voxelMap.put(voxel, vec);
   }
-  array.push(motion);
+  vec.append(motion);
 }
 
 function voxelHash(position) {
@@ -752,32 +768,33 @@ function reduceCollisionSet(motions) {
   });
 
   var result = new som.Vector();
-  voxelMap.forEach(function (key, value) {
-    if (value.length > 1) {
-      result.append(value);
+  voxelMap.forEach(function (e) {
+    if (e.value.size() > 1) {
+      result.append(e.value);
     }
   });
   return result;
 }
 
+function Aircraft(callsign, position) {
+  this.callsign = callsign;
+  this.position = position;
+}
+
 function Simulator(numAircraft) {
-  this.aircraft = [];
+  this.aircraft = new som.Vector();
   for (var i = 0; i < numAircraft; ++i) {
-    this.aircraft.push(new CallSign(i));
+    this.aircraft.append(new CallSign(i));
   }
 }
 
 Simulator.prototype.simulate = function (time) {
-  var frame = [];
-  for (var i = 0; i < this.aircraft.length; i += 2) {
-    frame.push({
-      callsign: this.aircraft[i],
-      position: new Vector3D(time, Math.cos(time) * 2 + i * 3, 10)
-    });
-    frame.push({
-      callsign: this.aircraft[i + 1],
-      position: new Vector3D(time, Math.sin(time) * 2 + i * 3, 10)
-    });
+  var frame = new som.Vector();
+  for (var i = 0; i < this.aircraft.size(); i += 2) {
+    frame.append(new Aircraft(this.aircraft.at(i),
+        new Vector3D(time, Math.cos(time) * 2 + i * 3, 10)));
+    frame.append(new Aircraft(this.aircraft.at(i + 1),
+        new Vector3D(time, Math.sin(time) * 2 + i * 3, 10)));
   }
   return frame;
 };
