@@ -152,9 +152,9 @@ public final class CollisionDetector {
 
     Vector<Vector<Motion>> result = new Vector<>();
     voxelMap.forEach(e -> {
-        if (e.value.size() > 1) {
-          result.append(e.value);
-        }
+      if (e.value.size() > 1) {
+        result.append(e.value);
+      }
     });
     return result;
   }
