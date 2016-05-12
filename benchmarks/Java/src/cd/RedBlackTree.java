@@ -15,11 +15,12 @@ public final class RedBlackTree<K extends Comparable<K>, V> {
     RED, BLACK
   }
 
-  private static <K, V> Node<K, V> treeMinimum(Node<K, V> x) {
-    while (x.left != null) {
-      x = x.left;
+  private static <K, V> Node<K, V> treeMinimum(final Node<K, V> x) {
+    Node<K, V> current = x;
+    while (current.left != null) {
+      current = current.left;
     }
-    return x;
+    return current;
   }
 
   private final static class Node<K, V> {
