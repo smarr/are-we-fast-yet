@@ -50,6 +50,8 @@ public final class CD extends Benchmark {
 
   public boolean verifyResult(final int actualCollisions, final int numAircrafts) {
     if (numAircrafts == 1000) { return actualCollisions == 14484; }
+    if (numAircrafts ==  500) { return actualCollisions == 14484; }
+    if (numAircrafts ==  250) { return actualCollisions == 10830; }
     if (numAircrafts ==  100) { return actualCollisions ==  4305; }
     if (numAircrafts ==   10) { return actualCollisions ==   390; }
 
