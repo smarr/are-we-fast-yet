@@ -32,10 +32,10 @@ public class ParseException extends RuntimeException {
   private final int line;
   private final int column;
 
-  ParseException( final String message, final int offset, final int line, final int column ) {
-    super( message + " at " + line + ":" + column );
+  ParseException(final String message, final int offset, final int line, final int column) {
+    super(message + " at " + line + ":" + column);
     this.offset = offset;
-    this.line = line;
+    this.line   = line;
     this.column = column;
   }
 
