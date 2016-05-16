@@ -74,19 +74,19 @@ class Parser
 
   def read_value
     case @current
-    when 'n'
+    when "n"
       read_null
-    when 't'
+    when "t"
       read_true
-    when 'f'
+    when "f"
       read_false
-    when '"'
+    when "\""
       read_string
-    when '['
+    when "["
       read_array
-    when '{'
+    when "{"
       read_object
-    when '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
+    when "-", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"
       read_number
     else
       raise expected("value")
@@ -97,7 +97,7 @@ class Parser
     read
     array = JsonArray.new
     skip_white_space
-    if read_char(']')
+    if read_char("]")
       return array
     end
 
@@ -105,13 +105,13 @@ class Parser
     array.add(read_value)
     skip_white_space
     
-    while read_char(',')        
+    while read_char(",")        
       skip_white_space
       array.add(read_value)
       skip_white_space
     end
     
-    unless read_char(']')
+    unless read_char("]")
       raise expected("',' or ']'")
     end
     array
@@ -121,25 +121,25 @@ class Parser
     read
     object = JsonObject.new
     skip_white_space
-    if read_char('}')
+    if read_char("}")
       return object
     end
   
     skip_white_space
     name = read_name
     skip_white_space
-    unless read_char(':')
+    unless read_char(":")
       raise expected("':'")
     end
     skip_white_space
     object.add(name, read_value)
     skip_white_space
 
-    while read_char(',')
+    while read_char(",")
       skip_white_space
       name = read_name
       skip_white_space
-      unless read_char(':')
+      unless read_char(":")
         raise expected("':'")
       end
       skip_white_space
@@ -147,14 +147,14 @@ class Parser
       skip_white_space
     end
 
-    unless read_char('}')
+    unless read_char("}")
       raise expected("',' or '}'")
     end
     object
   end
 
   def read_name
-    unless @current == '"'
+    unless @current == "\""
       raise expected("name")
     end
     read_string_internal
@@ -162,30 +162,30 @@ class Parser
 
   def read_null
     read
-    read_required_char('u')
-    read_required_char('l')
-    read_required_char('l')
+    read_required_char("u")
+    read_required_char("l")
+    read_required_char("l")
     JsonLiteral::NULL
   end
 
   def read_true
     read
-    read_required_char('r')
-    read_required_char('u')
-    read_required_char('e')
+    read_required_char("r")
+    read_required_char("u")
+    read_required_char("e")
     JsonLiteral::TRUE
   end
 
   def read_false
     read
-    read_required_char('a')
-    read_required_char('l')
-    read_required_char('s')
-    read_required_char('e')
+    read_required_char("a")
+    read_required_char("l")
+    read_required_char("s")
+    read_required_char("e")
     JsonLiteral::FALSE
   end
 
-  def read_required_char(ch)
+  def read_required_char(ch : String)
     unless read_char(ch)
       raise expected("'" + ch + "'")
     end
@@ -198,8 +198,8 @@ class Parser
   def read_string_internal
     read
     start_capture
-    while @current != '"'
-      if @current == '\\'
+    while @current != "\""
+      if @current == "\\"
         pause_capture
         read_escape
         start_capture
@@ -215,17 +215,17 @@ class Parser
   def read_escape
     read
     case @current
-    when '"', '/', '\\'
+    when "\"", "/", "\\"
       @capture_buffer += @current.not_nil!
-    when 'b'
+    when "b"
       @capture_buffer += "\b"
-    when 'f'
+    when "f"
       @capture_buffer += "\f"
-    when 'n'
+    when "n"
       @capture_buffer += "\n"
-    when 'r'
+    when "r"
       @capture_buffer += "\r"
-    when 't'
+    when "t"
       @capture_buffer += "\t"
     else
       raise expected("valid escape sequence")
@@ -235,12 +235,12 @@ class Parser
 
   def read_number
     start_capture
-    read_char('-')
+    read_char("-")
     first_digit = @current
     unless read_digit
       raise expected("digit")
     end
-    unless first_digit == '0'
+    unless first_digit == "0"
       while read_digit
       end
     end
@@ -250,7 +250,7 @@ class Parser
   end
 
   def read_fraction
-    unless read_char('.')
+    unless read_char(".")
       return false
     end
 
@@ -264,12 +264,12 @@ class Parser
   end
 
   def read_exponent
-    unless read_char('e') || read_char('E')
+    unless read_char("e") || read_char("E")
       return false
     end
 
-    unless read_char('+')
-      read_char('-')
+    unless read_char("+")
+      read_char("-")
     end
 
     unless read_digit
@@ -282,7 +282,7 @@ class Parser
     true
   end
 
-  def read_char(ch)
+  def read_char(ch : String)
     if @current != ch
       return false
     end
@@ -313,7 +313,7 @@ class Parser
     @index += 1
 
     if @index < @input.size
-      @current = @input[@index]
+      @current = @input[@index].to_s
     else
       @current = nil
     end
@@ -356,13 +356,13 @@ class Parser
   end
 
   def is_white_space
-    ' ' == @current || "\t" == @current || "\n" == @current || "\r" == @current
+    " " == @current || "\t" == @current || "\n" == @current || "\r" == @current
   end
 
   def is_digit
-    '0' == @current || '1' == @current || '2' == @current || '3' == @current ||
-        '4' == @current || '5' == @current || '6' == @current || '7' == @current ||
-        '8' == @current || '9' == @current
+    "0" == @current || "1" == @current || "2" == @current || "3" == @current ||
+        "4" == @current || "5" == @current || "6" == @current || "7" == @current ||
+        "8" == @current || "9" == @current
   end
 
   def is_end_of_text
