@@ -12,7 +12,7 @@ get_web_getter
 
 ./build-benchmarks.sh
 
-get_jdk9ea
+# get_jdk9ea # disabled since Nashorn is only user and not really supported currently
 
 # ./build-graal.sh
 
