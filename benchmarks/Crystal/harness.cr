@@ -33,52 +33,54 @@ require "./towers"
 
 class Run
   property :name
-  property :benchmark_suite
+  property :benchmark
   property :num_iterations
   property :inner_iterations
+  
+  @benchmark : Benchmark
 
-  def initialize(name)
+  def initialize(name : String)
     @total            = 0
     @num_iterations   = 1
     @inner_iterations = 1
-    @benchmark_suite  = select_benchmark_suite(name)
+    @benchmark        = select_benchmark(name)
     @name             = name
   end
 
-  def select_benchmark_suite(benchmark_name)
+  def select_benchmark(benchmark_name)
     case benchmark_name
     when "Bounce"
-      Bounce
+      Bounce.new
     when "DeltaBlue"
-      DeltaBlue
+      DeltaBlue.new
     when "Json"
-      Json
+      Json.new
     when "List"
-      List
+      List.new
     when "Mandelbrot"
-      Mandelbrot
+      Mandelbrot.new
     when "NBody"
-      NBody
+      NBody.new
     when "Permute"
-      Permute
+      Permute.new
     when "Queens"
-      Queens
+      Queens.new
     when "Richards"
-      Richards
+      Richards.new
     when "Sieve"
-      Sieve
+      Sieve.new
     when "Storage"
-      Storage
+      Storage.new
     when "Towers"
-      Towers
+      Towers.new
     else
-      Benchmark
+      raise Exception.new("Benchmark not known: " + benchmark_name)
     end
   end
 
   def run_benchmark
     puts "Starting #{@name} benchmark ..."
-    do_runs(@benchmark_suite.new)
+    do_runs(@benchmark)
     report_benchmark
     puts ""
   end
