@@ -139,7 +139,7 @@ class Planner
   end
 
   def change_var(var, val)
-    edit_constraint = EditConstraint.new(var, :preferred, self)
+    edit_constraint = EditConstraint.new(var, SYM_PREFERRED, self)
     plan = extract_plan_from_constraints(Vector(AbstractConstraint?).with(edit_constraint))
     10.times {
       var.value = val
@@ -211,11 +211,11 @@ class Planner
       v1 = vars[i]
       v2 = vars[i + 1]
 
-      EqualityConstraint.new(v1, v2, :required, planner)
+      EqualityConstraint.new(v1, v2, SYM_REQUIRED, planner)
     }
 
-    StayConstraint.new(vars.last, :strong_default, planner)
-    edit = EditConstraint.new(vars.first, :preferred, planner)
+    StayConstraint.new(vars.last, SYM_STRONG_DEFAULT, planner)
+    edit = EditConstraint.new(vars.first, SYM_PREFERRED, planner)
     plan = planner.extract_plan_from_constraints([edit])
 
     (1..100).each { | v |
@@ -248,8 +248,8 @@ class Planner
       src = Variable.value(i)
       dst = Variable.value(i)
       dests.append(dst)
-      StayConstraint.new(src, :default, planner)
-      ScaleConstraint.new(src, scale, offset, dst, :required, planner)
+      StayConstraint.new(src, SYM_DEFAULT, planner)
+      ScaleConstraint.new(src, scale, offset, dst, SYM_REQUIRED, planner)
     }
 
     planner.change_var(src.not_nil!, 17)
@@ -274,13 +274,29 @@ class Planner
   end
 end
 
+class Sym
+  getter :custom_hash
+
+  def initialize(hash : Int32)
+    @custom_hash = hash
+  end
+end
+
+SYM_ABSOLUTE_STRONGEST = Sym.new(0)
+SYM_REQUIRED           = Sym.new(1)
+SYM_STRONG_PREFERRED   = Sym.new(2)
+SYM_PREFERRED          = Sym.new(3)
+SYM_STRONG_DEFAULT     = Sym.new(4)
+SYM_DEFAULT            = Sym.new(5)
+SYM_WEAK_DEFAULT       = Sym.new(6)
+SYM_ABSOLUTE_WEAKEST   = Sym.new(7)
 
 class Strength
   getter :arithmetic_value
   
   @arithmetic_value : Int32
 
-  def initialize(strength_sym : Symbol)
+  def initialize(strength_sym : Sym)
     @symbolic_value   = strength_sym
     @arithmetic_value = STRENGHT_TABLE.at(strength_sym).not_nil!
   end
@@ -314,20 +330,20 @@ class Strength
   end
 
   def self.create_strength_table
-    table = Dictionary(Symbol?, Int32?).new
-    table.at_put(:absolute_strongest, -10000)
-    table.at_put(:required,             -800)
-    table.at_put(:strong_preferred,     -600)
-    table.at_put(:preferred,            -400)
-    table.at_put(:strong_default,       -200)
-    table.at_put(:default,                 0)
-    table.at_put(:weak_default,          500)
-    table.at_put(:absolute_weakest,    10000)
+    table = IdentityDictionary(Sym, Int32).new
+    table.at_put(SYM_ABSOLUTE_STRONGEST, -10000)
+    table.at_put(SYM_REQUIRED,             -800)
+    table.at_put(SYM_STRONG_PREFERRED,     -600)
+    table.at_put(SYM_PREFERRED,            -400)
+    table.at_put(SYM_STRONG_DEFAULT,       -200)
+    table.at_put(SYM_DEFAULT,                 0)
+    table.at_put(SYM_WEAK_DEFAULT,          500)
+    table.at_put(SYM_ABSOLUTE_WEAKEST,    10000)
     table
   end
 
   def self.create_strength_constants
-    constants = Dictionary(Symbol?, Strength?).new
+    constants = IdentityDictionary(Sym, Strength).new
     STRENGHT_TABLE.keys.each { | strength_sym |
       constants.at_put(strength_sym, self.new(strength_sym))
     }
@@ -411,7 +427,7 @@ abstract class AbstractConstraint
 end
 
 abstract class BinaryConstraint < AbstractConstraint
-  def initialize(v1 : Variable, v2 : Variable, strength : Symbol, planner : Planner)
+  def initialize(v1 : Variable, v2 : Variable, strength : Sym, planner : Planner)
     super(strength)
     @v1 = v1
     @v2 = v2
@@ -521,7 +537,7 @@ end
 abstract class UnaryConstraint < AbstractConstraint
   getter :output
 
-  def initialize(v : Variable, strength : Symbol, planner : Planner)
+  def initialize(v : Variable, strength : Sym, planner : Planner)
     super(strength)
     @output    = v
     @satisfied = false
@@ -581,7 +597,7 @@ class EditConstraint < UnaryConstraint
 end
 
 class EqualityConstraint < BinaryConstraint
-  def initialize(var1 : Variable, var2 : Variable, strength : Symbol, planner : Planner)
+  def initialize(var1 : Variable, var2 : Variable, strength : Sym, planner : Planner)
     super(var1, var2, strength, planner)
     add_constraint(planner)
   end
@@ -596,7 +612,7 @@ class EqualityConstraint < BinaryConstraint
 end
 
 class ScaleConstraint < BinaryConstraint
-  def initialize(src : Variable, scale : Variable, offset : Variable, dest : Variable, strength : Symbol, planner : Planner)
+  def initialize(src : Variable, scale : Variable, offset : Variable, dest : Variable, strength : Sym, planner : Planner)
     super(src, dest, strength, planner)
     @scale  = scale
     @offset = offset
@@ -713,6 +729,6 @@ class Variable
   end
 end
 
-ABSOLUTE_STRONGEST = Strength.of(:absolute_strongest)
-ABSOLUTE_WEAKEST   = Strength.of(:absolute_weakest)
-REQUIRED           = Strength.of(:required)
+ABSOLUTE_STRONGEST = Strength.of(SYM_ABSOLUTE_STRONGEST)
+ABSOLUTE_WEAKEST   = Strength.of(SYM_ABSOLUTE_WEAKEST)
+REQUIRED           = Strength.of(SYM_REQUIRED)
