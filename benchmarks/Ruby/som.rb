@@ -48,7 +48,24 @@ class Vector
   end
 
   def at(idx)
+    if idx >= @storage.length
+      return nil
+    end
     @storage[idx]
+  end
+
+  def at_put(idx, val)
+    if idx >= @storage.length
+      new_length = @storage.length
+      while new_length <= idx
+        new_length *= 2
+      end
+      new_storage = Array.new(new_length)
+      @storage.each_index { | i |
+        new_storage[i] = @storage[i]
+      }
+      @storage = new_storage
+    end
   end
 
   def append(elem)
@@ -287,7 +304,7 @@ class Dictionary
       return 0
     end
 
-    hash = key.hash
+    hash = key.customHash
     hash ^ hash >> 16
   end
 
