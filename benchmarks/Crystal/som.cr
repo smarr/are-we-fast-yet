@@ -48,7 +48,28 @@ class Vector(T)
   end
 
   def at(idx)
+    if idx >= @storage.size
+      return nil
+    end
     @storage[idx]
+  end
+
+  def at_put(idx, val : T)
+    if idx >= @storage.size
+      new_length = @storage.size
+      while new_length <= idx
+        new_length *= 2
+      end
+      new_storage = Array(T).new(new_length, nil)
+      @storage.each_index { | i |
+        new_storage[i] = @storage[i]
+      }
+      @storage = new_storage
+    end
+    @storage[idx] = val
+    if @last_idx < idx + 1
+      @last_idx = idx + 1
+    end
   end
 
   def append(elem : T)
@@ -122,6 +143,10 @@ class Vector(T)
     @last_idx = new_last
     @first_idx = 0
     found
+  end
+
+  def remove_all
+    @storage = Array(T).new(@storage.size, nill)
   end
 
   def size
@@ -255,6 +280,10 @@ class SomSet(T)
     coll = Vector(U?).new
     each { | e | coll.append(yield e) }
     coll
+  end
+
+  def contains(obj : T)
+    has_some { | it | it == obj }
   end
 end
 
