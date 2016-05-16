@@ -12,8 +12,3 @@ cd ../JRuby-master
 ./mvnw
 
 OK JRuby Build Completed.
-
-INFO "Get Graal 0.7 for JRuby"
-cd ..
-
-get_graal07

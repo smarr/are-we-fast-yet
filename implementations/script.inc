@@ -62,21 +62,6 @@ function get_pypy() {
   fi
 }
 
-function get_graal07() {
-  GRAAL07_ARCHIVE=openjdk-8-graalvm-b132-linux-x86_64-0.7.tar.gz
-  GRAAL07_URL=http://lafo.ssw.uni-linz.ac.at/graalvm/$GRAAL07_ARCHIVE
-  GRAAL07_DIR=graalvm-jdk1.8.0
-
-  INFO Get Graal 0.7 from $GRAAL07_URL
-  if [ \! -d "$GRAAL07_DIR" ]; then
-    $GET $GRAAL07_URL || $GET $GRAAL07_URL
-    tar -xzf $GRAAL07_ARCHIVE
-    OK Got Graal 0.7
-  else
-    OK Have Graal 0.7
-  fi
-}
-
 function get_jdk9ea() {
   JDK_ARCHIVE=jdk-9-ea+96_linux-x64_bin.tar.gz
   JDK_URL=http://www.java.net/download/jdk9/archive/96/binaries/$JDK_ARCHIVE
