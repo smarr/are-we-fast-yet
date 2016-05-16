@@ -274,10 +274,10 @@ class Planner
 end
 
 class Sym
-  attr_reader :customHash
+  attr_reader :custom_hash
 
   def initialize(hash)
-    @customHash = hash
+    @custom_hash = hash
   end
 end
 
