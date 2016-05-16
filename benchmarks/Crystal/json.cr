@@ -371,6 +371,8 @@ class Parser
 end
 
 class HashIndexTable
+  
+  @hash_table : Array(Int32)
 
   def initialize
     @hash_table = Array.new(32, 0)
