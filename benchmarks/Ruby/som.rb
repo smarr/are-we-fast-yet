@@ -66,6 +66,10 @@ class Vector
       }
       @storage = new_storage
     end
+    @storage[idx] = val
+    if @last_idx < idx + 1
+      @last_idx = idx + 1
+    end
   end
 
   def append(elem)
@@ -304,7 +308,7 @@ class Dictionary
       return 0
     end
 
-    hash = key.customHash
+    hash = key.custom_hash
     hash ^ hash >> 16
   end
 
