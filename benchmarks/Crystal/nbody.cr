@@ -35,6 +35,8 @@ class NBody < Benchmark
 end
 
 class NBodySystem
+  @bodies : Array(Body)
+
   def initialize
     @bodies = create_bodies
   end
@@ -117,8 +119,18 @@ end
 
 class Body
   property :x, :y, :z, :vx, :vy, :vz, :mass
+  
+  @x : Float64
+  @y : Float64
+  @z : Float64
+  @vx : Float64
+  @vy : Float64
+  @vz : Float64
+  @mass : Float64
 
-  def initialize(x, y, z, vx, vy, vz, mass)
+  def initialize(x : Float64, y : Float64, z : Float64,
+                 vx : Float64, vy : Float64, vz : Float64,
+                 mass : Float64)
     @x = x
     @y = y
     @z = z

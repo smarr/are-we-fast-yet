@@ -277,6 +277,8 @@ end
 
 class Strength
   getter :arithmetic_value
+  
+  @arithmetic_value : Int32
 
   def initialize(strength_sym : Symbol)
     @symbolic_value   = strength_sym
@@ -335,7 +337,7 @@ class Strength
   STRENGHT_TABLE     = create_strength_table
   STRENGHT_CONSTANTS = create_strength_constants
 
-  def self.of(sym)
+  def self.of(sym) : Strength
     STRENGHT_CONSTANTS.at(sym).not_nil!
   end
 end
@@ -679,6 +681,9 @@ class Variable
   property :walk_strength
   property :stay
   property :mark
+  
+  @determined_by : AbstractConstraint?
+  @walk_strength : Strength
 
   def initialize
     @value         = 0

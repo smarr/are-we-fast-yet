@@ -46,6 +46,11 @@ class Bounce < Benchmark
 end
 
 class Ball
+  @x : Int32
+  @y : Int32
+  @x_vel : Int32
+  @y_vel : Int32
+  
   def initialize(random)
     @x = random.next % 500
     @y = random.next % 500

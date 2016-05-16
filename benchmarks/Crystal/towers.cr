@@ -26,8 +26,10 @@ require "./som"
 class TowersDisk
   property :next
   property :size
+  
+  @next : TowersDisk?
 
-  def initialize(size)
+  def initialize(size : Int32)
     @size = size
     @next = nil
   end

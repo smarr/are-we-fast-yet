@@ -72,8 +72,11 @@ end
 
 class Element
   property :val, :next
+  
+  @val  : Int32?
+  @next : Element?
 
-  def initialize(v)
+  def initialize(v : Int32?)
     @val  = v
     @next = nil
   end

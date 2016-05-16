@@ -48,8 +48,10 @@ class Json < Benchmark
 end
 
 class Parser
+  
+  @current : String?
 
-  def initialize(string)
+  def initialize(string : String)
     @input   = string
     @index   = -1
     @line    = 1
@@ -404,7 +406,7 @@ end
 class ParseException < Exception # < StandardError
   property :message, :offset, :line, :column
 
-  def initialize(message, offset, line, column)
+  def initialize(message : String, offset : Int32, line : Int32, column : Int32)
     super(message, nil)
     @message = message
     @offset  = offset
@@ -489,8 +491,12 @@ class JsonArray < JsonValue
 end
 
 class JsonLiteral < JsonValue
+  
+  @is_null  : Bool
+  @is_true  : Bool
+  @is_false : Bool
 
-  def initialize(value)
+  def initialize(value : String)
     @value = value
     @is_null  = "null"  == value
     @is_true  = "true"  == value
@@ -524,7 +530,7 @@ end
 
 class JsonNumber < JsonValue
 
-  def initialize(string)
+  def initialize(string : String)
     @string = string
     if string.nil?
       raise "string is null"
@@ -597,7 +603,7 @@ class JsonObject < JsonValue
 end
 
 class JsonString < JsonValue
-  def initialize(string)
+  def initialize(string : String)
     @string = string
   end
 

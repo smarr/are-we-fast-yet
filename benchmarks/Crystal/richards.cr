@@ -59,6 +59,9 @@ class RBObject
 end
 
 class RichardsScheduler < RBObject
+  
+  @task_list    : TaskControlBlock?
+  @current_task : TaskControlBlock?
 
   def initialize
     # init tracing
@@ -159,7 +162,7 @@ class RichardsScheduler < RBObject
   end
 
   def create_task(identity : Int32, priority : Int32, work : Packet?, 
-                  state : TaskState, data, &block : Packet?, RBObject -> Void)
+                  state : TaskState, data, &block : Packet?, RBObject -> TaskControlBlock?)
     t = TaskControlBlock.new(@task_list, identity, priority, work, state, data, &block)
     @task_list = t
     @task_table[identity] = t
@@ -241,7 +244,7 @@ class RichardsScheduler < RBObject
     task.add_input_and_check_priority(packet, @current_task.not_nil!)
   end
 
-  def release(identity)
+  def release(identity) : TaskControlBlock?
     task_or_no_task = find_task(identity)
     if NO_TASK == task_or_no_task
       return NO_TASK
@@ -292,6 +295,9 @@ class RichardsScheduler < RBObject
 end
 
 class DeviceTaskDataRecord < RBObject
+  
+  @pending : Packet?
+  
   property :pending
    def initialize
     @pending = NO_WORK
@@ -300,6 +306,10 @@ end
 
 class HandlerTaskDataRecord < RBObject
   property :work_in, :device_in
+  
+  @work_in   : Packet?
+  @device_in : Packet?
+  
   def initialize
     @work_in   = NO_WORK
     @device_in = NO_WORK
@@ -325,7 +335,10 @@ end
 
 class Packet < RBObject
   property :link, :kind, :identity, :datum, :data
-  def initialize(link, identity, kind)
+
+  @data : Array(Int32)
+  
+  def initialize(link : Packet?, identity : Int32, kind : Int32)
     @link     = link
     @kind     = kind
     @identity = identity
@@ -415,8 +428,9 @@ end
 class TaskControlBlock < TaskState
   property :link, :identity, :function, :priority
 
-  def initialize(link, identity, priority, initial_work_queue,
-                 initial_state, private_data, &block : Packet?, RBObject -> Void)
+  def initialize(link : TaskControlBlock?, identity : Int32, priority : Int32,
+                 initial_work_queue : Packet?,
+                 initial_state, private_data : RBObject, &block : Packet?, RBObject -> TaskControlBlock?)
     super()
     @link = link
     @identity = identity
