@@ -142,17 +142,17 @@ public final class JsonObject extends JsonValue {
 
   private static class HashIndexTable {
 
-    private final byte[] hashTable;
+    private final int[] hashTable;
 
     public HashIndexTable() {
-      hashTable = new byte[32]; // must be a power of two
+      hashTable = new int[32]; // must be a power of two
     }
 
     void add(final String name, final int index) {
       int slot = hashSlotFor(name);
       if (index < 0xff) {
         // increment by 1, 0 stands for empty
-        hashTable[slot] = (byte)(index + 1);
+        hashTable[slot] = (index + 1) & 0xff;
       } else {
         hashTable[slot] = 0;
       }
