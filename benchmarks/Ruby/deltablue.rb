@@ -138,7 +138,7 @@ class Planner
   end
 
   def change_var(var, val)
-    edit_constraint = EditConstraint.new(var, :preferred, self)
+    edit_constraint = EditConstraint.new(var, SYM_PREFERRED, self)
     plan = extract_plan_from_constraints(Vector.with(edit_constraint))
     10.times {
       var.value = val
@@ -210,11 +210,11 @@ class Planner
       v1 = vars[i]
       v2 = vars[i + 1]
 
-      EqualityConstraint.new(v1, v2, :required, planner)
+      EqualityConstraint.new(v1, v2, SYM_REQUIRED, planner)
     }
 
-    StayConstraint.new(vars.last, :strong_default, planner)
-    edit = EditConstraint.new(vars.first, :preferred, planner)
+    StayConstraint.new(vars.last, SYM_STRONG_DEFAULT, planner)
+    edit = EditConstraint.new(vars.first, SYM_PREFERRED, planner)
     plan = planner.extract_plan_from_constraints([edit])
 
     (1..100).each { | v |
@@ -247,8 +247,8 @@ class Planner
       src = Variable.value(i)
       dst = Variable.value(i)
       dests.append(dst)
-      StayConstraint.new(src, :default, planner)
-      ScaleConstraint.new(src, scale, offset, dst, :required, planner)
+      StayConstraint.new(src, SYM_DEFAULT, planner)
+      ScaleConstraint.new(src, scale, offset, dst, SYM_REQUIRED, planner)
     }
 
     planner.change_var(src, 17)
@@ -273,6 +273,22 @@ class Planner
   end
 end
 
+class Sym
+  attr_reader :customHash
+
+  def initialize(hash)
+    @customHash = hash
+  end
+end
+
+SYM_ABSOLUTE_STRONGEST = Sym.new(0)
+SYM_REQUIRED           = Sym.new(1)
+SYM_STRONG_PREFERRED   = Sym.new(2)
+SYM_PREFERRED          = Sym.new(3)
+SYM_STRONG_DEFAULT     = Sym.new(4)
+SYM_DEFAULT            = Sym.new(5)
+SYM_WEAK_DEFAULT       = Sym.new(6)
+SYM_ABSOLUTE_WEAKEST   = Sym.new(7)
 
 class Strength
   attr_reader :arithmetic_value
@@ -311,20 +327,20 @@ class Strength
   end
 
   def self.create_strength_table
-    table = Dictionary.new
-    table.at_put(:absolute_strongest, -10000)
-    table.at_put(:required,             -800)
-    table.at_put(:strong_preferred,     -600)
-    table.at_put(:preferred,            -400)
-    table.at_put(:strong_default,       -200)
-    table.at_put(:default,                 0)
-    table.at_put(:weak_default,          500)
-    table.at_put(:absolute_weakest,    10000)
+    table = IdentityDictionary.new
+    table.at_put(SYM_ABSOLUTE_STRONGEST, -10000)
+    table.at_put(SYM_REQUIRED,             -800)
+    table.at_put(SYM_STRONG_PREFERRED,     -600)
+    table.at_put(SYM_PREFERRED,            -400)
+    table.at_put(SYM_STRONG_DEFAULT,       -200)
+    table.at_put(SYM_DEFAULT,                 0)
+    table.at_put(SYM_WEAK_DEFAULT,          500)
+    table.at_put(SYM_ABSOLUTE_WEAKEST,    10000)
     table
   end
 
   def self.create_strength_constants
-    constants = Dictionary.new
+    constants = IdentityDictionary.new
     STRENGHT_TABLE.keys.each { | strength_sym |
       constants.at_put(strength_sym, self.new(strength_sym))
     }
@@ -697,6 +713,6 @@ class Variable
   end
 end
 
-ABSOLUTE_STRONGEST = Strength.of(:absolute_strongest)
-ABSOLUTE_WEAKEST   = Strength.of(:absolute_weakest)
-REQUIRED           = Strength.of(:required)
+ABSOLUTE_STRONGEST = Strength.of(SYM_ABSOLUTE_STRONGEST)
+ABSOLUTE_WEAKEST   = Strength.of(SYM_ABSOLUTE_WEAKEST)
+REQUIRED           = Strength.of(SYM_REQUIRED)
