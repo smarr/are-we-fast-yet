@@ -258,6 +258,10 @@ class SomSet(T)
 end
 
 class IdentitySomSet(T) < SomSet(T)
+  def initialize(size = INITIAL_SIZE)
+    super(size)
+  end
+  
   def contains(obj)
     has_some { | it | it == obj } # in Ruby we use .equal? - is == always identity?
   end
