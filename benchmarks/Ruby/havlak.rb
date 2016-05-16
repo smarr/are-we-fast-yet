@@ -54,6 +54,10 @@ class BasicBlock
   def add_in_edge(from)
     @in_edges.append(from)
   end
+
+  def custom_hash
+    @name
+  end
 end
 
 class BasicBlockEdge
@@ -71,12 +75,12 @@ end
 class ControlFlowGraph
   def initialize
     @start_node = nil
-    @basic_block_map = Dictionary.new
-    @edge_list  = Vector.new()
+    @basic_block_map = Vector.new
+    @edge_list = Vector.new
   end
 
   def create_node(name)
-    if @basic_block_map.contains_key(name)
+    unless @basic_block_map.at(name).nil?
       node = @basic_block_map.at(name)
     else
       node = BasicBlock.new(name)
@@ -371,7 +375,7 @@ class HavlakLoopFinder
   end
 
   def init_all_nodes
-    @cfg.get_basic_blocks.values.each { |bbIter|
+    @cfg.get_basic_blocks.each { |bbIter|
       @number.at_put(bbIter, UNVISITED)
     }
 
