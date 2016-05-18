@@ -146,7 +146,7 @@ class Node
   end
 end
 
-class Entry
+class RbtEntry
   attr_reader :key, :value
 
   def initialize(key, value)
@@ -323,7 +323,7 @@ class RedBlackTree
     current = tree_minimum(@root)
 
     while current
-      yield Entry.new(current.key, current.value)
+      yield RbtEntry.new(current.key, current.value)
       current = current.successor
     end
   end
