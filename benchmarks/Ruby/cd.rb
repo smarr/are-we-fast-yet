@@ -835,9 +835,9 @@ class Simulator
     frame = Vector.new
     (0...@aircraft.size).step(2) { |i|
       frame.append(Aircraft.new(@aircraft.at(i),
-        Vector3D.new(time, Math.cos(time) * 2 + i * 3, 10)))
-      frame.append(Aircraft.new(@aircraft.at(i),
-        Vector3D.new(time, Math.sin(time) * 2 + i * 3, 10)))
+        Vector3D.new(time, Math.cos(time) * 2 + i * 3, 10.0)))
+      frame.append(Aircraft.new(@aircraft.at(i + 1),
+        Vector3D.new(time, Math.sin(time) * 2 + i * 3, 10.0)))
     }
     frame
   end
@@ -851,7 +851,7 @@ class CD < Benchmark
 
     actual_collisions = 0
 
-    (0..num_frames).each { |i|
+    (0...num_frames).each { |i|
       time = i / 10.0
       collisions = detector.handle_new_frame(simulator.simulate(time))
       actual_collisions += collisions.size
