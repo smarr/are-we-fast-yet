@@ -509,15 +509,14 @@ CollisionDetector.prototype.handleNewFrame = function (frame) {
   return collisions;
 };
 
-var Constants = {};
-Constants.MIN_X = 0;
-Constants.MIN_Y = 0;
-Constants.MAX_X = 1000;
-Constants.MAX_Y = 1000;
-Constants.MIN_Z = 0;
-Constants.MAX_Z = 10;
-Constants.PROXIMITY_RADIUS = 1;
-Constants.GOOD_VOXEL_SIZE = Constants.PROXIMITY_RADIUS * 2;
+var MIN_X = 0,
+  MIN_Y = 0,
+  MAX_X = 1000,
+  MAX_Y = 1000,
+  MIN_Z = 0,
+  MAX_Z = 10,
+  PROXIMITY_RADIUS = 1,
+  GOOD_VOXEL_SIZE = PROXIMITY_RADIUS * 2;
 
 function Motion(callsign, posOne, posTwo) {
   this.callsign = callsign;
@@ -534,7 +533,7 @@ Motion.prototype.findIntersection = function (other) {
   var init2 = other.posOne;
   var vec1 = this.delta();
   var vec2 = other.delta();
-  var radius = Constants.PROXIMITY_RADIUS;
+  var radius = PROXIMITY_RADIUS;
 
   // this test is not geometrical 3-d intersection test, it takes the fact that the aircraft move
   // into account ; so it is more like a 4d test
@@ -600,13 +599,14 @@ Motion.prototype.findIntersection = function (other) {
       var result2 = init2.plus(vec2.times(v));
 
       var result = result1.plus(result2).times(0.5);
-      if (result.x >= Constants.MIN_X &&
-        result.x <= Constants.MAX_X &&
-        result.y >= Constants.MIN_Y &&
-        result.y <= Constants.MAX_Y &&
-        result.z >= Constants.MIN_Z &&
-        result.z <= Constants.MAX_Z)
+      if (result.x >= MIN_X &&
+        result.x <= MAX_X &&
+        result.y >= MIN_Y &&
+        result.y <= MAX_Y &&
+        result.z >= MIN_Z &&
+        result.z <= MAX_Z) {
         return result;
+      }
     }
 
     return null;
@@ -654,22 +654,22 @@ Node.prototype.successor = function () {
   return y;
 };
 
-var horizontal = new Vector2D(Constants.GOOD_VOXEL_SIZE, 0);
-var vertical = new Vector2D(0, Constants.GOOD_VOXEL_SIZE);
+var horizontal = new Vector2D(GOOD_VOXEL_SIZE, 0);
+var vertical = new Vector2D(0, GOOD_VOXEL_SIZE);
 
 function isInVoxel(voxel, motion) {
-  if (voxel.x > Constants.MAX_X ||
-    voxel.x < Constants.MIN_X ||
-    voxel.y > Constants.MAX_Y ||
-    voxel.y < Constants.MIN_Y) {
+  if (voxel.x > MAX_X ||
+    voxel.x < MIN_X ||
+    voxel.y > MAX_Y ||
+    voxel.y < MIN_Y) {
     return false;
   }
 
   var init = motion.posOne;
   var fin = motion.posTwo;
 
-  var v_s = Constants.GOOD_VOXEL_SIZE;
-  var r = Constants.PROXIMITY_RADIUS / 2;
+  var v_s = GOOD_VOXEL_SIZE;
+  var r = PROXIMITY_RADIUS / 2;
 
   var v_x = voxel.x;
   var x0 = init.x;
@@ -721,17 +721,17 @@ function putIntoMap(voxelMap, voxel, motion) {
 }
 
 function voxelHash(position) {
-  var xDiv = (position.x / Constants.GOOD_VOXEL_SIZE) | 0;
-  var yDiv = (position.y / Constants.GOOD_VOXEL_SIZE) | 0;
+  var xDiv = (position.x / GOOD_VOXEL_SIZE) | 0;
+  var yDiv = (position.y / GOOD_VOXEL_SIZE) | 0;
 
   var result = new Vector2D();
-  result.x = Constants.GOOD_VOXEL_SIZE * xDiv;
-  result.y = Constants.GOOD_VOXEL_SIZE * yDiv;
+  result.x = GOOD_VOXEL_SIZE * xDiv;
+  result.y = GOOD_VOXEL_SIZE * yDiv;
 
   if (position.x < 0)
-    result.x -= Constants.GOOD_VOXEL_SIZE;
+    result.x -= GOOD_VOXEL_SIZE;
   if (position.y < 0)
-    result.y -= Constants.GOOD_VOXEL_SIZE;
+    result.y -= GOOD_VOXEL_SIZE;
 
   return result;
 }
