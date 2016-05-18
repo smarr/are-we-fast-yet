@@ -179,7 +179,6 @@ class RedBlackTree
   end
 
   def put(key, value)
-    puts 'rb.puts'
     insertion_result = tree_insert(key, value)
     unless insertion_result.is_new_entry
       return insertion_result.old_value
@@ -539,7 +538,6 @@ class CollisionDetector
   end
 
   def handle_new_frame(frame)
-    puts 'handle_new_frame'
     motions = Vector.new
     seen    = RedBlackTree.new
 
@@ -587,7 +585,6 @@ class CollisionDetector
        voxel.x < MIN_X ||
        voxel.y > MAX_Y ||
        voxel.y < MIN_Y
-      puts 'is_in_voxel false'
       return false
     end
 
@@ -623,7 +620,7 @@ class CollisionDetector
       high_y = tmp
     end
 
-    result = (((xv == 0.0 && v_x <= x0 + r && x0 - r <= v_x + v_s) ||  # no motion in x
+    (((xv == 0.0 && v_x <= x0 + r && x0 - r <= v_x + v_s) ||  # no motion in x
      (low_x <= 1.0 && 1.0 <= high_x) || (low_x <= 0.0 && 0.0 <= high_x) ||
       (0.0 <= low_x && high_x <= 1.0)) &&
     ((yv == 0.0 && v_y <= y0 + r && y0 - r <= v_y + v_s) ||  # no motion in y
@@ -633,8 +630,6 @@ class CollisionDetector
      (low_y <= high_x && high_x <= high_y) ||
      (low_y <= low_x && low_x <= high_y) ||
      (low_x <= low_y && high_y <= high_x)))
-    puts ('is_in_voxel ' + r.to_s)
-    r
   end
 
 
