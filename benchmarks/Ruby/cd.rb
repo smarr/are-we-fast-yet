@@ -418,7 +418,7 @@ class RedBlackTree
     # Link y's parent to x.
     x.parent = y.parent
     if y.parent == nil
-      root = x;
+      @root = x;
     else
       if y.equal? y.parent.left
         y.parent.left = x
