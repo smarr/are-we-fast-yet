@@ -43,9 +43,9 @@ class List < Benchmark
     x_tail = x
     y_tail = y
 
-    while !y_tail.nil?
-      if x_tail.nil?
-        return true;
+    while y_tail
+      if x_tail == nil
+        return true
       end
       x_tail = x_tail.next
       y_tail = y_tail.next
@@ -77,7 +77,7 @@ class Element
   end
 
   def length
-    if @next.nil?
+    if @next == nil
       1
     else
       1 + @next.length

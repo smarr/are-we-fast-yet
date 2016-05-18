@@ -80,7 +80,7 @@ class ControlFlowGraph
   end
 
   def create_node(name)
-    unless @basic_block_map.at(name).nil?
+    if @basic_block_map.at(name)
       node = @basic_block_map.at(name)
     else
       node = BasicBlock.new(name)
@@ -136,7 +136,7 @@ class LoopStructureGraph
   def calculate_nesting_level
     @loops.each { |liter|
       unless liter.is_root
-        if liter.parent.nil?
+        if liter.parent == nil
           liter.set_parent(@root)
         end
       end
@@ -172,7 +172,7 @@ class SimpleLoop
     @basic_blocks  = IdentitySet.new
     @children      = IdentitySet.new
 
-    unless bb.nil?
+    if bb
       @basic_blocks.add(bb)
     end
 
@@ -388,7 +388,7 @@ class HavlakLoopFinder
       @type[w] = :BB_NONHEADER
 
       node_w = @nodes[w].bb
-      if node_w.nil?
+      if node_w == nil
         @type[w] = :BB_DEAD
       else
         process_edges(node_w, w)
@@ -412,7 +412,7 @@ class HavlakLoopFinder
   end
 
   def find_loops
-    if @cfg.get_start_basic_block.nil? then return end
+    if @cfg.get_start_basic_block == nil; return end
 
     size = @cfg.num_nodes
     @non_back_preds.remove_all
@@ -441,7 +441,7 @@ class HavlakLoopFinder
     (size - 1).downto(0) { |w|
       node_pool = Vector.new
       node_w = @nodes[w].bb
-      unless node_w.nil?
+      if node_w
         step_d(w, node_pool)
 
         work_list = Vector.new
@@ -489,7 +489,7 @@ class HavlakLoopFinder
       @header[node.dfs_number] = w
       node.union(@nodes[w])
 
-      if !node.loop.nil?
+      if node.loop
         node.loop.set_parent(loop)
       else
         loop.add_node(node.bb)

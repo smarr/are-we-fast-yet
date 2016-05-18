@@ -58,7 +58,7 @@ class Planner
     mark = new_mark
     overridden = constraint.satisfy(mark, self)
 
-    until overridden.nil?
+    while overridden
       overridden = overridden.satisfy(mark, self)
     end
   end
@@ -380,7 +380,7 @@ class AbstractConstraint
   end
 
   def inputs_known(mark)
-    !inputs_has_one { | v | !(v.mark == mark || v.stay || v.determined_by.nil?) }
+    !inputs_has_one { | v | !(v.mark == mark || v.stay || v.determined_by == nil) }
   end
 
   def satisfy(mark, planner)
@@ -392,7 +392,7 @@ class AbstractConstraint
       outx = output
       overridden = outx.determined_by
 
-      unless overridden.nil?
+      if overridden
         overridden.mark_unsatisfied
       end
 
@@ -422,7 +422,7 @@ class BinaryConstraint < AbstractConstraint
   end
 
   def is_satisfied
-    !@direction.nil?
+    @direction != nil
   end
 
   def add_to_graph
@@ -432,11 +432,11 @@ class BinaryConstraint < AbstractConstraint
   end
 
   def remove_from_graph
-    unless @v1.nil?
+    if @v1
       @v1.remove_constraint(self)
     end
 
-    unless @v2.nil?
+    if @v2
       @v2.remove_constraint(self)
     end
 
@@ -541,7 +541,7 @@ class UnaryConstraint < AbstractConstraint
   end
 
   def remove_from_graph
-    unless @output.nil?
+    if @output
       @output.remove_constraint(self)
     end
     @satisfied = false
@@ -615,19 +615,19 @@ class ScaleConstraint < BinaryConstraint
   end
 
   def remove_from_graph
-    unless @v1.nil?
+    if @v1
       @v1.remove_constraint(self)
     end
 
-    unless @v2.nil?
+    if @v2
       @v2.remove_constraint(self)
     end
 
-    unless @scale.nil?
+    if @scale
       @scale.remove_constraint(self)
     end
 
-    unless @offset.nil?
+    if @offset
       @offset.remove_constraint(self)
     end
 

@@ -61,7 +61,7 @@ class Towers < Benchmark
 
   def pop_disk_from(pile)
     top = @piles[pile]
-    if top.nil?
+    if top == nil
       raise 'Attempting to remove a disk from an empty pile'
     end
 
