@@ -560,7 +560,7 @@ class CollisionDetector
     to_remove = Vector.new
     @state.for_each { |e|
       unless seen.get(e.key)
-        toRemove.append(e.key)
+        to_remove.append(e.key)
       end
     }
 
@@ -568,7 +568,7 @@ class CollisionDetector
 
     all_reduced = reduce_collision_set(motions)
     collisions = Vector.new
-    allReduced.each { |reduced|
+    all_reduced.each { |reduced|
       (0...reduced.size).each { |i|
         motion1 = reduced.at(i)
         ((i + 1)...reduced.size).each { |j|
