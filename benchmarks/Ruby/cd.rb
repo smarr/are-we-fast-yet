@@ -324,7 +324,7 @@ class RedBlackTree
 
     while current
       yield Entry.new(current.key, current.value)
-      current = current.successor()
+      current = current.successor
     end
   end
 
@@ -462,7 +462,7 @@ class RedBlackTree
           end
           # Case 4
           w.color = x_parent.color
-          x_parent.color = :black;
+          x_parent.color = :black
           if w.right
             w.right.color = :black
           end
@@ -524,11 +524,11 @@ class CallSign
 end
 
 class Collision
-  attr_reader :aircraftA, :aircraftB, :position
+  attr_reader :aircraft_a, :aircraft_b, :position
 
-  def initialize(aircraftA, aircraftB, position)
-    @aircraftA = aircraftA
-    @aircraftB = aircraftB
+  def initialize(aircraft_a, aircraft_b, position)
+    @aircraft_a = aircraft_a
+    @aircraft_b = aircraft_b
     @position  = position
   end
 end
@@ -718,7 +718,7 @@ class Motion
   end
 
   def find_intersection(other)
-    init1 = @pos_one;
+    init1 = @pos_one
     init2 = other.pos_one
     vec1 = delta
     vec2 = other.delta
@@ -824,9 +824,9 @@ class Aircraft
 end
 
 class Simulator
-  def initialize(numAircrafts)
+  def initialize(num_aircrafts)
     @aircraft = Vector.new
-    (0...numAircrafts).each { |i|
+    (0...num_aircrafts).each { |i|
       @aircraft.append(CallSign.new(i))
     }
   end
@@ -844,9 +844,9 @@ class Simulator
 end
 
 class CD < Benchmark
-  def benchmark(numAircrafts)
+  def benchmark(num_aircrafts)
     num_frames = 200
-    simulator  = Simulator.new(numAircrafts)
+    simulator  = Simulator.new(num_aircrafts)
     detector   = CollisionDetector.new
 
     actual_collisions = 0
