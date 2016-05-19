@@ -24,7 +24,7 @@ then
   if [ -x /home/smarr/Projects/graal-graal/jvmci/jdk1.8.0_91/product/bin/java ]; then
     export GRAAL_GRAAL_BASIC_CMD=/home/smarr/Projects/graal-graal/jvmci/jdk1.8.0_91/product/bin/java
     export GRAAL_GRAAL_ENTER_CMD=/home/smarr/Projects/graalvm-0.11-dk/jre/bin/java
-    export GRAAL_BASIC_CMD=/home/smarr/Projects/RoarVM-buildslave/GraalBasic/build/jvmci/jdk1.8.0_77/product/bin/java
+    export GRAAL_BASIC_CMD=/home/smarr/Projects/RoarVM-buildslave/GraalBasic/build/jvmci/jdk1.8.0_91/product/bin/java
     export GRAAL_VM_BIN=/home/smarr/Projects/graalvm-0.11-dk/jre/bin/java
 
     export MX=/home/smarr/Projects/mx/mx
