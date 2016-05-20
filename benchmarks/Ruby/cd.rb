@@ -138,7 +138,7 @@ class Node
     end
 
     y = x.parent
-    while y != nil && x == y.right
+    while y && x == y.right
       x = y
       y = y.parent
     end
@@ -189,7 +189,7 @@ class RedBlackTree
     while !x.equal?(@root) && x.parent.color == :red
       if x.parent.equal? x.parent.parent.left
         y = x.parent.parent.right
-        if y != nil && y.color == :red
+        if y && y.color == :red
           # Case 1
           x.parent.color = :black
           y.color = :black
