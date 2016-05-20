@@ -29,7 +29,7 @@ class Havlak < Benchmark
     if inner_iterations ==     1; return result[0] ==  1605 && result[1] == 5213 end
 
     puts("No verification result for " + inner_iterations.to_s + " found")
-    puts("Result is: " + r[0].to_s + ", " + r[1].to_s)
+    puts("Result is: " + result[0].to_s + ", " + result[1].to_s)
     false
   end
 end
@@ -37,10 +37,10 @@ end
 class BasicBlock
   getter :in_edges, :out_edges
 
-  def initialize(name)
+  def initialize(name : Int32)
     @name = name
-    @in_edges  = Vector.new(2)
-    @out_edges = Vector.new(2)
+    @in_edges  = Vector(BasicBlock?).new(2)
+    @out_edges = Vector(BasicBlock?).new(2)
   end
 
   def num_pred
@@ -61,6 +61,9 @@ class BasicBlock
 end
 
 class BasicBlockEdge
+  @from : BasicBlock
+  @to   : BasicBlock
+  
   def initialize(cfg, from_name, to_name)
     @from = cfg.create_node(from_name)
     @to   = cfg.create_node(to_name)
@@ -73,15 +76,18 @@ class BasicBlockEdge
 end
 
 class ControlFlowGraph
+  
+  @start_node : BasicBlock?
+  
   def initialize
     @start_node = nil
-    @basic_block_map = Vector.new
-    @edge_list = Vector.new
+    @basic_block_map = Vector(BasicBlock?).new
+    @edge_list = Vector(BasicBlockEdge?).new
   end
 
-  def create_node(name)
+  def create_node(name) : BasicBlock
     if @basic_block_map.at(name)
-      node = @basic_block_map.at(name)
+      node = @basic_block_map.at(name).not_nil!
     else
       node = BasicBlock.new(name)
       @basic_block_map.at_put(name, node)
@@ -117,7 +123,7 @@ end
 class LoopStructureGraph
   def initialize
     @loop_counter = 0
-    @loops = Vector.new
+    @loops = Vector(SimpleLoop?).new
     @root = SimpleLoop.new(nil, true)
     @root.set_nesting_level(0)
     @root.counter = @loop_counter
@@ -161,16 +167,18 @@ end
 class SimpleLoop
   getter :children, :parent, :nesting_level, :is_root
   setter :counter, :depth_level
+  
+  @parent : SimpleLoop?
 
-  def initialize(bb, is_reducible)
+  def initialize(bb : BasicBlock?, is_reducible : Bool)
     @is_reducible = is_reducible
     @parent = nil
     @is_root = false
     @nesting_level = 0
     @depth_level   = 0
     @counter       = 0
-    @basic_blocks  = IdentitySet.new
-    @children      = IdentitySet.new
+    @basic_blocks  = IdentitySomSet(BasicBlock?).new
+    @children      = IdentitySomSet(SimpleLoop?).new
 
     if bb
       @basic_blocks.add(bb)
@@ -187,9 +195,9 @@ class SimpleLoop
     @children.add(loop)
   end
 
-  def set_parent(parent)
+  def set_parent(parent : SimpleLoop)
     @parent = parent
-    @parent.add_child_loop(self)
+    parent.add_child_loop(self)
   end
 
   def set_is_root
@@ -207,6 +215,10 @@ end
 class UnionFindNode
   getter :bb, :dfs_number, :parent
   property :loop
+  
+  @parent : UnionFindNode?
+  @bb     : BasicBlock?
+  @loop   : SimpleLoop?
 
   def initialize
     @parent = nil
@@ -215,26 +227,26 @@ class UnionFindNode
     @loop   = nil
   end
 
-  def init_node(bb, dfs_number)
+  def init_node(bb : BasicBlock, dfs_number : Int32)
     @parent = self
     @bb     = bb
     @dfs_number = dfs_number
     @loop   = nil
   end
 
-  def find_set
-    node_list = Vector.new
+  def find_set : UnionFindNode
+    node_list = Vector(UnionFindNode?).new
 
     node = self
-    until node.equal? node.parent
-      unless node.parent.equal? node.parent.parent
+    until node == node.not_nil!.parent
+      unless node.not_nil!.parent == node.not_nil!.parent.not_nil!.parent
         node_list.append(node)
       end
-      node = node.parent
+      node = node.not_nil!.parent
     end
 
     node_list.each { |iter| iter.union(@parent) }
-    node
+    node.not_nil!
   end
 
   def union(basic_block)
@@ -339,13 +351,18 @@ UNVISITED = 2147483647
 MAXNONBACKPREDS = 32 * 1024
 
 class HavlakLoopFinder
+  
+  @header : Array(Int32)?
+  @type   : Array(Symbol)?
+  @last   : Array(Int32)?
+  @nodes  : Array(UnionFindNode?)?
 
-  def initialize(cfg, lsg)
+  def initialize(cfg : ControlFlowGraph, lsg : LoopStructureGraph)
     @cfg = cfg
     @lsg = lsg
-    @non_back_preds = Vector.new
-    @back_preds     = Vector.new
-    @number         = IdentityDictionary.new
+    @non_back_preds = Vector(SomSet(Int32?)?).new
+    @back_preds     = Vector(Vector(Int32?)?).new
+    @number         = IdentityDictionary(BasicBlock, Int32).new
     @max_size = 0
     @header = nil
     @type   = nil
@@ -353,12 +370,12 @@ class HavlakLoopFinder
     @nodes  = nil
   end
 
-  def is_ancestor(w, v)
-    w <= v && v <= @last[w]
+  def is_ancestor(w : Int32, v : Int32)
+    w <= v && v <= @last.not_nil![w]
   end
 
-  def do_dfs(current_node, current)
-    @nodes[current].init_node(current_node, current)
+  def do_dfs(current_node : BasicBlock, current : Int32)
+    @nodes.not_nil![current].not_nil!.init_node(current_node, current)
     @number.at_put(current_node, current)
 
     last_id = current
@@ -370,7 +387,7 @@ class HavlakLoopFinder
       end
     }
 
-    @last[current] = last_id
+    @last.not_nil![current] = last_id
     last_id
   end
 
@@ -379,32 +396,32 @@ class HavlakLoopFinder
       @number.at_put(bbIter, UNVISITED)
     }
 
-    do_dfs(@cfg.get_start_basic_block, 0)
+    do_dfs(@cfg.get_start_basic_block.not_nil!, 0)
   end
 
   def identify_edges(size)
     (0...size).each { |w|
-      @header[w] = 0
-      @type[w] = :BB_NONHEADER
+      @header.not_nil![w] = 0
+      @type.not_nil![w] = :BB_NONHEADER
 
-      node_w = @nodes[w].bb
+      node_w = @nodes.not_nil![w].not_nil!.bb.not_nil!
       if node_w == nil
-        @type[w] = :BB_DEAD
+        @type.not_nil![w] = :BB_DEAD
       else
         process_edges(node_w, w)
       end
     }
   end
 
-  def process_edges(node_w, w)
+  def process_edges(node_w : BasicBlock, w : Int32)
     if node_w.num_pred > 0
       node_w.in_edges.each { |node_v|
-        v = @number.at(node_v)
+        v = @number.at(node_v).not_nil!
         unless v == UNVISITED
           if is_ancestor(w, v)
-            @back_preds.at(w).append(v)
+            @back_preds.at(w).not_nil!.append(v)
           else
-            @non_back_preds.at(w).add(v)
+            @non_back_preds.at(w).not_nil!.add(v)
           end
         end
       }
@@ -420,60 +437,61 @@ class HavlakLoopFinder
     @number.remove_all
 
     if size > @max_size
-      @header   = Array.new(size)
-      @type     = Array.new(size)
-      @last     = Array.new(size)
-      @nodes    = Array.new(size)
+      @header   = Array(Int32).new(size, 0)
+      @type     = Array(Symbol).new(size, :BB_TOP)
+      @last     = Array(Int32).new(size, 0)
+      @nodes    = Array(UnionFindNode?).new(size, nil)
       @max_size = size
     end
 
     (0...size).each { |i|
-      @non_back_preds.append(Set.new)
-      @back_preds.append(Vector.new)
-      @nodes[i] = UnionFindNode.new
+      @non_back_preds.append(SomSet(Int32?).new)
+      @back_preds.append(Vector(Int32?).new)
+      @nodes.not_nil![i] = UnionFindNode.new
     }
 
     init_all_nodes
     identify_edges(size)
 
-    @header[0] = 0
+    @header.not_nil![0] = 0
 
     (size - 1).downto(0) { |w|
-      node_pool = Vector.new
-      node_w = @nodes[w].bb
+      node_pool = Vector(UnionFindNode?).new
+      node_w = @nodes.not_nil![w].not_nil!.bb
       if node_w
         step_d(w, node_pool)
 
-        work_list = Vector.new
+        work_list = Vector(UnionFindNode?).new
         node_pool.each { |niter| work_list.append(niter) }
 
         if node_pool.size != 0
-          @type[w] = :BB_REDUCIBLE
+          @type.not_nil![w] = :BB_REDUCIBLE
         end
 
         until work_list.empty?
-          x = work_list.remove_first
-          non_back_size = @non_back_preds.at(x.dfs_number).size
+          x = work_list.remove_first.not_nil!
+          non_back_size = @non_back_preds.at(x.dfs_number).not_nil!.size
           if non_back_size > MAXNONBACKPREDS; return end
           step_e_process_non_back_preds(w, node_pool, work_list, x)
         end
       end
 
-      if node_pool.size > 0 || @type[w] == :BB_SELF
-        loop = @lsg.create_new_loop(node_w, @type[w] != :BB_IRREDUCIBLE)
+      if node_pool.size > 0 || @type.not_nil![w] == :BB_SELF
+        loop = @lsg.create_new_loop(node_w, @type.not_nil![w] != :BB_IRREDUCIBLE)
         set_loop_attributes(w, node_pool, loop)
       end
     }
+    self
   end
 
   def step_e_process_non_back_preds(w, node_pool, work_list, x)
-    @non_back_preds.at(x.dfs_number).each { |iter|
-      y = @nodes[iter]
+    @non_back_preds.at(x.dfs_number).not_nil!.each { |iter|
+      y = @nodes.not_nil![iter].not_nil!
       ydash = y.find_set
 
       if !is_ancestor(w, ydash.dfs_number)
-        @type[w] = :BB_IRREDUCIBLE
-        @non_back_preds.at(w).add(ydash.dfs_number)
+        @type.not_nil![w] = :BB_IRREDUCIBLE
+        @non_back_preds.at(w).not_nil!.add(ydash.dfs_number)
       else
         if ydash.dfs_number != w
           work_list.append(ydash)
@@ -484,13 +502,13 @@ class HavlakLoopFinder
   end
 
   def set_loop_attributes(w, node_pool, loop)
-    @nodes[w].loop = loop
+    @nodes.not_nil![w].not_nil!.loop = loop
     node_pool.each { |node|
-      @header[node.dfs_number] = w
-      node.union(@nodes[w])
+      @header.not_nil![node.dfs_number] = w
+      node.union(@nodes.not_nil![w])
 
       if node.loop
-        node.loop.set_parent(loop)
+        node.loop.not_nil!.set_parent(loop)
       else
         loop.add_node(node.bb)
       end
@@ -498,11 +516,11 @@ class HavlakLoopFinder
   end
 
   def step_d(w, node_pool)
-    @back_preds.at(w).each { |v|
+    @back_preds.at(w).not_nil!.each { |v|
       if v != w
-        node_pool.append(@nodes[v].find_set)
+        node_pool.append(@nodes.not_nil![v].not_nil!.find_set)
       else
-        @type[w] = :BB_SELF
+        @type.not_nil![w] = :BB_SELF
       end
     }
   end
