@@ -251,6 +251,10 @@ class SomSet(T)
   def initialize(size = INITIAL_SIZE)
     @items = Vector(T).new(size)
   end
+  
+  def size
+    @items.size
+  end
 
   def each
     @items.each do |v|
@@ -407,7 +411,7 @@ class Dictionary(K, V)
 
   def resize
     old_storage = @buckets
-    @buckets = Array(Entry(K, V)?).new(old_storage.size * 2)
+    @buckets = Array(Entry(K, V)?).new(old_storage.size * 2, nil)
     transfer_entries(old_storage)
   end
 
@@ -462,7 +466,7 @@ class Dictionary(K, V)
   end
 
   def remove_all
-    @buckets = Array(Entry(K, V)?).new(@buckets.size)
+    @buckets = Array(Entry(K, V)?).new(@buckets.size, nil)
     @size = 0
   end
 
