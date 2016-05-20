@@ -22,14 +22,14 @@ class Havlak < Benchmark
   end
 
   def verify_result(result, inner_iterations)
-    if inner_iterations == 15000 then return result[0] == 46602 && result[1] == 5213 end
-    if inner_iterations ==  1500 then return result[0] ==  6102 && result[1] == 5213 end
-    if inner_iterations ==   150 then return result[0] ==  2052 && result[1] == 5213 end
-    if inner_iterations ==    15 then return result[0] ==  1647 && result[1] == 5213 end
-    if inner_iterations ==     1 then return result[0] ==  1605 && result[1] == 5213 end
+    if inner_iterations == 15000; return result[0] == 46602 && result[1] == 5213 end
+    if inner_iterations ==  1500; return result[0] ==  6102 && result[1] == 5213 end
+    if inner_iterations ==   150; return result[0] ==  2052 && result[1] == 5213 end
+    if inner_iterations ==    15; return result[0] ==  1647 && result[1] == 5213 end
+    if inner_iterations ==     1; return result[0] ==  1605 && result[1] == 5213 end
 
     puts('No verification result for ' + inner_iterations.to_s + ' found')
-    puts('Result is: ' + r[0].to_s + ", " + r[1].to_s)
+    puts('Result is: ' + r[0].to_s + ', ' + r[1].to_s)
     false
   end
 end
@@ -263,9 +263,9 @@ class LoopTesterApp
   end
 
   def build_straight(start, n)
-    for i in 0...n
+    (0...n).each { |i|
       build_connect(start + i, start + i + 1)
-    end
+    }
     start + n
   end
 
@@ -383,7 +383,7 @@ class HavlakLoopFinder
   end
 
   def identify_edges(size)
-    for w in 0...size
+    (0...size).each { |w|
       @header[w] = 0
       @type[w] = :BB_NONHEADER
 
@@ -393,7 +393,7 @@ class HavlakLoopFinder
       else
         process_edges(node_w, w)
       end
-    end
+    }
   end
 
   def process_edges(node_w, w)
@@ -427,11 +427,11 @@ class HavlakLoopFinder
       @max_size = size
     end
 
-    for i in 0...size
+    (0...size).each { |i|
       @non_back_preds.append(Set.new)
       @back_preds.append(Vector.new)
       @nodes[i] = UnionFindNode.new
-    end
+    }
 
     init_all_nodes
     identify_edges(size)
