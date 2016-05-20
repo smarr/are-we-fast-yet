@@ -284,10 +284,10 @@ class RedBlackTree
       y.left   = z.left
       y.right  = z.right
 
-      if z.left != null
+      if z.left != nil
         z.left.parent = y
       end
-      if z.right != null
+      if z.right != nil
         z.right.parent = y
       end
       if z.parent
@@ -433,7 +433,7 @@ class RedBlackTree
   end
 
   def remove_fixup(x, x_parent)
-    while x != @root && (x == null || x.color == :black)
+    while x != @root && (x == nil || x.color == :black)
       if x == x_parent.left
         # Note: the text points out that w cannot be null. The reason is not obvious from
         # simply looking at the code; it comes about from the properties of the red-black
@@ -452,7 +452,7 @@ class RedBlackTree
           x = x_parent
           x_parent = x.parent
         else
-          if w.right == null || w.right.color == :black
+          if w.right == nil || w.right.color == :black
             # Case 3
             w.left.color = :black
             w.color = :red
@@ -562,7 +562,7 @@ class CollisionDetector
       end
     }
 
-    to_remove.each { |e| state.remove(e) }
+    to_remove.each { |e| @state.remove(e) }
 
     all_reduced = reduce_collision_set(motions)
     collisions = Vector.new
