@@ -29,7 +29,7 @@ class Havlak < Benchmark
     if inner_iterations ==     1; return result[0] ==  1605 && result[1] == 5213 end
 
     puts('No verification result for ' + inner_iterations.to_s + ' found')
-    puts('Result is: ' + r[0].to_s + ', ' + r[1].to_s)
+    puts('Result is: ' + result[0].to_s + ', ' + result[1].to_s)
     false
   end
 end
