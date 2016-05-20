@@ -20,6 +20,7 @@
 
 require "./bounce"
 require "./deltablue"
+require "./havlak"
 require "./json"
 require "./list"
 require "./mandelbrot"
@@ -53,6 +54,8 @@ class Run
       Bounce.new
     when "DeltaBlue"
       DeltaBlue.new
+    when "Havlak"
+      Havlak.new
     when "Json"
       Json.new
     when "List"
