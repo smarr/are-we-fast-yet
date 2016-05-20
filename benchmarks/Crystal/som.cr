@@ -146,7 +146,7 @@ class Vector(T)
   end
 
   def remove_all
-    @storage = Array(T).new(@storage.size, nill)
+    @storage = Array(T).new(@storage.size, nil)
   end
 
   def size
@@ -462,7 +462,7 @@ class Dictionary(K, V)
   end
 
   def remove_all
-    @buckets = Array.new(@buckets.size)
+    @buckets = Array(Entry(K, V)?).new(@buckets.size)
     @size = 0
   end
 
