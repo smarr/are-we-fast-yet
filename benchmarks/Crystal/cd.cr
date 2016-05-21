@@ -42,7 +42,7 @@ GOOD_VOXEL_SIZE  = PROXIMITY_RADIUS * 2.0
 class Vector2D
   getter :x, :y
 
-  def initialize(x, y)
+  def initialize(x : Float64, y : Float64)
     @x = x
     @y = y
   end
@@ -89,7 +89,7 @@ end
 class Vector3D
   getter :x, :y, :z
 
-  def initialize(x, y, z)
+  def initialize(x : Float64, y : Float64, z : Float64)
     @x = x
     @y = y
     @z = z
@@ -127,11 +127,15 @@ end
 HORIZONTAL = Vector2D.new(GOOD_VOXEL_SIZE, 0.0)
 VERTICAL   = Vector2D.new(0.0, GOOD_VOXEL_SIZE)
 
-class Node
+class Node(K, V)
   getter :key
   property :value, :left, :right, :parent, :color
+  
+  @left   : Node(K, V)?
+  @right  : Node(K, V)?
+  @parent : Node(K, V)?
 
-  def initialize(key, value)
+  def initialize(key : K, value : V)
     @key    = key
     @value  = value
     @left   = nil
@@ -142,12 +146,12 @@ class Node
 
   def successor
     x = self
-    unless x.right == nil
-      return tree_minimum(x.right)
+    if x.right
+      return tree_minimum(x.right.not_nil!)
     end
 
     y = x.parent
-    while y != nil && x == y.right
+    while y && x == y.right
       x = y
       y = y.parent
     end
@@ -155,39 +159,41 @@ class Node
   end
 end
 
-class RbtEntry
+class RbtEntry(K, V)
   getter :key, :value
 
-  def initialize(key, value)
+  def initialize(key : K, value : V)
     @key   = key
     @value = value
   end
 end
 
-class InsertResult
+class InsertResult(K, V)
   getter :is_new_entry, :new_node, :old_value
 
-  def initialize(is_new_entry, new_node, old_value)
+  def initialize(is_new_entry : Bool, new_node : Node(K, V)?, old_value : V?)
     @is_new_entry = is_new_entry
     @new_node     = new_node
     @old_value    = old_value
   end
 end
 
-def tree_minimum(x)
+def tree_minimum(x : Node(K, V))
   current = x
   while current.left
-    current = current.left
+    current = current.left.not_nil!
   end
   current
 end
 
-class RedBlackTree
+class RedBlackTree(K, V)
+  @root : Node(K, V)?
+
   def initialize
     @root = nil
   end
 
-  def put(key, value)
+  def put(key : K, value : V)
     insertion_result = tree_insert(key, value)
     unless insertion_result.is_new_entry
       return insertion_result.old_value
@@ -195,59 +201,59 @@ class RedBlackTree
 
     x = insertion_result.new_node
 
-    while !x.equal?(@root) && x.parent.color == :red
-      if x.parent.equal? x.parent.parent.left
-        y = x.parent.parent.right
-        if y != nil && y.color == :red
+    while x && x != @root && x.parent.not_nil!.color == :red
+      if x.parent == x.parent.not_nil!.parent.not_nil!.left
+        y = x.parent.not_nil!.parent.not_nil!.right
+        if y && y.color == :red
           # Case 1
-          x.parent.color = :black
+          x.parent.not_nil!.color = :black
           y.color = :black
-          x.parent.parent.color = :red
-          x = x.parent.parent
+          x.parent.not_nil!.parent.not_nil!.color = :red
+          x = x.parent.not_nil!.parent.not_nil!
         else
-          if x == x.parent.right
+          if x == x.parent.not_nil!.right
             # Case 2
-            x = x.parent
-            left_rotate(x)
+            x = x.parent.not_nil!
+            left_rotate(x.not_nil!)
           end
 
           # Case 3
-          x.parent.color = :black
-          x.parent.parent.color = :red
-          right_rotate(x.parent.parent)
+          x.parent.not_nil!.color = :black
+          x.parent.not_nil!.parent.not_nil!.color = :red
+          right_rotate(x.parent.not_nil!.parent.not_nil!)
         end
       else
         # Same as "then" clause with "right" and "left" exchanged.
-        y = x.parent.parent.left
+        y = x.parent.not_nil!.parent.not_nil!.left
         if y && y.color == :red
            # Case 1
-           x.parent.color = :black
+           x.parent.not_nil!.color = :black
            y.color = :black
-           x.parent.parent.color = :red
-           x = x.parent.parent
+           x.parent.not_nil!.parent.not_nil!.color = :red
+           x = x.parent.not_nil!.parent
         else
-          if x == x.parent.left
+          if x == x.parent.not_nil!.left
             # Case 2
-            x = x.parent
+            x = x.parent.not_nil!
             right_rotate(x)
           end
 
           # Case 3
-          x.parent.color = :black
-          x.parent.parent.color = :red
-          left_rotate(x.parent.parent)
+          x.parent.not_nil!.color = :black
+          x.parent.not_nil!.parent.not_nil!.color = :red
+          left_rotate(x.parent.not_nil!.parent.not_nil!)
         end
       end
     end
 
-    @root.color = :black
+    @root.not_nil!.color = :black
     nil
   end
 
-  def remove(key)
+  def remove(key : K)
     z = find_node(key)
 
-    if z == nil
+    if !z
       return nil
     end
 
@@ -255,7 +261,7 @@ class RedBlackTree
     if z.left == nil || z.right == nil
       y = z
     else
-      y = z.successor
+      y = z.successor.not_nil!
     end
 
     # Y is guaranteed to be non-null at this point.
@@ -268,19 +274,19 @@ class RedBlackTree
     # X is the child of y which might potentially replace y in the tree. X might be null at this point.
     if x
       x.parent = y.parent
-      x_parent = x.parent
+      x_parent = x.parent.not_nil!
     else
-      x_parent = y.parent
+      x_parent = y.parent.not_nil!
     end
 
-    if y.parent == nil
-      @root = x
-    else
-      if y.equal?(y.parent.left)
-        y.parent.left = x
+    if y.parent
+      if y == y.parent.not_nil!.left
+        y.parent.not_nil!.left = x
       else
-        y.parent.right = x
+        y.parent.not_nil!.right = x
       end
+    else
+      @root = x
     end
 
     if y != z
@@ -293,17 +299,17 @@ class RedBlackTree
       y.left   = z.left
       y.right  = z.right
 
-      if z.left != null
-        z.left.parent = y
+      if z.left
+        z.left.not_nil!.parent = y
       end
-      if z.right != null
-        z.right.parent = y
+      if z.right
+        z.right.not_nil!.parent = y
       end
       if z.parent
-        if z.parent.left == z
-          z.parent.left = y
+        if z.parent.not_nil!.left == z
+          z.parent.not_nil!.left = y
         else
-          z.parent.right = y
+          z.parent.not_nil!.right = y
         end
       else
         @root = y
@@ -315,9 +321,9 @@ class RedBlackTree
     z.value
   end
 
-  def get(key)
+  def get(key : K)
     node = find_node(key)
-    if node == nil
+    if !node
       return nil
     end
     node.value
@@ -328,15 +334,15 @@ class RedBlackTree
       return
     end
 
-    current = tree_minimum(@root)
+    current = tree_minimum(@root.not_nil!)
 
     while current
-      yield RbtEntry.new(current.key, current.value)
+      yield RbtEntry(K, V).new(current.key, current.value)
       current = current.successor
     end
   end
 
-  def find_node(key)
+  def find_node(key : K)
     current = @root
     while current
       comparison_result = key.compare_to(current.key)
@@ -353,7 +359,7 @@ class RedBlackTree
     nil
   end
 
-  def tree_insert(key, value)
+  def tree_insert(key : K, value : V)
     y = nil
     x = @root
 
@@ -367,44 +373,44 @@ class RedBlackTree
       else
         old_value = x.value
         x.value = value
-        return InsertResult.new(false, nil, old_value)
+        return InsertResult(K, V).new(false, nil, old_value)
       end
     end
 
     z = Node.new(key, value)
     z.parent = y
 
-    if y == nil
-      @root = z
-    else
+    if y
       if key.compare_to(y.key) < 0
         y.left = z
       else
         y.right = z
       end
+    else
+      @root = z
     end
-    InsertResult.new(true, z, nil)
+    InsertResult(K, V).new(true, z, nil)
   end
 
-  def left_rotate(x)
-    y = x.right
+  def left_rotate(x : Node(K, V))
+    y = x.right.not_nil!
 
     # Turn y's left subtree into x's right subtree.
     x.right = y.left
     if y.left
-      y.left.parent = x
+      y.left.not_nil!.parent = x
     end
 
     # Link x's parent to y.
     y.parent = x.parent
-    if x.parent == nil
-      @root = y
-    else
-      if x == x.parent.left
-        x.parent.left = y
+    if x.parent
+      if x == x.parent.not_nil!.left
+        x.parent.not_nil!.left = y
       else
-        x.parent.right = y
+        x.parent.not_nil!.right = y
       end
+    else
+      @root = y
     end
 
     # Put x on y's left.
@@ -414,13 +420,13 @@ class RedBlackTree
     y
   end
 
-  def right_rotate(y)
-    x = y.left
+  def right_rotate(y : Node(K, V))
+    x = y.left.not_nil!
 
     # Turn x's right subtree into y's left subtree.
     y.left = x.right
     if x.right
-      x.right.parent = y
+      x.right.not_nil!.parent = y
     end
 
     # Link y's parent to x.
@@ -428,10 +434,10 @@ class RedBlackTree
     if y.parent == nil
       @root = x;
     else
-      if y.equal? y.parent.left
-        y.parent.left = x
+      if y == y.parent.not_nil!.left
+        y.parent.not_nil!.left = x
       else
-        y.parent.right = x
+        y.parent.not_nil!.right = x
       end
     end
 
@@ -441,74 +447,74 @@ class RedBlackTree
     x
   end
 
-  def remove_fixup(x, x_parent)
-    while x != @root && (x == null || x.color == :black)
+  def remove_fixup(x : Node(K, V)?, x_parent : Node(K, V))
+    while x_parent && x != @root && (!x || x.color == :black)
       if x == x_parent.left
         # Note: the text points out that w cannot be null. The reason is not obvious from
         # simply looking at the code; it comes about from the properties of the red-black
         # tree.
-        w = x_parent.right
+        w = x_parent.right.not_nil!
         if w.color == :red
           # Case 1
           w.color = :black
           x_parent.color = :red
           left_rotate(x_parent)
-          w = x_parent.right
+          w = x_parent.right.not_nil!
         end
-        if (w.left == nil || w.left.color == :black) && (w.right == nil || w.right.color == :black)
+        if (!w.left || w.left.not_nil!.color == :black) && (!w.right || w.right.not_nil!.color == :black)
           # Case 2
           w.color = :red
           x = x_parent
           x_parent = x.parent
         else
-          if w.right == null || w.right.color == :black
+          if !w.right || w.right.not_nil!.color == :black
             # Case 3
-            w.left.color = :black
+            w.left.not_nil!.color = :black
             w.color = :red
             right_rotate(w)
-            w = x_parent.right
+            w = x_parent.right.not_nil!
           end
           # Case 4
           w.color = x_parent.color
           x_parent.color = :black
           if w.right
-            w.right.color = :black
+            w.right.not_nil!.color = :black
           end
           left_rotate(x_parent)
-          x = @root
+          x = @root.not_nil!
           x_parent = x.parent
         end
       else
         # Same as "then" clause with "right" and "left" exchanged.
-        w = x_parent.left
+        w = x_parent.left.not_nil!
         if w.color == :red
           # Case 1
           w.color = :black
           x_parent.color = :red
           right_rotate(x_parent)
-          w = x_parent.left
+          w = x_parent.left.not_nil!
         end
-        if (w.right == nil || w.right.color == :black) && (w.left == nil || w.left.color == :black)
+        if (!w.right || w.right.not_nil!.color == :black) && (!w.left || w.left.not_nil!.color == :black)
           # Case 2
           w.color = :red
           x = x_parent
           x_parent = x.parent
         else
-          if w.left == nil || w.left.color == :black
+          if !w.left || w.left.not_nil!.color == :black
             # Case 3
-            w.right.color = :black
+            w.right.not_nil!.color = :black
             w.color = :red
             left_rotate(w)
-            w = x_parent.left
+            w = x_parent.left.not_nil!
           end
           # Case 4
           w.color = x_parent.color
           x_parent.color = :black
           if w.left
-            w.left.color = :black
+            w.left.not_nil!.color = :black
           end
           right_rotate(x_parent)
-          x = @root
+          x = @root.not_nil!
           x_parent = x.parent
         end
       end
@@ -522,7 +528,7 @@ end
 class CallSign
   getter :value
 
-  def initialize(value)
+  def initialize(value : Int32)
     @value = value
   end
 
@@ -538,7 +544,7 @@ end
 class Collision
   getter :aircraft_a, :aircraft_b, :position
 
-  def initialize(aircraft_a, aircraft_b, position)
+  def initialize(aircraft_a : CallSign, aircraft_b : CallSign, position : Vector3D)
     @aircraft_a = aircraft_a
     @aircraft_b = aircraft_b
     @position  = position
@@ -547,19 +553,19 @@ end
 
 class CollisionDetector
   def initialize
-    @state = RedBlackTree.new
+    @state = RedBlackTree(CallSign, Vector3D).new
   end
 
   def handle_new_frame(frame)
-    motions = Vector.new
-    seen    = RedBlackTree.new
+    motions = Vector(Motion?).new
+    seen    = RedBlackTree(CallSign, Bool).new
 
     frame.each { |aircraft|
       old_position = @state.put(aircraft.callsign, aircraft.position)
       new_position = aircraft.position
       seen.put(aircraft.callsign, true)
 
-      if old_position == nil
+      if !old_position
         # Treat newly introduced aircraft as if they were stationary.
         old_position = new_position
       end
@@ -568,22 +574,22 @@ class CollisionDetector
     }
 
     # Remove aircraft that are no longer present.
-    to_remove = Vector.new
+    to_remove = Vector(CallSign?).new
     @state.for_each { |e|
       unless seen.get(e.key)
         to_remove.append(e.key)
       end
     }
 
-    to_remove.each { |e| state.remove(e) }
+    to_remove.each { |e| @state.remove(e) }
 
     all_reduced = reduce_collision_set(motions)
-    collisions = Vector.new
+    collisions = Vector(Collision?).new
     all_reduced.each { |reduced|
       (0...reduced.size).each { |i|
-        motion1 = reduced.at(i)
+        motion1 = reduced.at(i).not_nil!
         ((i + 1)...reduced.size).each { |j|
-          motion2 = reduced.at(j)
+          motion2 = reduced.at(j).not_nil!
           collision = motion1.find_intersection(motion2)
           if collision
             collisions.append(Collision.new(motion1.callsign, motion2.callsign, collision))
@@ -649,10 +655,10 @@ class CollisionDetector
   def put_into_map(voxel_map, voxel, motion)
     array = voxel_map.get(voxel)
     if array == nil
-      array = Vector.new
+      array = Vector(Motion?).new
       voxel_map.put(voxel, array)
     end
-    array.append(motion)
+    array.not_nil!.append(motion)
   end
 
   def recurse(voxel_map, seen, next_voxel, motion)
@@ -677,10 +683,10 @@ class CollisionDetector
   end
 
   def reduce_collision_set(motions)
-    voxel_map = RedBlackTree.new
+    voxel_map = RedBlackTree(Vector2D, Vector(Motion?)).new
     motions.each { |motion| draw_motion_on_voxel_map(voxel_map, motion) }
 
-    result = Vector.new
+    result = Vector(Vector(Motion?)?).new
     voxel_map.for_each { |e|
       if e.value.size > 1
         result.append(e.value)
@@ -707,7 +713,7 @@ class CollisionDetector
   end
 
   def draw_motion_on_voxel_map(voxel_map, motion)
-    seen = RedBlackTree.new
+    seen = RedBlackTree(Vector2D, Bool).new
     recurse(voxel_map, seen, voxel_hash(motion.pos_one), motion)
   end
 end
@@ -715,7 +721,7 @@ end
 class Motion
   getter :callsign, :pos_one, :pos_two
 
-  def initialize(callsign, pos_one, pos_two)
+  def initialize(callsign : CallSign, pos_one : Vector3D, pos_two : Vector3D)
     @callsign = callsign
     @pos_one = pos_one
     @pos_two = pos_two
@@ -829,7 +835,7 @@ end
 class Aircraft
   getter :callsign, :position
 
-  def initialize(callsign, position)
+  def initialize(callsign : CallSign, position : Vector3D)
     @callsign = callsign
     @position = position
   end
@@ -841,18 +847,18 @@ end
 
 class Simulator
   def initialize(num_aircrafts)
-    @aircraft = Vector.new
+    @aircraft = Vector(CallSign?).new
     (0...num_aircrafts).each { |i|
       @aircraft.append(CallSign.new(i))
     }
   end
 
   def simulate(time)
-    frame = Vector.new
+    frame = Vector(Aircraft?).new
     (0...@aircraft.size).step(2) { |i|
-      frame.append(Aircraft.new(@aircraft.at(i),
+      frame.append(Aircraft.new(@aircraft.at(i).not_nil!,
         Vector3D.new(time, Math.cos(time) * 2 + i * 3, 10.0)))
-      frame.append(Aircraft.new(@aircraft.at(i + 1),
+      frame.append(Aircraft.new(@aircraft.at(i + 1).not_nil!,
         Vector3D.new(time, Math.sin(time) * 2 + i * 3, 10.0)))
     }
     frame
@@ -887,8 +893,8 @@ class CD < Benchmark
     if num_aircrafts ==  100; return actual_collisions ==  4305 end
     if num_aircrafts ==   10; return actual_collisions ==   390 end
 
-    puts ("No verification result for " + num_aircrafts + " found")
-    puts ("Result is: " + actual_collisions)
+    puts ("No verification result for " + num_aircrafts.to_s + " found")
+    puts ("Result is: " + actual_collisions.to_s)
     false
   end
 end

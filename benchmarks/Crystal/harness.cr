@@ -19,6 +19,7 @@
 # THE SOFTWARE.
 
 require "./bounce"
+require "./cd"
 require "./deltablue"
 require "./havlak"
 require "./json"
@@ -52,6 +53,8 @@ class Run
     case benchmark_name
     when "Bounce"
       Bounce.new
+    when "CD"
+      CD.new
     when "DeltaBlue"
       DeltaBlue.new
     when "Havlak"
