@@ -1,6 +1,5 @@
 #!/bin/bash
 SCRIPT_PATH=`dirname $0`
 source $SCRIPT_PATH/config.inc
-home_from_command  $GRAAL_BASIC_CMD
-export GRAAL_HOME=$HOME
+export JVMCI_BIN=$GRAAL_BASIC_CMD
 exec $SCRIPT_PATH/TruffleSOM/som "$@"
