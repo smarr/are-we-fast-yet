@@ -31,7 +31,23 @@ Vector = (
   )
 
   at: index = (
+    index > storage length ifTrue: [ ^ nil ].
     ^ storage at: index
+  )
+  
+  at: index put: val = (
+    index > storage length ifTrue: [
+      | newLength newStorage |
+      newLength := storage length.
+      [ newLength < index ] whileTrue: [
+        newLength := newLength * 2 ].
+      newStorage := Array new: newLength.
+      storage doIndexes: [:i | newStorage at: i put: (storage at: i) ].
+      storage := newStorage ].
+
+    storage at: index put: val.
+    last < (index + 1) ifTrue: [
+      last := index + 1 ]
   )
   
   append: element = (
@@ -73,6 +89,12 @@ Vector = (
     self isEmpty ifTrue: [ ^ nil ].
     first := first + 1.
     ^ storage at: first - 1
+  )
+
+  removeAll = (
+    first := 1.
+    last  := 1.
+    storage  := Array new: storage length
   )
 
   remove: object = (

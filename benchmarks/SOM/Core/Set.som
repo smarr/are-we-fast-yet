@@ -42,7 +42,14 @@ Set = (
     self forEach: [ :e | coll append: (block value: e) ].
     ^ coll
   )
-  
+
+  contains: anObject = (
+    ^ self hasSome: [ :it | it = anObject ]
+  )
+
+  size = ( ^ items size )
+  removeAll = ( ^ items removeAll )
+
   ----
   
   new = (
