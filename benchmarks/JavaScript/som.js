@@ -21,7 +21,8 @@
 // THE SOFTWARE.
 'use strict';
 
-var INITIAL_SIZE = 10;
+var INITIAL_SIZE = 10,
+  INITIAL_CAPACITY = 16;
 
 function Pair(key, val) {
   this.key   = key;
@@ -228,36 +229,209 @@ IdentitySet.prototype.contains = function (obj) {
   return this.hasSome(function (e) { return e == obj; })
 };
 
-function Dictionary (size) {
-  this.pairs = new IdentitySet(size === undefined ? INITIAL_SIZE : size);
+function DictEntry(hash, key, value, next) {
+  this.hash  = hash;
+  this.key   = key;
+  this.value = value;
+  this.next  = next;
 }
 
-Dictionary.prototype.atPut = function (key, value) {
-  var pair = this.pairAt(key);
-  if (pair === null) {
-    this.pairs.add(new Pair(key, value));
-  } else {
-    pair.value = value;
+DictEntry.prototype.match = function(hash, key) {
+  return this.hash == hash && key == this.key;
+};
+
+function Dictionary (size) {
+  this.buckets = new Array(size === undefined ? INITIAL_CAPACITY : size);
+  this.size_ = 0;
+}
+
+function hash(key) {
+  if (key == null) {
+    return 0;
   }
+  var hash = key.customHash();
+  return hash ^ hash >>> 16;
+}
+
+Dictionary.prototype.size = function () {
+  return this.size_;
+};
+
+Dictionary.prototype.isEmpty = function () {
+  return this.size_ === 0;
+};
+
+Dictionary.prototype.getBucketIdx = function (hash) {
+  return (this.buckets.length - 1) & hash;
+};
+
+Dictionary.prototype.getBucket = function (hash) {
+  return this.buckets[this.getBucketIdx(hash)];
 };
 
 Dictionary.prototype.at = function (key) {
-  var pair = this.pairAt(key);
-  if (pair === null) {
-    return null;
+  var hash_ = hash(key),
+    e = this.getBucket(hash_);
+
+  while (e != null) {
+    if (e.match(hash_, key)) {
+      return e.value;
+    }
+    e = e.next;
+  }
+  return null;
+};
+
+Dictionary.prototype.containsKey = function (key) {
+  var hash_ = hash(key),
+    e = this.getBucket(hash_);
+
+  while (e != null) {
+    if (e.match(hash_, key)) {
+      return true;
+    }
+    e = e.next;
+  }
+  return false;
+};
+
+Dictionary.prototype.atPut = function (key, value) {
+  var hash_ = hash(key),
+    i = this.getBucketIdx(hash_),
+    current = this.buckets[i];
+
+  if (current == null) {
+    this.buckets[i] = this.newEntry(key, value, hash_);
   } else {
-    return pair.value;
+    this.insertBucketEntry(key, value, hash_, current);
+  }
+
+  this.size_ += 1;
+  if (this.size_ > this.buckets.length) {
+    this.resize();
   }
 };
 
-Dictionary.prototype.pairAt = function (key) {
-  return this.pairs.getOne(function (p) {
-    return p.key === key
-  })
+Dictionary.prototype.newEntry = function (key, value, hash) {
+  return new DictEntry(hash, key, value, null);
+};
+
+Dictionary.prototype.insertBucketEntry = function (key, value, hash, head) {
+  var current = head;
+
+  while (true) {
+    if (current.match(hash, key)) {
+      current.value = value;
+      return;
+    }
+    if (current.next == null) {
+      current.next = this.newEntry(key, value, hash);
+      return;
+    }
+    current = current.next;
+  }
+};
+
+Dictionary.prototype.resize = function () {
+  var oldStorage = this.buckets;
+  this.buckets = new Array(oldStorage.length * 2);
+  this.transferEntries(oldStorage);
+};
+
+Dictionary.prototype.transferEntries = function (oldStorage) {
+  for (var i = 0; i < oldStorage.length; ++i) {
+    var current = oldStorage[i];
+    if (current != null) {
+      oldStorage[i] = null;
+
+      if (current.next == null) {
+        this.buckets[current.hash & (this.buckets.length - 1)] = current;
+      } else {
+        this.splitBucket(oldStorage, i, current);
+      }
+    }
+  }
+};
+
+Dictionary.prototype.splitBucket = function (oldStorage, i, head) {
+  var loHead = null, loTail = null,
+    hiHead = null, hiTail = null,
+    current = head;
+
+  while (current != null) {
+    if ((current.hash & oldStorage.length) == 0) {
+      if (loTail == null) {
+        loHead = current;
+      } else {
+        loTail.next = current;
+      }
+      loTail = current;
+    } else {
+      if (hiTail == null) {
+        hiHead = current;
+      } else {
+        hiTail.next = current;
+      }
+      hiTail = current;
+    }
+    current = current.next;
+  }
+
+  if (loTail != null) {
+    loTail.next = null;
+    this.buckets[i] = loHead;
+  }
+  if (hiTail != null) {
+    hiTail.next = null;
+    this.buckets[i + oldStorage.length] = hiHead;
+  }
+};
+
+Dictionary.prototype.removeAll = function () {
+  this.buckets = new Array(buckets.length);
+  this.size_ = 0;
 };
 
 Dictionary.prototype.getKeys = function () {
-  return this.pairs.collect(function (p) { return p.key });
+  var keys = new Vector(this.size_);
+  for (var i = 0; i < this.buckets.length; ++i) {
+    var current = this.buckets[i];
+    while (current != null) {
+      keys.append(current.key);
+      current = current.next;
+    }
+  }
+  return keys;
+};
+
+Dictionary.prototype.getValues = function () {
+  var values = new Vector(this.size_);
+  for (var i = 0; i < this.buckets.length; ++i) {
+    var current = this.buckets[i];
+    while (current != null) {
+      values.append(current.value);
+      current = current.next;
+    }
+  }
+  return values;
+};
+
+function DictIdEntry(hash, key, value, next) {
+  DictEntry.call(this, hash, key, value, next);
+}
+DictIdEntry.prototype = Object.create(DictEntry.prototype);
+
+DictIdEntry.prototype.match = function (hash, key) {
+  return this.hash == hash && this.key === key;
+};
+
+function IdentityDictionary(size) {
+  Dictionary.call(this, size === undefined ? INITIAL_CAPACITY : size);
+}
+IdentityDictionary.prototype = Object.create(Dictionary.prototype);
+
+IdentityDictionary.prototype.newEntry = function (key, value, hash) {
+  return new DictIdEntry(hash, key, value, null);
 };
 
 function Random() {
@@ -271,5 +445,6 @@ Random.prototype.next = function () {
 
 exports.IdentitySet = IdentitySet;
 exports.Dictionary  = Dictionary;
+exports.IdentityDictionary = IdentityDictionary;
 exports.Vector      = Vector;
 exports.Random      = Random;
