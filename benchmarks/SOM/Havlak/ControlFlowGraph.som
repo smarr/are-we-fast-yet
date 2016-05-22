@@ -1,0 +1,57 @@
+"
+Copyright 2011 Google Inc.
+
+Licensed under the Apache License, Version 2.0 (the 'License');
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an 'AS IS' BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"
+
+ControlFlowGraph = (
+  | basicBlockMap startNode edgeList |
+
+  initialize = (
+    basicBlockMap := Vector new.
+    edgeList := Vector new.
+  )
+
+  createNode: name = (
+    | node |
+
+    (basicBlockMap at: name) notNil
+      ifTrue:  [ node := basicBlockMap at: name ]
+      ifFalse: [
+        node := BasicBlock new: name.
+        basicBlockMap at: name put: node ].
+      
+    self numNodes = 1 ifTrue: [startNode := node].
+    ^ node  
+  )
+  
+  addEdge: edge = (
+    edgeList append: edge
+  )
+  
+  numNodes = (
+    ^ basicBlockMap size
+  )
+  
+  startBasicBlock = (
+    ^ startNode
+  )
+  
+  basicBlocks = (
+    ^ basicBlockMap
+  )
+  
+  ----
+  
+  new = ( ^ super new initialize )
+)
