@@ -80,7 +80,7 @@ Dictionary = (
         self insertBucketEntry: aKey value: aVal hash: hash head: current ].
 
     size_ := size_ + 1.
-    size_ > buckets length ifTrue: [ resize ]
+    size_ > buckets length ifTrue: [ self resize ]
   )
 
   newEntry: aKey value: value hash: hash = (
