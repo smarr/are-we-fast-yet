@@ -22,6 +22,23 @@ function DeltaBlue() {
   };
 }
 
+function Sym(hash) {
+  this.hash = hash;
+}
+
+Sym.prototype.customHash = function () {
+  return this.hash;
+};
+
+var ABSOLUTE_STRONGEST = new Sym(0),
+  REQUIRED             = new Sym(1),
+  STRONG_PREFERRED     = new Sym(2),
+  PREFERRED            = new Sym(3),
+  STRONG_DEFAULT       = new Sym(4),
+  DEFAULT              = new Sym(5),
+  WEAK_DEFAULT         = new Sym(6),
+  ABSOLUTE_WEAKEST     = new Sym(7);
+
 function Plan() {
   som.Vector.call(this, 15);
 }
@@ -123,7 +140,7 @@ Planner.prototype.addPropagate = function (c, mark) {
 };
 
 Planner.prototype.change = function (v, newValue) {
-  var editC = new EditConstraint(v, "preferred", this),
+  var editC = new EditConstraint(v, PREFERRED, this),
     editV = som.Vector.with(editC),
     plan = this.extractPlanFromConstraints(editV);
 
@@ -182,12 +199,12 @@ Planner.chainTest = function (n) {
   for (var i = 0; i < n; i++) {
     var v1 = vars[i],
       v2 = vars[i + 1];
-    new EqualityConstraint(v1, v2, "required", planner);
+    new EqualityConstraint(v1, v2, REQUIRED, planner);
   }
 
-  new StayConstraint(vars[n], "strongDefault", planner);
+  new StayConstraint(vars[n], STRONG_DEFAULT, planner);
 
-  var editC = new EditConstraint(vars[0], "preferred", planner),
+  var editC = new EditConstraint(vars[0], PREFERRED, planner),
     editV = som.Vector.with(editC),
     plan = planner.extractPlanFromConstraints(editV);
 
@@ -213,8 +230,8 @@ Planner.projectionTest = function(n) {
     src = Variable.value(i);
     dst = Variable.value(i);
     dests.append(dst);
-    new StayConstraint(src, "default", planner);
-    new ScaleConstraint(src, scale, offset, dst, "required", planner);
+    new StayConstraint(src, DEFAULT, planner);
+    new ScaleConstraint(src, scale, offset, dst, REQUIRED, planner);
   }
 
   planner.change(src, 17);
@@ -241,7 +258,6 @@ Planner.projectionTest = function(n) {
     }
   }
 };
-
 
 function Strength(symbolicValue) {
   this.arithmeticValue = Strength.strengthTable.at(symbolicValue);
@@ -272,20 +288,20 @@ Strength.of = function (strength) {
 };
 
 function createStrengthTable() {
-  var strengthTable = new som.Dictionary();
-  strengthTable.atPut("absoluteStrongest", -10000);
-  strengthTable.atPut("required",          -800);
-  strengthTable.atPut("strongPreferred",   -600);
-  strengthTable.atPut("preferred",         -400);
-  strengthTable.atPut("strongDefault",     -200);
-  strengthTable.atPut("default",            0);
-  strengthTable.atPut("weakDefault",        500);
-  strengthTable.atPut("absoluteWeakest",    10000);
+  var strengthTable = new som.IdentityDictionary();
+  strengthTable.atPut(ABSOLUTE_STRONGEST, -10000);
+  strengthTable.atPut(REQUIRED,           -800);
+  strengthTable.atPut(STRONG_PREFERRED,   -600);
+  strengthTable.atPut(PREFERRED,          -400);
+  strengthTable.atPut(STRONG_DEFAULT,     -200);
+  strengthTable.atPut(DEFAULT,             0);
+  strengthTable.atPut(WEAK_DEFAULT,        500);
+  strengthTable.atPut(ABSOLUTE_WEAKEST,    10000);
   return strengthTable;
 }
 
 function createStrengthConstants() {
-  var strengthConstant = new som.Dictionary();
+  var strengthConstant = new som.IdentityDictionary();
   Strength.strengthTable.getKeys().forEach(function (key) {
     strengthConstant.atPut(key, new Strength(key))
   });
@@ -295,8 +311,8 @@ function createStrengthConstants() {
 Strength.strengthTable     = createStrengthTable();
 Strength.strengthConstant  = createStrengthConstants();
 
-Strength.absoluteWeakest   = Strength.of("absoluteWeakest");
-Strength.required          = Strength.of("required");
+Strength.absoluteWeakest   = Strength.of(ABSOLUTE_WEAKEST);
+Strength.required          = Strength.of(REQUIRED);
 
 function AbstractConstraint(strengthSym) {
   this.strength = Strength.of(strengthSym);
