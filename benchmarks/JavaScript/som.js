@@ -42,7 +42,25 @@ Vector.with = function (elem) {
 };
 
 Vector.prototype.at = function (idx) {
+  if (idx >= this.storage.length) {
+    return null;
+  }
   return this.storage[idx];
+};
+
+Vector.prototype.atPut = function (idx, val) {
+  if (this.idx >= this.storage.length) {
+    var newLength = this.storage.length;
+    while (newLength <= idx) {
+      newLength *= 2;
+    }
+    this.storage = this.storage.slice();
+    this.storage.length = newLength;
+  }
+  this.storage[idx] = val;
+  if (this.lastIdx < idx + 1) {
+    this.lastIdx = idx + 1;
+  }
 };
 
 Vector.prototype.append = function (elem) {
@@ -112,6 +130,12 @@ Vector.prototype.remove = function (obj) {
   this.lastIdx  = newLast;
   this.firstIdx = 0;
   return found;
+};
+
+Vector.prototype.removeAll = function () {
+  this.firstIdx = 0;
+  this.lastIdx = 0;
+  this.storage = new Array(this.storage.length);
 };
 
 Vector.prototype.size = function () {
@@ -192,6 +216,10 @@ function Set(size) {
   this.items = new Vector(size === undefined ? INITIAL_SIZE : size);
 }
 
+Set.prototype.size = function () {
+  return this.items.size();
+};
+
 Set.prototype.forEach = function (fn) {
   this.items.forEach(fn);
 };
@@ -208,6 +236,14 @@ Set.prototype.add = function (obj) {
   if (!this.contains(obj)) {
     this.items.append(obj);
   }
+};
+
+Set.prototype.contains = function (obj) {
+  return this.hasSome(function (e) { return e == obj; } );
+};
+
+Set.prototype.removeAll = function () {
+  this.items.removeAll();
 };
 
 Set.prototype.collect = function (fn) {
@@ -388,7 +424,7 @@ Dictionary.prototype.splitBucket = function (oldStorage, i, head) {
 };
 
 Dictionary.prototype.removeAll = function () {
-  this.buckets = new Array(buckets.length);
+  this.buckets = new Array(this.buckets.length);
   this.size_ = 0;
 };
 
@@ -443,6 +479,7 @@ Random.prototype.next = function () {
   return this.seed;
 };
 
+exports.Set         = Set;
 exports.IdentitySet = IdentitySet;
 exports.Dictionary  = Dictionary;
 exports.IdentityDictionary = IdentityDictionary;
