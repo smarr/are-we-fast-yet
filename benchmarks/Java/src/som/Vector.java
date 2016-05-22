@@ -150,6 +150,8 @@ public class Vector<E> {
   }
 
   public void removeAll() {
+    firstIdx = 0;
+    lastIdx = 0;
     storage = new Object[storage.length];
   }
 
