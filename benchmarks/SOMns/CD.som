@@ -45,7 +45,7 @@ class CDSuite usingPlatform: platform andHarness: harness = (
 |)(
   class CD = Benchmark ()(
 
-    private benchmark: numAircrafts = ( 
+    private benchmark: numAircrafts = (
       | numFrames simulator detector actualCollisions |
       numFrames := 200.
       
@@ -290,7 +290,7 @@ class CDSuite usingPlatform: platform andHarness: harness = (
             z parent left == z
               ifTrue:  [ z parent left: y ]
               ifFalse: [ z parent right: y ] ]
-          ifFalse: [ root := y ] ].
+          ifFalse: [ root := y ] ]
         ifFalse: [
           y color = #black ifTrue: [
             remove: x andFixup: xParent ] ].
@@ -404,7 +404,11 @@ class CDSuite usingPlatform: platform andHarness: harness = (
       ^ x
     )
 
-    private remove: x andFixup: xParent = (
+    private remove: anX andFixup: anXParent = (
+      | x xParent |
+      x := anX.
+      xParent := anXParent.
+
       x ~= root and: [ x isNil or: [ x color = #black ]] whileTrue: [
         x == xParent left
           ifTrue: [
