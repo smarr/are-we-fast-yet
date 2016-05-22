@@ -65,7 +65,15 @@ Strength = (
   )
 
   ----
-  | AbsoluteStrongest AbsoluteWeakest Required StrengthConstants StrengthTable |
+  | AbsoluteStrongest AbsoluteWeakest Required StrengthConstants StrengthTable
+    SymAbsoluteStrongest
+    SymRequired
+    SymStrongPreferred
+    SymPreferred
+    SymStrongDefault
+    SymDefault
+    SymWeakDefault
+    SymAbsoluteWeakest |
 
   new: symVal = (
     ^ self new initializeWith: symVal
@@ -79,21 +87,21 @@ Strength = (
   
   createStrengthTable = (
     | table |
-    table := Dictionary new.
-    table at: #absoluteStrongest put: -10000.
-    table at: #required put: -800.
-    table at: #strongPreferred put: -600.
-    table at: #preferred put: -400.
-    table at: #strongDefault put: -200.
-    table at: #default put: 0.
-    table at: #weakDefault put: 500.
-    table at: #absoluteWeakest put: 10000.
+    table := IdentityDictionary new.
+    table at: SymAbsoluteStrongest put: -10000.
+    table at: SymRequired          put: -800.
+    table at: SymStrongPreferred   put: -600.
+    table at: SymPreferred         put: -400.
+    table at: SymStrongDefault     put: -200.
+    table at: SymDefault           put: 0.
+    table at: SymWeakDefault       put: 500.
+    table at: SymAbsoluteWeakest   put: 10000.
     ^ table
   )
   
   createStrengthConstants = (
     | constants |
-    constants := Dictionary new.
+    constants := IdentityDictionary new.
     StrengthTable keys forEach: [:strengthSymbol |
       constants
         at: strengthSymbol
@@ -102,12 +110,21 @@ Strength = (
   )
 
   initialize = (
+    SymAbsoluteStrongest := Sym new: 0.
+    SymRequired          := Sym new: 1.
+    SymStrongPreferred   := Sym new: 2.
+    SymPreferred         := Sym new: 3.
+    SymStrongDefault     := Sym new: 4.
+    SymDefault           := Sym new: 5.
+    SymWeakDefault       := Sym new: 6.
+    SymAbsoluteWeakest   := Sym new: 7.
+  
     StrengthTable := self createStrengthTable.
     StrengthConstants := self createStrengthConstants.
 
-    AbsoluteStrongest := Strength of: #absoluteStrongest.
-    AbsoluteWeakest := Strength of: #absoluteWeakest.
-    Required := Strength of: #required.
+    AbsoluteStrongest := Strength of: SymAbsoluteStrongest.
+    AbsoluteWeakest := Strength of: SymAbsoluteWeakest.
+    Required := Strength of: SymRequired.
   )
 
   "instance creation"
@@ -128,4 +145,13 @@ Strength = (
   required = (
     ^ Required
   )
+  
+  SymAbsoluteStrongest = ( ^ SymAbsoluteStrongest )
+  SymRequired          = ( ^ SymRequired )
+  SymStrongPreferred   = ( ^ SymStrongPreferred )
+  SymPreferred         = ( ^ SymPreferred )
+  SymStrongDefault     = ( ^ SymStrongDefault )
+  SymDefault           = ( ^ SymDefault )
+  SymWeakDefault       = ( ^ SymWeakDefault )
+  SymAbsoluteWeakest   = ( ^ SymAbsoluteWeakest )
 )

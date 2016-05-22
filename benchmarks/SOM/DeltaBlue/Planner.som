@@ -154,7 +154,7 @@ Planner = (
 
   changeVar: aVariable newValue: newValue = (
     | editConstraint plan |
-    editConstraint := EditConstraint var: aVariable strength: #preferred addTo: self.
+    editConstraint := EditConstraint var: aVariable strength: Strength SymPreferred addTo: self.
     plan := self extractPlanFromConstraints: (Vector with: editConstraint).
     10 timesRepeat: [
       aVariable value: newValue.
@@ -226,10 +226,10 @@ Planner = (
         | v1 v2 |
         v1 := vars at: i.
         v2 := vars at: i + 1.
-        EqualityConstraint var: v1 var: v2 strength: #required addTo: planner].
+        EqualityConstraint var: v1 var: v2 strength: Strength SymRequired addTo: planner].
 
-      StayConstraint var: vars last strength: #strongDefault addTo: planner.
-      editConstraint := EditConstraint var: vars first strength: #preferred addTo: planner.
+      StayConstraint var: vars last strength: Strength SymStrongDefault addTo: planner.
+      editConstraint := EditConstraint var: vars first strength: Strength SymPreferred addTo: planner.
       plan := planner extractPlanFromConstraints: (Vector with: editConstraint).
 
       1 to: 100 do: [ :v |
@@ -254,8 +254,8 @@ Planner = (
         src := Variable value: i.
         dst := Variable value: i.
         dests append: dst.
-        StayConstraint  var: src strength: #default addTo: planner.
-        ScaleConstraint var: src var: scale var: offset var: dst strength: #required addTo: planner
+        StayConstraint  var: src strength: Strength SymDefault addTo: planner.
+        ScaleConstraint var: src var: scale var: offset var: dst strength: Strength SymRequired addTo: planner
       ].
 
       planner changeVar: src newValue: 17.
