@@ -155,7 +155,7 @@ RedBlackTree = (
     root isNil ifTrue: [ ^ self ].
     current := RedBlackTree treeMinimum: root.
     [ current notNil ] whileTrue: [
-      block value: (Entry key: current key value: current value).
+      block value: (RbtEntry key: current key value: current value).
       current := current successor ].
   )
 
