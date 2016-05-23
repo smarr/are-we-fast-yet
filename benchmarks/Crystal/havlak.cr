@@ -142,7 +142,7 @@ class LoopStructureGraph
   def calculate_nesting_level
     @loops.each { |liter|
       unless liter.is_root
-        if liter.parent == nil
+        unless liter.parent
           liter.set_parent(@root)
         end
       end
@@ -405,7 +405,7 @@ class HavlakLoopFinder
       @type.not_nil![w] = :BB_NONHEADER
 
       node_w = @nodes.not_nil![w].not_nil!.bb.not_nil!
-      if node_w == nil
+      unless node_w
         @type.not_nil![w] = :BB_DEAD
       else
         process_edges(node_w, w)
@@ -429,7 +429,7 @@ class HavlakLoopFinder
   end
 
   def find_loops
-    if @cfg.get_start_basic_block == nil; return end
+    unless @cfg.get_start_basic_block; return end
 
     size = @cfg.num_nodes
     @non_back_preds.remove_all

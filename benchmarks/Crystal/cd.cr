@@ -258,7 +258,7 @@ class RedBlackTree(K, V)
     end
 
     # Y is the node to be unlinked from the tree.
-    if z.left == nil || z.right == nil
+    if !z.left || !z.right
       y = z
     else
       y = z.successor.not_nil!
@@ -330,7 +330,7 @@ class RedBlackTree(K, V)
   end
 
   def for_each ## &block
-    if @root == nil
+    unless @root
       return
     end
 
@@ -431,7 +431,7 @@ class RedBlackTree(K, V)
 
     # Link y's parent to x.
     x.parent = y.parent
-    if y.parent == nil
+    unless y.parent
       @root = x;
     else
       if y == y.parent.not_nil!.left
@@ -654,7 +654,7 @@ class CollisionDetector
 
   def put_into_map(voxel_map, voxel, motion)
     array = voxel_map.get(voxel)
-    if array == nil
+    unless array
       array = Vector(Motion?).new
       voxel_map.put(voxel, array)
     end

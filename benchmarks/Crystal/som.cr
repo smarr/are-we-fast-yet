@@ -326,7 +326,7 @@ class Dictionary(K, V)
   end
 
   def hash(key)
-    if key.nil?
+    unless key
       return 0
     end
 
@@ -350,7 +350,7 @@ class Dictionary(K, V)
     hash = hash(key)
     e = get_bucket(hash)
 
-    until e.nil?
+    while e
       if e.match(hash, key)
         return e.value
       end
@@ -363,7 +363,7 @@ class Dictionary(K, V)
     hash = hash(key)
     e = get_bucket(hash)
 
-    until e.nil?
+    while e
       if e.match(hash, key)
         return true
       end
@@ -377,7 +377,7 @@ class Dictionary(K, V)
     i = get_bucket_idx(hash)
     current = @buckets[i]
 
-    if current.nil?
+    unless current
       @buckets[i] = new_entry(key, value, hash)
     else
       insert_bucket_entry(key, value, hash, current)
@@ -401,7 +401,7 @@ class Dictionary(K, V)
         current.value = value
         return
       end
-      if current.next.nil?
+      unless current.next
         current.next = new_entry(key, value, hash)
         return
       end
@@ -417,10 +417,10 @@ class Dictionary(K, V)
 
   def transfer_entries(old_storage)
     old_storage.each_with_index { |current, i|
-      unless current.nil?
+      if current
         old_storage[i] = nil
 
-        if current.next.nil?
+        unless current.next
           @buckets[current.hash & (@buckets.size - 1)] = current
         else
           split_bucket(old_storage, i, current)
@@ -436,16 +436,16 @@ class Dictionary(K, V)
     hi_tail = nil
     current = head
 
-    until current.nil?
+    while current
       if (current.hash & old_storage.size) == 0
-        if lo_tail.nil?
+        unless lo_tail
           lo_head = current
         else
           lo_tail.next = current
         end
         lo_tail = current
       else
-        if hi_tail.nil?
+        unless hi_tail
           hi_head = current
         else
           hi_tail.next = current
@@ -455,11 +455,11 @@ class Dictionary(K, V)
       current = current.next
     end
 
-    unless lo_tail.nil?
+    if lo_tail
       lo_tail.next = nil
       @buckets[i] = lo_head
     end
-    unless hi_tail.nil?
+    if hi_tail
       hi_tail.next = nil
       @buckets[i + old_storage.size] = hi_head
     end
@@ -474,7 +474,7 @@ class Dictionary(K, V)
     keys = Vector(K?).new(@size)
     @buckets.each_index { |i|
       current = @buckets[i]
-      until current.nil?
+      while current
         keys.append(current.key)
         current = current.next
       end
@@ -486,7 +486,7 @@ class Dictionary(K, V)
     vals = Vector.new(@size)
     @buckets.each_index { |i|
       current = @buckets[i]
-      until current.nil?
+      while current
         vals.append(current.value)
         current = current.next
       end

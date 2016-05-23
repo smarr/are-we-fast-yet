@@ -324,13 +324,13 @@ class Parser
   end
 
   def pause_capture
-    end_ = @current.nil? ? @index : @index - 1
+    end_ = !@current ? @index : @index - 1
     @capture_buffer += @input[@capture_start..end_]
     @capture_start = -1
   end
 
   def end_capture
-    end_ = @current.nil? ? @index : @index - 1
+    end_ = !@current ? @index : @index - 1
 
     if "" == @capture_buffer
       captured = @input[@capture_start..end_]
@@ -366,7 +366,7 @@ class Parser
   end
 
   def is_end_of_text
-    @current.nil?
+    !@current
   end
 end
 
@@ -534,7 +534,7 @@ class JsonNumber < JsonValue
 
   def initialize(string : String)
     @string = string
-    if string.nil?
+    unless string
       raise "string is null"
     end
   end
@@ -572,7 +572,7 @@ class JsonObject < JsonValue
   end
 
   def get(name)
-    if name.nil?
+    unless name
       raise "name is null"
     end
     index = index_of(name)

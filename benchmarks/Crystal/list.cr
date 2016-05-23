@@ -45,8 +45,8 @@ class List < Benchmark
     x_tail = x
     y_tail = y
 
-    while !y_tail.nil?
-      if x_tail.nil?
+    while y_tail
+      unless x_tail
         return true
       end
       x_tail = x_tail.not_nil!.next
@@ -83,7 +83,7 @@ class Element
 
   def length
     n = @next
-    if n.is_a?(Nil)
+    unless n
       1
     else
       1 + n.length
