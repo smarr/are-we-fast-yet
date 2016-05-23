@@ -133,7 +133,7 @@ class Node
 
   def successor
     x = self
-    unless x.right == nil
+    if x.right
       return tree_minimum(x.right)
     end
 
@@ -238,12 +238,12 @@ class RedBlackTree
   def remove(key)
     z = find_node(key)
 
-    if z == nil
+    unless z
       return nil
     end
 
     # Y is the node to be unlinked from the tree.
-    if z.left == nil || z.right == nil
+    if !z.left || !z.right
       y = z
     else
       y = z.successor
@@ -264,7 +264,7 @@ class RedBlackTree
       x_parent = y.parent
     end
 
-    if y.parent == nil
+    unless y.parent
       @root = x
     else
       if y.equal?(y.parent.left)
@@ -284,10 +284,10 @@ class RedBlackTree
       y.left   = z.left
       y.right  = z.right
 
-      if z.left != nil
+      if z.left
         z.left.parent = y
       end
-      if z.right != nil
+      if z.right
         z.right.parent = y
       end
       if z.parent
@@ -308,14 +308,14 @@ class RedBlackTree
 
   def get(key)
     node = find_node(key)
-    if node == nil
+    unless node
       return nil
     end
     node.value
   end
 
   def for_each ## &block
-    if @root == nil
+    unless @root
       return
     end
 
@@ -365,7 +365,7 @@ class RedBlackTree
     z = Node.new(key, value)
     z.parent = y
 
-    if y == nil
+    unless y
       @root = z
     else
       if key.compare_to(y.key) < 0
@@ -388,7 +388,7 @@ class RedBlackTree
 
     # Link x's parent to y.
     y.parent = x.parent
-    if x.parent == nil
+    unless x.parent
       @root = y
     else
       if x == x.parent.left
@@ -416,7 +416,7 @@ class RedBlackTree
 
     # Link y's parent to x.
     x.parent = y.parent
-    if y.parent == nil
+    unless y.parent
       @root = x;
     else
       if y.equal? y.parent.left
@@ -433,7 +433,7 @@ class RedBlackTree
   end
 
   def remove_fixup(x, x_parent)
-    while x != @root && (x == nil || x.color == :black)
+    while x != @root && (!x || x.color == :black)
       if x == x_parent.left
         # Note: the text points out that w cannot be null. The reason is not obvious from
         # simply looking at the code; it comes about from the properties of the red-black
@@ -446,13 +446,13 @@ class RedBlackTree
           left_rotate(x_parent)
           w = x_parent.right
         end
-        if (w.left == nil || w.left.color == :black) && (w.right == nil || w.right.color == :black)
+        if (!w.left || w.left.color == :black) && (!w.right || w.right.color == :black)
           # Case 2
           w.color = :red
           x = x_parent
           x_parent = x.parent
         else
-          if w.right == nil || w.right.color == :black
+          if !w.right || w.right.color == :black
             # Case 3
             w.left.color = :black
             w.color = :red
@@ -479,13 +479,13 @@ class RedBlackTree
           right_rotate(x_parent)
           w = x_parent.left
         end
-        if (w.right == nil || w.right.color == :black) && (w.left == nil || w.left.color == :black)
+        if (!w.right || w.right.color == :black) && (!w.left || w.left.color == :black)
           # Case 2
           w.color = :red
           x = x_parent
           x_parent = x.parent
         else
-          if w.left == nil || w.left.color == :black
+          if !w.left || w.left.color == :black
             # Case 3
             w.right.color = :black
             w.color = :red
@@ -546,7 +546,7 @@ class CollisionDetector
       new_position = aircraft.position
       seen.put(aircraft.callsign, true)
 
-      if old_position == nil
+      unless old_position
         # Treat newly introduced aircraft as if they were stationary.
         old_position = new_position
       end
@@ -635,7 +635,7 @@ class CollisionDetector
 
   def put_into_map(voxel_map, voxel, motion)
     array = voxel_map.get(voxel)
-    if array == nil
+    unless array
       array = Vector.new
       voxel_map.put(voxel, array)
     end

@@ -51,7 +51,7 @@ class Towers < Benchmark
 
   def push_disk(disk, pile)
     top = @piles[pile]
-    if top != nil and disk.size >= top.size
+    if top and disk.size >= top.size
       raise 'Cannot put a big disk on a smaller one'
     end
 
@@ -61,7 +61,7 @@ class Towers < Benchmark
 
   def pop_disk_from(pile)
     top = @piles[pile]
-    if top == nil
+    unless top
       raise 'Attempting to remove a disk from an empty pile'
     end
 

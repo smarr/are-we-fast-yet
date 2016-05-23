@@ -380,7 +380,7 @@ class AbstractConstraint
   end
 
   def inputs_known(mark)
-    !inputs_has_one { | v | !(v.mark == mark || v.stay || v.determined_by == nil) }
+    !inputs_has_one { | v | !(v.mark == mark || v.stay || !v.determined_by) }
   end
 
   def satisfy(mark, planner)

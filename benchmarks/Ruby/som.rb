@@ -304,7 +304,7 @@ class Dictionary
   end
 
   def hash(key)
-    if key == nil
+    unless key
       return 0
     end
 
@@ -328,7 +328,7 @@ class Dictionary
     hash = hash(key)
     e = get_bucket(hash)
 
-    until e == nil
+    while e
       if e.match(hash, key)
         return e.value
       end
@@ -341,7 +341,7 @@ class Dictionary
     hash = hash(key)
     e = get_bucket(hash)
 
-    until e == nil
+    while e
       if e.match(hash, key)
         return true
       end
@@ -355,7 +355,7 @@ class Dictionary
     i = get_bucket_idx(hash)
     current = @buckets[i]
 
-    if current == nil
+    unless current
       @buckets[i] = new_entry(key, value, hash)
     else
       insert_bucket_entry(key, value, hash, current)
@@ -379,7 +379,7 @@ class Dictionary
         current.value = value
         return
       end
-      if current.next == nil
+      unless current.next
         current.next = new_entry(key, value, hash)
         return
       end
@@ -398,7 +398,7 @@ class Dictionary
       if current
         old_storage[i] = nil
 
-        if current.next == nil
+        unless current.next
           @buckets[current.hash & (@buckets.size - 1)] = current
         else
           split_bucket(old_storage, i, current)
@@ -414,14 +414,14 @@ class Dictionary
 
     while current
       if (current.hash & old_storage.size) == 0
-        if lo_tail == nil
+        unless lo_tail
           lo_head = current
         else
           lo_tail.next = current
         end
         lo_tail = current
       else
-        if hi_tail == nil
+        unless hi_tail
           hi_head = current
         else
           hi_tail.next = current

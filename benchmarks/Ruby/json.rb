@@ -306,13 +306,13 @@ class Parser
   end
 
   def pause_capture
-    end_ = @current == nil ? @index : @index - 1
+    end_ = !@current ? @index : @index - 1
     @capture_buffer += @input[@capture_start..end_]
     @capture_start = -1
   end
 
   def end_capture
-    end_ = @current == nil ? @index : @index - 1
+    end_ = !@current ? @index : @index - 1
 
     if '' == @capture_buffer
       captured = @input[@capture_start..end_]
@@ -446,7 +446,7 @@ class JsonArray < JsonValue
   end
 
   def add(value)
-    if value == nil
+    unless value
       raise 'value is null'
     end
     @values.append(value)
@@ -508,7 +508,7 @@ class JsonNumber < JsonValue
 
   def initialize(string)
     @string = string
-    if string == nil
+    unless string
       raise 'string is null'
     end
   end
@@ -531,11 +531,11 @@ class JsonObject < JsonValue
   end
 
   def add(name, value)
-    if name == nil
+    unless name
       raise 'name is null'
     end
 
-    if value == nil
+    unless value
       raise 'value is null'
     end
 
@@ -546,7 +546,7 @@ class JsonObject < JsonValue
   end
 
   def get(name)
-    if name == nil
+    unless name
       raise 'name is null'
     end
     index = index_of(name)
