@@ -7,9 +7,6 @@
 [submodule "implementations/JRuby"]
 	path = implementations/JRuby
 	url = https://github.com/jruby/jruby.git
-[submodule "implementations/JRuby-master"]
-	path = implementations/JRuby-master
-	url = https://github.com/jruby/jruby.git
 [submodule "implementations/TruffleSOM-TOM"]
 	path = implementations/TruffleSOM-TOM
 	url = https://github.com/smarr/TruffleSOM.git
