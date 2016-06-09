@@ -49,8 +49,8 @@ class List < Benchmark
       end
       x_tail = x_tail.next
       y_tail = y_tail.next
-      false
     end
+    false
   end
 
   def tail(x, y, z)
