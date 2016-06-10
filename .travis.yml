@@ -1,3 +1,7 @@
+addons:
+  apt:
+    packages:
+      - python-yaml
 env:
   - TASK=java-bench
   - TASK=java-style
