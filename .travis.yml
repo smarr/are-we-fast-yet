@@ -1,0 +1,6 @@
+env:
+  # - TASK=tests
+  - TASK=java-style
+script:
+  # - if [ "$TASK" = "tests" ];      then ant tests; fi
+  - if [ "$TASK" = "java-style" ]; then cd benchmark/Java && ant checkstyle-jar && ant checkstyle; fi
