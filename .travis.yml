@@ -1,6 +1,8 @@
 env:
-  # - TASK=tests
+  - TASK=java-bench
   - TASK=java-style
+install:
+  - pip install ReBench
 script:
-  # - if [ "$TASK" = "tests" ];      then ant tests; fi
+  - if [ "$TASK" = "java-bench" ]; then (cd benchmark/Java && ant jar) && rebench -d test.conf test-java; fi
   - if [ "$TASK" = "java-style" ]; then cd benchmark/Java && ant checkstyle-jar && ant checkstyle; fi
