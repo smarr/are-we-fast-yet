@@ -65,6 +65,9 @@ final class Mandelbrot extends Benchmark {
     if (innerIterations == 750) {
       return result == 50;
     }
+    if (innerIterations == 1) {
+      return result == 128;
+    }
 
     // Checkstyle: stop
     System.out.println("No verification result for " + innerIterations + " found");

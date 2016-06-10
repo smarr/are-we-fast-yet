@@ -21,6 +21,9 @@ public final class NBody extends Benchmark {
     if (innerIterations == 250000) {
       return result == -0.1690859889909308;
     }
+    if (innerIterations == 1) {
+      return result == -0.16907495402506745;
+    }
 
     // Checkstyle: stop
     System.out.println("No verification result for " + innerIterations + " found");
