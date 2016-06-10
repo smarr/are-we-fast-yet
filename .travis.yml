@@ -7,12 +7,14 @@ git:
   submodules: false
 
 env:
-  - TASK=java-bench
-  - TASK=java-style
+  - TASK=bench LANG=java
+  - TASK=style LANG=java
+  - TASK=bench LANG=crystal
+  - TASK=style LANG=crystal
 
 install:
-  - pip install --user ReBench
+  - if [ "$TASK" = "bench" ]; then pip install --user ReBench; fi
 
 script:
-  - if [ "$TASK" = "java-bench" ]; then (cd benchmarks/Java && ant jar) && rebench -d test.conf test-java; fi
-  - if [ "$TASK" = "java-style" ]; then cd benchmarks/Java && ant checkstyle-jar && ant checkstyle; fi
+  - if [ "$TASK" = "bench" ]; then implementations/build-$LANG.sh && rebench -d test.conf test-java; fi
+  - if [ "$TASK" = "style" ]; then implementations/build-$LANG.sh style; fi

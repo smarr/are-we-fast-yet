@@ -2,10 +2,11 @@
 source ./script.inc
 source ./config.inc
 export JAVA_HOME=$JAVA8_HOME
-INFO Build Java Benchmarks
-pushd ../benchmarks/Java
-ant jar
-popd
+INFO Build Crystal Benchmarks
 pushd ../benchmarks/Crystal
-./build.sh
-popd
+if [ "$1" = "style" ]
+then
+  exit 0
+else
+  ./build.sh
+fi

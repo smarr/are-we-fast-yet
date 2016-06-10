@@ -6,6 +6,9 @@ source script.inc
 check_for_tools git ant tar make javac mv unzip uname cc c++
 get_web_getter
 
+./build-java.sh
+./build-crystal.sh
+
 ./build-jruby.sh
 ./build-somns.sh
 ./build-trufflesom.sh
