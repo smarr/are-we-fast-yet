@@ -14,5 +14,5 @@ install:
   - pip install --user ReBench
 
 script:
-  - if [ "$TASK" = "java-bench" ]; then (cd benchmark/Java && ant jar) && rebench -d test.conf test-java; fi
-  - if [ "$TASK" = "java-style" ]; then cd benchmark/Java && ant checkstyle-jar && ant checkstyle; fi
+  - if [ "$TASK" = "java-bench" ]; then (cd benchmarks/Java && ant jar) && rebench -d test.conf test-java; fi
+  - if [ "$TASK" = "java-style" ]; then cd benchmarks/Java && ant checkstyle-jar && ant checkstyle; fi
