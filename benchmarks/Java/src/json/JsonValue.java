@@ -143,7 +143,7 @@ public abstract class JsonValue {
    *           if this value is not a JSON object
    */
   public JsonObject asObject() {
-    throw new UnsupportedOperationException( "Not an object: " + toString() );
+    throw new UnsupportedOperationException("Not an object: " + toString());
   }
 
   /**
@@ -155,6 +155,6 @@ public abstract class JsonValue {
    *           if this value is not a JSON array
    */
   public JsonArray asArray() {
-    throw new UnsupportedOperationException( "Not an array: " + toString() );
+    throw new UnsupportedOperationException("Not an array: " + toString());
   }
 }

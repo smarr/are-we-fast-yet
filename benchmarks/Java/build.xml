@@ -1,6 +1,7 @@
 <project name="Java-benchmarks" basedir="." default="compile">
-    <property name="src.dir" value="src" />
-    
+    <property name="checkstyle.version" value="6.19" />
+
+    <property name="src.dir"   value="src" />
     <property name="build.dir" value="build" />
     
     <target name="clean">
@@ -14,5 +15,20 @@
     
     <target name="jar" depends="compile">
         <jar destfile="benchmarks.jar" basedir="${build.dir}" />
+    </target>
+
+    <target name="checkstyle-jar">
+        <get src="http://heanet.dl.sourceforge.net/project/checkstyle/checkstyle/${checkstyle.version}/checkstyle-${checkstyle.version}-all.jar"
+            usetimestamp="true"
+            dest="${build.dir}/checkstyle-${checkstyle.version}-all.jar" />
+    </target>
+
+    <target name="checkstyle" depends="checkstyle-jar" description="Check Code with Checkstyle">
+        <taskdef resource="com/puppycrawl/tools/checkstyle/ant/checkstyle-ant-task.properties"
+            classpath="${build.dir}/checkstyle-${checkstyle.version}-all.jar" />
+        <checkstyle config=".checkstyle_checks.xml">
+          <fileset dir="src" includes="**/*.java"/>
+          <formatter type="plain"/>
+        </checkstyle>
     </target>
 </project>

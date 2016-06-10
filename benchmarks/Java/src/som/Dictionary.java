@@ -64,7 +64,7 @@ public class Dictionary<K extends CustomHash, V> {
     this(INITIAL_CAPACITY);
   }
 
-  private static final <K extends CustomHash> int hash(final K key) {
+  private static <K extends CustomHash> int hash(final K key) {
     if (key == null) {
       return 0;
     }
@@ -179,8 +179,10 @@ public class Dictionary<K extends CustomHash, V> {
 
   private void splitBucket(final Entry<K, V>[] oldStorage, final int i,
       final Entry<K, V> head) {
-    Entry<K, V> loHead = null, loTail = null;
-    Entry<K, V> hiHead = null, hiTail = null;
+    Entry<K, V> loHead = null;
+    Entry<K, V> loTail = null;
+    Entry<K, V> hiHead = null;
+    Entry<K, V> hiTail = null;
     Entry<K, V> current = head;
 
     while (current != null) {

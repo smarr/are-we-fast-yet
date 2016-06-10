@@ -13,7 +13,7 @@ import java.util.Arrays;
 import som.ForEachInterface;
 import som.Vector;
 
-public class Planner {
+public final class Planner {
   private int currentMark;
 
   public Planner() {
@@ -233,7 +233,7 @@ public class Planner {
   //
   public static void chainTest(final int n) {
     Planner planner = new Planner();
-    Variable[] vars = new Variable[n+1];
+    Variable[] vars = new Variable[n + 1];
     Arrays.setAll(vars, i -> new Variable());
 
     // Build chain of n equality constraints
@@ -271,7 +271,8 @@ public class Planner {
     Variable scale  = Variable.value(10);
     Variable offset = Variable.value(1000);
 
-    Variable src = null, dst = null;
+    Variable src = null;
+    Variable dst = null;
     for (int i = 1; i <= n; i++) {
       src = Variable.value(i);
       dst = Variable.value(i);

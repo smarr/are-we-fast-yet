@@ -16,14 +16,14 @@ import deltablue.Strength.Sym;
 // satisfied, my output will not change during plan execution. This is
 // called "stay optimization".
 //
-class StayConstraint extends UnaryConstraint {
+final class StayConstraint extends UnaryConstraint {
 
   // Install a stay constraint with the given strength on the given variable.
-  public StayConstraint(final Variable v, final Sym strength,
+  StayConstraint(final Variable v, final Sym strength,
       final Planner planner) {
    super(v, strength, planner);
   }
 
   @Override
-  public void execute() {} // Stay constraints do nothing.
+  public void execute() { } // Stay constraints do nothing.
 }

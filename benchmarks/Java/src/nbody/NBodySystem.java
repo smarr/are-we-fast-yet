@@ -67,7 +67,10 @@ public class NBodySystem {
   }
 
   public double energy() {
-    double dx, dy, dz, distance;
+    double dx;
+    double dy;
+    double dz;
+    double distance;
     double e = 0.0;
 
     for (int i = 0; i < bodies.length; ++i) {

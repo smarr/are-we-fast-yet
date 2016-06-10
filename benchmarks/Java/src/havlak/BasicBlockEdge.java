@@ -11,26 +11,18 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-/**
- * A simple class simulating the concept of Edges
- * between Basic Blocks
- *
- * @author rhundt
- */
 package havlak;
 
 /**
- * class BasicBlockEdga
+ * A simple class simulating the concept of Edges
+ * between Basic Blocks.
  *
- * These data structures are stubbed out to make the code below easier
- * to review.
- *
- * BasicBlockEdge only maintains two pointers to BasicBlocks.
+ * @author rhundt
  */
 final class BasicBlockEdge {
 
-  private final BasicBlock from, to;
+  private final BasicBlock from;
+  private final BasicBlock to;
 
   BasicBlockEdge(final ControlFlowGraph cfg, final int fromName, final int toName) {
     from = cfg.createNode(fromName);

@@ -15,12 +15,12 @@ import som.ForEachInterface;
 // (v1 * scale) + offset". Either v1 or v2 may be changed to maintain
 // this relationship but the scale factor and offset are considered
 // read-only.
-class ScaleConstraint extends BinaryConstraint {
+final class ScaleConstraint extends BinaryConstraint {
 
   protected final Variable scale;  // scale factor input variable
   protected final Variable offset; // offset input variable
 
-  public ScaleConstraint(final Variable src, final Variable scale,
+  ScaleConstraint(final Variable src, final Variable scale,
       final Variable offset, final Variable dest, final Sym strength,
       final Planner planner) {
     super(src, dest, strength, planner);
@@ -77,7 +77,8 @@ class ScaleConstraint extends BinaryConstraint {
   // constraint. Assume this constraint is satisfied.
   @Override
   public void recalculate() {
-    Variable in, out;
+    Variable in;
+    Variable out;
 
     if (direction == Direction.FORWARD) {
       in  = v1; out = v2;

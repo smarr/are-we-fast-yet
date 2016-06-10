@@ -1,7 +1,7 @@
 /*
  * This benchmark is derived from Mario Wolczko's Java and Smalltalk version of
  * DeltaBlue.
- * 
+ *
  * It is modified to use the SOM class library and Java 8 features.
  * License details:
  *   http://web.archive.org/web/20050825101121/http://www.sunlabs.com/people/mario/java_benchmarking/index.html
@@ -16,7 +16,7 @@ import som.Vector;
 // maintain the structure of the constraint graph, the current
 // dataflow graph, and various parameters of interest to the DeltaBlue
 // incremental constraint solver.
-class Variable {
+final class Variable {
 
   private int value;       // my value; changed by constraints
   private final Vector<AbstractConstraint> constraints; // normal constraints that reference me
@@ -32,7 +32,7 @@ class Variable {
     return v;
   }
 
-  public Variable() {
+  Variable() {
     value = 0;
     constraints = new Vector<>(2);
     determinedBy = null;

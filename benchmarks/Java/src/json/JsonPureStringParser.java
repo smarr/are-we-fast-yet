@@ -46,14 +46,14 @@ public final class JsonPureStringParser {
     skipWhiteSpace();
     JsonValue result = readValue();
     skipWhiteSpace();
-    if( !isEndOfText() ) {
-      throw error( "Unexpected character" );
+    if (!isEndOfText()) {
+      throw error("Unexpected character");
     }
     return result;
   }
 
   private JsonValue readValue() {
-    switch( current ) {
+    switch(current) {
     case "n":
       return readNull();
     case "t":
@@ -113,12 +113,12 @@ public final class JsonPureStringParser {
       String name = readName();
       skipWhiteSpace();
       if (!readChar(":")) {
-        throw expected( "':'" );
+        throw expected("':'");
       }
       skipWhiteSpace();
       object.add(name, readValue());
       skipWhiteSpace();
-    } while (readChar( "," ));
+    } while (readChar(","));
 
     if (!readChar("}")) {
       throw expected("',' or '}'");
@@ -128,39 +128,39 @@ public final class JsonPureStringParser {
 
   private String readName() {
     if (!current.equals("\"")) {
-      throw expected( "name" );
+      throw expected("name");
     }
     return readStringInternal();
   }
 
   private JsonValue readNull() {
     read();
-    readRequiredChar( "u" );
-    readRequiredChar( "l" );
-    readRequiredChar( "l" );
+    readRequiredChar("u");
+    readRequiredChar("l");
+    readRequiredChar("l");
     return JsonLiteral.NULL;
   }
 
   private JsonValue readTrue() {
     read();
-    readRequiredChar( "r" );
-    readRequiredChar( "u" );
-    readRequiredChar( "e" );
+    readRequiredChar("r");
+    readRequiredChar("u");
+    readRequiredChar("e");
     return JsonLiteral.TRUE;
   }
 
   private JsonValue readFalse() {
     read();
-    readRequiredChar( "a" );
-    readRequiredChar( "l" );
-    readRequiredChar( "s" );
-    readRequiredChar( "e" );
+    readRequiredChar("a");
+    readRequiredChar("l");
+    readRequiredChar("s");
+    readRequiredChar("e");
     return JsonLiteral.FALSE;
   }
 
   private void readRequiredChar(final String ch) {
-    if( !readChar(ch) ) {
-      throw expected( "'" + ch + "'" );
+    if (!readChar(ch)) {
+      throw expected("'" + ch + "'");
     }
   }
 
@@ -187,7 +187,7 @@ public final class JsonPureStringParser {
 
   private void readEscape() {
     read();
-    switch( current ) {
+    switch(current) {
     case "\"":
     case "/":
     case "\\":
@@ -209,7 +209,7 @@ public final class JsonPureStringParser {
       captureBuffer += "\t";
       break;
     default:
-      throw expected( "valid escape sequence" );
+      throw expected("valid escape sequence");
     }
     read();
   }
@@ -219,14 +219,16 @@ public final class JsonPureStringParser {
     readChar("-");
     String firstDigit = current;
     if (!readDigit()) {
-      throw expected( "digit" );
+      throw expected("digit");
     }
-    if (!firstDigit.equals("0") ) {
+    if (!firstDigit.equals("0")) {
+      // Checkstyle: stop
       while (readDigit()) { }
+     // Checkstyle: resume
     }
     readFraction();
     readExponent();
-    return new JsonNumber( endCapture() );
+    return new JsonNumber(endCapture());
   }
 
   private boolean readFraction() {
@@ -236,7 +238,9 @@ public final class JsonPureStringParser {
     if (!readDigit()) {
       throw expected("digit");
     }
-    while(readDigit()) { }
+    // Checkstyle: stop
+    while (readDigit()) { }
+    // Checkstyle: resume
     return true;
   }
 
@@ -244,14 +248,16 @@ public final class JsonPureStringParser {
     if (!readChar("e") && !readChar("E")) {
       return false;
     }
-    if (!readChar( "+" ) ) {
-      readChar( "-" );
+    if (!readChar("+")) {
+      readChar("-");
     }
     if (!readDigit()) {
-      throw expected( "digit" );
+      throw expected("digit");
     }
 
-    while(readDigit()) { }
+    // Checkstyle: stop
+    while (readDigit()) { }
+    // Checkstyle: resume
     return true;
   }
 
@@ -278,7 +284,7 @@ public final class JsonPureStringParser {
   }
 
   private void read() {
-    if( "\n".equals(current) ) {
+    if ("\n".equals(current)) {
       line++;
       column = 0;
     }
@@ -314,7 +320,7 @@ public final class JsonPureStringParser {
     return captured;
   }
 
-  private ParseException expected( final String expected ) {
+  private ParseException expected(final String expected) {
     if (isEndOfText()) {
       return error("Unexpected end of input");
     }

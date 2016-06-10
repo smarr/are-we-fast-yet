@@ -29,7 +29,7 @@ final class JsonNumber extends JsonValue {
   JsonNumber(final String string) {
     this.string = string;
     if (string == null) {
-      throw new NullPointerException( "string is null" );
+      throw new NullPointerException("string is null");
     }
   }
 

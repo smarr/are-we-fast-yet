@@ -84,7 +84,7 @@ final class SimpleLoop {
     return parent;
   }
 
-  public int getNestingLevel(){
+  public int getNestingLevel() {
     return nestingLevel;
   }
 

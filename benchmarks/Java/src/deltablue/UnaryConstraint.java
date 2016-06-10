@@ -19,7 +19,7 @@ abstract class UnaryConstraint extends AbstractConstraint {
   protected final Variable output; // possible output variable
   protected boolean  satisfied; // true if I am currently satisfied
 
-  public UnaryConstraint(final Variable v, final Sym strength,
+  UnaryConstraint(final Variable v, final Sym strength,
       final Planner planner) {
     super(strength);
     this.output = v;

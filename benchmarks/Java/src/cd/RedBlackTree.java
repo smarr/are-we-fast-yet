@@ -11,7 +11,7 @@ public final class RedBlackTree<K extends Comparable<K>, V> {
     root = null;
   }
 
-  private static enum Color {
+  private enum Color {
     RED, BLACK
   }
 
@@ -23,7 +23,7 @@ public final class RedBlackTree<K extends Comparable<K>, V> {
     return current;
   }
 
-  private final static class Node<K, V> {
+  private static final class Node<K, V> {
 
     private final K    key;
     private V value;
@@ -190,7 +190,7 @@ public final class RedBlackTree<K extends Comparable<K>, V> {
     return node.value;
   }
 
-  public final static class Entry<K, V> {
+  public static final class Entry<K, V> {
     public final K key;
     public final V value;
     public Entry(final K key, final V value) {
@@ -226,7 +226,7 @@ public final class RedBlackTree<K extends Comparable<K>, V> {
     return null;
   }
 
-  private final static class InsertResult<K, V> {
+  private static final class InsertResult<K, V> {
     public final boolean isNewEntry;
     public final Node<K, V> newNode;
     public final V oldValue;
@@ -298,7 +298,7 @@ public final class RedBlackTree<K extends Comparable<K>, V> {
     return y;
   }
 
-  private final Node<K, V> rightRotate(final Node<K, V> y) {
+  private Node<K, V> rightRotate(final Node<K, V> y) {
     Node<K, V> x = y.left;
 
     // Turn x's right subtree into y's left subtree.

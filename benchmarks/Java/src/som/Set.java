@@ -65,7 +65,7 @@ public class Set<E> {
   }
 
   public boolean contains(final E obj) {
-    return hasSome(e -> { return e.equals(obj); } );
+    return hasSome(e -> { return e.equals(obj); });
   }
 
   public void removeAll() {

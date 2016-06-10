@@ -26,10 +26,11 @@ import som.Vector;
  */
 final class BasicBlock implements CustomHash {
 
-  private final Vector<BasicBlock> inEdges, outEdges;
+  private final Vector<BasicBlock> inEdges;
+  private final Vector<BasicBlock> outEdges;
   private final int name;
 
-  public BasicBlock(final int name) {
+  BasicBlock(final int name) {
     this.name = name;
     inEdges   = new Vector<BasicBlock>(2);
     outEdges  = new Vector<BasicBlock>(2);

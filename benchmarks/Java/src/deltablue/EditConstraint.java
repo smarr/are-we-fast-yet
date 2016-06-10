@@ -12,10 +12,9 @@ import deltablue.Strength.Sym;
 
 // I am a unary input constraint used to mark a variable that the
 // client wishes to change.
-class EditConstraint extends UnaryConstraint {
+final class EditConstraint extends UnaryConstraint {
 
-  public EditConstraint(final Variable v, final Sym strength,
-      final Planner planner) {
+  EditConstraint(final Variable v, final Sym strength, final Planner planner) {
     super(v, strength, planner);
   }
 
@@ -26,5 +25,5 @@ class EditConstraint extends UnaryConstraint {
   }
 
   @Override
-  public void execute() {} // Edit constraints do nothing.
+  public void execute() { } // Edit constraints do nothing.
 }

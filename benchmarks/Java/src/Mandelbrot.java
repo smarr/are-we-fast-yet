@@ -1,5 +1,5 @@
 // This benchmark has been modified based on the SOM benchmark.
-// 
+//
 // Copyright © 2004-2013 Brent Fulgham
 //
 // All rights reserved.
@@ -65,8 +65,11 @@ final class Mandelbrot extends Benchmark {
     if (innerIterations == 750) {
       return result == 50;
     }
+
+    // Checkstyle: stop
     System.out.println("No verification result for " + innerIterations + " found");
     System.out.println("Result is: " + result);
+    // Checkstyle: resume
     return false;
   }
 
@@ -96,8 +99,8 @@ final class Mandelbrot extends Benchmark {
            zi = 2.0 * zr * zi + ci;
 
            // preserve recalculation
-           zrzr = zr*zr;
-           zizi = zi*zi;
+           zrzr = zr * zr;
+           zizi = zi * zi;
 
            if (zrzr + zizi > 4.0) {
              notDone = false;

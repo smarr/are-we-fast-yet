@@ -16,10 +16,11 @@ import som.TestInterface;
 // output variables.
 abstract class BinaryConstraint extends AbstractConstraint {
 
-  protected Variable v1, v2;          // possible output variables
-  protected Direction direction;       // one of the following...
+  protected Variable v1;
+  protected Variable v2;          // possible output variables
+  protected Direction direction;  // one of the following...
 
-  public BinaryConstraint(final Variable var1, final Variable var2,
+  BinaryConstraint(final Variable var1, final Variable var2,
       final Sym strength, final Planner planner) {
     super(strength);
     v1 = var1;
@@ -136,7 +137,8 @@ abstract class BinaryConstraint extends AbstractConstraint {
   //
   @Override
   public void recalculate() {
-    Variable in, out;
+    Variable in;
+    Variable out;
 
     if (direction == Direction.FORWARD) {
       in = v1; out = v2;

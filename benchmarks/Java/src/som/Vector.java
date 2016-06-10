@@ -132,8 +132,8 @@ public class Vector<E> {
 
   public boolean remove(final E obj) {
     Object[] newArray = new Object[capacity()];
-    int[] newLast = new int[] { 0 };
-    boolean[] found = new boolean[] { false };
+    int[] newLast     = new int[] {0};
+    boolean[] found   = new boolean[] {false};
 
     forEach(it -> {
       if (it == obj) {

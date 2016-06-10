@@ -76,7 +76,8 @@ public final class CollisionDetector {
     double y0 = init.y;
     double yv = fin.y - init.y;
 
-    double low_x, high_x;
+    double low_x;
+    double high_x;
     low_x = (v_x - r - x0) / xv;
     high_x = (v_x + v_s + r - x0) / xv;
 
@@ -86,7 +87,8 @@ public final class CollisionDetector {
       high_x = tmp;
     }
 
-    double low_y, high_y;
+    double low_y;
+    double high_y;
     low_y  = (v_y - r - y0) / yv;
     high_y = (v_y + v_s + r - y0) / yv;
 
@@ -108,8 +110,8 @@ public final class CollisionDetector {
              (low_x <= low_y && high_y <= high_x)));
   }
 
-  private final static Vector2D horizontal = new Vector2D(Constants.GOOD_VOXEL_SIZE, 0.0);
-  private final static Vector2D vertical   = new Vector2D(0.0, Constants.GOOD_VOXEL_SIZE);
+  private static final Vector2D horizontal = new Vector2D(Constants.GOOD_VOXEL_SIZE, 0.0);
+  private static final Vector2D vertical   = new Vector2D(0.0, Constants.GOOD_VOXEL_SIZE);
 
   private static void putIntoMap(
       final RedBlackTree<Vector2D, Vector<Motion>> voxelMap,

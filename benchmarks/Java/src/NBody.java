@@ -22,8 +22,10 @@ public final class NBody extends Benchmark {
       return result == -0.1690859889909308;
     }
 
+    // Checkstyle: stop
     System.out.println("No verification result for " + innerIterations + " found");
     System.out.println("Result is: " + result);
+    // Checkstyle: resume
     return false;
   }
 

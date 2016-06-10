@@ -1,17 +1,17 @@
 /* This code is based on the SOM class library.
  *
  * Copyright (c) 2001-2016 see AUTHORS.md file
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the 'Software'), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -45,7 +45,10 @@ public final class Run {
   }
 
   public void runBenchmark() {
+    // Checkstyle: stop
     System.out.println("Starting " + name + " benchmark ...");
+    // Checkstyle: resume
+
     try {
       doRuns(benchmarkSuite.newInstance());
     } catch (ReflectiveOperationException | IllegalArgumentException
@@ -54,7 +57,10 @@ public final class Run {
       throw new RuntimeException(e);
     }
     reportBenchmark();
+
+    // Checkstyle: stop
     System.out.println();
+    // Checkstyle: resume
   }
 
   private void measure(final Benchmark bench) {
@@ -77,16 +83,22 @@ public final class Run {
   }
 
   private void reportBenchmark() {
+    // Checkstyle: stop
     System.out.println(name + ": iterations=" + numIterations +
         " average: " + (total / numIterations) + "us total: " + total + "us\n");
+    // Checkstyle: resume
   }
 
   private void printResult(final long runTime) {
+    // Checkstyle: stop
     System.out.println(name + ": iterations=1 runtime: " + runTime + "us");
+    // Checkstyle: resume
   }
 
   public void printTotal() {
+    // Checkstyle: stop
     System.out.println("Total Runtime: " + total + "us");
+    // Checkstyle: resume
   }
 
   public String getName() {

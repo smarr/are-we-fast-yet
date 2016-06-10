@@ -26,7 +26,7 @@ final class JsonString extends JsonValue {
 
   private final String string;
 
-  JsonString( final String string ) {
+  JsonString(final String string) {
     this.string = string;
   }
 

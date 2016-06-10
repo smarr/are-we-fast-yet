@@ -55,8 +55,10 @@ public final class CD extends Benchmark {
     if (numAircrafts ==  100) { return actualCollisions ==  4305; }
     if (numAircrafts ==   10) { return actualCollisions ==   390; }
 
+    // Checkstyle: stop
     System.out.println("No verification result for " + numAircrafts + " found");
     System.out.println("Result is: " + actualCollisions);
+    // Checkstyle: resume
     return false;
   }
 

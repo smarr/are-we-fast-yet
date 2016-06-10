@@ -23,7 +23,7 @@ abstract class AbstractConstraint {
 
   protected final Strength strength; // the strength of this constraint
 
-  public AbstractConstraint(final Sym strength) {
+  AbstractConstraint(final Sym strength) {
     this.strength = Strength.of(strength);
   }
 
@@ -76,7 +76,7 @@ abstract class AbstractConstraint {
     class Return extends Exception {
       private static final long serialVersionUID = 5527046579317358033L;
       private final Object value;
-      public Return(final Object value) {
+      Return(final Object value) {
         this.value = value;
       }
       public Object getValue() {

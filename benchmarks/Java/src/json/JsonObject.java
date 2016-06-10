@@ -76,10 +76,10 @@ public final class JsonObject extends JsonValue {
    */
   public JsonObject add(final String name, final JsonValue value) {
     if (name == null) {
-      throw new NullPointerException( "name is null" );
+      throw new NullPointerException("name is null");
     }
     if (value == null) {
-      throw new NullPointerException( "value is null" );
+      throw new NullPointerException("value is null");
     }
     table.add(name, names.size());
     names.append(name);
@@ -98,7 +98,7 @@ public final class JsonObject extends JsonValue {
    */
   public JsonValue get(final String name) {
     if (name == null) {
-      throw new NullPointerException( "name is null" );
+      throw new NullPointerException("name is null");
     }
     int index = indexOf(name);
     return index == -1 ? null : values.at(index);
@@ -132,9 +132,9 @@ public final class JsonObject extends JsonValue {
     return this;
   }
 
-  private int indexOf( final String name ) {
-    int index = table.get( name );
-    if( index != -1 && name.equals(names.at(index))) {
+  private int indexOf(final String name) {
+    int index = table.get(name);
+    if (index != -1 && name.equals(names.at(index))) {
       return index;
     }
     throw new NotImplemented(); // Not needed for benchmark
@@ -144,7 +144,7 @@ public final class JsonObject extends JsonValue {
 
     private final int[] hashTable;
 
-    public HashIndexTable() {
+    HashIndexTable() {
       hashTable = new int[32]; // must be a power of two
     }
 

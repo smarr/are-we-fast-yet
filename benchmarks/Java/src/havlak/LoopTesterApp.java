@@ -13,7 +13,7 @@
 // limitations under the License.
 package havlak;
 
-public class LoopTesterApp {
+public final class LoopTesterApp {
 
   private final ControlFlowGraph   cfg;
   private final LoopStructureGraph lsg;
@@ -77,7 +77,7 @@ public class LoopTesterApp {
     }
 
     lsg.calculateNestingLevel();
-    return new int[] { lsg.getNumLoops(), cfg.getNumNodes() };
+    return new int[] {lsg.getNumLoops(), cfg.getNumNodes()};
   }
 
   private void constructCFG(final int parLoops, final int pparLoops,

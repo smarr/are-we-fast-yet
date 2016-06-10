@@ -17,7 +17,7 @@ import som.IdentityDictionary;
  * current constraints. Strengths cannot be created outside this class, so
  * pointer comparison can be used for value comparison.
  */
-public class Strength {
+public final class Strength {
 
   public static class Sym implements CustomHash {
 

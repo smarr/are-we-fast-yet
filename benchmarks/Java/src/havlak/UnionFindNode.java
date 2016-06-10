@@ -10,14 +10,14 @@ import som.Vector;
  * complete loops into a single node. These nodes and the
  * corresponding functionality are implemented with this class
  */
-class UnionFindNode {
+final class UnionFindNode {
 
   private UnionFindNode parent;
   private BasicBlock    bb;
   private SimpleLoop    loop;
   private int           dfsNumber;
 
-  UnionFindNode() {}
+  UnionFindNode() { }
 
   // Initialize this node.
   //

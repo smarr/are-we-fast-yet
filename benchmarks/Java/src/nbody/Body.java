@@ -10,7 +10,12 @@ final class Body {
   private static final double SOLAR_MASS = 4 * PI * PI;
   private static final double DAYS_PER_YER = 365.24;
 
-  private double x, y, z, vx, vy, vz;
+  private double x;
+  private double y;
+  private double z;
+  private double vx;
+  private double vy;
+  private double vz;
   private final double mass;
 
   public double getX() { return x; }
@@ -37,7 +42,7 @@ final class Body {
     vz = 0.0 - (pz / SOLAR_MASS);
   }
 
-  public Body(final double x, final double y, final double z,
+  Body(final double x, final double y, final double z,
       final double vx, final double vy, final double vz, final double mass) {
     this.x = x;
     this.y = y;

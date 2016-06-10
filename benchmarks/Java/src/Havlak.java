@@ -38,8 +38,10 @@ public final class Havlak extends Benchmark {
     if (innerIterations ==    15) { return r[0] ==  1647 && r[1] == 5213; }
     if (innerIterations ==     1) { return r[0] ==  1605 && r[1] == 5213; }
 
+    // Checkstyle: stop
     System.out.println("No verification result for " + innerIterations + " found");
     System.out.println("Result is: " + r[0] + ", " + r[1]);
+    // Checkstyle: resume
     return false;
   }
 

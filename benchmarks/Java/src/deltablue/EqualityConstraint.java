@@ -11,11 +11,11 @@ package deltablue;
 import deltablue.Strength.Sym;
 
 // I constrain two variables to have the same value: "v1 = v2".
-class EqualityConstraint extends BinaryConstraint {
+final class EqualityConstraint extends BinaryConstraint {
 
   // Install a constraint with the given strength equating the given
   // variables.
-  public EqualityConstraint(final Variable var1, final Variable var2,
+  EqualityConstraint(final Variable var1, final Variable var2,
       final Sym strength, final Planner planner) {
     super(var1, var2, strength, planner);
     addConstraint(planner);
