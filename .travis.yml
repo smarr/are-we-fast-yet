@@ -1,14 +1,18 @@
 addons:
   apt:
     packages:
+      - python-scipy
       - python-yaml
 git:
   submodules: false
+
 env:
   - TASK=java-bench
   - TASK=java-style
+
 install:
-  - pip install ReBench
+  - pip install --user ReBench
+
 script:
   - if [ "$TASK" = "java-bench" ]; then (cd benchmark/Java && ant jar) && rebench -d test.conf test-java; fi
   - if [ "$TASK" = "java-style" ]; then cd benchmark/Java && ant checkstyle-jar && ant checkstyle; fi
