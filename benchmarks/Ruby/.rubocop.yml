@@ -96,11 +96,15 @@ Style/ExtraSpacing:
     - 'havlak.rb'
     - 'deltablue.rb'
     - 'cd.rb'
+    - 'mandelbrot.rb'
+    - 'nbody.rb'
 
 Style/SpaceAroundOperators:
   Exclude:
     - 'havlak.rb'
     - 'cd.rb'
+    - 'mandelbrot.rb'
+    - 'nbody.rb'
 
 Style/PerlBackrefs:
   Exclude:
