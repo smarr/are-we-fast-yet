@@ -21,7 +21,6 @@
 # THE SOFTWARE.
 
 class List < Benchmark
-
   def benchmark
     result = tail(make_list(15),
                   make_list(10),
@@ -38,19 +37,18 @@ class List < Benchmark
       e
     end
   end
-  
+
   def is_shorter_than(x, y)
     x_tail = x
     y_tail = y
 
     while y_tail
-      unless x_tail
-        return true
-      end
+      return true unless x_tail
+
       x_tail = x_tail.next
       y_tail = y_tail.next
-      false
     end
+    false
   end
 
   def tail(x, y, z)

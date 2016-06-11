@@ -32,22 +32,15 @@ class Json < Benchmark
   end
 
   def verify_result(result)
-    unless result.is_object
-      return false
-    end
-    unless result.as_object.get('head').is_object
-      return false
-    end
-    unless result.as_object.get('operations').is_array
-      return false
-    end
+    return false unless result.is_object
+    return false unless result.as_object.get('head').is_object
+    return false unless result.as_object.get('operations').is_array
 
     result.as_object.get('operations').as_array.size == 156
   end
 end
 
 class Parser
-
   def initialize(string)
     @input   = string
     @index   = -1
@@ -63,9 +56,7 @@ class Parser
     skip_white_space
     result = read_value
     skip_white_space
-    unless is_end_of_text
-      raise 'Unexpected character'
-    end
+    raise 'Unexpected character' unless is_end_of_text
     result
   end
 
@@ -94,18 +85,15 @@ class Parser
     read
     array = JsonArray.new
     skip_white_space
-    if read_char(']')
-      return array
-    end
+    return array if read_char(']')
 
     begin
       skip_white_space
       array.add(read_value)
       skip_white_space
     end while read_char(',')
-    unless read_char(']')
-      raise expected("',' or ']'")
-    end
+    raise expected("',' or ']'") unless read_char(']')
+
     array
   end
 
@@ -113,32 +101,27 @@ class Parser
     read
     object = JsonObject.new
     skip_white_space
-    if read_char('}')
-      return object
-    end
+    return object if read_char('}')
 
     begin
       skip_white_space
       name = read_name
       skip_white_space
-      unless read_char(':')
-        raise expected("':'")
-      end
+      raise expected("':'") unless read_char(':')
+
       skip_white_space
       object.add(name, read_value)
       skip_white_space
     end while read_char(',')
 
-    unless read_char('}')
-      raise expected("',' or '}'")
-    end
+    raise expected("',' or '}'") unless read_char('}')
+
     object
   end
 
   def read_name
-    unless @current == '"'
-      raise expected('name')
-    end
+    raise expected('name') unless @current == '"'
+
     read_string_internal
   end
 
@@ -168,9 +151,7 @@ class Parser
   end
 
   def read_required_char(ch)
-    unless read_char(ch)
-      raise expected("'" + ch + "'")
-    end
+    raise expected("'" + ch + "'") unless read_char(ch)
   end
 
   def read_string
@@ -219,9 +200,8 @@ class Parser
     start_capture
     read_char('-')
     first_digit = @current
-    unless read_digit
-      raise expected('digit')
-    end
+    raise expected('digit') unless read_digit
+
     unless first_digit == '0'
       while read_digit
       end
@@ -232,13 +212,9 @@ class Parser
   end
 
   def read_fraction
-    unless read_char('.')
-      return false
-    end
+    return false unless read_char('.')
 
-    unless read_digit
-      raise expected('digit')
-    end
+    raise expected('digit') unless read_digit
 
     while read_digit
     end
@@ -246,17 +222,11 @@ class Parser
   end
 
   def read_exponent
-    unless read_char('e') or read_char('E')
-      return false
-    end
+    return false unless read_char('e') || read_char('E')
 
-    unless read_char('+')
-      read_char('-')
-    end
+    read_char('-') unless read_char('+')
 
-    unless read_digit
-      raise expected('digit')
-    end
+    raise expected('digit') unless read_digit
 
     while read_digit
     end
@@ -265,25 +235,19 @@ class Parser
   end
 
   def read_char(ch)
-    if @current != ch
-      return false
-    end
+    return false if @current != ch
     read
     true
   end
 
   def read_digit
-    unless is_digit
-      return false
-    end
+    return false unless is_digit
     read
     true
   end
 
   def skip_white_space
-    while is_white_space
-      read
-    end
+    read while is_white_space
   end
 
   def read
@@ -338,13 +302,13 @@ class Parser
   end
 
   def is_white_space
-    ' ' == @current or "\t" == @current or "\n" == @current or "\r" == @current
+    ' ' == @current || "\t" == @current || "\n" == @current || "\r" == @current
   end
 
   def is_digit
-    '0' == @current or '1' == @current or '2' == @current or '3' == @current or
-        '4' == @current or '5' == @current or '6' == @current or '7' == @current or
-        '8' == @current or '9' == @current
+    '0' == @current || '1' == @current || '2' == @current || '3' == @current ||
+      '4' == @current || '5' == @current || '6' == @current ||
+      '7' == @current || '8' == @current || '9' == @current
   end
 
   def is_end_of_text
@@ -353,7 +317,6 @@ class Parser
 end
 
 class HashIndexTable
-
   def initialize
     @hash_table = Array.new(32, 0)
   end
@@ -377,7 +340,7 @@ class HashIndexTable
   def string_hash(s)
     # this is not a proper hash, but sufficient for the benchmark,
     # and very portable!
-    s.size * 1402589
+    s.size * 1_402_589
   end
 
   def hash_slot_for(element)
@@ -397,7 +360,6 @@ class ParseException < StandardError
 end
 
 class JsonValue
-
   def is_object
     false
   end
@@ -431,24 +393,21 @@ class JsonValue
   end
 
   def as_object
-    raise ('Unsupported operation, not an object: ' + as_string)
+    raise('Unsupported operation, not an object: ' + as_string)
   end
 
   def as_array
-    raise ('Unsupported operation, not an array: ' + as_string)
+    raise('Unsupported operation, not an array: ' + as_string)
   end
 end
 
 class JsonArray < JsonValue
-
   def initialize
     @values = Vector.new
   end
 
   def add(value)
-    unless value
-      raise 'value is null'
-    end
+    raise 'value is null' unless value
     @values.append(value)
     self
   end
@@ -471,6 +430,7 @@ class JsonArray < JsonValue
 end
 
 class JsonLiteral < JsonValue
+  attr_reader :is_null, :is_true, :is_false
 
   def initialize(value)
     @value = value
@@ -487,30 +447,15 @@ class JsonLiteral < JsonValue
     @value
   end
 
-  def is_null
-    @is_null
-  end
-
-  def is_true
-    @is_true
-  end
-
-  def is_false
-    @is_false
-  end
-
   def is_boolean
-    @is_true or @is_false
+    @is_true || @is_false
   end
 end
 
 class JsonNumber < JsonValue
-
   def initialize(string)
     @string = string
-    unless string
-      raise 'string is null'
-    end
+    raise 'string is null' unless string
   end
 
   def as_string
@@ -523,7 +468,6 @@ class JsonNumber < JsonValue
 end
 
 class JsonObject < JsonValue
-
   def initialize
     @names  = Vector.new
     @values = Vector.new
@@ -531,13 +475,8 @@ class JsonObject < JsonValue
   end
 
   def add(name, value)
-    unless name
-      raise 'name is null'
-    end
-
-    unless value
-      raise 'value is null'
-    end
+    raise 'name is null'  unless name
+    raise 'value is null' unless value
 
     @table.add(name, @names.size)
     @names.append(name)
@@ -546,9 +485,8 @@ class JsonObject < JsonValue
   end
 
   def get(name)
-    unless name
-      raise 'name is null'
-    end
+    raise 'name is null' unless name
+
     index = index_of(name)
     index == -1 ? nil : @values.at(index)
   end
@@ -571,9 +509,7 @@ class JsonObject < JsonValue
 
   def index_of(name)
     index = @table.get(name)
-    if index != -1 and name == @names.at(index)
-      return index
-    end
+    return index if index != -1 && name == @names.at(index)
     raise 'NotImplemented' # Not needed for benchmark
   end
 end

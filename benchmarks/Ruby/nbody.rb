@@ -13,20 +13,16 @@ class NBody < Benchmark
   def inner_benchmark_loop(inner_iterations)
     system = NBodySystem.new
 
-    inner_iterations.times {
-      system.advance(0.01)
-    }
+    inner_iterations.times { system.advance(0.01) }
 
     verify_result(system.energy, inner_iterations)
   end
 
   def verify_result(result, inner_iterations)
-    if inner_iterations == 250000
-      return result == -0.1690859889909308
-    end
+    return result == -0.1690859889909308 if inner_iterations == 250_000
 
-    puts ('No verification result for ' + inner_iterations.to_s + ' found')
-    puts ('Result is: ' + result.to_s)
+    puts('No verification result for ' + inner_iterations.to_s + ' found')
+    puts('Result is: ' + result.to_s)
     false
   end
 end
@@ -45,21 +41,21 @@ class NBodySystem
 
     px = py = pz = 0.0
 
-    bodies.each { | b |
+    bodies.each do |b|
       px += b.vx * b.mass
       py += b.vy * b.mass
       pz += b.vz * b.mass
-    }
+    end
 
     bodies[0].offset_momentum(px, py, pz)
     bodies
   end
 
   def advance(dt)
-    @bodies.each_index { | i |
+    @bodies.each_index do |i|
       i_body = @bodies[i]
 
-      ((i + 1)...@bodies.size).each { | j |
+      ((i + 1)...@bodies.size).each do |j|
         j_body = @bodies[j]
         dx = i_body.x - j_body.x
         dy = i_body.y - j_body.y
@@ -76,20 +72,20 @@ class NBodySystem
         j_body.vx += dx * i_body.mass * mag
         j_body.vy += dy * i_body.mass * mag
         j_body.vz += dz * i_body.mass * mag
-      }
-    }
+      end
+    end
 
-    @bodies.each { | body |
+    @bodies.each do |body|
       body.x += dt * body.vx
       body.y += dt * body.vy
       body.z += dt * body.vz
-    }
+    end
   end
 
   def energy
     e = 0.0
 
-    @bodies.each_index { | i |
+    @bodies.each_index do |i|
       i_body = @bodies[i]
 
       e += 0.5 * i_body.mass *
@@ -97,17 +93,17 @@ class NBodySystem
            (i_body.vy * i_body.vy) +
            (i_body.vz * i_body.vz))
 
-      ((i + 1)...@bodies.size).each { | j |
+      ((i + 1)...@bodies.size).each do |j|
         j_body = @bodies[j]
 
         dx = i_body.x - j_body.x
         dy = i_body.y - j_body.y
         dz = i_body.z - j_body.z
 
-        distance = Math.sqrt((dx*dx) + (dy*dy) + (dz*dz))
+        distance = Math.sqrt((dx * dx) + (dy * dy) + (dz * dz))
         e -= (i_body.mass * j_body.mass) / distance
-      }
-    }
+      end
+    end
     e
   end
 end
@@ -132,46 +128,46 @@ class Body
   end
 
   def self.jupiter
-    self.new(4.8414314424647209,
-            -1.16032004402742839,
-            -0.103622044471123109,
-             0.00166007664274403694,
-             0.00769901118419740425,
-            -0.0000690460016972063023,
-             0.000954791938424326609)
+    new(4.8414314424647209,
+       -1.16032004402742839,
+       -0.103622044471123109,
+        0.00166007664274403694,
+        0.00769901118419740425,
+       -0.0000690460016972063023,
+        0.000954791938424326609)
   end
 
   def self.saturn
-    self.new(8.34336671824457987,
-             4.12479856412430479,
-            -0.403523417114321381,
-            -0.00276742510726862411,
-             0.00499852801234917238,
-             0.0000230417297573763929,
-             0.000285885980666130812)
+    new(8.34336671824457987,
+        4.12479856412430479,
+       -0.403523417114321381,
+       -0.00276742510726862411,
+        0.00499852801234917238,
+        0.0000230417297573763929,
+        0.000285885980666130812)
   end
 
   def self.uranus
-    self.new(12.894369562139131,
-            -15.1111514016986312,
-             -0.223307578892655734,
-              0.00296460137564761618,
-              0.0023784717395948095,
-             -0.0000296589568540237556,
-              0.0000436624404335156298)
+    new(12.894369562139131,
+       -15.1111514016986312,
+        -0.223307578892655734,
+         0.00296460137564761618,
+         0.0023784717395948095,
+        -0.0000296589568540237556,
+         0.0000436624404335156298)
   end
 
   def self.neptune
-    self.new(15.3796971148509165,
-            -25.9193146099879641,
-              0.179258772950371181,
-              0.00268067772490389322,
-              0.00162824170038242295,
-             -0.000095159225451971587,
-              0.0000515138902046611451)
+    new(15.3796971148509165,
+       -25.9193146099879641,
+         0.179258772950371181,
+         0.00268067772490389322,
+         0.00162824170038242295,
+        -0.000095159225451971587,
+         0.0000515138902046611451)
   end
 
   def self.sun
-    self.new(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0)
+    new(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0)
   end
 end

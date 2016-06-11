@@ -34,9 +34,8 @@ class Pair
 end
 
 class Vector
-
   def self.with(elem)
-    new_vector = self.new(1)
+    new_vector = new(1)
     new_vector.append(elem)
     new_vector
   end
@@ -48,37 +47,34 @@ class Vector
   end
 
   def at(idx)
-    if idx >= @storage.length
-      return nil
-    end
+    return nil if idx >= @storage.length
+
     @storage[idx]
   end
 
   def at_put(idx, val)
     if idx >= @storage.length
       new_length = @storage.length
-      while new_length <= idx
-        new_length *= 2
-      end
+      new_length *= 2 while new_length <= idx
+
       new_storage = Array.new(new_length)
-      @storage.each_index { | i |
+      @storage.each_index do |i|
         new_storage[i] = @storage[i]
-      }
+      end
       @storage = new_storage
     end
     @storage[idx] = val
-    if @last_idx < idx + 1
-      @last_idx = idx + 1
-    end
+
+    @last_idx = idx + 1 if @last_idx < idx + 1
   end
 
   def append(elem)
     if @last_idx >= @storage.size
       # Need to expand capacity first
       new_storage = Array.new(2 * @storage.size)
-      @storage.each_index { | i |
+      @storage.each_index do |i|
         new_storage[i] = @storage[i]
-      }
+      end
       @storage = new_storage
     end
 
@@ -92,34 +88,28 @@ class Vector
   end
 
   def each # &block
-    (@first_idx..(@last_idx - 1)).each { | i |
+    (@first_idx..(@last_idx - 1)).each do |i|
       yield @storage[i]
-    }
+    end
   end
 
   def has_some
-    (@first_idx..(@last_idx - 1)).each { | i |
-      if yield @storage[i]
-        return true
-      end
-    }
+    (@first_idx..(@last_idx - 1)).each do |i|
+      return true if yield @storage[i]
+    end
     false
   end
 
   def get_one
-    (@first_idx..(@last_idx - 1)).each { | i |
+    (@first_idx..(@last_idx - 1)).each do |i|
       e = @storage[i]
-      if yield e
-        return e
-      end
-    }
+      return e if yield e
+    end
     nil
   end
 
   def remove_first
-    if empty?
-      return nil
-    end
+    return nil if empty?
 
     @first_idx += 1
     @storage[@first_idx - 1]
@@ -130,14 +120,14 @@ class Vector
     new_last = 0
     found = false
 
-    each { | it |
+    each do |it|
       if it.equal? obj
         found = true
       else
         new_array[new_last] = it
         new_last += 1
       end
-    }
+    end
 
     @storage  = new_array
     @last_idx = new_last
@@ -161,23 +151,18 @@ class Vector
     # Make the argument, block, be the criterion for ordering elements of
     # the receiver.
     # Sort blocks with side effects may not work right.
-    if size > 0
-      sort_range(@first_idx, @last_idx - 1, &block)
-    end
+    sort_range(@first_idx, @last_idx - 1, &block) if size > 0
   end
 
-  def sort_range(i, j)  # &block
-    # Sort elements i through j of self to be non-descending according to sortBlock.
-    unless block_given?
-      default_sort(i, j)
-    end
+  def sort_range(i, j) # &block
+    # Sort elements i through j of self to be non-descending
+    # according to sortBlock.
+    default_sort(i, j) unless block_given?
 
     # The prefix d means the data at that index.
 
     n = j + 1 - i
-    if n <= 1
-      return self  # Nothing to sort
-    end
+    return self if n <= 1 # Nothing to sort
 
     # Sort di, dj
     di = @storage[i]
@@ -192,7 +177,7 @@ class Vector
     end
 
     # NOTE: For DeltaBlue, this is never reached.
-    if n > 2  # More than two elements.
+    if n > 2 # More than two elements.
       ij  = ((i + j) / 2).floor  # ij is the midpoint of i and j.
       dij = @storage[ij]         # Sort di,dij,dj.  Make dij be their median.
 
@@ -206,27 +191,25 @@ class Vector
         dij = di
       end
 
-      if n > 3  # More than three elements.
+      if n > 3 # More than three elements.
         # Find k>i and l<j such that dk,dij,dl are in reverse order.
         # Swap k and l.  Repeat this procedure until k and l pass each other.
         k = i
         l = j - 1
 
         while (
-          while k <= l && (yield dij, @storage[l])  # i.e. while dl succeeds dij
-            l -= 1
-          end
+          # i.e. while dl succeeds dij
+          l -= 1 while k <= l && (yield dij, @storage[l])
 
           k += 1
-          while k <= l && (yield @storage[k], dij)  # i.e. while dij succeeds dk
-            k += 1
-          end
+          # i.e. while dij succeeds dk
+          k += 1 while k <= l && (yield @storage[k], dij)
           k <= l)
           @storage.swap(k, l)
         end
 
-        # Now l < k (either 1 or 2 less), and di through dl are all less than or equal to dk
-        # through dj.  Sort those two segments.
+        # Now l < k (either 1 or 2 less), and di through dl are all
+        # less than or equal to dk through dj.  Sort those two segments.
 
         sort_range(i, l, &block)
         sort_range(k, j, &block)
@@ -257,25 +240,23 @@ class Set
   end
 
   def add(obj)
-    unless contains(obj)
-      @items.append(obj)
-    end
+    @items.append(obj) unless contains(obj)
   end
 
   def collect # &block
     coll = Vector.new
-    each { | e | coll.append(yield e) }
+    each { |e| coll.append(yield e) }
     coll
   end
 
   def contains(obj)
-    has_some { | it | it == obj }
+    has_some { |it| it == obj }
   end
 end
 
 class IdentitySet < Set
   def contains(obj)
-    has_some { | it | it.equal? obj }
+    has_some { |it| it.equal? obj }
   end
 end
 
@@ -304,9 +285,7 @@ class Dictionary
   end
 
   def hash(key)
-    unless key
-      return 0
-    end
+    return 0 unless key
 
     hash = key.custom_hash
     hash ^ hash >> 16
@@ -329,9 +308,7 @@ class Dictionary
     e = get_bucket(hash)
 
     while e
-      if e.match(hash, key)
-        return e.value
-      end
+      return e.value if e.match(hash, key)
       e = e.next
     end
     nil
@@ -342,9 +319,7 @@ class Dictionary
     e = get_bucket(hash)
 
     while e
-      if e.match(hash, key)
-        return true
-      end
+      return true if e.match(hash, key)
       e = e.next
     end
     false
@@ -362,9 +337,7 @@ class Dictionary
     end
 
     @size += 1
-    if @size > @buckets.size
-      resize
-    end
+    resize if @size > @buckets.size
   end
 
   def new_entry(key, value, hash)
@@ -374,7 +347,7 @@ class Dictionary
   def insert_bucket_entry(key, value, hash, head)
     current = head
 
-    while true
+    loop do
       if current.match(hash, key)
         current.value = value
         return
@@ -394,7 +367,7 @@ class Dictionary
   end
 
   def transfer_entries(old_storage)
-    old_storage.each_with_index { |current, i|
+    old_storage.each_with_index do |current, i|
       if current
         old_storage[i] = nil
 
@@ -404,7 +377,7 @@ class Dictionary
           split_bucket(old_storage, i, current)
         end
       end
-    }
+    end
   end
 
   def split_bucket(old_storage, i, head)
@@ -448,25 +421,25 @@ class Dictionary
 
   def keys
     keys = Vector.new(@size)
-    @buckets.each_index { |i|
+    @buckets.each_index do |i|
       current = @buckets[i]
       while current
         keys.append(current.key)
         current = current.next
       end
-    }
+    end
     keys
   end
 
   def values
     vals = Vector.new(@size)
-    @buckets.each_index { |i|
+    @buckets.each_index do |i|
       current = @buckets[i]
       while current
         vals.append(current.value)
         current = current.next
       end
-    }
+    end
     vals
   end
 end
@@ -485,10 +458,10 @@ end
 
 class Random
   def initialize
-    @seed = 74755
+    @seed = 74_755
   end
 
   def next
-    @seed = ((@seed * 1309) + 13849) & 65535
+    @seed = ((@seed * 1_309) + 13_849) & 65_535
   end
 end

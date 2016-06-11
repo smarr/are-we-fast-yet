@@ -23,7 +23,6 @@
 require_relative 'som'
 
 class Storage < Benchmark
-
   def initialize
     @count = 0
   end

@@ -29,13 +29,11 @@ class Bounce < Benchmark
     bounces    = 0
     balls      = Array.new(ball_count) { Ball.new(random) }
 
-    50.times {
-      balls.each { | ball |
-        if ball.bounce
-          bounces += 1
-        end
-      }
-    }
+    50.times do
+      balls.each do |ball|
+        bounces += 1 if ball.bounce
+      end
+    end
     bounces
   end
 
@@ -61,19 +59,27 @@ class Ball
     @y += @y_vel
 
     if @x > x_limit
-      @x = x_limit; @x_vel = 0 - @x_vel.abs; bounced = true
+      @x = x_limit
+      @x_vel = 0 - @x_vel.abs
+      bounced = true
     end
 
     if @x < 0
-      @x = 0;       @x_vel = @x_vel.abs;     bounced = true
+      @x = 0
+      @x_vel = @x_vel.abs
+      bounced = true
     end
 
     if @y > y_limit
-      @y = y_limit; @y_vel = 0 - @y_vel.abs; bounced = true
+      @y = y_limit
+      @y_vel = 0 - @y_vel.abs
+      bounced = true
     end
 
     if @y < 0
-      @y = 0;       @y_vel = @y_vel.abs;     bounced = true
+      @y = 0
+      @y_vel = @y_vel.abs
+      bounced = true
     end
     bounced
   end

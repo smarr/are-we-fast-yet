@@ -19,21 +19,19 @@
 # THE SOFTWARE.
 class Benchmark
   def inner_benchmark_loop(inner_iterations)
-    inner_iterations.times {
-      unless verify_result(benchmark)
-        return false
-      end
-    }
+    inner_iterations.times do
+      return false unless verify_result(benchmark)
+    end
     true
   end
 
   def benchmark
-    raise "subclass_responsibility"
+    raise 'subclass_responsibility'
   end
 
   # noinspection RubyUnusedLocalVariable
-  def verify_result(result)
-    raise "subclass_responsibility"
+  def verify_result(_result)
+    raise 'subclass_responsibility'
   end
 end
 
@@ -55,7 +53,8 @@ class Run
     if File.exist?("#{File.dirname(__FILE__)}/#{benchmark_name.downcase}.rb")
       benchmark_file = benchmark_name.downcase
     else
-      # fallback, for benchmark files that use Ruby naming conventions instead of classic names
+      # fallback, for benchmark files that use
+      # Ruby naming conventions instead of classic names
       benchmark_file = benchmark_name.gsub(/([a-z])([A-Z])/) { "#{$1}-#{$2}" }.downcase
     end
     unless require_relative(benchmark_file)
@@ -105,9 +104,7 @@ def process_arguments(args)
 
   if args.size > 1
     run.num_iterations = Integer(args[1])
-    if args.size > 2
-      run.inner_iterations = Integer(args[2])
-    end
+    run.inner_iterations = Integer(args[2]) if args.size > 2
   end
   run
 end

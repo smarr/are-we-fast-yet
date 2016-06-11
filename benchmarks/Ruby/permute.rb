@@ -39,11 +39,11 @@ class Permute < Benchmark
       n1 = n - 1
       permute(n1)
 
-      n1.downto(0) { | i |
+      n1.downto(0) do |i|
         swap(n1, i)
         permute(n1)
         swap(n1, i)
-      }
+      end
     end
   end
 

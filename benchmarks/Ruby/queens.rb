@@ -30,9 +30,7 @@ class Queens < Benchmark
 
   def benchmark
     result = true
-    10.times {
-      result = result && queens
-    }
+    10.times { result &&= queens }
   end
 
   def verify_result(result)
@@ -45,31 +43,26 @@ class Queens < Benchmark
     @free_mins  = Array.new(16, true)
     @queen_rows = Array.new( 8, -1)
 
-    return place_queen(0)
+    place_queen(0)
   end
 
   def place_queen(c)
-    8.times { | r |
+    8.times do |r|
       if get_row_column(r, c)
         @queen_rows[r] = c
         set_row_column(r, c, false)
 
-        if c == 7
-          return true
-        end
-
-        if place_queen(c + 1)
-          return true
-        end
+        return true if c == 7
+        return true if place_queen(c + 1)
 
         set_row_column(r, c, true)
       end
-    }
+    end
     false
   end
 
   def get_row_column(r, c)
-    return @free_rows[r] && @free_maxs[c + r] && @free_mins[c - r + 7]
+    @free_rows[r] && @free_maxs[c + r] && @free_mins[c - r + 7]
   end
 
   def set_row_column(r, c, v)

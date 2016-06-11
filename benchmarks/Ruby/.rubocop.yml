@@ -1,0 +1,125 @@
+# This is not real code, we don't maintain strict documentation requirements
+Style/Documentation:
+  Enabled: false
+
+# Prefer identical code over such rules readabilty rules
+Style/GuardClause:
+  Enabled: false
+
+Style/UnlessElse:
+  Enabled: false
+
+Style/Next:
+  Enabled: false
+
+Style/PredicateName:
+  Enabled: false
+
+Style/IfInsideElse:
+  Enabled: false
+
+Lint/ShadowingOuterLocalVariable:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+Metrics/ClassLength:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/LineLength:
+  Exclude:
+    - 'cd.rb'
+    - 'json.rb'
+    - 'havlak.rb'
+    - 'harness.rb'
+    - 'harness-rbx.rb'
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+  
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/ParameterLists:
+  Enabled: false
+
+Metrics/BlockNesting:
+  Enabled: false
+
+Style/ZeroLengthPredicate:
+  Enabled: false
+
+Style/AccessorMethodName:
+  Enabled: false
+
+Style/SpaceInsideBrackets:
+  Enabled: false
+
+Style/SpaceInsideParens:
+  Enabled: false
+
+Style/AlignParameters:
+  Exclude:
+    - 'nbody.rb'
+
+Style/MultilineOperationIndentation:
+  Exclude:
+    - 'nbody.rb'
+
+Style/ConditionalAssignment:
+  Enabled: false
+
+Style/NilComparison:
+  Enabled: false
+
+Style/NonNilCheck:
+  Enabled: false
+
+Style/StringLiterals:
+  Exclude:
+    - 'json.rb'
+
+Style/MutableConstant:
+  Exclude:
+    - 'json.rb'
+
+Lint/Loop:
+  Exclude:
+    - 'json.rb'
+
+Style/ExtraSpacing:
+  Exclude:
+    - 'havlak.rb'
+    - 'deltablue.rb'
+    - 'cd.rb'
+
+Style/SpaceAroundOperators:
+  Exclude:
+    - 'havlak.rb'
+    - 'cd.rb'
+
+Style/PerlBackrefs:
+  Exclude:
+    - 'harness.rb'
+    - 'harness-rbx.rb'
+
+Style/FileName:
+  Exclude:
+    - 'harness-rbx.rb'
+
+Style/SymbolProc:
+  Enabled: false
+
+Style/IdenticalConditionalBranches:
+  Enabled: false
+
+Style/NestedTernaryOperator:
+  Enabled: false
+
+Lint/UselessComparison:
+  Exclude:
+    - 'cd.rb'

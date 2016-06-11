@@ -10,26 +10,25 @@
 #
 # Port of deltablue.py, as documented below, to Ruby.
 # Stefan Marr, 2014-04-28
-# 
+#
 # Was: deltablue.py
 # =================
-# 
+#
 # Ported for the PyPy project.
 # Contributed by Daniel Lindsley
-# 
+#
 # This implementation of the DeltaBlue benchmark was directly ported
 # from the `V8's source code`_, which was in turn derived
 # from the Smalltalk implementation by John Maloney and Mario
 # Wolczko. The original Javascript implementation was licensed under the GPL.
-# 
+#
 # It's been updated in places to be more idiomatic to Python (for loops over
-# collections, a couple magic methods, ``OrderedCollection`` being a list & things
+# collections, a couple magic methods, OrderedCollection being a list & things
 # altering those collections changed to the builtin methods) but largely retains
 # the layout & logic from the original. (Ugh.)
-# 
+#
 # .. _`V8's source code`: (http://code.google.com/p/v8/source/browse/branches/bleeding_edge/benchmarks/deltablue.js)
 require_relative 'som'
-
 
 class DeltaBlue < Benchmark
   def inner_benchmark_loop(inner_iterations)
@@ -45,7 +44,7 @@ class Plan < Vector
   end
 
   def execute
-    each { | c | c.execute }
+    each { |c| c.execute }
   end
 end
 
@@ -58,9 +57,7 @@ class Planner
     mark = new_mark
     overridden = constraint.satisfy(mark, self)
 
-    while overridden
-      overridden = overridden.satisfy(mark, self)
-    end
+    overridden = overridden.satisfy(mark, self) while overridden
   end
 
   def incremental_remove(constraint)
@@ -74,11 +71,9 @@ class Planner
   def extract_plan_from_constraints(constraints)
     sources = Vector.new
 
-    constraints.each { | c |
-      if c.is_input && c.is_satisfied
-        sources.append(c)
-      end
-    }
+    constraints.each do |c|
+      sources.append(c) if c.is_input && c.is_satisfied
+    end
 
     make_plan(sources)
   end
@@ -115,11 +110,9 @@ class Planner
   def add_constraints_consuming_to(v, coll)
     determining_c = v.determined_by
 
-    v.constraints.each { | c |
-      if (!c.equal? determining_c) && c.is_satisfied
-        coll.append(c)
-      end
-    }
+    v.constraints.each do |c|
+      coll.append(c) if (!c.equal? determining_c) && c.is_satisfied
+    end
   end
 
   def add_propagate(c, mark)
@@ -140,20 +133,18 @@ class Planner
   def change_var(var, val)
     edit_constraint = EditConstraint.new(var, SYM_PREFERRED, self)
     plan = extract_plan_from_constraints(Vector.with(edit_constraint))
-    10.times {
+    10.times do
       var.value = val
       plan.execute
-    }
+    end
     edit_constraint.destroy_constraint(self)
   end
 
   def constraints_consuming(v) # &block
     determining_c = v.determined_by
-    v.constraints.each { | c |
-      if c != determining_c && c.is_satisfied
-        yield c
-      end
-    }
+    v.constraints.each do |c|
+      yield c if c != determining_c && c.is_satisfied
+    end
   end
 
   def new_mark
@@ -172,16 +163,14 @@ class Planner
     until todo.empty?
       v = todo.remove_first
 
-      v.constraints.each { | c |
-        unless c.is_satisfied
-          unsatisfied.append(c)
-        end
-      }
+      v.constraints.each do |c|
+        unsatisfied.append(c) unless c.is_satisfied
+      end
 
-      constraints_consuming(v) { | c |
+      constraints_consuming(v) do |c|
         c.recalculate
         todo.append(c.output)
-      }
+      end
     end
 
     unsatisfied.sort { |c1, c2| c1.strength.stronger(c2.strength) }
@@ -189,7 +178,6 @@ class Planner
   end
 
   def self.chain_test(n)
-
     # This is the standard DeltaBlue benchmark. A long chain of equality
     # constraints is constructed with a stay constraint on one end. An
     # edit constraint is then added to the opposite end and the time is
@@ -206,25 +194,23 @@ class Planner
     vars = Array.new(n + 1) { Variable.new }
 
     # thread a chain of equality constraints through the variables
-    (0..(n - 1)).each { | i |
+    (0..(n - 1)).each do |i|
       v1 = vars[i]
       v2 = vars[i + 1]
 
       EqualityConstraint.new(v1, v2, SYM_REQUIRED, planner)
-    }
+    end
 
     StayConstraint.new(vars.last, SYM_STRONG_DEFAULT, planner)
     edit = EditConstraint.new(vars.first, SYM_PREFERRED, planner)
     plan = planner.extract_plan_from_constraints([edit])
 
-    (1..100).each { | v |
+    (1..100).each do |v|
       vars.first.value = v
       plan.execute
 
-      if vars.last.value != v
-        raise 'Chain test failed!!'
-      end
-    }
+      raise 'Chain test failed!!' if vars.last.value != v
+    end
 
     edit.destroy_constraint(planner)
   end
@@ -243,33 +229,29 @@ class Planner
     src = nil
     dst = nil
 
-    (1..n).each { | i |
+    (1..n).each do |i|
       src = Variable.value(i)
       dst = Variable.value(i)
       dests.append(dst)
       StayConstraint.new(src, SYM_DEFAULT, planner)
       ScaleConstraint.new(src, scale, offset, dst, SYM_REQUIRED, planner)
-    }
+    end
 
     planner.change_var(src, 17)
-    if dst.value != 1170; raise 'Projection 1 failed' end
+    raise 'Projection 1 failed' if dst.value != 1170
 
     planner.change_var(dst, 1050)
-    if src.value != 5; raise 'Projection 2 failed' end
+    raise 'Projection 2 failed' if src.value != 5
 
     planner.change_var(scale, 5)
-    (0..(n - 2)).each { | i |
-      if dests.at(i).value != ((i + 1) * 5 + 1000)
-        raise 'Projection 3 failed'
-      end
-    }
+    (0..(n - 2)).each do |i|
+      raise 'Projection 3 failed' if dests.at(i).value != ((i + 1) * 5 + 1000)
+    end
 
     planner.change_var(offset, 2000)
-    (0..(n - 2)).each { | i |
-      if dests.at(i).value != ((i + 1) * 5 + 2000)
-        raise 'Projection 4 failed'
-      end
-    }
+    (0..(n - 2)).each do |i|
+      raise 'Projection 4 failed' if dests.at(i).value != ((i + 1) * 5 + 2000)
+    end
   end
 end
 
@@ -328,22 +310,22 @@ class Strength
 
   def self.create_strength_table
     table = IdentityDictionary.new
-    table.at_put(SYM_ABSOLUTE_STRONGEST, -10000)
-    table.at_put(SYM_REQUIRED,             -800)
-    table.at_put(SYM_STRONG_PREFERRED,     -600)
-    table.at_put(SYM_PREFERRED,            -400)
-    table.at_put(SYM_STRONG_DEFAULT,       -200)
-    table.at_put(SYM_DEFAULT,                 0)
-    table.at_put(SYM_WEAK_DEFAULT,          500)
-    table.at_put(SYM_ABSOLUTE_WEAKEST,    10000)
+    table.at_put(SYM_ABSOLUTE_STRONGEST, -10_000)
+    table.at_put(SYM_REQUIRED,              -800)
+    table.at_put(SYM_STRONG_PREFERRED,      -600)
+    table.at_put(SYM_PREFERRED,             -400)
+    table.at_put(SYM_STRONG_DEFAULT,        -200)
+    table.at_put(SYM_DEFAULT,                  0)
+    table.at_put(SYM_WEAK_DEFAULT,           500)
+    table.at_put(SYM_ABSOLUTE_WEAKEST,    10_000)
     table
   end
 
   def self.create_strength_constants
     constants = IdentityDictionary.new
-    STRENGHT_TABLE.keys.each { | strength_sym |
-      constants.at_put(strength_sym, self.new(strength_sym))
-    }
+    STRENGHT_TABLE.keys.each do |strength_sym|
+      constants.at_put(strength_sym, new(strength_sym))
+    end
     constants
   end
 
@@ -354,7 +336,6 @@ class Strength
     STRENGHT_CONSTANTS.at(sym)
   end
 end
-
 
 class AbstractConstraint
   attr_reader :strength
@@ -373,28 +354,24 @@ class AbstractConstraint
   end
 
   def destroy_constraint(planner)
-    if is_satisfied
-      planner.incremental_remove(self)
-    end
+    planner.incremental_remove(self) if is_satisfied
     remove_from_graph
   end
 
   def inputs_known(mark)
-    !inputs_has_one { | v | !(v.mark == mark || v.stay || !v.determined_by) }
+    !inputs_has_one { |v| !(v.mark == mark || v.stay || !v.determined_by) }
   end
 
   def satisfy(mark, planner)
     choose_method(mark)
 
     if is_satisfied
-      inputs_do { | i | i.mark = mark }
+      inputs_do { |i| i.mark = mark }
 
       outx = output
       overridden = outx.determined_by
 
-      if overridden
-        overridden.mark_unsatisfied
-      end
+      overridden.mark_unsatisfied if overridden
 
       outx.determined_by = self
 
@@ -414,7 +391,7 @@ class AbstractConstraint
 end
 
 class BinaryConstraint < AbstractConstraint
-  def initialize(v1, v2, strength, planner)
+  def initialize(v1, v2, strength, _planner)
     super(strength)
     @v1 = v1
     @v2 = v2
@@ -432,13 +409,8 @@ class BinaryConstraint < AbstractConstraint
   end
 
   def remove_from_graph
-    if @v1
-      @v1.remove_constraint(self)
-    end
-
-    if @v2
-      @v2.remove_constraint(self)
-    end
+    @v1.remove_constraint(self) if @v1
+    @v2.remove_constraint(self) if @v2
 
     @direction = nil
   end
@@ -515,9 +487,7 @@ class BinaryConstraint < AbstractConstraint
     outx.walk_strength = @strength.weakest(ihn.walk_strength)
     outx.stay = ihn.stay
 
-    if outx.stay
-      execute
-    end
+    execute if outx.stay
   end
 end
 
@@ -541,14 +511,13 @@ class UnaryConstraint < AbstractConstraint
   end
 
   def remove_from_graph
-    if @output
-      @output.remove_constraint(self)
-    end
+    @output.remove_constraint(self) if @output
     @satisfied = false
   end
 
   def choose_method(mark)
-    @satisfied = @output.mark != mark && @strength.stronger(@output.walk_strength)
+    @satisfied = @output.mark != mark &&
+                 @strength.stronger(@output.walk_strength)
   end
 
   def inputs_do
@@ -567,9 +536,7 @@ class UnaryConstraint < AbstractConstraint
     @output.walk_strength = @strength
     @output.stay          = !is_input
 
-    if @output.stay
-      execute
-    end
+    execute if @output.stay
   end
 end
 
@@ -615,21 +582,11 @@ class ScaleConstraint < BinaryConstraint
   end
 
   def remove_from_graph
-    if @v1
-      @v1.remove_constraint(self)
-    end
+    @v1.remove_constraint(self) if @v1
+    @v2.remove_constraint(self) if @v2
 
-    if @v2
-      @v2.remove_constraint(self)
-    end
-
-    if @scale
-      @scale.remove_constraint(self)
-    end
-
-    if @offset
-      @offset.remove_constraint(self)
-    end
+    @scale.remove_constraint(self)  if @scale
+    @offset.remove_constraint(self) if @offset
 
     @direction = nil
   end
@@ -665,9 +622,7 @@ class ScaleConstraint < BinaryConstraint
     outx.walk_strength = @strength.weakest(ihn.walk_strength)
     outx.stay = (ihn.stay && @scale.stay && @offset.stay)
 
-    if outx.stay
-      execute
-    end
+    execute if outx.stay
   end
 end
 
@@ -701,13 +656,11 @@ class Variable
   def remove_constraint(constraint)
     @constraints.remove(constraint)
 
-    if @determined_by == constraint
-      @determined_by = nil
-    end
+    @determined_by = nil if @determined_by == constraint
   end
 
   def self.value(initial_value)
-    o = self.new
+    o = new
     o.value = initial_value
     o
   end

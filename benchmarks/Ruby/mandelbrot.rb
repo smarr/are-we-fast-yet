@@ -1,6 +1,6 @@
 # Adapted based on SOM benchmark.
 #
-# Copyright © 2004-2013 Brent Fulgham
+# Copyright (C) 2004-2013 Brent Fulgham
 #
 # All rights reserved.
 #
@@ -47,16 +47,11 @@ class Mandelbrot < Benchmark
   end
 
   def verify_result(result, inner_iterations)
-    if inner_iterations == 500
-      return result == 191
-    end
+    return result == 191 if inner_iterations == 500
+    return result == 50  if inner_iterations == 750
 
-    if inner_iterations == 750
-      return result == 50
-    end
-
-    puts ('No verification result for ' + inner_iterations.to_s + ' found')
-    puts ('Result is: ' + result.to_s)
+    puts('No verification result for ' + inner_iterations.to_s + ' found')
+    puts('Result is: ' + result.to_s)
   end
 
   def mandelbrot(size)
@@ -77,7 +72,7 @@ class Mandelbrot < Benchmark
         z = 0
         not_done = true
         escape = 0
-        while not_done and z < 50
+        while not_done && z < 50
           zr = zrzr - zizi + cr
           zi = 2.0 * zr * zi + ci
 
@@ -95,7 +90,8 @@ class Mandelbrot < Benchmark
         bit_num += 1
 
         # Code is very similar for these cases, but using separate blocks
-        # ensures we skip the shifting when it's unnecessary, which is most cases.
+        # ensures we skip the shifting when it's unnecessary,
+        # which is most cases.
         if bit_num == 8
           sum ^= byte_acc
           byte_acc = 0

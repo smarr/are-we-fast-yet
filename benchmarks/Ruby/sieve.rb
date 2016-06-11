@@ -33,7 +33,7 @@ class Sieve < Benchmark
   def sieve(flags, size)
     prime_count = 0
 
-    (2..size).each { | i |
+    (2..size).each do |i|
       if flags[i - 1]
         prime_count += 1
         k = i + i
@@ -42,7 +42,7 @@ class Sieve < Benchmark
           k += i
         end
       end
-    }
+    end
     prime_count
   end
 end

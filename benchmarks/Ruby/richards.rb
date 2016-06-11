@@ -43,9 +43,7 @@ end
 class RBObject
   def append(packet, queue_head)
     packet.link = NO_WORK
-    if NO_WORK == queue_head
-      return packet
-    end
+    return packet if NO_WORK == queue_head
 
     mouse = queue_head
 
@@ -58,7 +56,6 @@ class RBObject
 end
 
 class Scheduler < RBObject
-
   def initialize
     # init tracing
     @layout = 0
@@ -76,7 +73,7 @@ class Scheduler < RBObject
 
   def create_device(identity, priority, work, state)
     data = DeviceTaskDataRecord.new
-    create_task(identity, priority, work, state, data) { | work, word |
+    create_task(identity, priority, work, state, data) do |work, word|
       data = word
       function_work = work
       if NO_WORK == function_work
@@ -89,17 +86,15 @@ class Scheduler < RBObject
         end
       else
         data.pending = function_work
-        if TRACING
-          trace(function_work.datum)
-        end
+        trace(function_work.datum) if TRACING
         hold_self
       end
-    }
+    end
   end
 
   def create_handler(identity, priority, work, state)
     data = HandlerTaskDataRecord.new
-    create_task(identity, priority, work, state, data) { | work, word |
+    create_task(identity, priority, work, state, data) do |work, word|
       data = word
       unless NO_WORK == work
         if WORK_PACKET_KIND == work.kind
@@ -129,12 +124,12 @@ class Scheduler < RBObject
           end
         end
       end
-    }
+    end
   end
 
   def create_idler(identity, priority, work, state)
     data = IdleTaskDataRecord.new
-    create_task(identity, priority, work, state, data) { | work, word |
+    create_task(identity, priority, work, state, data) do |_work, word|
       data = word
       data.count -= 1
       if 0 == data.count
@@ -144,11 +139,11 @@ class Scheduler < RBObject
           data.control /= 2
           release(DEVICE_A)
         else
-          data.control = (data.control / 2) ^ 53256
+          data.control = (data.control / 2) ^ 53_256
           release(DEVICE_B)
         end
       end
-    }
+    end
   end
 
   def create_packet(link, identity, kind)
@@ -156,14 +151,15 @@ class Scheduler < RBObject
   end
 
   def create_task(identity, priority, work, state, data, &block)
-    t = TaskControlBlock.new(@task_list, identity, priority, work, state, data, &block)
+    t = TaskControlBlock.new(@task_list, identity, priority,
+                             work, state, data, &block)
     @task_list = t
     @task_table[identity] = t
   end
 
   def create_worker(identity, priority, work, state)
     data = WorkerTaskDataRecord.new
-    create_task(identity, priority, work, state, data) { | work, word |
+    create_task(identity, priority, work, state, data) do |work, word|
       data = word
       if NO_WORK == work
         wait
@@ -171,16 +167,14 @@ class Scheduler < RBObject
         data.destination = HANDLER_A == data.destination ? HANDLER_B : HANDLER_A
         work.identity = data.destination
         work.datum = 0
-        DATA_SIZE.times { | i |
+        DATA_SIZE.times do |i|
           data.count += 1
-          if data.count > 26
-            data.count = 1
-          end
+          data.count = 1 if data.count > 26
           work.data[i] = 65 + data.count - 1
-        }
+        end
         queue_packet(work)
       end
-    }
+    end
   end
 
   def start
@@ -204,14 +198,12 @@ class Scheduler < RBObject
 
     schedule
 
-    @queue_count == 23246 and @hold_count == 9297
+    @queue_count == 23_246 && @hold_count == 9297
   end
 
   def find_task(identity)
     t = @task_table[identity]
-    if NO_TASK == t
-      raise 'find_task failed'
-    end
+    raise 'find_task failed' if NO_TASK == t
     t
   end
 
@@ -223,9 +215,7 @@ class Scheduler < RBObject
 
   def queue_packet(packet)
     task = find_task(packet.identity)
-    if NO_TASK == task
-      return NO_TASK
-    end
+    return NO_TASK if NO_TASK == task
 
     @queue_count += 1
 
@@ -236,9 +226,7 @@ class Scheduler < RBObject
 
   def release(identity)
     task = find_task(identity)
-    if NO_TASK == task
-      return NO_TASK
-    end
+    return NO_TASK if NO_TASK == task
 
     task.task_holding = false
 
@@ -270,9 +258,7 @@ class Scheduler < RBObject
         @current_task = @current_task.link
       else
         @current_task_identity = @current_task.identity
-        if TRACING
-          trace(@current_task_identity)
-        end
+        trace(@current_task_identity) if TRACING
         @current_task = @current_task.run_task
       end
     end
@@ -281,9 +267,9 @@ end
 
 class DeviceTaskDataRecord < RBObject
   attr_accessor :pending
-   def initialize
+  def initialize
     @pending = NO_WORK
-   end
+  end
 end
 
 class HandlerTaskDataRecord < RBObject
@@ -291,7 +277,7 @@ class HandlerTaskDataRecord < RBObject
   def initialize
     @work_in   = NO_WORK
     @device_in = NO_WORK
-   end
+  end
 
   def device_in_add(packet)
     @device_in = append(packet, @device_in)
@@ -307,7 +293,7 @@ class IdleTaskDataRecord < RBObject
 
   def initialize
     @control = 1
-    @count   = 10000
+    @count   = 10_000
   end
 end
 
@@ -368,35 +354,35 @@ class TaskState < RBObject
   end
 
   def is_running
-    !@packet_pending and !@task_waiting and !@task_holding
+    !@packet_pending && !@task_waiting && !@task_holding
   end
 
   def is_task_holding_or_waiting
-    @task_holding or (!@packet_pending and @task_waiting)
+    @task_holding || (!@packet_pending && @task_waiting)
   end
 
   def is_waiting
-    !@packet_pending and @task_waiting and !@task_holding
+    !@packet_pending && @task_waiting && !@task_holding
   end
 
   def is_waiting_with_packet
-    @packet_pending and @task_waiting and !@task_holding
+    @packet_pending && @task_waiting && !@task_holding
   end
 
   def self.packet_pending
-    self.new.packet_pending
+    new.packet_pending
   end
 
   def self.running
-    self.new.running
+    new.running
   end
 
   def self.waiting
-    self.new.waiting
+    new.waiting
   end
 
   def self.waiting_with_packet
-    self.new.waiting_with_packet
+    new.waiting_with_packet
   end
 end
 
@@ -422,9 +408,7 @@ class TaskControlBlock < TaskState
     if NO_WORK == @input
       @input = packet
       self.packet_pending = true
-      if @priority > old_task.priority
-        return self
-      end
+      return self if @priority > old_task.priority
     else
       @input = append(packet, @input)
     end
