@@ -1,6 +1,8 @@
 language: crystal
 jdk:
   - oraclejdk8
+rvm:
+  - 2.2
 
 addons:
   apt:
@@ -27,6 +29,7 @@ env:
 
 install:
   - if [ "$TASK" = "bench" ]; then pip install --user ReBench; fi
+  - if [ "$TASK" = "style" ] && [ "$LANG" = "ruby" ]; then gem install rubocop; fi
 
 script:
   - if [ "$TASK" = "bench" ]; then implementations/build-$LANG.sh && rebench -d test.conf test-java; fi
