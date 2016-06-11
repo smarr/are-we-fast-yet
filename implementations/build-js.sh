@@ -8,15 +8,7 @@ source $SCRIPT_PATH/config.inc
 if [ "$1" = "style" ]
 then
   INFO Check style of JavaScript benchmarks
-  set -v
-  set +e
-  pwd
-  echo "SCRIPT_PATH: $SCRIPT_PATH"
-  ls -lah
   pushd $SCRIPT_PATH/../benchmarks/JavaScript
-  pwd
-  ls -lah $SCRIPT_PATH/../node_modules/
-  ls -lah $SCRIPT_PATH/../node_modules/jshint
   if [ -e $SCRIPT_PATH/../node_modules/jshint/bin/jshint ]
   then
     $SCRIPT_PATH/../node_modules/jshint/bin/jshint *.js
