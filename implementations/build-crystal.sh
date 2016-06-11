@@ -9,5 +9,5 @@ if [ "$1" = "style" ]
 then
   exit 0
 else
-  $SCRIPT_PATH/build.sh
+  ./build.sh
 fi
