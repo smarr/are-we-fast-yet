@@ -50,7 +50,7 @@ Towers.prototype.verifyResult = function (result) {
 
 Towers.prototype.pushDisk = function (disk, pile) {
   var top = this.piles[pile];
-  if (top !== null  &&  disk.size >= top.size) {
+  if (top && disk.size >= top.size) {
     throw "Cannot put a big disk on a smaller one";
   }
 

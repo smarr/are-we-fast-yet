@@ -86,7 +86,7 @@ function ControlFlowGraph() {
 
 ControlFlowGraph.prototype.createNode = function (name) {
   var node;
-  if (this.basicBlockMap.at(name) !== null) {
+  if (this.basicBlockMap.at(name)) {
     node = this.basicBlockMap.at(name);
   } else {
     node = new BasicBlock(name);
@@ -138,7 +138,7 @@ LoopStructureGraph.prototype.calculateNestingLevel = function () {
   var that = this;
   this.loops.forEach(function (liter) {
     if (!liter.isRoot()) {
-      if (liter.getParent() === null) {
+      if (!liter.getParent()) {
         liter.setParent(that.root);
       }
     }
@@ -174,7 +174,7 @@ function SimpleLoop(bb, isReducible) {
   this.basicBlocks  = new som.IdentitySet();
   this.children     = new som.IdentitySet();
 
-  if (bb !== null) {
+  if (bb) {
     this.basicBlocks.add(bb);
   }
   this.header = bb;
@@ -463,7 +463,7 @@ HavlakLoopFinder.prototype.identifyEdges = function (size) {
     this.type[w] = "BB_NONHEADER";
 
     var nodeW = this.nodes[w].getBb();
-    if (nodeW === null) {
+    if (!nodeW) {
       this.type[w] = "BB_DEAD";
     } else {
       this.processEdges(nodeW, w);
@@ -493,7 +493,7 @@ HavlakLoopFinder.prototype.processEdges = function (nodeW, w) {
 // been chosen to be identical to the nomenclature in Havlak's
 // paper (which, in turn, is similar to the one used by Tarjan).
 HavlakLoopFinder.prototype.findLoops = function () {
-  if (this.cfg.getStartBasicBlock() === null) {
+  if (!this.cfg.getStartBasicBlock()) {
     return;
   }
 
@@ -539,7 +539,7 @@ HavlakLoopFinder.prototype.findLoops = function () {
     var nodePool = new som.Vector();
 
     var nodeW = this.nodes[w].getBb();
-    if (nodeW !== null) {
+    if (nodeW) {
       this.stepD(w, nodePool);
 
       // Copy nodePool to workList.
@@ -625,7 +625,7 @@ HavlakLoopFinder.prototype.setLoopAttributes = function (w, nodePool, loop) {
     node.union(that.nodes[w]);
 
     // Nested loops are not added, but linked together.
-    if (node.getLoop() !== null) {
+    if (node.getLoop()) {
       node.getLoop().setParent(loop);
     } else {
       loop.addNode(node.getBb());
