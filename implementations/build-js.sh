@@ -6,7 +6,9 @@ source $SCRIPT_PATH/config.inc
 INFO Build JavaScript benchmarks
 if [ "$1" = "style" ]
 then
+  pwd
   pushd $SCRIPT_PATH/../benchmarks/JavaScript
+  pwd
   $SCRIPT_PATH/../node_modules/jshint/bin/jshint *.js
 else
   exit 0

@@ -32,7 +32,7 @@ env:
 install:
   - if [ "$TASK" = "bench" ]; then pip install --user ReBench; fi
   - if [ "$TASK" = "style" ] && [ "$LANG" = "ruby" ]; then gem install rubocop; fi
-  - if [ "$TASK" = "style" ] && [ "$LANG" = "js" ]; then npm install jshint; fi
+  - if [ "$TASK" = "style" ] && [ "$LANG" = "js" ]; then pwd; npm install jshint; fi
 
 script:
   - if [ "$TASK" = "bench" ]; then implementations/build-$LANG.sh && rebench -d test.conf test-$LANG; fi
