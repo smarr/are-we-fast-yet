@@ -1,6 +1,10 @@
 #!/bin/bash
 
-SCRIPT_PATH=`dirname $0`
+# make SCRIPT_PATH absolute
+pushd `dirname $0` > /dev/null
+SCRIPT_PATH=`pwd`
+popd > /dev/null
+
 
 if [ -x /usr/libexec/java_home ]   # usually on OS X, this tool is available
 then

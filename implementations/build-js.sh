@@ -1,9 +1,6 @@
 #!/bin/bash
 set -e # make script fail on first error
-
-pushd `dirname $0` > /dev/null
-SCRIPT_PATH=`pwd`
-popd > /dev/null
+SCRIPT_PATH=`dirname $0`
 
 source $SCRIPT_PATH/script.inc
 source $SCRIPT_PATH/config.inc
