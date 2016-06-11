@@ -1,12 +1,13 @@
 #!/bin/bash
-source ./script.inc
-source ./config.inc
-export JAVA_HOME=$JAVA8_HOME
+SCRIPT_PATH=`dirname $0`
+source $SCRIPT_PATH/script.inc
+source $SCRIPT_PATH/config.inc
+
 INFO Build Crystal Benchmarks
-pushd ../benchmarks/Crystal
+pushd $SCRIPT_PATH/../benchmarks/Crystal
 if [ "$1" = "style" ]
 then
   exit 0
 else
-  ./build.sh
+  $SCRIPT_PATH/build.sh
 fi
