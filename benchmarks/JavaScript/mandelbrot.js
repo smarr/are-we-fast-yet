@@ -48,12 +48,10 @@ function Mandelbrot() {
   benchmark.Benchmark.call(this);
 
   function verifyResult(result, innerIterations) {
-    if (innerIterations === 500) {
-      return result === 191;
-    }
-    if (innerIterations === 750) {
-      return result === 50;
-    }
+    if (innerIterations === 500) { return result === 191; }
+    if (innerIterations === 750) { return result === 50;  }
+    if (innerIterations ===   1) { return result === 128; }
+
     process.stdout.write("No verification result for " + innerIterations + " found\n");
     process.stdout.write("Result is: " + result + "\n");
     return false;

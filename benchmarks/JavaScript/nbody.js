@@ -16,9 +16,8 @@ function NBody() {
   benchmark.Benchmark.call(this);
 
   function verifyResult(result, innerIterations) {
-    if (innerIterations === 250000) {
-      return result === -0.1690859889909308;
-    }
+    if (innerIterations === 250000) { return result === -0.1690859889909308;  }
+    if (innerIterations ===      1) { return result === -0.16907495402506745; }
 
     process.stdout.write("No verification result for " + innerIterations + " found\n");
     process.stdout.write("Result is: " + result + "\n");

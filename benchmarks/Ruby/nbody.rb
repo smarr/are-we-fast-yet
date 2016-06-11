@@ -19,7 +19,8 @@ class NBody < Benchmark
   end
 
   def verify_result(result, inner_iterations)
-    return result == -0.1690859889909308 if inner_iterations == 250_000
+    return result == -0.1690859889909308  if inner_iterations == 250_000
+    return result == -0.16907495402506745 if inner_iterations ==       1
 
     puts('No verification result for ' + inner_iterations.to_s + ' found')
     puts('Result is: ' + result.to_s)

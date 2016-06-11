@@ -48,13 +48,9 @@ class Mandelbrot < Benchmark
   end
 
   def verify_result(result, inner_iterations)
-    if inner_iterations == 500
-      return result == 191
-    end
-
-    if inner_iterations == 750
-      return result == 50
-    end
+    return result == 191 if inner_iterations == 500
+    return result == 50  if inner_iterations == 750
+    return result == 128 if inner_iterations ==   1
 
     puts ("No verification result for " + inner_iterations.to_s + " found")
     puts ("Result is: " + result.to_s)
