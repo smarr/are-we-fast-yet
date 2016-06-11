@@ -27,6 +27,7 @@ install:
   - pip install --user ReBench
   - if [ "$LANG" = "ruby" ]; then gem install rubocop; fi
   - if [ "$LANG" = "js" ]; then pwd; npm install jshint; fi
+  - if [ "$LANG" = "som" ] || [ "$LANG" = "somns" ]; then jdk_switcher use oraclejdk8; fi
 
 script:
   - implementations/build-$LANG.sh && rebench test.conf test-$LANG
