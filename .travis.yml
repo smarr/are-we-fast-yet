@@ -16,24 +16,18 @@ git:
   submodules: false
 
 env:
-  - TASK=bench LANG=crystal
-  # - TASK=style LANG=crystal
-  - TASK=bench LANG=java
-  - TASK=style LANG=java
-  - TASK=bench LANG=js
-  - TASK=style LANG=js
-  - TASK=bench LANG=ruby
-  - TASK=style LANG=ruby
-  - TASK=bench LANG=som
-  # - TASK=style LANG=som
+  - LANG=crystal
+  - LANG=java
+  - LANG=js
+  - LANG=ruby
+  - LANG=som
   - TASK=bench LANG=somns
-  # - TASK=style LANG=somns
 
 install:
-  - if [ "$TASK" = "bench" ]; then pip install --user ReBench; fi
-  - if [ "$TASK" = "style" ] && [ "$LANG" = "ruby" ]; then gem install rubocop; fi
-  - if [ "$TASK" = "style" ] && [ "$LANG" = "js" ]; then pwd; npm install jshint; fi
+  - pip install --user ReBench
+  - if [ "$LANG" = "ruby" ]; then gem install rubocop; fi
+  - if [ "$LANG" = "js" ]; then pwd; npm install jshint; fi
 
 script:
-  - if [ "$TASK" = "bench" ]; then implementations/build-$LANG.sh && rebench -d test.conf test-$LANG; fi
-  - if [ "$TASK" = "style" ]; then implementations/build-$LANG.sh style; fi
+  - implementations/build-$LANG.sh && rebench test.conf test-$LANG
+  - implementations/build-$LANG.sh style
