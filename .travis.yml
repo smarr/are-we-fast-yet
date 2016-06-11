@@ -21,7 +21,7 @@ env:
   - LANG=js
   - LANG=ruby
   - LANG=som
-  - TASK=bench LANG=somns
+  - LANG=somns
 
 install:
   - pip install --user ReBench
