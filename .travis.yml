@@ -1,4 +1,6 @@
 language: crystal
+jdk:
+  - oraclejdk8
 
 addons:
   apt:
