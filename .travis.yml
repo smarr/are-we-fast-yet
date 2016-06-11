@@ -3,6 +3,7 @@ addons:
     packages:
       - python-scipy
       - python-yaml
+      - crystal
 git:
   submodules: false
 
