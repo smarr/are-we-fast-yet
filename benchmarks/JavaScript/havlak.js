@@ -86,7 +86,7 @@ function ControlFlowGraph() {
 
 ControlFlowGraph.prototype.createNode = function (name) {
   var node;
-  if (this.basicBlockMap.at(name) != null) {
+  if (this.basicBlockMap.at(name) !== null) {
     node = this.basicBlockMap.at(name);
   } else {
     node = new BasicBlock(name);
@@ -463,7 +463,7 @@ HavlakLoopFinder.prototype.identifyEdges = function (size) {
     this.type[w] = "BB_NONHEADER";
 
     var nodeW = this.nodes[w].getBb();
-    if (nodeW == null) {
+    if (nodeW === null) {
       this.type[w] = "BB_DEAD";
     } else {
       this.processEdges(nodeW, w);
@@ -493,7 +493,7 @@ HavlakLoopFinder.prototype.processEdges = function (nodeW, w) {
 // been chosen to be identical to the nomenclature in Havlak's
 // paper (which, in turn, is similar to the one used by Tarjan).
 HavlakLoopFinder.prototype.findLoops = function () {
-  if (this.cfg.getStartBasicBlock() == null) {
+  if (this.cfg.getStartBasicBlock() === null) {
     return;
   }
 
@@ -546,7 +546,7 @@ HavlakLoopFinder.prototype.findLoops = function () {
       var workList = new som.Vector();
       nodePool.forEach(function (niter) { workList.append(niter); });
 
-      if (nodePool.size() != 0) {
+      if (nodePool.size() !== 0) {
         this.type[w] = "BB_REDUCIBLE";
       }
 
@@ -625,7 +625,7 @@ HavlakLoopFinder.prototype.setLoopAttributes = function (w, nodePool, loop) {
     node.union(that.nodes[w]);
 
     // Nested loops are not added, but linked together.
-    if (node.getLoop() != null) {
+    if (node.getLoop() !== null) {
       node.getLoop().setParent(loop);
     } else {
       loop.addNode(node.getBb());

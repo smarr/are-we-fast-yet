@@ -33,13 +33,14 @@ Bounce.prototype.benchmark = function () {
   var random  = new som.Random(),
     ballCount = 100,
     bounces   = 0,
-    balls     = new Array(ballCount);
+    balls     = new Array(ballCount),
+    i = 0;
 
-  for (var i = 0; i < ballCount; i++) {
+  for (i = 0; i < ballCount; i++) {
     balls[i] = new Ball(random);
   }
 
-  for (var i = 0; i < 50; i++) {
+  for (i = 0; i < 50; i++) {
     balls.forEach(function (ball) {
       if (ball.bounce()) {
         bounces += 1;

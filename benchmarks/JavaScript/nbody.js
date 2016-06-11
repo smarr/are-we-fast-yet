@@ -32,7 +32,7 @@ function NBody() {
     }
 
     return verifyResult(system.energy(), innerIterations);
-  }
+  };
 }
 
 function NBodySystem () {
@@ -44,7 +44,7 @@ NBodySystem.prototype.createBodies = function () {
                 Body.jupiter(),
                 Body.saturn(),
                 Body.uranus(),
-                Body.neptune()]
+                Body.neptune()];
 
   var px = 0.0,
     py   = 0.0,
@@ -101,9 +101,9 @@ NBodySystem.prototype.energy = function () {
 
   for (var i = 0; i < this.bodies.length; ++i) {
     var iBody = this.bodies[i];
-    e += 0.5 * iBody.mass * (iBody.vx * iBody.vx
-      + iBody.vy * iBody.vy
-      + iBody.vz * iBody.vz);
+    e += 0.5 * iBody.mass * (iBody.vx * iBody.vx +
+      iBody.vy * iBody.vy +
+      iBody.vz * iBody.vz);
 
     for (var j = i + 1; j < this.bodies.length; ++j) {
       var jBody = this.bodies[j];

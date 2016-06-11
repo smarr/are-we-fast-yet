@@ -33,11 +33,11 @@ Benchmark.prototype.innerBenchmarkLoop = function (innerIterations) {
 };
 
 Benchmark.prototype.benchmark = function () {
-  throw "subclass responsibility"
+  throw "subclass responsibility";
 };
 
 Benchmark.prototype.verifyResult = function () {
-  throw "subclass responsibility"
+  throw "subclass responsibility";
 };
 
 exports.Benchmark = Benchmark;

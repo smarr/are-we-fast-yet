@@ -113,11 +113,12 @@ RedBlackTree.prototype.put = function (key, value) {
   if (!insertionResult.isNewEntry) {
     return insertionResult.oldValue;
   }
-  var x = insertionResult.newNode;
+  var x = insertionResult.newNode,
+    y = null;
 
   while (x !== this.root && x.parent.color === "red") {
     if (x.parent === x.parent.parent.left) {
-      var y = x.parent.parent.right;
+      y = x.parent.parent.right;
       if (y && y.color === "red") {
         // Case 1
         x.parent.color = "black";
@@ -137,7 +138,7 @@ RedBlackTree.prototype.put = function (key, value) {
       }
     } else {
       // Same as "then" clause with "right" and "left" exchanged.
-      var y = x.parent.parent.left;
+      y = x.parent.parent.left;
       if (y && y.color === "red") {
         // Case 1
         x.parent.color = "black";
@@ -367,12 +368,13 @@ RedBlackTree.prototype.rightRotate = function (y) {
 };
 
 RedBlackTree.prototype.removeFixup = function (x, xParent) {
+  var w = null;
   while (x != this.root && (!x || x.color == "black")) {
     if (x == xParent.left) {
       // Note: the text points out that w cannot be null. The reason is not obvious from
       // simply looking at the code; it comes about from the properties of the red-black
       // tree.
-      var w = xParent.right;
+      w = xParent.right;
       if (w.color == "red") {
         // Case 1
         w.color = "black";
@@ -380,8 +382,8 @@ RedBlackTree.prototype.removeFixup = function (x, xParent) {
         this.leftRotate(xParent);
         w = xParent.right;
       }
-      if ((!w.left || w.left.color == "black")
-        && (!w.right || w.right.color == "black")) {
+      if ((!w.left || w.left.color == "black") &&
+        (!w.right || w.right.color == "black")) {
         // Case 2
         w.color = "red";
         x = xParent;
@@ -406,8 +408,7 @@ RedBlackTree.prototype.removeFixup = function (x, xParent) {
       }
     } else {
       // Same as "then" clause with "right" and "left" exchanged.
-
-      var w = xParent.left;
+      w = xParent.left;
       if (w.color == "red") {
         // Case 1
         w.color = "black";
@@ -415,8 +416,8 @@ RedBlackTree.prototype.removeFixup = function (x, xParent) {
         this.rightRotate(xParent);
         w = xParent.left;
       }
-      if ((!w.right || w.right.color == "black")
-        && (!w.left || w.left.color == "black")) {
+      if ((!w.right || w.right.color == "black") &&
+        (!w.left || w.left.color == "black")) {
         // Case 2
         w.color = "red";
         x = xParent;
@@ -548,7 +549,7 @@ Motion.prototype.findIntersection = function (other) {
   // a = (V2 - V1)^T * (V2 - V1)
   var a = vec2.minus(vec1).squaredMagnitude();
 
-  if (a != 0) {
+  if (a !== 0) {
     // we are first looking for instances of time when the planes are exactly r from each other
     // at least one plane is moving ; if the planes are moving in parallel, they do not have constant speed
 
@@ -683,8 +684,10 @@ function isInVoxel(voxel, motion) {
   low_x = (v_x - r - x0) / xv;
   high_x = (v_x + v_s + r - x0) / xv;
 
+  var tmp;
+
   if (xv < 0) {
-    var tmp = low_x;
+    tmp = low_x;
     low_x = high_x;
     high_x = tmp;
   }
@@ -694,18 +697,18 @@ function isInVoxel(voxel, motion) {
   high_y = (v_y + v_s + r - y0) / yv;
 
   if (yv < 0) {
-    var tmp = low_y;
+    tmp = low_y;
     low_y = high_y;
     high_y = tmp;
   }
 
-  return (((xv == 0 && v_x <= x0 + r && x0 - r <= v_x + v_s) /* no motion in x */ ||
+  return (((xv === 0 && v_x <= x0 + r && x0 - r <= v_x + v_s) /* no motion in x */ ||
            ((low_x <= 1 && 1 <= high_x) || (low_x <= 0 && 0 <= high_x) ||
             (0 <= low_x && high_x <= 1))) &&
-          ((yv == 0 && v_y <= y0 + r && y0 - r <= v_y + v_s) /* no motion in y */ ||
+          ((yv === 0 && v_y <= y0 + r && y0 - r <= v_y + v_s) /* no motion in y */ ||
            ((low_y <= 1 && 1 <= high_y) || (low_y <= 0 && 0 <= high_y) ||
             (0 <= low_y && high_y <= 1))) &&
-          (xv == 0 || yv == 0 || /* no motion in x or y or both */
+          (xv === 0 || yv === 0 || /* no motion in x or y or both */
            (low_y <= high_x && high_x <= high_y) ||
            (low_y <= low_x && low_x <= high_y) ||
            (low_x <= low_y && high_y <= high_x)));

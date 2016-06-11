@@ -59,7 +59,7 @@ Parser.prototype.parse = function () {
   var result = this.readValue();
   this.skipWhiteSpace();
   if (!this.isEndOfText()) {
-    throw error("Unexpected character");
+    throw this.error("Unexpected character");
   }
   return result;
 };
@@ -183,7 +183,7 @@ Parser.prototype.readString = function () {
 Parser.prototype.readStringInternal = function () {
   this.read();
   this.startCapture();
-  while (!(this.current === '"')) {
+  while (this.current !== '"') {
     if (this.current === "\\") {
       this.pauseCapture();
       this.readEscape();
@@ -338,8 +338,8 @@ Parser.prototype.error = function (message) {
 };
 
 Parser.prototype.isWhiteSpace = function () {
-  return " " === this.current || "\t" === this.current
-    || "\n" === this.current || "\r" === this.current;
+  return " " === this.current || "\t" === this.current ||
+    "\n" === this.current || "\r" === this.current;
 };
 
 Parser.prototype.isDigit = function () {

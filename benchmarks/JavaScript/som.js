@@ -199,7 +199,7 @@ Vector.prototype.sortRange = function (i, j, compare) {
         }
         this.swap(this.storage, k, l);
       }
-
+      var c = null; // never used
       this.sort(i, l, c);
       this.sort(k, j, c);
     }
@@ -262,7 +262,7 @@ function IdentitySet(size) {
 IdentitySet.prototype = Object.create(Set.prototype);
 
 IdentitySet.prototype.contains = function (obj) {
-  return this.hasSome(function (e) { return e == obj; })
+  return this.hasSome(function (e) { return e == obj; });
 };
 
 function DictEntry(hash, key, value, next) {
@@ -282,7 +282,7 @@ function Dictionary (size) {
 }
 
 function hash(key) {
-  if (key == null) {
+  if (key === null) {
     return 0;
   }
   var hash = key.customHash();
@@ -309,7 +309,7 @@ Dictionary.prototype.at = function (key) {
   var hash_ = hash(key),
     e = this.getBucket(hash_);
 
-  while (e != null) {
+  while (e !== null) {
     if (e.match(hash_, key)) {
       return e.value;
     }
@@ -322,7 +322,7 @@ Dictionary.prototype.containsKey = function (key) {
   var hash_ = hash(key),
     e = this.getBucket(hash_);
 
-  while (e != null) {
+  while (e !== null) {
     if (e.match(hash_, key)) {
       return true;
     }
@@ -336,7 +336,7 @@ Dictionary.prototype.atPut = function (key, value) {
     i = this.getBucketIdx(hash_),
     current = this.buckets[i];
 
-  if (current == null) {
+  if (current === null) {
     this.buckets[i] = this.newEntry(key, value, hash_);
   } else {
     this.insertBucketEntry(key, value, hash_, current);
@@ -360,7 +360,7 @@ Dictionary.prototype.insertBucketEntry = function (key, value, hash, head) {
       current.value = value;
       return;
     }
-    if (current.next == null) {
+    if (current.next === null) {
       current.next = this.newEntry(key, value, hash);
       return;
     }
@@ -377,10 +377,10 @@ Dictionary.prototype.resize = function () {
 Dictionary.prototype.transferEntries = function (oldStorage) {
   for (var i = 0; i < oldStorage.length; ++i) {
     var current = oldStorage[i];
-    if (current != null) {
+    if (current !== null) {
       oldStorage[i] = null;
 
-      if (current.next == null) {
+      if (current.next === null) {
         this.buckets[current.hash & (this.buckets.length - 1)] = current;
       } else {
         this.splitBucket(oldStorage, i, current);
@@ -394,16 +394,16 @@ Dictionary.prototype.splitBucket = function (oldStorage, i, head) {
     hiHead = null, hiTail = null,
     current = head;
 
-  while (current != null) {
-    if ((current.hash & oldStorage.length) == 0) {
-      if (loTail == null) {
+  while (current !== null) {
+    if ((current.hash & oldStorage.length) === 0) {
+      if (loTail === null) {
         loHead = current;
       } else {
         loTail.next = current;
       }
       loTail = current;
     } else {
-      if (hiTail == null) {
+      if (hiTail === null) {
         hiHead = current;
       } else {
         hiTail.next = current;
@@ -413,11 +413,11 @@ Dictionary.prototype.splitBucket = function (oldStorage, i, head) {
     current = current.next;
   }
 
-  if (loTail != null) {
+  if (loTail !== null) {
     loTail.next = null;
     this.buckets[i] = loHead;
   }
-  if (hiTail != null) {
+  if (hiTail !== null) {
     hiTail.next = null;
     this.buckets[i + oldStorage.length] = hiHead;
   }
@@ -432,7 +432,7 @@ Dictionary.prototype.getKeys = function () {
   var keys = new Vector(this.size_);
   for (var i = 0; i < this.buckets.length; ++i) {
     var current = this.buckets[i];
-    while (current != null) {
+    while (current !== null) {
       keys.append(current.key);
       current = current.next;
     }
@@ -444,7 +444,7 @@ Dictionary.prototype.getValues = function () {
   var values = new Vector(this.size_);
   for (var i = 0; i < this.buckets.length; ++i) {
     var current = this.buckets[i];
-    while (current != null) {
+    while (current !== null) {
       values.append(current.value);
       current = current.next;
     }

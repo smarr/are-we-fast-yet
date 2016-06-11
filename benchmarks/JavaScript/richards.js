@@ -412,7 +412,7 @@ TaskControlBlock.prototype.addInputAndCheckPriority = function (packet, oldTask)
     this.setPacketPending(true);
     if (this.priority > oldTask.priority) { return this; }
   } else {
-    if (this.append == null) {
+    if (this.append === null) {
       var i = 0;
     }
     this.input = this.append(packet, this.input);

@@ -86,7 +86,7 @@ function Run(name) {
 
   this.setBenchmarkSuite = function (val) {
     benchmarkSuite = val;
-  }
+  };
 }
 
 function processArguments(args) {

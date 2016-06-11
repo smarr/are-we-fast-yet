@@ -182,21 +182,22 @@ Planner.prototype.removePropagateFrom = function(out) {
   }
 
   unsatisfied.sort(function (c1, c2) {
-    return c1.strength.stronger(c2.strength) });
+    return c1.strength.stronger(c2.strength); });
   return unsatisfied;
 };
 
 
 Planner.chainTest = function (n) {
   var planner = new Planner(),
-    vars = new Array(n + 1);
+    vars = new Array(n + 1),
+    i = 0;
 
-  for (var i = 0; i < n + 1; i++) {
+  for (i = 0; i < n + 1; i++) {
     vars[i] = new Variable();
   }
 
   // Build chain of n equality constraints
-  for (var i = 0; i < n; i++) {
+  for (i = 0; i < n; i++) {
     var v1 = vars[i],
       v2 = vars[i + 1];
     new EqualityConstraint(v1, v2, REQUIRED, planner);
@@ -208,7 +209,7 @@ Planner.chainTest = function (n) {
     editV = som.Vector.with(editC),
     plan = planner.extractPlanFromConstraints(editV);
 
-  for (var i = 0; i < 100; i++) {
+  for (i = 0; i < 100; i++) {
     vars[0].value = i;
     plan.execute();
     if (vars[n].value != i) {
@@ -224,9 +225,10 @@ Planner.projectionTest = function(n) {
     scale  = Variable.value(10),
     offset = Variable.value(1000),
 
-    src = null, dst = null;
+    src = null, dst = null,
+    i;
 
-  for (var i = 1; i <= n; i++) {
+  for (i = 1; i <= n; i++) {
     src = Variable.value(i);
     dst = Variable.value(i);
     dests.append(dst);
@@ -245,14 +247,14 @@ Planner.projectionTest = function(n) {
   }
 
   planner.change(scale, 5);
-  for (var i = 0; i < n - 1; ++i) {
+  for (i = 0; i < n - 1; ++i) {
     if (dests.at(i).value != (i + 1) * 5 + 1000) {
       throw new Error("Projection test 3 failed!");
     }
   }
 
   planner.change(offset, 2000);
-  for (var i = 0; i < n - 1; ++i) {
+  for (i = 0; i < n - 1; ++i) {
     if (dests.at(i).value != (i + 1) * 5 + 2000) {
       throw new Error("Projection test 4 failed!");
     }
@@ -303,7 +305,7 @@ function createStrengthTable() {
 function createStrengthConstants() {
   var strengthConstant = new som.IdentityDictionary();
   Strength.strengthTable.getKeys().forEach(function (key) {
-    strengthConstant.atPut(key, new Strength(key))
+    strengthConstant.atPut(key, new Strength(key));
   });
   return strengthConstant;
 }
@@ -336,7 +338,7 @@ AbstractConstraint.prototype.destroyConstraint = function(planner) {
 
 AbstractConstraint.prototype.inputsKnown = function(mark) {
   return !this.inputsHasOne(function (v) {
-      return !(v.mark === mark || v.stay || v.determinedBy === null)
+      return !(v.mark === mark || v.stay || v.determinedBy === null);
   });
 };
 
@@ -356,13 +358,13 @@ AbstractConstraint.prototype.satisfy = function (mark, planner) {
     }
     out.determinedBy = this;
     if (!planner.addPropagate(this, mark)) {
-      throw new RuntimeException("Cycle encountered");
+      throw new Error("Cycle encountered");
     }
     out.mark = mark;
   } else {
     overridden = null;
     if (this.strength.sameAs(Strength.required)) {
-      throw new RuntimeException("Could not satisfy a required constraint");
+      throw new Error("Could not satisfy a required constraint");
     }
   }
   return overridden;
@@ -503,8 +505,8 @@ UnaryConstraint.prototype.removeFromGraph = function () {
 };
 
 UnaryConstraint.prototype.chooseMethod = function (mark) {
-  this.satisfied = this.output.mark != mark
-    && this.strength.stronger(this.output.walkStrength);
+  this.satisfied = this.output.mark != mark &&
+    this.strength.stronger(this.output.walkStrength);
   return null;
 };
 
