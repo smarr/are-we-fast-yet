@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e # make script fail on first error
-SCRIPT_PATH=`dirname $0`
+pushd `dirname $0` > /dev/null
+SCRIPT_PATH=`pwd`
+popd > /dev/null
+
 source $SCRIPT_PATH/script.inc
 source $SCRIPT_PATH/config.inc
 
@@ -11,7 +14,12 @@ then
   ls -lah
   pushd $SCRIPT_PATH/../benchmarks/JavaScript
   pwd
-  $SCRIPT_PATH/../node_modules/jshint/bin/jshint *.js
+  if [ -e $SCRIPT_PATH/../node_modules/jshint/bin/jshint ]
+  then
+    $SCRIPT_PATH/../node_modules/jshint/bin/jshint *.js
+  else
+    jshint *.js
+  fi
 else
   exit 0
 fi
