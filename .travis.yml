@@ -5,15 +5,23 @@ addons:
     packages:
       - python-scipy
       - python-yaml
-      - crystal
+
 git:
   submodules: false
 
 env:
-  - TASK=bench LANG=java
-  - TASK=style LANG=java
   - TASK=bench LANG=crystal
   - TASK=style LANG=crystal
+  - TASK=bench LANG=java
+  - TASK=style LANG=java
+  - TASK=bench LANG=js
+  - TASK=style LANG=js
+  - TASK=bench LANG=ruby
+  - TASK=style LANG=ruby
+  - TASK=bench LANG=som
+  - TASK=style LANG=som
+  - TASK=bench LANG=somns
+  - TASK=style LANG=somns
 
 install:
   - if [ "$TASK" = "bench" ]; then pip install --user ReBench; fi
