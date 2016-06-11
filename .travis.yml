@@ -1,3 +1,5 @@
+language: crystal
+
 addons:
   apt:
     packages:
