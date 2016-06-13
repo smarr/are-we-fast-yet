@@ -10,3 +10,9 @@
 [submodule "implementations/TruffleSOM-TOM"]
 	path = implementations/TruffleSOM-TOM
 	url = https://github.com/smarr/TruffleSOM.git
+[submodule "implementations/graal-core"]
+	path = implementations/graal-core
+	url = https://github.com/graalvm/graal-core.git
+[submodule "implementations/mx"]
+	path = implementations/mx
+	url = https://github.com/graalvm/mx.git
