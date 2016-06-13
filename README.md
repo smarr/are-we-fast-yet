@@ -89,6 +89,58 @@ benchmarking game. Note, this common library typically implements basic
 iteration with some of the control flow features that are generally not
 permitted.
 
+Benchmarks
+----------
+
+#### Macro Benchmarks
+
+ - [CD] is a simulation of an airplane collision detector. Based on
+   WebKit's JavaScript [CDjs]. Originally, CD was designed to evaluated
+   real-time JVMs.
+
+ - [DeltaBlue] is a classic VM benchmark used to tune, e.g.,
+   Smalltalk, Java, and JavaScript VMs. It implements a constraint
+   solver.
+
+ - [Havlak] implements a loop recognition algorithm. It has been used
+   to compare C++, Java, Go, and Scala performance.
+
+ - [Json] is a JSON string parsing benchmark derived from the
+   `minimal-json` Java library.
+
+ - [Richards] is a classic benchmark simulating an operating system
+   kernel. The used code is based on [Wolczko's Smalltalk
+   version][DeltaBlue].
+
+#### Micro Benchmarks
+
+ - Bounce simulates a ball bouncing within a box. It is based on
+   a benchmark of [SOM Smalltalk][SOM].
+
+ - List recursively creates and traverses lists. It is based on
+   a benchmark of [SOM Smalltalk][SOM].
+
+ - Mandelbrot calculates the classic fractal. It is derived from the
+   [Computer Languages Benchmark Game][CLBG].
+ 
+ - NBody simulates the movement of planets in the solar system. It is
+   derived from the [Computer Languages Benchmark Game][CLBG].
+ 
+ - Permute generates permutations of an array. It is based on a
+   benchmark of [SOM Smalltalk][SOM].
+ 
+ - Queens solves the eight queens problem. It is based on a benchmark
+   of [SOM Smalltalk][SOM].
+
+ - Sieve finds prime numbers based on the sieve of Eratosthenes. It is
+   based on a benchmark of [SOM Smalltalk][SOM].
+
+ - Storage creates and verifies a tree of arrays to stress the garbage
+   collector. It is based on a benchmark of [SOM Smalltalk][SOM].
+
+ - Towers solves the Towers of Hanoi game. It is based on a benchmark
+   of [SOM Smalltalk][SOM].
+
 Current Results
 ---------------
 
@@ -245,3 +297,13 @@ Guidelines
 
  [1]: https://github.com/smarr/SOMns
  [2]: http://www.newspeaklanguage.org/
+
+ [CD]:        https://www.cs.purdue.edu/sss/projects/cdx/
+ [CDjs]:      https://github.com/WebKit/webkit/tree/master/PerformanceTests/JetStream/cdjs
+ [DeltaBlue]: http://www.wolczko.com/java_benchmarking.html
+ [Havlak]:    https://days2011.scala-lang.org/sites/days2011/files/ws3-1-Hundt.pdf
+ [Json]:      https://github.com/ralfstx/minimal-json
+ [Richards]:  http://www.cl.cam.ac.uk/~mr10/Bench.html
+ [SOM]:       http://som-st.github.io/
+ [CLBG]:      http://benchmarksgame.alioth.debian.org
+
