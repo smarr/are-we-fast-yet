@@ -76,3 +76,32 @@ function get_jdk9ea() {
     OK Have JDK Early Access
   fi
 }
+
+function load_submodule() {
+  INFO Load "$1"
+  git submodule init $1
+  git submodule sync $1
+  git submodule update $1
+}
+
+function check_for() {
+  if [ ! -x `which $1` ]
+  then
+    ERR "$1 binary not found. $2"
+    if [ "non-fatal" -ne "$3" ]
+    then
+      exit 1
+    fi
+  fi
+}
+
+function check_for_crystal() {
+  check_for "crystal" "Please see http://crystal-lang.org/docs/installation/index.html" "$1"
+}
+
+function check_for_node() {
+  check_for "node" "Please see https://nodejs.org/en/download/" "$1"
+}
+
+
+

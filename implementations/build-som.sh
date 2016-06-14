@@ -9,16 +9,12 @@ if [ "$1" = "style" ]
 then
   exit 0
 else
-  git submodule init $SCRIPT_PATH/TruffleSOM
-  git submodule sync --recursive $SCRIPT_PATH/TruffleSOM
-  git submodule update $SCRIPT_PATH/TruffleSOM
+  load_submodule $SCRIPT_PATH/TruffleSOM
   pushd $SCRIPT_PATH/TruffleSOM
   make clean; make
   popd
   
-  git submodule init $SCRIPT_PATH/TruffleSOM-TOM
-  git submodule sync --recursive $SCRIPT_PATH/TruffleSOM-TOM
-  git submodule update $SCRIPT_PATH/TruffleSOM-TOM
+  load_submodule $SCRIPT_PATH/TruffleSOM-TOM
   pushd $SCRIPT_PATH/TruffleSOM-TOM
   make clean; make
 fi

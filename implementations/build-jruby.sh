@@ -1,10 +1,15 @@
 #!/bin/bash
-
-source ./script.inc
-source ./config.inc
+set -e
+SCRIPT_PATH=`dirname $0`
+source $SCRIPT_PATH/script.inc
+source $SCRIPT_PATH/config.inc
 
 INFO Build JRuby Truffle-head
-cd JRuby
+
+load_submodule $SCRIPT_PATH/JRuby
+
+cd $SCRIPT_PATH/JRuby
+export JAVA_HOME=$JAVA8_HOME
 ./mvnw clean
 ./mvnw
 

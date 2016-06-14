@@ -5,6 +5,8 @@ SCRIPT_PATH=`dirname $0`
 source $SCRIPT_PATH/script.inc
 source $SCRIPT_PATH/config.inc
 
+check_for_node
+
 if [ "$1" = "style" ]
 then
   INFO Check style of JavaScript benchmarks
