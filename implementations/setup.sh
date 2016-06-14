@@ -9,6 +9,7 @@ check_for_crystal "non-fatal"
 check_for_node    "non-fatal"
 check_for ruby2.3 "" "non-fatal"
 check_for ruby    "Please see https://www.ruby-lang.org/en/documentation/installation/" "non-fatal"
+check_for_graalvm "non-fatal"
 
 $SCRIPT_PATH/build-java.sh
 $SCRIPT_PATH/build-crystal.sh

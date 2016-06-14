@@ -103,5 +103,11 @@ function check_for_node() {
   check_for "node" "Please see https://nodejs.org/en/download/" "$1"
 }
 
-
+function check_for_graalvm() {
+  if [ ! -x "$SCRIPT_PATH/graalvm/jre/bin/javao" ]
+  then
+    ERR "GraalVM not found."
+    ERR "To run benchmarks on the GraalVM, please see `implementations/graalvm/README.md"
+  fi
+}
 

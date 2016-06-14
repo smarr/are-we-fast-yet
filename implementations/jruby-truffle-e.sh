@@ -1,5 +1,5 @@
 #!/bin/bash
 SCRIPT_PATH=`dirname $0`
 source $SCRIPT_PATH/config.inc
-export JAVACMD=$GRAAL_VM_BIN
-exec $JRUBY_CMD -J-server -X+T "$@"
+export JAVACMD=$GRAAL_VM_CMD
+exec $JRUBY_CMD -X+T -J-server -J-XX:+UnlockExperimentalVMOptions -J-XX:+EnableJVMCI -J-d64 "$@"
