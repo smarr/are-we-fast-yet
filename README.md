@@ -140,8 +140,8 @@ and experiments.
 #### Run Benchmarks for a Specific Language
 
 The benchmarks are sorted by language in the [`benchmarks`](benchmarks) folder.
-Each language has its own harness. For JavaScript and Ruby, the benchmarks
-are executed like this:
+Each language has its own harness. For JavaScript and Ruby, the benchmarks are
+executed like this:
 
 ```bash
 cd benchmarks/JavaScript
@@ -158,34 +158,40 @@ benchmarks rely on magic numbers to verify their results. Those might not be
 included for all possible problem sizes.
 
 The [rebench.conf](rebench.conf#L31) file specifies the supported problem sizes
-for each benchmark
+for each benchmark.
 
 ### Using the Full Benchmark Setup
 
+The setup and building of benchmarks and VMs is automated via
+`implementations/setup.sh`. Benchmark are configured and executed with the
+[ReBench](https://github.com/smarr/ReBench).
 
-To provide a standardized setup and execution for the benchmarks and a standard
-setting of parameters, we rely on the scripts in the `implementations` folder
-and the [ReBench](https://github.com/smarr/ReBench) tool.
+To execute the benchmarks on all supported VMs, the following implementations
+are expected to be already available on the benchmark machine:
 
-The script `implementations/setup.sh` compiles the languages that are
-configured as source dependencies in form of git submodules. The
-`implementations/config.inc` file defines paths to implementations that are
-available as binary releases.
+ - [Crystal](http://crystal-lang.org/docs/installation/index.html)
+ - [Node.js](https://nodejs.org/en/download/)
+ - [Ruby](https://www.ruby-lang.org/en/documentation/installation/)
+ - GraalVM, it is expected to be available in `implementations/graalvm`.
+   Please see
+   [implementations/graalvm/README.md](implementations/graalvm/README.md)
+   for details.
 
-*Note*: Currently automatisms are minimal, and focus supporting local and CI
-environments.
+This repository uses git submodules for some of languages implementations. To
+build these, additional tools are required. This includes Ant, Make, Python,
+a and C/C++ compiler.
 
-The various scripts such as `mri-23.sh`, `java8.sh`, `node.sh` etc are used as
-wrappers to execute all language implementations in a common way by ReBench.
+The `implementations` folder contains wrapper scripts such as `mri-23.sh`,
+`java8.sh`, and `node.sh` to execute all language implementations in a common
+way by ReBench.
 
-To execute the benchmarks with ReBench, it can be installed via the Python
-package manager pip:
+ReBench can be installed via the Python package manager pip:
 
 ```
 pip install ReBench
 ```
 
-Then the benchmarks can be executed with this command in the root folder:
+The benchmarks can be executed with the following command in the root folder:
 
 ```
 rebench -d --without-nice rebench.conf all
@@ -198,13 +204,6 @@ here to avoid requiring root rights.
 *Note:* The [rebench.conf](rebench.conf) file specifies how and which
 benchmarks to execute. It also defines the arguments to be passed to the
 benchmarks.
-
-
-
-
-
-
-
 
  [1]: https://github.com/smarr/SOMns
  [2]: http://www.newspeaklanguage.org/
