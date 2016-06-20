@@ -21,8 +21,11 @@ prepare_vm_names <- function(data) {
                        "JRubyJ8"               = "Ruby, JRuby 9.0.4.0 + indy", #invokedynamic
                        "MRI22"                 = "Ruby, MRI 2.2",
                        "MRI23"                 = "Ruby, MRI 2.3",
+                       "RBX314"                = "Ruby, Rubinius 3.14",
+                       "GraalJS"               = "JavaScript, GraalJS",
                        "Node"                  = "JavaScript, Node.js 5.4.0",
                        "SOMns"                 = "SOMns, Newspeak, master",
+                       "SOMns-Enterprise"      = "SOMns, Newspeak",
                        "JRubyTruffle"          = "Ruby, JRuby+Truffle, truffle head (basic)",
                        "JRubyTruffleEnterprise" = "Ruby, JRuby+Truffle", # , truffle head
                        

@@ -3,10 +3,10 @@ TARGET=$(SOURCE:.Rmd=.html)
 
 run: all
 
-%.html: %.Rmd data/benchmark.data
+%.html: %.Rmd data/benchmark.data.bz2
 	scripts/knit.R $<
 
-data/benchmark.data:
+data/benchmark.data.bz2:
 	mkdir -p data
 	scripts/get-data.sh
 
@@ -22,3 +22,7 @@ clobber: clean
 upload: all
 	scp overview.html ts:www-truffle/are-we-fast-yet.html
 	echo "Report Available at http://stefan-marr.de/downloads/truffle/are-we-fast-yet.html"
+
+docs: overview.html
+	cp overview.md ../docs/performance.md
+	cp figures/*.png ../docs/figures/
