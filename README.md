@@ -50,7 +50,10 @@ Currently, we have 14 benchmarks ported to six different languages, including
 The graph below shows the results for the
 different implementations after warmup, to ensure peak performance is reported:
 
-![Peak Performance of Java, Node.js, JRuby, JRuby+Truffle, MRI, and SOMns, last update 2016-01-06](report/latest-results.png?raw=true)
+![Peak Performance of Java, Node.js, JRuby, JRuby+Truffle, MRI, and SOMns,
+last update 2016-06-20](docs/figures/all-langs-overview-1.png?raw=true)
+
+A detailed overview of the results is in [docs/performance.md](docs/performance.md).
 
 The benchmarks are listed below. A detailed analysis including metrics for the
 benchmarks is in [docs/metrics.md](docs/metrics.md).
