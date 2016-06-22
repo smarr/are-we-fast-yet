@@ -6,7 +6,7 @@ Are We Fast Yet? Comparing Language Implementations with Objects, Closures, and 
 ## Goal
 
 The goal of this project is to assess whether a language implementation is
-highly optimizing and thus, is able to remove the overhead of programming
+highly optimizing and thus is able to remove the overhead of programming
 abstractions and frameworks. We are interested in comparing language
 implementations with each other and optimize their compilers as well as the
 run-time representation of objects, closures, and arrays.
@@ -36,7 +36,7 @@ language](docs/core-language.md) document.
 ##### Disclaimer: This is an Academic Project to Facilitate Research on Languages
 
 To facilitate research, the goal of this project is specifically to assess the
-effectiveness of compiler and runtime optimizations for a common set of common
+effectiveness of compiler and runtime optimizations for a common set of
 abstractions between languages. As such, many other relevant aspects such as
 GC, standard libraries, and language-specific abstractions are not included
 here. However, by focusing on one aspect, we know exactly what is compared.
@@ -80,11 +80,11 @@ benchmarks is in [docs/metrics.md](docs/metrics.md).
 
 #### Micro Benchmarks
 
- - Bounce simulates a ball bouncing within a box. It is based on
-   a benchmark of [SOM Smalltalk][SOM].
+Micro benchmarks are based on [SOM Smalltalk][SOM] benchmarks unless noted otherwise.
 
- - List recursively creates and traverses lists. It is based on
-   a benchmark of [SOM Smalltalk][SOM].
+ - Bounce simulates a ball bouncing within a box.
+
+ - List recursively creates and traverses lists.
 
  - Mandelbrot calculates the classic fractal. It is derived from the
    [Computer Languages Benchmark Game][CLBG].
@@ -92,20 +92,16 @@ benchmarks is in [docs/metrics.md](docs/metrics.md).
  - NBody simulates the movement of planets in the solar system. It is
    derived from the [Computer Languages Benchmark Game][CLBG].
 
- - Permute generates permutations of an array. It is based on a
-   benchmark of [SOM Smalltalk][SOM].
+ - Permute generates permutations of an array.
 
- - Queens solves the eight queens problem. It is based on a benchmark
-   of [SOM Smalltalk][SOM].
+ - Queens solves the eight queens problem.
 
- - Sieve finds prime numbers based on the sieve of Eratosthenes. It is
-   based on a benchmark of [SOM Smalltalk][SOM].
+ - Sieve finds prime numbers based on the sieve of Eratosthenes.
 
  - Storage creates and verifies a tree of arrays to stress the garbage
-   collector. It is based on a benchmark of [SOM Smalltalk][SOM].
+   collector.
 
- - Towers solves the Towers of Hanoi game. It is based on a benchmark
-   of [SOM Smalltalk][SOM].
+ - Towers solves the Towers of Hanoi game.
 
 
 ## Contributing
@@ -123,7 +119,7 @@ tracker](https://github.com/smarr/are-we-fast-yet/issues?q=is%3Aissue+is%3Aopen+
 
 This includes languages like Dart, Scala, Python, and Go. Other interesting
 ports could be for Racket, Clojure, or CLOS, but might require more carefully
-thought out rules for porting. Similarly, ports to C++ or Rust need additional
+thought-out rules for porting. Similarly, ports to C++ or Rust need additional
 care to account for the absence of a garbage collector.
 
 ## Getting the Code and Running Benchmarks
@@ -156,7 +152,7 @@ ruby harness.rb Queens 5 20
 The harness takes three parameters: benchmark name, number of iterations, and
 problem size. The benchmark name corresponds to a class or file of a benchmark.
 The *number of iterations* defines how often a benchmark should be executed. The
-problem size can be used to influence how long a benchmark takes. Note, some
+problem size can be used to influence how long a benchmark takes. Note that some
 benchmarks rely on magic numbers to verify their results. Those might not be
 included for all possible problem sizes.
 
@@ -167,7 +163,7 @@ for each benchmark.
 
 The setup and building of benchmarks and VMs is automated via
 `implementations/setup.sh`. Benchmark are configured and executed with the
-[ReBench](https://github.com/smarr/ReBench).
+[ReBench](https://github.com/smarr/ReBench) tool.
 
 To execute the benchmarks on all supported VMs, the following implementations
 are expected to be already available on the benchmark machine:
@@ -175,14 +171,13 @@ are expected to be already available on the benchmark machine:
  - [Crystal](http://crystal-lang.org/docs/installation/index.html)
  - [Node.js](https://nodejs.org/en/download/)
  - [Ruby](https://www.ruby-lang.org/en/documentation/installation/)
- - GraalVM, it is expected to be available in `implementations/graalvm`.
-   Please see
-   [implementations/graalvm/README.md](implementations/graalvm/README.md)
+ - GraalVM, expected to be available in `implementations/graalvm`.
+   Please see [implementations/graalvm/README.md](implementations/graalvm/README.md)
    for details.
 
-This repository uses git submodules for some of languages implementations. To
-build these, additional tools are required. This includes Ant, Make, Python,
-a and C/C++ compiler.
+This repository uses git submodules for some languages implementations. To
+build these, additional tools are required. These include Ant, Make, Python,
+and a C/C++ compiler.
 
 The `implementations` folder contains wrapper scripts such as `mri-23.sh`,
 `java8.sh`, and `node.sh` to execute all language implementations in a common
@@ -201,7 +196,7 @@ rebench -d --without-nice rebench.conf all
 ```
 
 The `-d` gives more output during execution, and `--without-nice` means that
-the `nice` tool to enforce high process priority is not used. We don't use it
+the `nice` tool enforcing high process priority is not used. We don't use it
 here to avoid requiring root rights.
 
 *Note:* The [rebench.conf](rebench.conf) file specifies how and which
