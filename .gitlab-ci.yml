@@ -1,0 +1,15 @@
+stages:
+  - benchmark
+
+variables:
+  PYTHONUNBUFFERED: "true"
+  GRAALVM_ARCHIVE: /home/gitlab-runner/.local/graalvm-0.12-linux-x86_64-dk.tar.gz
+  RUBINIUS_BIN: /home/gitlab-runner/.local/rubinius/3.14/bin/rbx
+
+benchmark_job:
+  stage: benchmark
+  tags: [benchmarks, infinity]
+  allow_failure: true
+  script:
+    - implementations/setup.sh
+    - ./benchmark.sh

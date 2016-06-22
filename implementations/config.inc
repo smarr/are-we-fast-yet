@@ -17,10 +17,7 @@ GRAAL_JIT_FLAGS="-server -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCI -XX:+
 export GRAAL_VM_CMD=$SCRIPT_PATH/graalvm/jre/bin/javao
 export GRAAL_JS=$SCRIPT_PATH/graalvm/bin/node
 
-## TODO:
-## Test for GRAAVM var set
-## Test for RBX var set
-export RBX_314_CMD=/home/smarr/Projects/rubinius/3.14/bin/rbx
+export RBX_314_CMD=$RUBINIUS_BIN
 
 
 

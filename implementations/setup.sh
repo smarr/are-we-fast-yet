@@ -18,6 +18,12 @@ $SCRIPT_PATH/build-som.sh
 $SCRIPT_PATH/build-somns.sh
 $SCRIPT_PATH/build-graal.sh
 
+
+if [ -e "$GRAALVM_ARCHIVE" ]; then
+  mkdir -p $SCRIPT_PATH/graalvm
+  tar xvf $GRAALVM_ARCHIVE --strip-components 1 -C $SCRIPT_PATH/graalvm
+fi
+
 # get_jdk9ea # disabled since Nashorn is only user and not really supported currently
 
 # 
