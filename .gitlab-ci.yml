@@ -9,7 +9,6 @@ variables:
 benchmark_job:
   stage: benchmark
   tags: [benchmarks, infinity]
-  allow_failure: true
   script:
     - implementations/setup.sh
     - ./benchmark.sh
