@@ -10,7 +10,7 @@ different languages.
 ##### As Identical as Possible.
 
 The first and foremost requirement is that benchmarks must be as *identical* as
-possible between languages. This is achieved by relying only on commonly used
+possible between languages. This is achieved by relying only on a commonly used
 subset of language features and data types. These language features also need to
 be used consistently between languages. For example, to iterate over arrays, a
 benchmark should use a `forEach()` method that takes a closure, or should fall
@@ -110,25 +110,26 @@ languages.
    arrays, typically one-element arrays. This is necessary because Java's
    lambdas allow only read access to variables. The use of arrays as mutable
    boxes seems to be the idiomatic workaround.
- - We use of lambdas and generally *modern* Java.
+ - We use lambdas and generally *modern* Java.
  - The code collection library uses generics.
- - Absent features are replaced by `NotImplemented` exceptions
+ - Absent features are replaced by `NotImplemented` exceptions.
  - Smalltalk/Ruby symbols are realized with enums.
  - The code uses getters and setters instead of plain field accesses.
- - We use Checkstyle as a linter
+ - We use Checkstyle as a linter.
 
 ### JavaScript
 
  - Private fields are realized as normal object properties.
- - Smalltalk/Ruby symbols are represented as normal strings
+ - Smalltalk/Ruby symbols are represented as normal strings.
  - We use `Array` as if it is fixed sized. To increase the size of an array,
    we copy it with `.slice()` and then set the `length` property. This way, the
    work done by the different languages as as identical as possible.
- - We use JSHint as a linter
+ - We use JSHint as a linter.
 
 ### Ruby
 
  - We use RuboCop as a linter.
+ - We use `if var` to check for non-null instead of the less idiomatic `if !var.nil?`.
 
 ## Repository Structure
 
