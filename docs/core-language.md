@@ -2,7 +2,7 @@ The *Core* Language with Objects, Closures, Arrays
 ==================================================
 
 The goal of the project is to have a common set of benchmarks for a wide variety
-of languages that support objects, closures, and arrays. In this setting, is is
+of languages that support objects, closures, and arrays. In this setting, it is
 important that benchmarks can be ported easily between languages and produce
 results that are comparable. To ensure portability, the benchmarks use only a
 set of language abstractions that is common to a wide range of languages.
@@ -24,7 +24,7 @@ sufficient to optimize only the *core* language to achieve optimal performance.
 
 We are generally not interested in the most efficient hash table, vector, or
 random number generator. Instead, we use a common library implemented within
-the *core* language subset of each language. We do this, because we want to
+the *core* language subset of each language. We do this because we want to
 compare the effectiveness of the compilers instead of well optimized standard
 libraries. Optimization of standard libraries could be a topic for another
 benchmarking game. Note, this common library typically implements basic
@@ -39,7 +39,7 @@ instance the polymorphic nature of the benchmark code can be expressed somehow.
 
 #### Required Abstractions
 
-The set of required concepts is as:
+The set of required concepts is:
   - objects with fields, could be also records or structs
   - polymorphic methods on user-defined classes/objects/types
   - closures, i.e. anonymous functions with read and write access to their
@@ -56,7 +56,7 @@ common practice to use an array as a workaround.
 #### Excluded Abstractions
 
 To guarantee comparable results, deterministic execution, and identical
-work-load across languages, we do not permitted is the use of the following
+work-load across languages, we do not allow the use of the following
 concepts:
 
   - built-in data structures such as hash tables, dictionaries, stacks,
