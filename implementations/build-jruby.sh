@@ -11,6 +11,6 @@ load_submodule $SCRIPT_PATH/JRuby
 cd $SCRIPT_PATH/JRuby
 export JAVA_HOME=$JAVA8_HOME
 ./mvnw clean
-./mvnw
+./mvnw -q
 
 OK JRuby Build Completed.
