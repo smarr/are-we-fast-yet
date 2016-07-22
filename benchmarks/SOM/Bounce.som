@@ -24,7 +24,7 @@ Bounce = Benchmark (
   benchmark = (
     | ballCount balls bounces random |
     
-    random := Random new.
+    random := SomRandom new.
     
     ballCount := 100.
     bounces   := 0.

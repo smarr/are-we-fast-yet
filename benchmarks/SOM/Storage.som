@@ -29,7 +29,7 @@ Storage = Benchmark (
   
   benchmark = (
     | random |
-    random := Random new.
+    random := SomRandom new.
     count := 0.
     self buildTreeDepth: 7 with: random.
     ^ count

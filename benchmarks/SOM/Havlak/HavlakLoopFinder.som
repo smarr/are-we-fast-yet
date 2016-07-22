@@ -25,7 +25,7 @@ HavlakLoopFinder = (
     
     nonBackPreds := Vector new.
     backPreds    := Vector new.
-    number := IdentityDictionary new.
+    number := SomIdentityDictionary new.
 
     maxSize := 0.
   )
@@ -104,7 +104,7 @@ HavlakLoopFinder = (
       maxSize := size ].
 
     1 to: size do: [:i |
-      nonBackPreds append: Set new.
+      nonBackPreds append: SomSet new.
       backPreds append: Vector new.
       nodes at: i put: UnionFindNode new ].
 

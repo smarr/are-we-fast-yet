@@ -27,8 +27,8 @@ SimpleLoop = (
     nestingLevel_ := 0.
     header  := aBB.
     isReducible := aBool.
-    basicBlocks := IdentitySet new.
-    children    := IdentitySet new.
+    basicBlocks := SomIdentitySet new.
+    children    := SomIdentitySet new.
 
     aBB notNil ifTrue: [ basicBlocks add: aBB ]
   )

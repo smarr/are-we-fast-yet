@@ -19,40 +19,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 "
-
-Set = (
-
-  | items |
-  
-  initialize: size = (
-    items := Vector new: size.
-  )
-  
-  forEach: block = ( items forEach: block )
-  hasSome: block = ( ^ items hasSome: block )
-  getOne:  block = ( ^ items getOne:  block )
-
-  add: anObject = (
-    (self contains: anObject)
-        ifFalse: [ items append: anObject ]
-  )
-  
-  collect: block = ( | coll |
-    coll := Vector new.
-    self forEach: [ :e | coll append: (block value: e) ].
-    ^ coll
-  )
-
+SomIdentitySet = SomSet (
   contains: anObject = (
-    ^ self hasSome: [ :it | it = anObject ]
+    ^ self hasSome: [ :it |  it == anObject ]
   )
-
-  size = ( ^ items size )
-  removeAll = ( ^ items removeAll )
-
   ----
   
-  new = (
-    ^ super new initialize: 10.
+  new: size = (
+    ^ super new initialize: size.
   )
 )

@@ -20,17 +20,39 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 "
 
-IdentityDictionary = Dictionary (
+SomSet = (
+
+  | items |
   
-  newEntry: aKey value: value hash: hash = (
-    ^ DictIdEntry new: hash key: aKey value: value next: nil
+  initialize: size = (
+    items := Vector new: size.
   )
+  
+  forEach: block = ( items forEach: block )
+  hasSome: block = ( ^ items hasSome: block )
+  getOne:  block = ( ^ items getOne:  block )
+
+  add: anObject = (
+    (self contains: anObject)
+        ifFalse: [ items append: anObject ]
+  )
+  
+  collect: block = ( | coll |
+    coll := Vector new.
+    self forEach: [ :e | coll append: (block value: e) ].
+    ^ coll
+  )
+
+  contains: anObject = (
+    ^ self hasSome: [ :it | it = anObject ]
+  )
+
+  size = ( ^ items size )
+  removeAll = ( ^ items removeAll )
 
   ----
-
-  new: size = (
-    ^ self new: size
-  )
   
-  new = ( ^ super new: 16 )
+  new = (
+    ^ super new initialize: 10.
+  )
 )

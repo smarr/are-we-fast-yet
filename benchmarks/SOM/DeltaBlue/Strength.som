@@ -87,7 +87,7 @@ Strength = (
   
   createStrengthTable = (
     | table |
-    table := IdentityDictionary new.
+    table := SomIdentityDictionary new.
     table at: SymAbsoluteStrongest put: -10000.
     table at: SymRequired          put: -800.
     table at: SymStrongPreferred   put: -600.
@@ -101,7 +101,7 @@ Strength = (
   
   createStrengthConstants = (
     | constants |
-    constants := IdentityDictionary new.
+    constants := SomIdentityDictionary new.
     StrengthTable keys forEach: [:strengthSymbol |
       constants
         at: strengthSymbol
