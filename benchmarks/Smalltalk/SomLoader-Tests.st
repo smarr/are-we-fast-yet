@@ -6,6 +6,12 @@ TestCase subclass: #SomLoaderTests
 	poolDictionaries: ''
 	category: 'SomLoader-Tests'!
 
+!SomLoaderTests methodsFor: 'test all files' stamp: 'StefanMarr 7/21/2016 16:37'!
+testLoadAll
+	| classes |
+	classes := SomLoader load: '/Users/smarr/Projects/PostDoc/FASTXX/are-we-fast-yet/benchmarks/SOM'.
+	1 halt! !
+
 !SomLoaderTests methodsFor: 'test' stamp: 'StefanMarr 7/21/2016 15:00'!
 testLoadBall
 	| result |
