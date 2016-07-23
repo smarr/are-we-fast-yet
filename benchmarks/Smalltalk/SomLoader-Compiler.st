@@ -227,7 +227,7 @@ sourceOfClassFile: aFileName
 	^ source readStream! !
 
 Object subclass: #SomLexer
-	instanceVariableNames: 'stream text nextText lineNumber peekDone sym nextSym symChr nextSymChr buf bufP prevStreamPosition prevPrevStreamPosition'
+	instanceVariableNames: 'stream text nextText lineNumber peekDone sym nextSym symChr nextSymChr buf bufP prevStreamPosition lastNonWhiteChar prevLastNonWhiteChar'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'SomLoader-Compiler'!
@@ -301,6 +301,10 @@ isOperator: char
 	  char == $@ or: [
 	  char == $%
 	]]]]]]]]]]]].! !
+
+!SomLexer methodsFor: 'accessing' stamp: 'StefanMarr 7/22/2016 23:45'!
+lastNonWhiteCharIdx
+	^ lastNonWhiteChar! !
 
 !SomLexer methodsFor: 'lexing' stamp: 'StefanMarr 5/13/2012 10:04'!
 match: aSymbol
@@ -426,9 +430,9 @@ matchOperator
 	
 	Error signal: 'STEFAN: this is unexpected, I think...'.! !
 
-!SomLexer methodsFor: 'lexing' stamp: 'StefanMarr 5/13/2012 14:55'!
+!SomLexer methodsFor: 'lexing' stamp: 'StefanMarr 7/22/2016 23:42'!
 matchPrimitive
-	bufP := bufP + self primitive size.
+	self readNext: self primitive size.
 	sym := #primitive.
 	symChr := nil.
 	text := RWBinaryOrTextStream with: self primitive.
@@ -476,15 +480,17 @@ nextWordInBufIs: aString
 
 	^ false.! !
 
-!SomLexer methodsFor: 'lexing' stamp: 'StefanMarr 5/13/2012 10:06'!
+!SomLexer methodsFor: 'lexing' stamp: 'StefanMarr 7/22/2016 13:49'!
 peek
-	| oldSym oldSymChr oldText |
+	| oldSym oldSymChr oldText oldPrevStream oldPrevPrevStream |
 	peekDone
 		ifTrue: [ Error signal: 'SOM Lexer: cannot peek twice!!' ].
 	
 	oldSym    := sym.
 	oldSymChr := symChr.
 	oldText   := RWBinaryOrTextStream with: text contents.
+	oldPrevStream := prevStreamPosition.
+	oldPrevPrevStream := prevPrevStreamPosition.
 	
 	nextSym   := self symbol.
 	nextSymChr:= symChr.
@@ -496,7 +502,17 @@ peek
 	
 	peekDone := true.
 	
+	prevStreamPosition := oldPrevStream.
+	prevPrevStreamPosition := oldPrevPrevStream.	
 	^ nextSym.! !
+
+!SomLexer methodsFor: 'accessing' stamp: 'StefanMarr 7/22/2016 14:20'!
+peekDone
+	^ peekDone! !
+
+!SomLexer methodsFor: 'accessing' stamp: 'StefanMarr 7/22/2016 23:52'!
+prevLastNonWhiteCharIdx
+	^ prevLastNonWhiteChar! !
 
 !SomLexer methodsFor: 'constant' stamp: 'StefanMarr 5/10/2012 16:10'!
 primitive
@@ -512,9 +528,16 @@ readBufferIfEmpty: aBlock
 		self fillBuffer == -1
 			ifTrue: aBlock]! !
 
-!SomLexer methodsFor: 'private' stamp: 'StefanMarr 5/10/2012 23:53'!
+!SomLexer methodsFor: 'private' stamp: 'StefanMarr 7/22/2016 23:44'!
 readNext
-	bufP := bufP + 1! !
+	bufP := bufP + 1.
+	lastNonWhiteChar := stream position - buf size + bufP.
+	! !
+
+!SomLexer methodsFor: 'helper' stamp: 'StefanMarr 7/22/2016 23:45'!
+readNext: val
+	bufP := bufP + val.
+	lastNonWhiteChar := stream position - buf size + bufP.! !
 
 !SomLexer methodsFor: 'constant' stamp: 'StefanMarr 5/10/2012 16:10'!
 seperator
@@ -556,22 +579,12 @@ stream
 stream: aReadStream
 	stream := aReadStream.! !
 
-!SomLexer methodsFor: 'accessing' stamp: 'StefanMarr 7/21/2016 14:42'!
-streamIdx
-	^ prevStreamPosition! !
-
-!SomLexer methodsFor: 'accessing' stamp: 'StefanMarr 7/21/2016 14:42'!
-streamIdxPrev
-	^ prevPrevStreamPosition! !
-
-!SomLexer methodsFor: 'lexing' stamp: 'StefanMarr 7/21/2016 16:00'!
+!SomLexer methodsFor: 'lexing' stamp: 'StefanMarr 7/22/2016 23:53'!
 symbol
 	| currentChar |
-	prevPrevStreamPosition := prevStreamPosition.
-	prevStreamPosition := stream position.
-	
 	peekDone ifTrue: [^ self symbolAfterPeek].
-	
+	prevLastNonWhiteChar := lastNonWhiteChar.
+		
 	self skipWhitespaceAndCommentsOrEnd: [
 		sym := #none.
 		symChr := nil.
@@ -618,12 +631,61 @@ text
 	^ text contents! !
 
 Object subclass: #SomLoader
-	instanceVariableNames: ''
+	instanceVariableNames: 'classDefinitions'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'SomLoader-Compiler'!
 
-!SomLoader class methodsFor: 'actions' stamp: 'StefanMarr 7/21/2016 16:36'!
+!SomLoader commentStamp: 'StefanMarr 7/22/2016 11:03' prior: 0!
+I load SOM Smalltalk into Squeak/Pharo images.!
+
+!SomLoader class methodsFor: 'actions' stamp: 'StefanMarr 7/22/2016 12:45'!
+load: aDirectorName
+	^ self new load: aDirectorName; yourself! !
+
+!SomLoader methodsFor: 'actions' stamp: 'StefanMarr 7/22/2016 11:07'!
+checkClassesNotInSystem
+	| inSystem |
+	inSystem := classDefinitions collect: [:c | Smalltalk hasClassNamed: c theName ].
+	^ inSystem anySatisfy: [:b | b ]! !
+
+!SomLoader methodsFor: 'actions' stamp: 'StefanMarr 7/22/2016 12:56'!
+createClasses
+	| postPoned |
+	postPoned := classDefinitions.
+	[ postPoned isEmpty ] whileFalse: [ 
+		postPoned := self createClasses: postPoned ]! !
+
+!SomLoader methodsFor: 'actions' stamp: 'StefanMarr 7/22/2016 12:57'!
+createClasses: classes
+	| postPoned |
+	postPoned := OrderedCollection new.
+	classes do: [:c |
+		(Smalltalk hasClassNamed: c superName)
+			ifTrue: [
+				| instVars classVars superCls |
+				superCls := Smalltalk classNamed: c superName.
+				instVars := self varString: c instanceFields.
+				classVars := self varString: c classFields.
+				superCls
+					subclass: c theName asSymbol 
+					instanceVariableNames: instVars
+					classVariableNames: classVars
+					package: 'AWFY-Benchmarks' ]
+			ifFalse: [ postPoned add: c ]].
+	^ postPoned! !
+
+!SomLoader methodsFor: 'actions' stamp: 'StefanMarr 7/22/2016 13:04'!
+createMethods
+	classDefinitions do: [:c |
+		| class |
+		class := Smalltalk classNamed: c theName.
+		c instanceMethods do: [:methodCode |
+			class compile: methodCode ].
+		c classMethods do: [:methodCode |
+			class class compile: methodCode ] ]! !
+
+!SomLoader methodsFor: 'actions' stamp: 'StefanMarr 7/22/2016 12:43'!
 load: aDirectorName
 	| dir results |
 	results := OrderedCollection new.
@@ -637,7 +699,12 @@ load: aDirectorName
 			ifFalse: [
 				e extension = 'som' ifTrue: [
 					results add: (SomCompiler new load: e fullName) ]]].
+	classDefinitions := results.
 	^ results! !
+
+!SomLoader methodsFor: 'helper methods' stamp: 'StefanMarr 7/22/2016 12:47'!
+varString: collectionOfSymbols 
+	^ collectionOfSymbols inject: '' into: [:res :sym | res, ' ', sym asString ]! !
 
 Object subclass: #SomParser
 	instanceVariableNames: 'cgenc sym text lexer shouldReadSources'
@@ -963,13 +1030,15 @@ keywordMessage: superSend
 
 	sel := kw contents asSymbol! !
 
-!SomMethodParser methodsFor: 'selector patterns' stamp: 'StefanMarr 7/21/2016 11:33'!
+!SomMethodParser methodsFor: 'selector patterns' stamp: 'StefanMarr 7/22/2016 13:08'!
 keywordPattern
-	| methodDef |
+	| methodDef first |
+	first := true.
 	methodDef := RWBinaryOrTextStream on: String new.
-	[ methodDef nextPutAll: self keyword.
+	[ first ifTrue: [ first := false ] ifFalse: [ methodDef nextPutAll: ' ' ].
+	  methodDef nextPutAll: self keyword.
 	  methodDef nextPutAll: ' '.
-	  methodDef nextPutAll: self argument
+	  methodDef nextPutAll: self argument.
 	] doWhileTrue: [sym == #keyword].
 
 	^ methodDef contents asString! !
@@ -1088,13 +1157,15 @@ method
 	^ name, Character lf asString, body
 ! !
 
-!SomMethodParser methodsFor: 'patterns' stamp: 'StefanMarr 7/21/2016 14:43'!
+!SomMethodParser methodsFor: 'patterns' stamp: 'StefanMarr 7/22/2016 23:54'!
 methodBlock
 	| methodSource startIdx endIdx len stream trueEndIdx |
+	startIdx := lexer prevLastNonWhiteCharIdx.
+	
 	self expect: #newTerm.
-	startIdx := lexer streamIdx.
 	self blockContents.
-	endIdx := lexer streamIdxPrev.
+	
+	endIdx := lexer prevLastNonWhiteCharIdx - 1.
 	stream := lexer stream.
 	trueEndIdx := stream position.
 	
