@@ -480,9 +480,9 @@ nextWordInBufIs: aString
 
 	^ false.! !
 
-!SomLexer methodsFor: 'lexing' stamp: 'StefanMarr 7/22/2016 13:49'!
+!SomLexer methodsFor: 'lexing' stamp: 'StefanMarr 7/23/2016 18:35'!
 peek
-	| oldSym oldSymChr oldText oldPrevStream oldPrevPrevStream |
+	| oldSym oldSymChr oldText oldPrevStream |
 	peekDone
 		ifTrue: [ Error signal: 'SOM Lexer: cannot peek twice!!' ].
 	
@@ -490,7 +490,6 @@ peek
 	oldSymChr := symChr.
 	oldText   := RWBinaryOrTextStream with: text contents.
 	oldPrevStream := prevStreamPosition.
-	oldPrevPrevStream := prevPrevStreamPosition.
 	
 	nextSym   := self symbol.
 	nextSymChr:= symChr.
@@ -503,7 +502,6 @@ peek
 	peekDone := true.
 	
 	prevStreamPosition := oldPrevStream.
-	prevPrevStreamPosition := oldPrevPrevStream.	
 	^ nextSym.! !
 
 !SomLexer methodsFor: 'accessing' stamp: 'StefanMarr 7/22/2016 14:20'!
