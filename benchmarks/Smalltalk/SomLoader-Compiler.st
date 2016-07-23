@@ -322,18 +322,6 @@ matchColonOrAssignment
 
 	^ self match: #colon.! !
 
-!SomLexer methodsFor: 'lexing' stamp: 'StefanMarr 5/13/2012 18:40'!
-matchDigit
-	sym    := #integer.
-	symChr := nil.
-	text   := RWBinaryOrTextStream on: String new.
-
-	[ text nextPut: self currentChar.
-	  self readNext
-	] doWhileTrue: [self currentChar notNil and: [ self currentChar isDigit ]].
-
-	^ sym! !
-
 !SomLexer methodsFor: 'lexing' stamp: 'StefanMarr 5/13/2012 18:33'!
 matchLetter
 	symChr := nil.
@@ -381,6 +369,30 @@ matchMinusOrSeparator
 
 	^ self match: #minus.
 	! !
+
+!SomLexer methodsFor: 'lexing' stamp: 'StefanMarr 7/21/2016 16:08'!
+matchNumber
+	| sawDecimalMark |
+	sym    := #integer.
+	symChr := nil.
+	text   := RWBinaryOrTextStream on: String new.
+	
+	sawDecimalMark := false.
+
+	[ text nextPut: self currentChar.
+	  self readNext.
+	  (sawDecimalMark not and: [
+			self currentChar = $. and: [
+				| nextChar |
+				nextChar := self bufchar: bufP + 1.
+				nextChar notNil and: [ nextChar isDigit]]]) ifTrue: [
+					sym := #double.
+					sawDecimalMark := true.
+					text nextPut: self currentChar.
+					self readNext ]
+	] doWhileTrue: [self currentChar notNil and: [ self currentChar isDigit ]].
+
+	^ sym! !
 
 !SomLexer methodsFor: 'lexing' stamp: 'StefanMarr 5/11/2012 18:03'!
 matchOperator
@@ -552,7 +564,7 @@ streamIdx
 streamIdxPrev
 	^ prevPrevStreamPosition! !
 
-!SomLexer methodsFor: 'lexing' stamp: 'StefanMarr 7/21/2016 14:40'!
+!SomLexer methodsFor: 'lexing' stamp: 'StefanMarr 7/21/2016 16:00'!
 symbol
 	| currentChar |
 	prevPrevStreamPosition := prevStreamPosition.
@@ -584,7 +596,7 @@ symbol
 	(self nextWordInBufIs: self primitive) ifTrue: [ ^ self matchPrimitive ].
 	
 	currentChar isLetter ifTrue: [ ^ self matchLetter ].
-	currentChar isDigit  ifTrue: [ ^ self matchDigit  ].
+	currentChar isDigit  ifTrue: [ ^ self matchNumber  ].
 	
 	"else"
 	sym    := #none.
@@ -966,9 +978,18 @@ literal
 
 	self literalNumber.! !
 
-!SomMethodParser methodsFor: 'patterns' stamp: 'StefanMarr 5/12/2012 20:11'!
+!SomMethodParser methodsFor: 'patterns' stamp: 'StefanMarr 7/21/2016 16:11'!
 literalDecimal
-	^ self literalInteger.! !
+	sym == #integer ifTrue: [ ^ self literalInteger ].
+	[ sym == #double ] assert.
+	^ self literalDouble.! !
+
+!SomMethodParser methodsFor: 'patterns' stamp: 'StefanMarr 7/21/2016 16:14'!
+literalDouble
+	| val |
+	val := text contents asNumber.
+	self expect: #double.
+	^ val! !
 
 !SomMethodParser methodsFor: 'patterns' stamp: 'StefanMarr 5/12/2012 23:12'!
 literalInteger
@@ -983,22 +1004,18 @@ literalNumber
 						ifFalse:[self literalDecimal ].
 ! !
 
-!SomMethodParser methodsFor: 'patterns' stamp: 'StefanMarr 5/13/2012 11:52'!
+!SomMethodParser methodsFor: 'patterns' stamp: 'StefanMarr 7/21/2016 15:02'!
 literalString
-	| s |
-	s := universe newString: self string.
-	mgenc addLiteralIfAbsent: s.
-	mgenc bcPushConstant: s.! !
+	^ self string! !
 
-!SomMethodParser methodsFor: 'patterns' stamp: 'StefanMarr 5/13/2012 10:44'!
+!SomMethodParser methodsFor: 'patterns' stamp: 'StefanMarr 7/21/2016 16:17'!
 literalSymbol
 	| symbol |
 	self expect: #pound.
-	symbol := sym == #STString	 ifTrue:  [universe newSymbol: self string]
-									 ifFalse: [universe newSymbol: self selector].
-	
-	mgenc addLiteralIfAbsent: symbol.
-	mgenc bcPushConstant: symbol.! !
+	symbol := sym == #STString
+		ifTrue:  [self string]
+		ifFalse: [self selector].
+! !
 
 !SomMethodParser methodsFor: 'patterns' stamp: 'StefanMarr 7/21/2016 13:38'!
 locals
@@ -1090,10 +1107,10 @@ mgenc
 mgenc: anMgenc
 	mgenc := anMgenc! !
 
-!SomMethodParser methodsFor: 'patterns' stamp: 'StefanMarr 5/13/2012 15:10'!
+!SomMethodParser methodsFor: 'patterns' stamp: 'StefanMarr 7/21/2016 16:10'!
 negativeDecimal
 	self expect: #minus.
-	^ self literalInteger negated ! !
+	^ self literalDecimal negated ! !
 
 !SomMethodParser methodsFor: 'patterns' stamp: 'StefanMarr 7/21/2016 13:43'!
 nestedBlock
