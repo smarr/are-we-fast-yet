@@ -6,11 +6,14 @@ TestCase subclass: #SomLoaderTests
 	poolDictionaries: ''
 	category: 'SomLoader-Tests'!
 
-!SomLoaderTests methodsFor: 'test all files' stamp: 'StefanMarr 7/21/2016 16:37'!
+!SomLoaderTests methodsFor: 'test all files' stamp: 'StefanMarr 7/22/2016 11:01'!
 testLoadAll
-	| classes |
+	| classes inSystem |
 	classes := SomLoader load: '/Users/smarr/Projects/PostDoc/FASTXX/are-we-fast-yet/benchmarks/SOM'.
-	1 halt! !
+	
+	"Test that none of the loaded classes is in the system"
+	inSystem := classes collect: [:c | Smalltalk hasClassNamed: c theName ].
+	self deny: (inSystem anySatisfy: [:b | b ])! !
 
 !SomLoaderTests methodsFor: 'test' stamp: 'StefanMarr 7/21/2016 15:00'!
 testLoadBall
