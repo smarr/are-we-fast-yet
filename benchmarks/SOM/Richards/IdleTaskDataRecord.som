@@ -27,5 +27,5 @@ IdleTaskDataRecord = RBObject (
 
   ----
 
-  create = (^super new create)
+  create = ( ^ super new create )
 )

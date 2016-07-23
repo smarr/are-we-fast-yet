@@ -7,13 +7,13 @@ License details:
 "
 WorkerTaskDataRecord = RBObject (
   |destination count|
-  count = (^count)
+  count = ( ^ count )
 
-  count: aCount =(count := aCount)
+  count: aCount =( count := aCount )
 
-  destination = (^destination)
+  destination = ( ^ destination )
 
-  destination: aHandler = (destination := aHandler)
+  destination: aHandler = ( destination := aHandler )
 
   create = (
       destination := RBObject HandlerA.

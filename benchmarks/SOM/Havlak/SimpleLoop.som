@@ -37,7 +37,7 @@ SimpleLoop = (
   counter: val = ( counter := val )
 
   depthLevel = ( ^ depthLevel )
-  depthLevel: val = ( depthLevel := val)
+  depthLevel: val = ( depthLevel := val )
   
   children = ( ^ children )
 

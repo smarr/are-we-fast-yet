@@ -41,7 +41,7 @@ Node = (
   value: val = ( value := val )
   
   left       = ( ^ left )
-  left: n    = ( left := n)
+  left: n    = ( left := n )
   right      = ( ^ right )
   right: n   = ( right := n )
   parent     = ( ^ parent )

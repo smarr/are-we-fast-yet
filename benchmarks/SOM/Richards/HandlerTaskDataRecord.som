@@ -8,17 +8,17 @@ License details:
 HandlerTaskDataRecord = RBObject (
   | workIn deviceIn |
 
-  deviceIn = (^deviceIn)
+  deviceIn = ( ^ deviceIn )
 
-  deviceIn: aPacket = (deviceIn := aPacket)
+  deviceIn: aPacket = ( deviceIn := aPacket )
 
   deviceInAdd: packet = (
       deviceIn := self append: packet head: deviceIn
   )
 
-  workIn = (^workIn)
+  workIn = ( ^ workIn )
 
-  workIn: aWorkQueue = (workIn := aWorkQueue)
+  workIn: aWorkQueue = ( workIn := aWorkQueue )
 
   workInAdd: packet = (
       workIn := self append: packet head: workIn

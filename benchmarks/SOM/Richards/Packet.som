@@ -13,11 +13,11 @@ Packet = RBObject (
   datum = ( ^ datum )
   datum: someData = ( datum := someData )
 
-  identity = ( ^identity)
-  identity: anIdentity = ( identity := anIdentity)
+  identity = ( ^ identity )
+  identity: anIdentity = ( identity := anIdentity )
 
-  kind = ( ^kind)
-  link = ( ^link)
+  kind = ( ^ kind )
+  link = ( ^ link )
 
   link: aWorkQueue = ( link := aWorkQueue )
   link: aLink identity: anIdentity kind: aKind = (
