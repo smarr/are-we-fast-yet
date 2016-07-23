@@ -617,6 +617,28 @@ symbolAfterPeek
 text
 	^ text contents! !
 
+Object subclass: #SomLoader
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'SomLoader-Compiler'!
+
+!SomLoader class methodsFor: 'actions' stamp: 'StefanMarr 7/21/2016 16:36'!
+load: aDirectorName
+	| dir results |
+	results := OrderedCollection new.
+	dir := aDirectorName asFileReference.
+	dir entries do: [:e |
+		e isDirectory
+			ifTrue: [
+				| result |
+				result := self load: e fullName.
+				results addAll: result ]
+			ifFalse: [
+				e extension = 'som' ifTrue: [
+					results add: (SomCompiler new load: e fullName) ]]].
+	^ results! !
+
 Object subclass: #SomParser
 	instanceVariableNames: 'cgenc sym text lexer shouldReadSources'
 	classVariableNames: 'BinaryOpSyms KeywordSelectorSyms SingleOpSyms'
@@ -810,10 +832,10 @@ blockArgPattern
 	| blockSig |
 	sym == #colon ifTrue: [self blockPattern ].! !
 
-!SomMethodParser methodsFor: 'patterns' stamp: 'StefanMarr 5/13/2012 11:47'!
+!SomMethodParser methodsFor: 'patterns' stamp: 'StefanMarr 7/21/2016 16:37'!
 blockArguments
 	[ self expect: #colon.
-	  mgenc addArgumentIfAbsent: self argument
+	  self argument
 	] doWhileTrue: [sym == #colon].! !
 
 !SomMethodParser methodsFor: 'patterns' stamp: 'StefanMarr 7/21/2016 14:50'!
