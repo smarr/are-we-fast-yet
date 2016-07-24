@@ -219,7 +219,9 @@ Planner = (
       | vars editConstraint plan planner |
       
       planner := Planner new.
-      vars := Array new: n+1 withAll: [ Variable new ].
+      vars := Array new: n+1.
+      1 to: n+1 do: [:i |
+        vars at: i put: Variable new ].
 
       "thread a chain of equality constraints through the variables"
       1 to: n do: [ :i |
