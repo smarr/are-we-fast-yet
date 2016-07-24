@@ -45,12 +45,12 @@ Run = (
   
   runBenchmark = (
     | result |
-    ('Starting ', name, ' benchmark ... ') println.
+    ScriptConsole println: ('Starting ', name, ' benchmark ... ').
     
     self doRuns: benchmarkSuite new.
     self reportBenchmark.
 
-    '' println
+    ScriptConsole println: ''
   )
   
   measure: bench = (
@@ -73,17 +73,17 @@ Run = (
   )
 
   reportBenchmark = (
-    (name, ': iterations=', numIterations asString,
+    ScriptConsole println: (name, ': iterations=', numIterations asString,
      ' average: ', (total // numIterations) asString, 'us total: ', total asString,
-     'us\n') println.
+     'us\n').
   )
   
   printResult: runTime = (
-    (name, ': iterations=1 runtime: ', runTime asString, 'us') println
+    ScriptConsole println: (name, ': iterations=1 runtime: ', runTime asString, 'us')
   )
       
   printTotal = (
-    ('Total Runtime: ', total asString, 'us') println.
+    ScriptConsole println: ('Total Runtime: ', total asString, 'us')
   )
   
   ----

@@ -58,8 +58,8 @@ Mandelbrot = Benchmark (
     innerIterations = 750 ifTrue: [ ^ result = 50  ].
     innerIterations = 1   ifTrue: [ ^ result = 128 ].
 
-    ('No verification result for ' + innerIterations + ' found') println.
-    ('Result is: ' + result asString) println.
+    ScriptConsole println: ('No verification result for ' + innerIterations + ' found').
+    ScriptConsole println: ('Result is: ' + result asString).
     ^ false
   )
 
@@ -73,14 +73,14 @@ Mandelbrot = Benchmark (
       
       [y < size] whileTrue: [
           | ci x |
-          ci := (2.0 * y / size) - 1.0.
+          ci := (2.0 * y // size) - 1.0.
           x  := 0.
           
           [x < size] whileTrue: [
               | zr zrzr zi zizi cr escape z notDone |
               zrzr := zr := 0.0.
               zizi := zi := 0.0.
-              cr   := (2.0 * x / size) - 1.5.
+              cr   := (2.0 * x // size) - 1.5.
               
               z := 0.
               notDone := true.

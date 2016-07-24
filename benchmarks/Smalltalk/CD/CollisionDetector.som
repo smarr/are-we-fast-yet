@@ -1,0 +1,192 @@
+"
+Ported from the adapted JavaScript and Java versions.
+
+Copyright (c) 2001-2010, Purdue University. All rights reserved.
+Copyright (C) 2015 Apple Inc. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+ * Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+ * Neither the name of the Purdue University nor the
+   names of its contributors may be used to endorse or promote products
+   derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 'AS IS' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"
+CollisionDetector = (
+  | state |
+
+  initialize = (
+    state := RedBlackTree new
+  )
+
+  handleNewFrame: frame = (
+    | motions seen toRemove allReduced collisions |
+    motions := Vector new.
+    seen := RedBlackTree new.
+
+    frame forEach: [:aircraft |
+      | oldPosition newPosition |
+      oldPosition := state at: aircraft callsign put: aircraft position.
+      newPosition := aircraft position.
+      seen at: aircraft callsign put: true.
+
+      oldPosition isNil ifTrue: [
+        "Treat newly introduced aircraft as if they were stationary"
+        oldPosition := newPosition ].
+
+      motions append: (Motion new: aircraft callsign old: oldPosition new: newPosition) ].
+
+    " Remove aircraft that are no longer present "
+    toRemove := Vector new.
+    state forEach: [:e |
+      (seen at: e key) ifFalse: [ toRemove append: e key ] ].
+
+    toRemove forEach: [:e | state remove: e ].
+
+    allReduced := self reduceCollisionSet: motions.
+    collisions := Vector new.
+    allReduced forEach: [:reduced |
+      1 to: reduced size do: [:i |
+        | motion1 |
+        motion1 := reduced at: i.
+        i + 1 to: reduced size do: [:j | 
+          | motion2 collision |
+          motion2 := reduced at: j.
+          collision := motion1 findIntersection: motion2.
+          collision notNil ifTrue: [
+            collisions append: (Collision a: motion1 callsign b: motion2 callsign pos: collision) ] ] ] ].
+
+    ^ collisions
+  )
+
+  isInVoxel: voxel motion: motion = (
+    | init fin v_s r v_x x0 xv v_y y0 yv low_x high_x low_y high_y |
+    (voxel x > Constants MaxX or: [
+     voxel x < Constants MinX or: [
+     voxel y > Constants MaxY or: [
+     voxel y < Constants MinY ]]]) ifTrue: [ ^ false ].
+
+    init := motion posOne.
+    fin  := motion posTwo.
+
+    v_s := Constants GoodVoxelSize.
+    r   := Constants ProximityRadius // 2.0.
+
+    v_x := voxel x.
+    x0  := init x.
+    xv  := fin x - init x.
+
+    v_y := voxel y.
+    y0  := init y.
+    yv  := fin y - init y.
+
+    low_x  := (v_x - r - x0) // xv.
+    high_x := (v_x + v_s + r - x0) // xv.
+
+    xv < 0.0 ifTrue: [
+      | tmp |
+      tmp    := low_x.
+      low_x  := high_x.
+      high_x := tmp ].
+
+    low_y  := (v_y - r - y0) // yv.
+    high_y := (v_y + v_s + r - y0) // yv.
+
+    yv < 0.0 ifTrue: [
+      | tmp |
+      tmp    := low_y.
+      low_y  := high_y.
+      high_y := tmp ].
+
+    ^ (((xv = 0.0 and: [v_x <= (x0 + r) and: [(x0 - r) <= (v_x + v_s)]]) or: [ "no motion in x"
+        (low_x <= 1.0 and: [1.0 <= high_x]) or: [
+        (low_x <= 0.0 and: [0.0 <= high_x]) or: [
+        (0.0 <= low_x and: [high_x <= 1.0])]]]) and: [
+          
+        (yv = 0.0 and: [v_y <= (y0 + r) and: [(y0 - r) <= (v_y + v_s)]]) or: [ "no motion in y"
+          (low_y <= 1.0 and: [1.0 <= high_y]) or: [
+          (low_y <= 0.0 and: [0.0 <= high_y]) or: [
+          (0.0   <= low_y and: [high_y <= 1.0])]]]]) and: [
+
+         xv = 0.0 or: [
+         yv = 0.0 or: [ "no motion in x or y or both"
+         (low_y <= high_x and: [high_x <= high_y]) or: [
+         (low_y <= low_x  and: [low_x <= high_y]) or: [
+         (low_x <= low_y  and: [high_y <= high_x]) ]]]]]
+  )
+
+  put: motion and: voxel into: voxelMap = (
+    | array |
+    array := voxelMap at: voxel.
+    array isNil ifTrue: [
+      array := Vector new.
+      voxelMap at: voxel put: array ].
+    array append: motion
+  )
+
+  recurse: voxelMap seen: seen voxel: nextVoxel motion: motion = (
+    (self isInVoxel: nextVoxel motion: motion) ifFalse: [ ^ self ].
+    (seen at: nextVoxel put: true) = true ifTrue: [ ^ self ].
+
+    self put: motion and: nextVoxel into: voxelMap.
+
+    self recurse: voxelMap seen: seen voxel: (nextVoxel minus: Constants horizontal) motion: motion.
+    self recurse: voxelMap seen: seen voxel: (nextVoxel plus:  Constants horizontal) motion: motion.
+    self recurse: voxelMap seen: seen voxel: (nextVoxel minus: Constants vertical)   motion: motion.
+    self recurse: voxelMap seen: seen voxel: (nextVoxel plus:  Constants vertical)   motion: motion.
+    self recurse: voxelMap seen: seen voxel: ((nextVoxel minus: Constants horizontal) minus: Constants vertical) motion: motion.
+    self recurse: voxelMap seen: seen voxel: ((nextVoxel minus: Constants horizontal) plus:  Constants vertical) motion: motion.
+    self recurse: voxelMap seen: seen voxel: ((nextVoxel plus:  Constants horizontal) minus: Constants vertical) motion: motion.
+    self recurse: voxelMap seen: seen voxel: ((nextVoxel plus:  Constants horizontal) plus:  Constants vertical) motion: motion.
+  )
+
+  reduceCollisionSet: motions = (
+    | voxelMap result |
+    voxelMap := RedBlackTree new.
+    motions forEach: [:motion | self draw: motion on: voxelMap ].
+
+    result := Vector new.
+    voxelMap forEach: [:e |
+      e value size > 1 ifTrue: [ result append: e value ] ].
+    ^ result
+  )
+
+  voxelHash: position = (
+    | xDiv yDiv x y |
+    xDiv := (position x // Constants GoodVoxelSize) asInteger.
+    yDiv := (position y // Constants GoodVoxelSize) asInteger.
+
+    x := Constants GoodVoxelSize * xDiv.
+    y := Constants GoodVoxelSize * yDiv.
+
+    position x < 0 ifTrue: [ x := x - Constants GoodVoxelSize ].
+    position y < 0 ifTrue: [ y := y - Constants GoodVoxelSize ].
+
+    ^ Vector2D x: x y: y
+  )
+
+  draw: motion on: voxelMap = (
+    | seen |
+    seen := RedBlackTree new.
+    self recurse: voxelMap seen: seen voxel: (self voxelHash: motion posOne) motion: motion
+  )
+  
+  ----
+  
+  new = ( ^ super new initialize )
+
+)
