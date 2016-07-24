@@ -170,7 +170,7 @@ JsonParser = (
 
   readRequiredChar: ch = (
     (self readChar: ch) ifFalse: [
-      self expected: 'character: ' + ch
+      self expected: 'character: ', ch
     ]
   )
 
@@ -316,9 +316,9 @@ JsonParser = (
 
   expected: expected = (
     self isEndOfText ifTrue: [
-      self error: 'Unexpected end of input, expected ' + expected asString
+      self error: 'Unexpected end of input, expected ', expected asString
     ].
-    self error: 'Expected ' + expected
+    self error: 'Expected ', expected
   )
 
   error: message = (

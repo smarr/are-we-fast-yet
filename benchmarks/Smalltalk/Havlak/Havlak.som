@@ -28,8 +28,8 @@ Havlak = Benchmark (
     innerIterations =    15 ifTrue: [ ^ (result at: 1) =  1647 and: [(result at: 2) = 5213] ].
     innerIterations =     1 ifTrue: [ ^ (result at: 1) =  1605 and: [(result at: 2) = 5213] ].
   
-    ('No verification result for' + innerIterations + ' found') println.
-    ('Result is ' + (result at: 1) + ', ' + (result at: 2)) println.
+    ScriptConsole println: ('No verification result for', innerIterations asString, ' found').
+    ScriptConsole println: ('Result is ', (result at: 1) asString, ', ', (result at: 2) asString).
     ^ false
   )
 )

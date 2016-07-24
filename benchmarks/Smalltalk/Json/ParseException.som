@@ -39,7 +39,7 @@ ParseException = (
   line   = ( ^ line   )
   column = ( ^ column )
   
-  asString = ( ^ msg + ':' + line + ':' + column )
+  asString = ( ^ msg + ':', line, ':', column )
   
   ----
 

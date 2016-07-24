@@ -58,8 +58,8 @@ Mandelbrot = Benchmark (
     innerIterations = 750 ifTrue: [ ^ result = 50  ].
     innerIterations = 1   ifTrue: [ ^ result = 128 ].
 
-    ScriptConsole println: ('No verification result for ' + innerIterations + ' found').
-    ScriptConsole println: ('Result is: ' + result asString).
+    ScriptConsole println: ('No verification result for ', innerIterations asString, ' found').
+    ScriptConsole println: ('Result is: ', result asString).
     ^ false
   )
 

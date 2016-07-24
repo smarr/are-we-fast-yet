@@ -57,8 +57,8 @@ CD = Benchmark (
     numAircrafts =  100 ifTrue: [ ^ actualCollisions =  4305 ].
     numAircrafts =   10 ifTrue: [ ^ actualCollisions =   390 ].
     
-    ScriptConsole println: ('No verification result for ' + numAircrafts + ' found.').
-    ScriptConsole println: ('Result is: ' + actualCollisions).
+    ScriptConsole println: ('No verification result for ', numAircrafts asString, ' found.').
+    ScriptConsole println: ('Result is: ', actualCollisions asString).
     ^ false
   )
 

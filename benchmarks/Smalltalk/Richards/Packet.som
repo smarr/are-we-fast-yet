@@ -29,12 +29,12 @@ Packet = RBObject (
   )
 
   asString = (
-      ^ 'Packet(' + 
-          link asString + ', ' +
-          identity asString + ', ' +
-          kind asString + ', ' +
-          datum asString + ', ' +
-          data asString +
+      ^ 'Packet(', 
+          link asString, ', ',
+          identity asString, ', ',
+          kind asString, ', ',
+          datum asString, ', ',
+          data asString,
         ')'
   )
   

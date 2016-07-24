@@ -36,10 +36,10 @@ JsonValue = (
   isNull  = ( ^ false )
 
   asObject = (
-    self error: 'Unsupported operation, not an object: ' + self asString
+    self error: 'Unsupported operation, not an object: ', self asString
   )
 
   asArray = (
-    self error: 'Unsupported operation, not an array: ' + self asString
+    self error: 'Unsupported operation, not an array: ', self asString
   )
 )
