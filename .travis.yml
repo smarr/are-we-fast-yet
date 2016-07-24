@@ -9,6 +9,7 @@ addons:
     packages:
       - python-scipy
       - python-yaml
+      - ia32-libs
 
 git:
   submodules: false
