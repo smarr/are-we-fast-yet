@@ -112,7 +112,7 @@ HavlakLoopFinder = (
     self identifyEdges: size.
     header at: 1 put: 1.
     
-    size downTo: 1 do: [:w |
+    size to: 1 by: -1 do: [:w |
       | nodePool nodeW |
       nodePool := Vector new.
       nodeW := (nodes at: w) bb.

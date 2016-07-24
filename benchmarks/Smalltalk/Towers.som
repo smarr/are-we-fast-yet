@@ -60,7 +60,7 @@ Towers = Benchmark (
   )
   
   buildTowerAt: pile disks: disks = (
-    disks downTo: 0 do: [ :i |
+    disks to: 0 by: -1 do: [ :i |
       self pushDisk: (TowersDisk new: i) onPile: pile ]
   )
   
