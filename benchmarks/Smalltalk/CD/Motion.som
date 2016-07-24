@@ -95,8 +95,8 @@ Motion = (
       discr := (b * b) - (4.0 * a * c).
       discr < 0.0 ifTrue: [ ^ nil ].
 
-      v1 := ((0.0 - b) - discr sqrt) // (2.0 * a).
-      v2 := ((0.0 - b) + discr sqrt) // (2.0 * a).
+      v1 := ((0.0 - b) - discr sqrt) / (2.0 * a).
+      v2 := ((0.0 - b) + discr sqrt) / (2.0 * a).
 
       (v1 <= v2 and: [((v1  <= 1.0 and: [1.0 <= v2]) or: [
                        (v1  <= 0.0 and: [0.0 <= v2]) or: [

@@ -39,7 +39,7 @@ CD = Benchmark (
     
     0 to: numFrames - 1 do: [:i |
       | time collisions |
-      time := i // 10.0.
+      time := i / 10.0.
       collisions := detector handleNewFrame: (simulator simulate: time).
       actualCollisions := actualCollisions + collisions size ].
     

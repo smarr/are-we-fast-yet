@@ -84,7 +84,7 @@ CollisionDetector = (
     fin  := motion posTwo.
 
     v_s := Constants GoodVoxelSize.
-    r   := Constants ProximityRadius // 2.0.
+    r   := Constants ProximityRadius / 2.0.
 
     v_x := voxel x.
     x0  := init x.
@@ -94,8 +94,8 @@ CollisionDetector = (
     y0  := init y.
     yv  := fin y - init y.
 
-    low_x  := (v_x - r - x0) // xv.
-    high_x := (v_x + v_s + r - x0) // xv.
+    low_x  := (v_x - r - x0) / xv.
+    high_x := (v_x + v_s + r - x0) / xv.
 
     xv < 0.0 ifTrue: [
       | tmp |
@@ -103,8 +103,8 @@ CollisionDetector = (
       low_x  := high_x.
       high_x := tmp ].
 
-    low_y  := (v_y - r - y0) // yv.
-    high_y := (v_y + v_s + r - y0) // yv.
+    low_y  := (v_y - r - y0) / yv.
+    high_y := (v_y + v_s + r - y0) / yv.
 
     yv < 0.0 ifTrue: [
       | tmp |
@@ -167,8 +167,8 @@ CollisionDetector = (
 
   voxelHash: position = (
     | xDiv yDiv x y |
-    xDiv := (position x // Constants GoodVoxelSize) asInteger.
-    yDiv := (position y // Constants GoodVoxelSize) asInteger.
+    xDiv := (position x / Constants GoodVoxelSize) asInteger.
+    yDiv := (position y / Constants GoodVoxelSize) asInteger.
 
     x := Constants GoodVoxelSize * xDiv.
     y := Constants GoodVoxelSize * yDiv.
