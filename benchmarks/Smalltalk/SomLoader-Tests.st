@@ -8,8 +8,9 @@ TestCase subclass: #SomLoaderTests
 
 !SomLoaderTests methodsFor: 'test all files' stamp: 'StefanMarr 7/22/2016 11:01'!
 testLoadAll
-	| classes inSystem |
-	classes := SomLoader load: '/Users/smarr/Projects/PostDoc/FASTXX/are-we-fast-yet/benchmarks/SOM'.
+	| classes inSystem loader |
+	loader := SomLoader load: '.'.
+  classes := loader classDefinitions.
 	
 	"Test that none of the loaded classes is in the system"
 	inSystem := classes collect: [:c | Smalltalk hasClassNamed: c theName ].
@@ -18,7 +19,7 @@ testLoadAll
 !SomLoaderTests methodsFor: 'test' stamp: 'StefanMarr 7/21/2016 15:00'!
 testLoadBall
 	| result |
-	result := SomCompiler new load: '/Users/smarr/Projects/PostDoc/FASTXX/are-we-fast-yet/benchmarks/SOM/Ball.som'.
+	result := SomCompiler new load: 'Ball.som'.
 	self deny: result isNil.
 	self assert: result classFields size equals: 0.
 	self assert: result classMethods size equals: 1.
@@ -28,7 +29,7 @@ testLoadBall
 !SomLoaderTests methodsFor: 'test' stamp: 'StefanMarr 7/21/2016 16:18'!
 testLoadCDRedBlackTree
 	| result |
-	result := SomCompiler new load: '/Users/smarr/Projects/PostDoc/FASTXX/are-we-fast-yet/benchmarks/SOM/CD/RedBlackTree.som'.
+	result := SomCompiler new load: 'CD/RedBlackTree.som'.
 	self deny: result isNil.
 	self assert: result classFields size equals: 0.
 	self assert: result classMethods size equals: 1.
@@ -38,7 +39,7 @@ testLoadCDRedBlackTree
 !SomLoaderTests methodsFor: 'test' stamp: 'StefanMarr 7/21/2016 16:20'!
 testLoadJson
 	| result |
-	result := SomCompiler new load: '/Users/smarr/Projects/PostDoc/FASTXX/are-we-fast-yet/benchmarks/SOM/Json/Json.som'.
+	result := SomCompiler new load: 'Json/Json.som'.
 	self deny: result isNil.
 	self assert: result classFields size equals: 0.
 	self assert: result classMethods size equals: 2.
@@ -48,7 +49,7 @@ testLoadJson
 !SomLoaderTests methodsFor: 'test' stamp: 'StefanMarr 7/21/2016 16:15'!
 testLoadMandelbrot
 	| result |
-	result := SomCompiler new load: '/Users/smarr/Projects/PostDoc/FASTXX/are-we-fast-yet/benchmarks/SOM/Mandelbrot.som'.
+	result := SomCompiler new load: 'Mandelbrot.som'.
 	self deny: result isNil.
 	self assert: result classFields size equals: 0.
 	self assert: result classMethods size equals: 0.

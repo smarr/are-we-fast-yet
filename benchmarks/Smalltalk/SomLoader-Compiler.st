@@ -658,6 +658,10 @@ createClasses
 	[ postPoned isEmpty ] whileFalse: [ 
 		postPoned := self createClasses: postPoned ]! !
 
+!SomLoader methodsFor: 'actions' stamp: 'StefanMarr 7/22/2016 12:56'!
+classDefinitions
+	^ classDefinitions! !
+
 !SomLoader methodsFor: 'actions' stamp: 'StefanMarr 7/22/2016 12:57'!
 createClasses: classes
 	| postPoned |
