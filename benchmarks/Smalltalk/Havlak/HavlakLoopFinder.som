@@ -34,7 +34,7 @@ HavlakLoopFinder = (
   MaxNonBackPreds = ( ^ 32 * 1024 )
   
   isAncestor: w v: v = (
-    ^ (w <= v) && (v <= (last at: w))
+    ^ (w <= v) and: [(v <= (last at: w))]
   )
   
   doDFS: currentNode current: current = (

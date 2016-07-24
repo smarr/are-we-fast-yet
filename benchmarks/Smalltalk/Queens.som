@@ -55,7 +55,7 @@ Queens = Benchmark (
   )
   
   row: r column: c = (
-    ^ (freeRows at: r) && (freeMaxs at: c + r) && (freeMins at: c - r + 8)
+    ^ (freeRows at: r) and: [(freeMaxs at: c + r) and: [(freeMins at: c - r + 8)]]
   )
   
   row: r column: c put: v = (

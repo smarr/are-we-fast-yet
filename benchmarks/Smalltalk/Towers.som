@@ -34,7 +34,7 @@ Towers = Benchmark (
     | top |
     
     top := piles at: pile.
-    top notNil && [ disk size >= top size ]
+    (top notNil and: [ disk size >= top size ])
       ifTrue: [ self error: 'Cannot put a big disk on a smaller one' ].
     
     disk next: top.
