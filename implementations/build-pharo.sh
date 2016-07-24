@@ -12,7 +12,7 @@ source $SCRIPT_PATH/config.inc
 
 
 INFO Get Pharo VM
-
+cd $SCRIPT_PATH
 get_web_getter
 $GET get.pharo.org/vm50 || $GET get.pharo.org/vm50
 bash vm50
