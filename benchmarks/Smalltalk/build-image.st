@@ -2,7 +2,6 @@
 'Scripting.st' asFileReference fileIn.
 'SomLoader-Compiler.st' asFileReference fileIn.
 'SomLoader-Tests.st' asFileReference fileIn.
-'SomCompatibility.st' asFileReference fileIn.
 
 runner := SubunitRunner runPackage: 'SomLoader-Tests'.
 
