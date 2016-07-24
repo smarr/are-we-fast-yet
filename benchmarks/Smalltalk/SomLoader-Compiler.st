@@ -641,6 +641,10 @@ I load SOM Smalltalk into Squeak/Pharo images.!
 load: aDirectorName
 	^ self new load: aDirectorName; yourself! !
 
+!SomLoader class methodsFor: 'actions' stamp: 'StefanMarr 7/22/2016 12:45'!
+loadFile: aFileName
+	^ self new loadFile: aFileName; yourself! !
+
 !SomLoader methodsFor: 'actions' stamp: 'StefanMarr 7/22/2016 11:07'!
 checkClassesNotInSystem
 	| inSystem |
@@ -697,6 +701,15 @@ load: aDirectorName
 			ifFalse: [
 				e extension = 'som' ifTrue: [
 					results add: (SomCompiler new load: e fullName) ]]].
+	classDefinitions := results.
+	^ results! !
+
+!SomLoader methodsFor: 'actions' stamp: 'StefanMarr 7/22/2016 12:43'!
+loadFile: aFileName
+	| file results |
+	results := OrderedCollection new.
+	file := aFileName asFileReference.
+	results add: (SomCompiler new load: file).
 	classDefinitions := results.
 	^ results! !
 
