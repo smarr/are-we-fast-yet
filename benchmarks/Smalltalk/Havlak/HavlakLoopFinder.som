@@ -80,7 +80,7 @@ HavlakLoopFinder = (
       nodeW inEdges forEach: [:nodeV |
         | v |
         v := number at: nodeV.
-        v <> self Unvisited ifTrue: [
+        v ~= self Unvisited ifTrue: [
           (self isAncestor: w v: v)
             ifTrue:  [ (backPreds at: w) append: v ]
             ifFalse: [ (nonBackPreds at: w) add: v ] ] ] ]
@@ -124,7 +124,7 @@ HavlakLoopFinder = (
         workList := Vector new.
         nodePool forEach: [:niter | workList append: niter ].
         
-        nodePool size <> 0 ifTrue: [
+        nodePool size ~= 0 ifTrue: [
           type at: w put: #BBReducible.
         ].
         
@@ -153,7 +153,7 @@ HavlakLoopFinder = (
           type at: w put: #BBIrreducible.
           (nonBackPreds at: w) add: ydash dfsNumber ]
         ifFalse: [
-          ydash dfsNumber <> w ifTrue: [
+          ydash dfsNumber ~= w ifTrue: [
             (nodePool hasSome: [:e | e == ydash]) ifFalse: [
               workList append: ydash.
               nodePool append: ydash ] ] ] ]
@@ -173,7 +173,7 @@ HavlakLoopFinder = (
   
   stepD: w nodePool: nodePool = (
     (backPreds at: w) forEach: [:v |
-      v <> w ifTrue: [ nodePool append: (nodes at: v) findSet ]
+      v ~= w ifTrue: [ nodePool append: (nodes at: v) findSet ]
              ifFalse: [ type at: w put: #BBSelf ] ]
   )
   

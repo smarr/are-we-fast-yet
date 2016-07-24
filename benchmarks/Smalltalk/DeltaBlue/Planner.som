@@ -99,7 +99,7 @@ Planner = (
     todo := sources.
     [todo isEmpty] whileFalse:
         [c := todo removeFirst.
-         ((c output mark <> mark) and:      "not in plan already and..."
+         ((c output mark ~= mark) and:      "not in plan already and..."
           [c inputsKnown: mark]) ifTrue:    "eligible for inclusion"
             [plan append: c.
              c output mark: mark.
@@ -235,7 +235,7 @@ Planner = (
       1 to: 100 do: [ :v |
         vars first value: v.
         plan execute.
-        vars last value <> v ifTrue: [self error: 'Chain test failed!!']].
+        vars last value ~= v ifTrue: [self error: 'Chain test failed!!']].
 
       editConstraint destroyConstraint: planner
   )
@@ -259,19 +259,19 @@ Planner = (
       ].
 
       planner changeVar: src newValue: 17.
-      dst value <> 1170 ifTrue: [self error: 'Projection test 1 failed!!'].
+      dst value ~= 1170 ifTrue: [self error: 'Projection test 1 failed!!'].
 
       planner changeVar: dst newValue: 1050.
-      src value <> 5 ifTrue: [self error: 'Projection test 2 failed!!'].
+      src value ~= 5 ifTrue: [self error: 'Projection test 2 failed!!'].
 
       planner changeVar: scale newValue: 5.
       1 to: n - 1 do: [ :i |
-          (dests at: i) value <> (i*5 + 1000)
+          (dests at: i) value ~= (i*5 + 1000)
               ifTrue: [self error: 'Projection test 3 failed!!']].
 
       planner changeVar: offset newValue: 2000.
       1 to: n - 1 do: [ :i |
-          (dests at: i) value <> (i*5 + 2000)
+          (dests at: i) value ~= (i*5 + 2000)
               ifTrue: [self error: 'Projection test 4 failed!!']]
   )
 )

@@ -50,7 +50,7 @@ Vector2D = (
   compareTo: other = (
     | result |
     result := self compare: x and: other x.
-    result <> 0 ifTrue: [ ^ result ].
+    result ~= 0 ifTrue: [ ^ result ].
     ^ self compare: y and: other y
   )
 

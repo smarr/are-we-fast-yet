@@ -57,12 +57,12 @@ BinaryConstraint = AbstractConstraint (
      decision."
 
     (v1 mark = mark) ifTrue:       "forward or nothing"
-        [((v2 mark <> mark) and: [strength stronger: v2 walkStrength])
+        [((v2 mark ~= mark) and: [strength stronger: v2 walkStrength])
             ifTrue:  [ ^ direction := #forward ]
             ifFalse: [ ^ direction := nil ] ].
 
     (v2 mark = mark) ifTrue:       "backward or nothing"
-        [((v1 mark <> mark) and: [strength stronger: v1 walkStrength])
+        [((v1 mark ~= mark) and: [strength stronger: v1 walkStrength])
             ifTrue:  [ ^ direction := #backward ]
             ifFalse: [ ^ direction := nil ] ].
 

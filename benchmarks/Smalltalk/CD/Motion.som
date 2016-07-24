@@ -64,7 +64,7 @@ Motion = (
        a = (V2 - V1)^T * (V2 - V1)"
     a := (vec2 minus: vec1) squaredMagnitude.
 
-    a <> 0.0 ifTrue: [
+    a ~= 0.0 ifTrue: [
       | b c discr v1 v2 |
       "  we are first looking for instances of time when the planes are exactly r from each other
          at least one plane is moving ; if the planes are moving in parallel, they do not have constant speed
