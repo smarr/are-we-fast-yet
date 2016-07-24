@@ -24,9 +24,11 @@ export RBX_314_CMD=$RUBINIUS_BIN
 
 if [ -x /usr/libexec/java_home ]   # usually on OS X, this tool is available
 then
+  export OS=mac
   export JAVA8_HOME=`/usr/libexec/java_home -v 1.8`  
 elif [ -x /usr/sbin/update-java-alternatives ]
 then
+  export OS=linux
   jvm_info=(`/usr/sbin/update-java-alternatives -l | grep java-8`)
   export JAVA8_HOME=${jvm_info[2]}
 else
