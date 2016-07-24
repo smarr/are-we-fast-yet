@@ -9,7 +9,8 @@ addons:
     packages:
       - python-scipy
       - python-yaml
-      - ia32-libs
+      # For Pharo
+      - "libc6:i386"
 
 git:
   submodules: false
