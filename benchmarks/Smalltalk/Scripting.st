@@ -280,7 +280,7 @@ tearDown
 
 Object subclass: #ScriptConsole
 	instanceVariableNames: ''
-	classVariableNames: 'IsRVM LastPrintedChar OutputToTranscript Position PrintTarget'
+	classVariableNames: 'LastPrintedChar OutputToTranscript Position PrintTarget'
 	poolDictionaries: ''
 	category: 'Scripting'!
 
@@ -294,28 +294,20 @@ cr
 
 !ScriptConsole class methodsFor: 'initialization' stamp: 'StefanMarr 4/5/2012 22:08'!
 detectAvailableMechanismForStdout
-	"The prefered means is to use the stdout file handle.
+	"The preferred means is to use the stdout file handle.
 	 Will try to fall back on the RoarVM primitive if necessary."
 	| cls |
 	(FileStream respondsTo: #stdout)
 		ifTrue: [
 			PrintTarget := FileStream stdout.
-			IsRVM := false. "Not needed when stdout is used"
+      PrintTarget closed ifTrue: [
+        PrintTarget := FileStream standardIOStreamNamed: #stdout forWrite: true ].
 			^ self.
 		].
 		
 	cls := Smalltalk at: #RVMOperations ifAbsent: [nil].
-	IsRVM := (cls notNil and: [cls perform: #isRVM]).
-	IsRVM 
-		ifTrue: [ 
-			PrintTarget := cls.
-			^ self.
-		]
-		ifFalse: [
-			"Squeak 4.2 provides a stream at FileStream>>stdout"
-			
-		].
 	
+	"Squeak 4.2 provides a stream at FileStream>>stdout"
 	PrintTarget := Transcript.
 	^ Transcript! !
 
@@ -368,8 +360,8 @@ print: somethingAsString withLineEnding: lineEnd
 		LastPrintedChar := output last].
 	
 	PrintTarget ifNotNil: [
-		IsRVM ifTrue: [ PrintTarget print: output. ]
-			   ifFalse: [ PrintTarget nextPutAll: (output, lineEnd) ].
+    PrintTarget closed ifTrue: [ScriptConsole detectAvailableMechanismForStdout].
+		PrintTarget nextPutAll: (output, lineEnd)
 	].
 
 	(OutputToTranscript or: [PrintTarget isNil])
