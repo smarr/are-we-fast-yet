@@ -94,8 +94,13 @@ CollisionDetector = (
     y0  := init y.
     yv  := fin y - init y.
 
-    low_x  := (v_x - r - x0) / xv.
-    high_x := (v_x + v_s + r - x0) / xv.
+    xv = 0.0
+      ifTrue:  [
+        low_x  := Float negativeInfinity.
+        high_x := Float infinity ]
+      ifFalse: [
+        low_x := (v_x - r - x0) / xv.
+        high_x := (v_x + v_s + r - x0) / xv ].
 
     xv < 0.0 ifTrue: [
       | tmp |
@@ -103,8 +108,13 @@ CollisionDetector = (
       low_x  := high_x.
       high_x := tmp ].
 
-    low_y  := (v_y - r - y0) / yv.
-    high_y := (v_y + v_s + r - y0) / yv.
+    yv = 0.0
+      ifTrue: [
+        low_y  := Float negativeInfinity.
+        high_y := Float infinity ]
+      ifFalse: [
+        low_y  := (v_y - r - y0) / yv.
+        high_y := (v_y + v_s + r - y0) / yv ].
 
     yv < 0.0 ifTrue: [
       | tmp |
