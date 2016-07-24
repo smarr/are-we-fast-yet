@@ -16,3 +16,9 @@ benchmark.data
 benchmarks/Java/build
 implementations/jvmci
 implementations/truffle
+benchmarks/Smalltalk/*.changes
+benchmarks/Smalltalk/*.image
+implementations/pharo
+implementations/pharo-ui
+implementations/pharo-vm
+implementations/vm50
