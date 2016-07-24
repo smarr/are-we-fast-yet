@@ -101,10 +101,10 @@ Scheduler = RBObject (
                ifFalse: [
                  0 = (data control & 1 )
                  ifTrue: [
-                   data control: data control / 2.
+                   data control: data control // 2.
                    self release: RBObject DeviceA]
                  ifFalse: [
-                   data control: (data control / 2 bitXor: 53256).
+                   data control: (data control // 2 bitXor: 53256).
                    self release: RBObject DeviceB]]]
            data: data
   )

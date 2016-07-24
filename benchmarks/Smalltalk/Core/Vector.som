@@ -150,7 +150,7 @@ Vector = (
     ].
 
     n > 2 ifTrue: [ " More than two elements. "
-      ij := (i + j) / 2.  " ij is the midpoint of i and j. "
+      ij := (i + j) // 2.  " ij is the midpoint of i and j. "
       dij := storage at: ij.  " Sort di,dij,dj.  Make dij be their median. "
       (sortBlock value: di with: dij)
         ifTrue: [ " i.e. should di precede dij? "

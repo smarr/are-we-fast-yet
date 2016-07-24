@@ -54,7 +54,7 @@ NBodySystem = (
 
         dSquared := (dx * dx) + (dy * dy) + (dz * dz).
         distance := dSquared sqrt.
-        mag      := dt // (dSquared * distance).
+        mag      := dt / (dSquared * distance).
 
         iBody vx: iBody vx - (dx * jBody mass * mag).
         iBody vy: iBody vy - (dy * jBody mass * mag).
@@ -95,7 +95,7 @@ NBodySystem = (
           dz := iBody z - jBody z.
 
           distance := ((dx*dx) + (dy*dy) + (dz*dz)) sqrt.
-          e := e - ((iBody mass * jBody mass) // distance).
+          e := e - ((iBody mass * jBody mass) / distance).
       ].
     ].
     ^ e
