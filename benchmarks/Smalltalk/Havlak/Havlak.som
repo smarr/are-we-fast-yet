@@ -1,0 +1,35 @@
+"
+Copyright 2011 Google Inc.
+
+Licensed under the Apache License, Version 2.0 (the 'License');
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an 'AS IS' BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"
+
+Havlak = Benchmark (
+  innerBenchmarkLoop: innerIterations = (
+    ^ self verifyResult: 
+       (LoopTesterApp new main: innerIterations loop: 50 p: 10 p: 10 p: 5)
+      iterations: innerIterations
+  )
+  
+  verifyResult: result iterations: innerIterations = (
+    innerIterations = 15000 ifTrue: [ ^ (result at: 1) = 46602 and: [(result at: 2) = 5213] ].
+    innerIterations =  1500 ifTrue: [ ^ (result at: 1) =  6102 and: [(result at: 2) = 5213] ].
+    innerIterations =   150 ifTrue: [ ^ (result at: 1) =  2052 and: [(result at: 2) = 5213] ].
+    innerIterations =    15 ifTrue: [ ^ (result at: 1) =  1647 and: [(result at: 2) = 5213] ].
+    innerIterations =     1 ifTrue: [ ^ (result at: 1) =  1605 and: [(result at: 2) = 5213] ].
+  
+    ('No verification result for' + innerIterations + ' found') println.
+    ('Result is ' + (result at: 1) + ', ' + (result at: 2)) println.
+    ^ false
+  )
+)

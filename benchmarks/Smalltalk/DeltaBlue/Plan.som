@@ -1,0 +1,23 @@
+"This benchmark is derived from Mario Wolczko's Smalltalk version of DeltaBlue.
+
+It is modified to use the SOM class library.
+License details:
+
+http://web.archive.org/web/20050825101121/http://www.sunlabs.com/people/mario/java_benchmarking/index.html
+"
+Plan = Vector (
+  "A Plan is an ordered list of constraints to be executed in sequence to
+  resatisfy all currently satisfiable constraints in the face of one or more
+  changing inputs."
+  
+  "execution"
+  execute = (
+    "Execute my constraints in order."
+
+    self forEach: [: c | c execute ]
+  )
+  
+  ----
+  
+  new = ( ^ self new: 15 )
+)

@@ -1,0 +1,89 @@
+"This benchmark is derived from Mario Wolczko's Smalltalk version of DeltaBlue.
+
+It is modified to use the SOM class library.
+License details:
+
+http://web.archive.org/web/20050825101121/http://www.sunlabs.com/people/mario/java_benchmarking/index.html
+"
+UnaryConstraint = AbstractConstraint (
+  "I am an abstract superclass for constraints having a single possible output
+  variable.
+
+  Instance variables:
+      output      possible output variable <Variable>
+      satisfied       true if I am currently satisfied <Boolean>"
+  | output satisfied |
+  
+  "initialize-release"
+
+  initializeVar: aVariable strength: strengthSymbol addTo: planner = (
+    "Initialize myself with the given variable and strength."
+    super initialize: strengthSymbol.
+    output := aVariable.
+    satisfied := false.
+    self addConstraint: planner.
+  )
+
+  "queries"
+  isSatisfied = (
+    "Answer true if this constraint is satisfied in the current solution."
+    ^ satisfied
+  )
+
+  "add/remove"
+
+  addToGraph = (
+    "Add myself to the constraint graph."
+    output addConstraint: self.
+    satisfied := false.
+  )
+
+  removeFromGraph = (
+    "Remove myself from the constraint graph."
+    output == nil ifFalse: [output removeConstraint: self].
+    satisfied := false.
+  )
+
+  "planning"
+  chooseMethod: mark = (
+    "Decide if I can be satisfied and record that decision."
+
+    satisfied :=
+        output mark <> mark and:
+        [strength stronger: output walkStrength].
+    ^ nil
+  )
+
+  execute = (
+    "Enforce this constraint. Assume that it is satisfied."
+    self subclassResponsibility
+  )
+
+  inputsDo: aBlock = (
+    "I have no input variables."
+  )
+  
+  inputsHasOne: aBlock = (
+    ^ false
+  )
+
+  markUnsatisfied = (
+    "Record the fact that I am unsatisfied."
+    satisfied := false.
+  )
+
+  output = (
+    "Answer my current output variable."
+    ^ output
+  )
+
+  recalculate = (
+    "Calculate the walkabout strength, the stay flag, and, if it is 'stay',
+     the value for the current output of this constraint. Assume this
+     constraint is satisfied."
+
+    output walkStrength: strength.
+    output stay: self isInput not.
+    output stay ifTrue: [self execute].   "stay optimization"
+  )
+)

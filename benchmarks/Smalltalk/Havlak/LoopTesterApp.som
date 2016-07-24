@@ -1,0 +1,116 @@
+"
+Copyright 2011 Google Inc.
+
+Licensed under the Apache License, Version 2.0 (the 'License');
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an 'AS IS' BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"
+
+LoopTesterApp = (
+  | cfg lsg |
+
+  initialize = (
+    cfg := ControlFlowGraph new.
+    lsg := LoopStructureGraph new.
+    cfg createNode: 1.
+  )
+
+  buildDiamond: start = (
+    | bb0 |
+    bb0 := start.
+    BasicBlockEdge for: cfg from: bb0 to: bb0 + 1.
+    BasicBlockEdge for: cfg from: bb0 to: bb0 + 2.
+    BasicBlockEdge for: cfg from: bb0 + 1 to: bb0 + 3.
+    BasicBlockEdge for: cfg from: bb0 + 2 to: bb0 + 3.
+    ^ bb0 + 3
+  )
+  
+  buildConnect: start end: end = (
+    BasicBlockEdge for: cfg from: start to: end
+  )
+  
+  buildStraight: start n: n = (
+    0 to: n - 1 do: [:i |
+      self buildConnect: start + i end: start + i + 1 ].
+    ^ start + n
+  )
+  
+  buildBaseLoop: from = (
+    | header diamond1 d11 diamond2 footer |
+    header   := self buildStraight: from n: 1.
+    diamond1 := self buildDiamond: header.
+    d11      := self buildStraight: diamond1 n: 1.
+    diamond2 := self buildDiamond: d11.
+    footer   := self buildStraight: diamond2 n: 1.
+    
+    self buildConnect: diamond2 end: d11.
+    self buildConnect: diamond1 end: header.
+    self buildConnect: footer   end: from.
+    footer := self buildStraight: footer n: 1.
+    ^ footer
+  )
+  
+  main: numDummyLoops loop: findLoopIterations p: parLoop p: pparLoops p: ppparLoops = (
+    self constructSimpleCFG.
+    self addDummyLoops: numDummyLoops.
+    self constructCFG: parLoop p: pparLoops p: ppparLoops.
+    
+    self findLoops: lsg.
+    findLoopIterations timesRepeat: [
+      self findLoops: LoopStructureGraph new ].
+  
+    lsg calculateNestingLevel.
+    ^ Array with: lsg numLoops with: cfg numNodes
+  )
+  
+  constructCFG: parLoops p: pparLoops p: ppparLoops = (
+    | n |
+    n := 3.
+    
+    parLoops timesRepeat: [
+      cfg createNode: n + 1.
+      self buildConnect: 2 end: n + 1.
+      n := n + 1.
+      
+      pparLoops timesRepeat: [
+        | top bottom |
+        top := n.
+        n := self buildStraight: n n:1.
+        ppparLoops timesRepeat: [ n := self buildBaseLoop: n ].
+        bottom := self buildStraight: n n: 1.
+        self buildConnect: n end: top.
+        n := bottom ].
+      
+      self buildConnect: n end: 1 ]
+  )
+  
+  addDummyLoops: numDummyLoops = (
+    numDummyLoops timesRepeat: [
+      self findLoops: lsg ]
+  )
+  
+  findLoops: loopStructure = (
+    | finder |
+    finder := HavlakLoopFinder new: cfg lsg: loopStructure.
+    finder findLoops
+  )
+  
+  constructSimpleCFG = (
+    cfg createNode: 1.
+    self buildBaseLoop: 1.
+    cfg createNode: 2.
+    BasicBlockEdge for: cfg from: 1 to:  3
+  )
+
+  ----
+
+  new = ( ^ super new initialize )
+)

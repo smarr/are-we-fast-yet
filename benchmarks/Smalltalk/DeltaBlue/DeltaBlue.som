@@ -1,0 +1,40 @@
+"
+This benchmark is derived from Mario Wolczko's Smalltalk version of DeltaBlue.
+
+It is modified to use the SOM class library.
+License details:
+
+http://web.archive.org/web/20050825101121/http://www.sunlabs.com/people/mario/java_benchmarking/index.html
+
+Original comment.
+	NAME		DeltaBlue benchmark
+	AUTHOR		John Maloney, heavily modified by Mario Wolczko	(Mario.Wolczko@sun.com)
+	FUNCTION	Language implementation benchmark
+	ST-VERSION	4.1
+	PREREQUISITES	
+	CONFLICTS	
+	DISTRIBUTION	world
+	VERSION		1
+	DATE	 	2 Oct 1996
+SUMMARY
+This benchmark is an implementation of the DeltaBlue Constraint Solver
+described in `The DeltaBlue Algorithm: An Incremental Constraint
+Hierarchy Solver', by Bjorn N. Freeman-Benson and John Maloney,
+Communications of the ACM, January 1990 (also as University of
+Washington TR 89-08-06)
+"
+DeltaBlue = Benchmark (
+
+  innerBenchmarkLoop: innerIterations = (
+    Planner chainTest: innerIterations.
+    Planner projectionTest: innerIterations.
+    ^ true
+  )
+  
+  ----
+  
+  new = (
+    Strength initialize.
+    ^ super new
+  )
+)

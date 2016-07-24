@@ -1,0 +1,59 @@
+"
+Copyright 2011 Google Inc.
+
+Licensed under the Apache License, Version 2.0 (the 'License');
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an 'AS IS' BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"
+
+UnionFindNode = (
+  | parent_ bb_ dfsNumber_ loop |
+
+  initialize = (
+    dfsNumber_ := 0.
+  )
+
+  initNode: bb dfs: dfsNumber = (
+    parent_ := self.
+    bb_ := bb.
+    dfsNumber_ := dfsNumber.
+  )
+  
+  loop = ( ^ loop )
+  loop: aLoop = ( loop := aLoop )
+  
+  findSet = (
+    | nodeList node |
+    nodeList := Vector new.
+    
+    node := self.
+    
+    [node ~= node parent] whileTrue: [
+      ((node parent) ~= (node parent parent)) ifTrue: [
+        nodeList append: node ].
+      node := node parent ].
+  
+    nodeList forEach: [:iter | iter union: parent_ ].
+    ^ node
+  )
+  
+  union: basicBlock = (
+    parent_ := basicBlock
+  )
+  
+  parent    = ( ^ parent_ )
+  bb        = ( ^ bb_ )
+  dfsNumber = ( ^ dfsNumber_ )
+  
+  ----
+  
+  new = ( ^ super new initialize )
+)

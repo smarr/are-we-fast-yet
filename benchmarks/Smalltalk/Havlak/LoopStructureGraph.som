@@ -1,0 +1,65 @@
+"
+Copyright 2011 Google Inc.
+
+Licensed under the Apache License, Version 2.0 (the 'License');
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an 'AS IS' BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"
+
+LoopStructureGraph = (
+  | root loops loopCounter |
+
+  initialize = (
+    root  := SimpleLoop basicBlock: nil reducible: false.
+    loops := Vector new.
+    loopCounter := 0.
+  
+    root nestingLevel: 0.
+    root counter: loopCounter.
+    loopCounter := loopCounter + 1.
+    loops append: root
+  )
+
+  createNewLoop: bb reducible: isReducible = (
+    | loop |
+    loop := SimpleLoop basicBlock: bb reducible: isReducible.
+    loop counter: loopCounter.
+    loopCounter := loopCounter + 1.
+    loops append: loop.
+    ^ loop
+  )
+  
+  calculateNestingLevel = (
+    loops forEach: [:liter |
+      liter isRoot ifFalse: [
+        liter parent isNil ifTrue: [
+          liter parent: root ] ] ].
+
+    self calculateNestingLevelRec: root depth: 0
+  )
+  
+  calculateNestingLevelRec: loop depth: depth = (
+    loop depthLevel: depth.
+    loop children forEach: [:liter |
+      self calculateNestingLevelRec: liter depth: depth + 1.
+      loop nestingLevel: (loop nestingLevel max: 1 + liter nestingLevel) ]
+  )
+  
+  numLoops = (
+    ^ loops size
+  )
+  
+  ----
+  
+  new = (
+    ^ super new initialize
+  )
+)

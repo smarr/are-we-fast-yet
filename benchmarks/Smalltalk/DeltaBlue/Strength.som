@@ -1,0 +1,157 @@
+"This benchmark is derived from Mario Wolczko's Smalltalk version of DeltaBlue.
+
+It is modified to use the SOM class library.
+License details:
+
+http://web.archive.org/web/20050825101121/http://www.sunlabs.com/people/mario/java_benchmarking/index.html
+"
+Strength = (
+  "Strengths are used to measure the relative importance of constraints. The
+   hierarchy of available strengths is determined by the class variable
+   StrengthTable (see my class initialization method). Because Strengths are
+   invariant, references to Strength instances are shared (i.e. all references
+   to `Strength of: #required` point to a single, shared instance). New
+   strengths may be inserted in the strength hierarchy without disrupting
+   current constraints.
+
+   Instance variables:
+       symbolicValue      symbolic strength name (e.g. #required) <Symbol>
+       arithmeticValue    index of the constraint in the hierarchy, used for comparisons <Number>"
+  | symbolicValue arithmeticValue |
+  
+  initializeWith: symVal = (
+    symbolicValue   := symVal.
+    arithmeticValue := Strength strengthTable at: symVal
+  )
+
+  "comparing"
+  sameAs: aStrength = (
+    "Answer true if I am the same strength as the given Strength."
+    ^ arithmeticValue = aStrength arithmeticValue
+  )
+
+  stronger: aStrength = (
+    "Answer true if I am stronger than the given Strength."
+    ^ arithmeticValue < aStrength arithmeticValue
+  )
+
+  weaker: aStrength = (
+    "Answer true if I am weaker than the given Strength."
+    ^ arithmeticValue > aStrength arithmeticValue
+  )
+
+  "max/min"
+  strongest: aStrength = (
+    "Answer the stronger of myself and aStrength."
+
+    (aStrength stronger: self)
+      ifTrue:  [ ^ aStrength ]
+      ifFalse: [ ^ self ].
+  )
+
+  weakest: aStrength = (
+    "Answer the weaker of myself and aStrength."
+
+    (aStrength weaker: self)
+      ifTrue:  [ ^ aStrength ]
+      ifFalse: [ ^ self ].
+  )
+
+  arithmeticValue = (
+    "Answer my arithmetic value. Used for comparisons. Note that
+     STRONGER constraints have SMALLER arithmetic values."
+
+    ^ arithmeticValue
+  )
+
+  ----
+  | AbsoluteStrongest AbsoluteWeakest Required StrengthConstants StrengthTable
+    SymAbsoluteStrongest
+    SymRequired
+    SymStrongPreferred
+    SymPreferred
+    SymStrongDefault
+    SymDefault
+    SymWeakDefault
+    SymAbsoluteWeakest |
+
+  new: symVal = (
+    ^ self new initializeWith: symVal
+  )
+
+  strengthTable = (
+      ^ StrengthTable
+  )
+
+  "class initialization"
+  
+  createStrengthTable = (
+    | table |
+    table := SomIdentityDictionary new.
+    table at: SymAbsoluteStrongest put: -10000.
+    table at: SymRequired          put: -800.
+    table at: SymStrongPreferred   put: -600.
+    table at: SymPreferred         put: -400.
+    table at: SymStrongDefault     put: -200.
+    table at: SymDefault           put: 0.
+    table at: SymWeakDefault       put: 500.
+    table at: SymAbsoluteWeakest   put: 10000.
+    ^ table
+  )
+  
+  createStrengthConstants = (
+    | constants |
+    constants := SomIdentityDictionary new.
+    StrengthTable keys forEach: [:strengthSymbol |
+      constants
+        at: strengthSymbol
+        put: (self new: strengthSymbol)].
+    ^ constants
+  )
+
+  initialize = (
+    SymAbsoluteStrongest := Sym new: 0.
+    SymRequired          := Sym new: 1.
+    SymStrongPreferred   := Sym new: 2.
+    SymPreferred         := Sym new: 3.
+    SymStrongDefault     := Sym new: 4.
+    SymDefault           := Sym new: 5.
+    SymWeakDefault       := Sym new: 6.
+    SymAbsoluteWeakest   := Sym new: 7.
+  
+    StrengthTable := self createStrengthTable.
+    StrengthConstants := self createStrengthConstants.
+
+    AbsoluteStrongest := Strength of: SymAbsoluteStrongest.
+    AbsoluteWeakest := Strength of: SymAbsoluteWeakest.
+    Required := Strength of: SymRequired.
+  )
+
+  "instance creation"
+  of: aSymbol = (
+    "Answer an instance with the specified strength."
+    ^ StrengthConstants at: aSymbol
+  )
+
+  "constants"
+  absoluteStrongest = (
+    ^ AbsoluteStrongest
+  )
+
+  absoluteWeakest = (
+    ^ AbsoluteWeakest
+  )
+
+  required = (
+    ^ Required
+  )
+  
+  SymAbsoluteStrongest = ( ^ SymAbsoluteStrongest )
+  SymRequired          = ( ^ SymRequired )
+  SymStrongPreferred   = ( ^ SymStrongPreferred )
+  SymPreferred         = ( ^ SymPreferred )
+  SymStrongDefault     = ( ^ SymStrongDefault )
+  SymDefault           = ( ^ SymDefault )
+  SymWeakDefault       = ( ^ SymWeakDefault )
+  SymAbsoluteWeakest   = ( ^ SymAbsoluteWeakest )
+)

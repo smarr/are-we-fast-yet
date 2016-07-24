@@ -1,0 +1,34 @@
+"This benchmark is derived from Mario Wolczko's Smalltalk version of DeltaBlue.
+
+It is modified to use the SOM class library.
+License details:
+
+http://web.archive.org/web/20050825101121/http://www.sunlabs.com/people/mario/java_benchmarking/index.html
+"
+EqualityConstraint = BinaryConstraint (
+  "I constrain two variables to have the same value: `v1 = v2`."
+  
+  initializeVar: variable1 var: variable2 strength: strengthSymbol addTo: planner = (
+    super initializeVar: variable1 var: variable2 strength: strengthSymbol addTo: planner.
+    self addConstraint: planner.
+  )
+  
+  "execution"
+  execute = (
+    "Enforce this constraint. Assume that it is satisfied."
+    direction = #forward
+      ifTrue:  [ v2 value: v1 value ]
+      ifFalse: [ v1 value: v2 value ].
+  )
+  
+  ----
+
+  "instance creation"
+
+  var: variable1 var: variable2 strength: strengthSymbol addTo: planner = (
+    "Install a constraint with the given strength equating the given
+     variables."
+
+    ^ self new initializeVar: variable1 var: variable2 strength: strengthSymbol addTo: planner
+  )
+)
