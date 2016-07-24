@@ -1,7 +1,5 @@
-| args len |
+| args |
 "Adapt array to expectation of harness"
-len := Smalltalk arguments size + 1.
-args := Array new: len.
-args replaceFrom: 2 to: len with: Smalltalk arguments startingAt: 1.
+args := Array with: nil withAll: Smalltalk arguments.
 
 Harness new run: args.!
