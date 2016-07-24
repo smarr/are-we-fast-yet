@@ -88,7 +88,7 @@ Run = (
   
   ----
   
-  new: name = (
-    ^ self new initialize: name
+  new: aName = (
+    ^ self new initialize: aName
   )
 )
