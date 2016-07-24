@@ -95,7 +95,8 @@ runClasses: aCollectionOfClasses named: aString
 
 !SubunitRunner class methodsFor: 'running' stamp: ''!
 runPackage: aString
-	^ self runClasses: (PackageInfo named: aString) classes named: aString! !
+	^ self runClasses: (RPackage organizer packageNamed: aString) classes
+              named: aString! !
 
 !SubunitRunner class methodsFor: 'running' stamp: ''!
 runPackages: aCollectionOfStrings
