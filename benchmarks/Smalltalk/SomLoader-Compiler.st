@@ -1,12 +1,5 @@
 SystemOrganization addCategory: #'SomLoader-Compiler'!
 
-!ArrayedCollection methodsFor: '*SomLoader-Compiler-SOM-compatibility' stamp: 'StefanMarr 7/23/2016 00:06'!
-length
-	"Answer how many elements the receiver contains."
-
-	<primitive: 62>
-	^ self basicSize! !
-
 Object subclass: #SomClassGenerationContext
 	instanceVariableNames: 'superName isClassSide instanceFields instanceMethods classFields classMethods theName'
 	classVariableNames: ''
