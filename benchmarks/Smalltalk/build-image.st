@@ -3,20 +3,18 @@
 'SomLoader-Compiler.st' asFileReference fileIn.
 'SomLoader-Tests.st' asFileReference fileIn.
 
+ScriptConsole println: '== Run Tests'.
+
 runner := SubunitRunner runPackage: 'SomLoader-Tests'.
 
+ScriptConsole println: '== Load Code'.
+
 Author fullName: 'SomLoader'.
-loader := SomLoader load: '../SOM'.
+loader := SomLoader load: '.'.
 loader createClasses.
 loader createMethods.
 
-loader := SomLoader loadFile: 'Run.som'.
-loader createClasses.
-loader createMethods.
-loader := SomLoader loadFile: 'Mandelbrot.som'.
-loader createClasses.
-loader createMethods.
-
+ScriptConsole println: '== Safe and Exit'.
 
 starting := Smalltalk saveAs: 'AWFY'.
 starting ifTrue: [ ^ self ].
