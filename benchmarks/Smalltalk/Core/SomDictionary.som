@@ -32,7 +32,7 @@ SomDictionary = (
     | hash |
     key isNil ifTrue: [ ^ 0 ].
     hash := key customHash.
-    ^ hash bitXor: (hash >>> 16)
+    ^ hash bitXor: (hash >> 16)
   )
   
   bucketIdx: hash = (
