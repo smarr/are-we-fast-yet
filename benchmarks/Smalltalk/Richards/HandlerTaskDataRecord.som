@@ -1,0 +1,35 @@
+"
+This benchmark is derived from richards.st, which is
+part of Mario Wolczko's DeltaBlue and Richards collection.
+
+License details:
+  http://web.archive.org/web/20050825101121/http://www.sunlabs.com/people/mario/java_benchmarking/index.html
+"
+HandlerTaskDataRecord = RBObject (
+  | workIn deviceIn |
+
+  deviceIn = ( ^ deviceIn )
+
+  deviceIn: aPacket = ( deviceIn := aPacket )
+
+  deviceInAdd: packet = (
+      deviceIn := self append: packet head: deviceIn
+  )
+
+  workIn = ( ^ workIn )
+
+  workIn: aWorkQueue = ( workIn := aWorkQueue )
+
+  workInAdd: packet = (
+      workIn := self append: packet head: workIn
+  )
+
+  create = (
+    workIn := deviceIn := RBObject NoWork
+  )
+  asString = (
+      ^ 'HandlerTaskDataRecord(' + workIn asString + ', ' + deviceIn asString + ')'
+  )
+  ----
+  create = ( ^ super new create )
+)

@@ -1,0 +1,24 @@
+"
+This benchmark is derived from richards.st, which is
+part of Mario Wolczko's DeltaBlue and Richards collection.
+
+License details:
+  http://web.archive.org/web/20050825101121/http://www.sunlabs.com/people/mario/java_benchmarking/index.html
+"
+WorkerTaskDataRecord = RBObject (
+  |destination count|
+  count = ( ^ count )
+
+  count: aCount =( count := aCount )
+
+  destination = ( ^ destination )
+
+  destination: aHandler = ( destination := aHandler )
+
+  create = (
+      destination := RBObject HandlerA.
+      count := 0
+  )
+  ----
+  create = ( ^ super new create )
+)

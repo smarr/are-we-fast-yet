@@ -1,0 +1,49 @@
+"
+This benchmark is derived from richards.st, which is
+part of Mario Wolczko's DeltaBlue and Richards collection.
+
+License details:
+  http://web.archive.org/web/20050825101121/http://www.sunlabs.com/people/mario/java_benchmarking/index.html
+"
+Packet = RBObject (
+  | link identity kind datum data |
+
+  data  = ( ^ data )
+
+  datum = ( ^ datum )
+  datum: someData = ( datum := someData )
+
+  identity = ( ^ identity )
+  identity: anIdentity = ( identity := anIdentity )
+
+  kind = ( ^ kind )
+  link = ( ^ link )
+
+  link: aWorkQueue = ( link := aWorkQueue )
+  link: aLink identity: anIdentity kind: aKind = (
+    link := aLink.
+    kind := aKind.
+    identity := anIdentity. 
+    datum := 1.
+    data  := Array new: 4 withAll: 0
+  )
+
+  asString = (
+      ^ 'Packet(' + 
+          link asString + ', ' +
+          identity asString + ', ' +
+          kind asString + ', ' +
+          datum asString + ', ' +
+          data asString +
+        ')'
+  )
+  
+  ----
+
+  create: link identity: identity kind: kind = ( 
+    ^ super new
+        link: link
+        identity: identity
+        kind: kind
+  )
+)

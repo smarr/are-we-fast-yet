@@ -1,0 +1,192 @@
+"
+Copyright (c) 2001-2016 see AUTHORS.md file
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the 'Software'), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+"
+
+SomDictionary = (
+  | buckets size_ |
+
+  initialize: size = (
+    buckets := Array new: size.
+    size_   := 0
+  )
+
+  hash: key = (
+    | hash |
+    key isNil ifTrue: [ ^ 0 ].
+    hash := key customHash.
+    ^ hash bitXor: (hash >>> 16)
+  )
+  
+  bucketIdx: hash = (
+    ^ 1 + ((buckets size - 1) & hash)
+  )
+  
+  bucket: hash = (
+    ^ buckets at: (self bucketIdx: hash)
+  )
+
+  at: aKey = (
+    | hash e |
+    hash := self hash: aKey.
+    e    := self bucket: hash.
+  
+    [ e notNil ] whileTrue: [
+      (e match: hash key: aKey)
+        ifTrue: [ ^ e value ].
+      e := e next ].
+    ^ nil
+  )
+
+  containsKey: aKey = (
+    | hash e |
+    hash := self hash: aKey.
+    e    := self bucket: hash.
+  
+    [ e notNil ] whileTrue: [
+      (e match: hash key: aKey)
+        ifTrue: [ ^ true ].
+      e := e next ].
+    ^ false
+  )
+  
+  at: aKey put: aVal = (
+    | hash i current |
+    hash := self hash: aKey.
+    i    := self bucketIdx: hash.
+    current := buckets at: i.
+    
+    current isNil
+      ifTrue: [
+        buckets at: i put: (self newEntry: aKey value: aVal hash: hash) ]
+      ifFalse: [
+        self insertBucketEntry: aKey value: aVal hash: hash head: current ].
+
+    size_ := size_ + 1.
+    size_ > buckets size ifTrue: [ self resize ]
+  )
+
+  newEntry: aKey value: value hash: hash = (
+    ^ DictEntry new: hash key: aKey value: value next: nil
+  )
+
+  insertBucketEntry: key value: value hash: hash head: head = (
+    | current |
+    current := head.
+    
+    [true] whileTrue: [
+      (current match: hash key: key) ifTrue: [
+        current value: value.
+        ^ self ].
+      current next isNil ifTrue: [
+        current next: (self newEntry: key value: value hash: hash).
+        ^ self ].
+      current := current next ]
+  )
+
+  resize = (
+    | oldStorage |
+    oldStorage := buckets.
+    buckets := Array new: oldStorage size * 2.
+    self transferEntries: oldStorage
+  )
+
+  transferEntries: oldStorage = (
+    1 to: oldStorage size do: [:i |
+      | current |
+      current := oldStorage at: i.
+      current notNil ifTrue: [
+        oldStorage at: i put: nil.
+        current next isNil
+          ifTrue: [
+            buckets at: 1 + (current hash & (buckets size - 1)) put: current ]
+          ifFalse: [
+            self splitBucket: oldStorage bucket: i head: current ] ] ]
+  )
+
+  splitBucket: oldStorage bucket: i head: head = (
+    | loHead loTail hiHead hiTail current |
+    loHead := nil. loTail := nil.
+    hiHead := nil. hiTail := nil.
+    current := head.
+    
+    [current notNil] whileTrue: [
+      (current hash & oldStorage size) = 0
+        ifTrue: [
+          loTail isNil
+            ifTrue:  [ loHead := current ]
+            ifFalse: [ loTail next: current ].
+          loTail := current ]
+        ifFalse: [
+          hiTail isNil
+            ifTrue:  [ hiHead := current ]
+            ifFalse: [ hiTail next: current ].
+          hiTail := current ].
+      current := current next ].
+  
+    loTail notNil ifTrue: [
+      loTail next: nil.
+      buckets at: i put: loHead ].
+    hiTail notNil ifTrue: [
+      hiTail next: nil.
+      buckets at: i + oldStorage size put: hiHead ]
+  )
+
+  size      = ( ^ size_ )
+  isEmpty   = ( ^ size_ = 0 )
+  removeAll = (
+    buckets := Array new: buckets size.
+    size_ := 0.
+  )
+  
+  keys = (
+    | keys |
+    keys := Vector new: size_.
+    buckets do: [:b |
+      | current |
+      current := b.
+      [ current notNil ] whileTrue: [
+        keys append: current key.
+        current := current next ] ].
+    ^ keys
+  )
+
+  values = (
+    | values |
+    values := Vector new: size_.
+    buckets do: [:b |
+      | current |
+      current := b.
+      [ current notNil ] whileTrue: [
+        values append: current value.
+        current := current next ] ].
+    ^ values
+  )
+
+  ----
+
+  new: size = (
+    ^ super new initialize: size
+  )
+  
+  new = (
+    ^ self new: 16
+  )
+)

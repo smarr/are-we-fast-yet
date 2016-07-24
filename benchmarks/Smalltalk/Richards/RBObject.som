@@ -1,0 +1,34 @@
+"
+This benchmark is derived from richards.st, which is
+part of Mario Wolczko's DeltaBlue and Richards collection.
+
+License details:
+  http://web.archive.org/web/20050825101121/http://www.sunlabs.com/people/mario/java_benchmarking/index.html
+"
+RBObject = Object (
+
+  append: packet head: queueHead = (
+    | mouse link |
+    packet link: RBObject NoWork.
+    RBObject NoWork == queueHead ifTrue: [ ^ packet ].
+    mouse := queueHead.
+    [RBObject NoWork == (link := mouse link)]
+            whileFalse: [mouse := link].
+    mouse link: packet.
+    ^ queueHead
+  )
+
+  ----
+
+  NoTask  = ( ^ nil )
+  Idler   = ( ^ 1   )
+  NoWork  = ( ^ nil )
+  Worker  = ( ^ 2 )
+  WorkPacketKind = ( ^ 2 )
+  HandlerA = ( ^ 3 )
+  HandlerB = ( ^ 4 )
+  DeviceA  = ( ^ 5 )
+  DeviceB  = ( ^ 6 )
+  DevicePacketKind = ( ^ 1 )
+
+)

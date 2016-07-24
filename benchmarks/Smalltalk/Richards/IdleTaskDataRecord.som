@@ -1,0 +1,31 @@
+"
+This benchmark is derived from richards.st, which is
+part of Mario Wolczko's DeltaBlue and Richards collection.
+
+License details:
+  http://web.archive.org/web/20050825101121/http://www.sunlabs.com/people/mario/java_benchmarking/index.html
+"
+IdleTaskDataRecord = RBObject (
+  | control count |
+
+  control = ( ^ control )
+
+  control: aNumber = (
+    control := aNumber
+  )
+
+  count = ( ^ count )
+
+  count: aCount = (
+    count := aCount
+  )
+
+  create = (
+    control := 1.
+    count := 10000
+  )
+
+  ----
+
+  create = ( ^ super new create )
+)
