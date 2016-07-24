@@ -16,7 +16,8 @@ $SCRIPT_PATH/build-crystal.sh
 $SCRIPT_PATH/build-jruby.sh
 $SCRIPT_PATH/build-som.sh
 $SCRIPT_PATH/build-somns.sh
-$SCRIPT_PATH/build-graal.sh
+# $SCRIPT_PATH/build-graal.sh
+$SCRIPT_PATH/build-pharo.sh
 
 
 if [ -e "$GRAALVM_ARCHIVE" ]; then
