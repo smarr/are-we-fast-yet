@@ -19,7 +19,7 @@
 
     <target name="checkstyle-jar">
         <mkdir dir="${build.dir}" />
-        <get src="http://iweb.dl.sourceforge.net/project/checkstyle/checkstyle/${checkstyle.version}/checkstyle-${checkstyle.version}-all.jar"
+        <get src="http://tenet.dl.sourceforge.net/project/checkstyle/checkstyle/${checkstyle.version}/checkstyle-${checkstyle.version}-all.jar"
             usetimestamp="true"
             dest="${build.dir}/checkstyle-${checkstyle.version}-all.jar" />
     </target>
