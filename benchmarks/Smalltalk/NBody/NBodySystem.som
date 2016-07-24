@@ -41,11 +41,11 @@ NBodySystem = (
   )
 
   advance: dt = (
-    1 to: bodies length do: [:i |
+    1 to: bodies size do: [:i |
       | iBody |
       iBody := bodies at: i.
 
-      i + 1 to: bodies length do: [:j |
+      i + 1 to: bodies size do: [:j |
         | dx dy dz jBody dSquared distance mag |
         jBody := bodies at: j.
         dx := iBody x - jBody x.
@@ -77,7 +77,7 @@ NBodySystem = (
     | dx dy dz distance e |
     e := 0.0.
 
-    1 to: bodies length do: [:i |
+    1 to: bodies size do: [:i |
       | iBody |
       iBody := bodies at: i.
   
@@ -86,7 +86,7 @@ NBodySystem = (
             (iBody vy * iBody vy) +
             (iBody vz * iBody vz))).
   
-      i + 1 to: bodies length do: [:j |
+      i + 1 to: bodies size do: [:j |
           | jBody |
           jBody := bodies at: j.
       
