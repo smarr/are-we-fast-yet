@@ -1,3 +1,5 @@
+#pragma once
+
 class Random {
 private:
   int32_t seed;

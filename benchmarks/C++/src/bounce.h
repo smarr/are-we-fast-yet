@@ -1,6 +1,9 @@
+#pragma once
+
 #include <stdlib.h>
 #include <array>
 
+#include "benchmark.h"
 #include "som/random.h"
 
 class Ball {
@@ -63,7 +66,7 @@ public:
     return (void*) (intptr_t) bounces;
   }
   
-  bool verify_result(void* result) {
+  virtual bool verify_result(void* result) {
     return 1331 == (int32_t) (intptr_t) result;
   }
 };
