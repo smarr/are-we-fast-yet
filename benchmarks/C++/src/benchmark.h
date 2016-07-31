@@ -2,6 +2,8 @@
 
 class Benchmark {
 public:
+  virtual ~Benchmark() {}
+
   virtual void* benchmark() = 0;
   virtual bool  verify_result(void* result) = 0;
   

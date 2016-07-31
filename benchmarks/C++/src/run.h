@@ -4,19 +4,31 @@
 #include <stdio.h>
 
 #include "mandelbrot.h"
+#include "bounce.h"
+
+static Benchmark* new_mandelbrot() {
+  return new Mandelbrot();
+}
+
+static Benchmark* new_bounce() {
+  return new Bounce();
+}
+
+typedef Benchmark* (*benchmark_suite)();
+
 
 class Run {
 private:
   
   const std::string name;
-  Benchmark* const benchmark;
+  benchmark_suite suite;
   int32_t num_iterations;
   int32_t inner_iterations;
   int64_t total;
 
 public:
   
-  Run(std::string& name) : name(name), benchmark(select_benchmark(name)) {
+  Run(std::string& name) : name(name), suite(select_benchmark(name)) {
     num_iterations   = 1;
     inner_iterations = 1;
     total = 0;
@@ -24,10 +36,12 @@ public:
   
   void run_benchmark() {
     std::cout << "Starting " << name << " benchmark ...\n";
-    
+    Benchmark* benchmark = suite();
     do_runs(benchmark);
+    delete benchmark;
+
+
     report_benchmark();
-    
     std::cout << "\n";
   }
   
@@ -45,12 +59,14 @@ public:
 
 private:
 
-  Benchmark* select_benchmark(std::string& name) {
-    if (name == "Mandelbrot") {
-      return new Mandelbrot();
+  benchmark_suite select_benchmark(std::string& name) {
+    if (name == "Bounce") {
+      return &new_bounce;
+    } else if (name == "Mandelbrot") {
+      return &new_mandelbrot;
     } else {
       std::cerr << "Benchmark not recognized: " << name << "\n";
-      return nullptr;
+      exit(1);
     }
   }
   
