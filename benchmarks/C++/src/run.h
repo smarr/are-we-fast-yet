@@ -3,8 +3,10 @@
 #include <chrono>
 #include <stdio.h>
 
-#include "mandelbrot.h"
 #include "bounce.h"
+#include "mandelbrot.h"
+#include "sieve.h"
+
 
 static Benchmark* new_mandelbrot() {
   return new Mandelbrot();
@@ -12,6 +14,10 @@ static Benchmark* new_mandelbrot() {
 
 static Benchmark* new_bounce() {
   return new Bounce();
+}
+
+static Benchmark* new_sieve() {
+  return new Sieve();
 }
 
 typedef Benchmark* (*benchmark_suite)();
@@ -64,6 +70,8 @@ private:
       return &new_bounce;
     } else if (name == "Mandelbrot") {
       return &new_mandelbrot;
+    } else if (name == "Sieve") {
+      return &new_sieve;
     } else {
       std::cerr << "Benchmark not recognized: " << name << "\n";
       exit(1);
