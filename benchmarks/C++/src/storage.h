@@ -5,18 +5,71 @@
 #include "benchmark.h"
 #include "som/random.h"
 
+template <typename T>
+class AllocMem {
+public:
+  static const size_t SIZE = 8 * 1024 * 1024;
+  T* const mem;
+  T* const end;
+  mutable T* next;
+
+  explicit AllocMem() : mem((T*) malloc(SIZE)),
+  next(mem),
+  end((T*)((uintptr_t) mem + (SIZE / sizeof(T)))) {}
+  ~AllocMem() { free(mem); }
+};
+
+
+template <typename T>
+class Allocator {
+private:
+  AllocMem<T>* const mem;
+
+public:
+  typedef T value_type;
+  
+  explicit Allocator(AllocMem<T>* mem) : mem(mem) {}
+  Allocator(Allocator&&) = default;
+  Allocator(const Allocator&) = default;
+  
+  T* allocate(std::size_t num_elements) const {
+    if (num_elements + mem->next >= mem->end) {
+      std::cout << "Failed to allocate memory";
+      exit(0);
+    }
+    
+    T* result = mem->next;
+    mem->next += num_elements;
+    return result;
+  }
+  
+  void deallocate(T* p, std::size_t) const { }
+  void reset() const { mem->next = mem->mem; }
+};
+
+typedef std::vector<void*, Allocator<void*>> vec;
+
 
 class Storage : public Benchmark {
 private:
   int32_t count;
+  const Allocator<void*> vec_elem_alloc;
+  const Allocator<vec>   vec_alloc;
+  AllocMem<void*> alloc_elem;
+  AllocMem<vec>   alloc_vec;
 
 public:
+  Storage() : vec_alloc(&alloc_vec), vec_elem_alloc(&alloc_elem) {}
+  
   virtual void* benchmark() {
     Random random;
     
     count = 0;
-    std::vector<void*>* tree = build_tree_depth(7, random);
-    free_tree(tree);
+    build_tree_depth(7, random);
+    
+    vec_elem_alloc.reset();
+    vec_alloc.reset();
+    
     return (void*) (intptr_t) count;
   }
   
@@ -25,27 +78,19 @@ public:
   }
 
 private:
-  std::vector<void*>* build_tree_depth(int32_t depth, Random& random) {
+  vec* build_tree_depth(int32_t depth, Random& random) {
     count++;
     if (depth == 1) {
-      return new std::vector<void*>(random.next() % 10 + 1);
+      vec* mem = vec_alloc.allocate(1);
+      return new(mem) vec(random.next() % 10 + 1, nullptr, vec_elem_alloc);
     } else {
-      auto arr = new std::vector<void*>(4);
+      vec* mem = vec_alloc.allocate(1);
+      vec* arr = new(mem) vec(4, nullptr, vec_elem_alloc);
       
       std::for_each(arr->begin(), arr->end(),
                     [this, depth, &random](void*& i) {
                       i = build_tree_depth(depth - 1, random); });
       return arr;
     }
-  }
-  
-  void free_tree(std::vector<void*>* tree) {
-    std::for_each(tree->begin(), tree->end(),
-                  [this](void*& i) {
-                    if (i != nullptr) {
-                      std::vector<void*>* t = (std::vector<void*>*) i;
-                      free_tree(t);
-                    } });
-    delete tree;
   }
 };
