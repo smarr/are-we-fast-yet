@@ -6,6 +6,7 @@
 #include "bounce.h"
 #include "mandelbrot.h"
 #include "sieve.h"
+#include "towers.h"
 
 
 static Benchmark* new_mandelbrot() {
@@ -18,6 +19,10 @@ static Benchmark* new_bounce() {
 
 static Benchmark* new_sieve() {
   return new Sieve();
+}
+
+static Benchmark* new_towers() {
+  return new Towers();
 }
 
 typedef Benchmark* (*benchmark_suite)();
@@ -72,6 +77,8 @@ private:
       return &new_mandelbrot;
     } else if (name == "Sieve") {
       return &new_sieve;
+    } else if (name == "Towers") {
+      return &new_towers;
     } else {
       std::cerr << "Benchmark not recognized: " << name << "\n";
       exit(1);
