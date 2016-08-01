@@ -6,6 +6,7 @@
 #include "bounce.h"
 #include "mandelbrot.h"
 #include "sieve.h"
+#include "storage.h"
 #include "towers.h"
 
 
@@ -19,6 +20,10 @@ static Benchmark* new_bounce() {
 
 static Benchmark* new_sieve() {
   return new Sieve();
+}
+
+static Benchmark* new_storage() {
+  return new Storage();
 }
 
 static Benchmark* new_towers() {
@@ -51,7 +56,6 @@ public:
     do_runs(benchmark);
     delete benchmark;
 
-
     report_benchmark();
     std::cout << "\n";
   }
@@ -77,6 +81,8 @@ private:
       return &new_mandelbrot;
     } else if (name == "Sieve") {
       return &new_sieve;
+    } else if (name == "Storage") {
+      return &new_storage;
     } else if (name == "Towers") {
       return &new_towers;
     } else {
