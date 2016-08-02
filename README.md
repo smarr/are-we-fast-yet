@@ -61,7 +61,7 @@ benchmarks is in [docs/metrics.md](docs/metrics.md).
 #### Macro Benchmarks
 
  - [CD] is a simulation of an airplane collision detector. Based on
-   WebKit's JavaScript [CDjs]. Originally, CD was designed to evaluated
+   WebKit's JavaScript [CDjs]. Originally, CD was designed to evaluate
    real-time JVMs.
 
  - [DeltaBlue] is a classic VM benchmark used to tune, e.g.,
