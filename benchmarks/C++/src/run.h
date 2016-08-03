@@ -5,6 +5,7 @@
 
 #include "bounce.h"
 #include "mandelbrot.h"
+#include "queens.h"
 #include "sieve.h"
 #include "storage.h"
 #include "towers.h"
@@ -16,6 +17,10 @@ static Benchmark* new_mandelbrot() {
 
 static Benchmark* new_bounce() {
   return new Bounce();
+}
+
+static Benchmark* new_queens() {
+  return new Queens();
 }
 
 static Benchmark* new_sieve() {
@@ -79,6 +84,8 @@ private:
       return &new_bounce;
     } else if (name == "Mandelbrot") {
       return &new_mandelbrot;
+    } else if (name == "Queens") {
+      return &new_queens;
     } else if (name == "Sieve") {
       return &new_sieve;
     } else if (name == "Storage") {
