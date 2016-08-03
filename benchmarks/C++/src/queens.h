@@ -10,7 +10,7 @@ private:
   bool* free_maxs;
   bool* free_rows;
   bool* free_mins;
-  int*  queen_rows;
+  int32_t*  queen_rows;
   
 public:
   virtual void* benchmark() {
@@ -25,7 +25,7 @@ public:
     free_rows  = new bool[ 8]; std::fill_n(free_rows,  8, true);
     free_maxs  = new bool[16]; std::fill_n(free_maxs, 16, true);
     free_mins  = new bool[16]; std::fill_n(free_mins, 16, true);
-    queen_rows = new  int[ 8]; std::fill_n(queen_rows, 8, -1);
+    queen_rows = new int32_t[ 8]; std::fill_n(queen_rows, 8, -1);
     
     bool result = place_queen(0);
     
