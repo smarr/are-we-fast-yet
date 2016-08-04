@@ -55,24 +55,24 @@ public:
 private:
   
   void push_disk(TowersDisk* disk, int32_t pile) {
-    TowersDisk* top = piles[pile];
+    TowersDisk* top = piles.at(pile);
     if (!(top == nullptr) && (disk->get_size() >= top->get_size())) {
       std::cout << "Cannot put a big disk on a smaller one";
       exit(1); // TODO: should this be an exception?
     }
     
     disk->set_next(top);
-    piles[pile] = disk;
+    piles.at(pile) = disk;
   }
   
   TowersDisk* pop_disk_from(int32_t pile) {
-    TowersDisk* top = piles[pile];
+    TowersDisk* top = piles.at(pile);
     if (top == nullptr) {
       std::cout << "Attempting to remove a disk from an empty pile";
       exit(1); // TODO: should this be an exception?
     }
     
-    piles[pile] = top->get_next();
+    piles.at(pile) = top->get_next();
     top->set_next(nullptr);
     return top;
   }
