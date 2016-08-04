@@ -41,7 +41,10 @@ public:
     moves_done = 0;
     move_disks(13, 0, 1);
     
-    std::for_each(piles.begin(), piles.end(), [](TowersDisk*& disk){ delete disk; });
+    for (TowersDisk* disk : piles) {
+      delete disk;
+    };
+
     return reinterpret_cast<void*>(intptr_t(moves_done));
   }
   
