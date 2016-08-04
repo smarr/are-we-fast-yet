@@ -33,10 +33,10 @@ public:
     v = new int32_t[6];
     permute(6);
     delete v;
-    return (void*) (intptr_t) count;
+    return reinterpret_cast<void*>(intptr_t(count));
   }
   
-    return 8660 == (int32_t) (intptr_t) result;
   bool verify_result(void* result) override {
+    return 8660 == int32_t(reinterpret_cast<intptr_t>(result));
   }
 };

@@ -42,11 +42,11 @@ public:
     move_disks(13, 0, 1);
     
     std::for_each(piles.begin(), piles.end(), [](TowersDisk*& disk){ delete disk; });
-    return (void*) (intptr_t) moves_done;
+    return reinterpret_cast<void*>(intptr_t(moves_done));
   }
   
-    return 8191 == (int32_t) (intptr_t) result;
   bool verify_result(void* result) override {
+    return 8191 == int32_t(reinterpret_cast<intptr_t>(result));
   }
   
 private:

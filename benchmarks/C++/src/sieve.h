@@ -14,11 +14,11 @@ public:
       flags[i] = true;
     }
     
-    return (void*) (intptr_t) sieve(flags, 5000);
+    return reinterpret_cast<void*>(intptr_t(sieve(flags, 5000)));
   }
 
-    return 669 == (int32_t) (intptr_t) result;
   bool verify_result(void* result) override {
+    return 669 == int32_t(reinterpret_cast<intptr_t>(result));
   }
 
 private:

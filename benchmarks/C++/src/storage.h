@@ -70,11 +70,11 @@ public:
     vec_elem_alloc.reset();
     vec_alloc.reset();
     
-    return (void*) (intptr_t) count;
+    return reinterpret_cast<void*>(intptr_t(count));
   }
   
-    return 5461 == (int32_t) (intptr_t) result;
   bool verify_result(void* result) override {
+    return 5461 == int32_t(reinterpret_cast<intptr_t>(result));
   }
 
 private:

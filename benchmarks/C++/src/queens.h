@@ -66,8 +66,8 @@ public:
     free_mins[c - r + 7] = v;
   }
   
-  virtual bool verify_result(void* result) {
-    return (bool) result;
+  bool verify_result(void* result) override {
+    return bool(reinterpret_cast<intptr_t>(result));
   }
 
 };

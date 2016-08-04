@@ -63,10 +63,10 @@ public:
         }
       }
     }
-    return (void*) (intptr_t) bounces;
+    return reinterpret_cast<void*>(intptr_t(bounces));
   }
   
-    return 1331 == (int32_t) (intptr_t) result;
   bool verify_result(void* result) override {
+    return 1331 == int32_t(reinterpret_cast<intptr_t>(result));
   }
 };
