@@ -28,7 +28,7 @@ private:
   }
   
 public:
-  virtual void* benchmark() {
+  void* benchmark() override {
     count = 0;
     v = new int32_t[6];
     permute(6);
@@ -36,7 +36,7 @@ public:
     return (void*) (intptr_t) count;
   }
   
-  virtual bool verify_result(void* result) {
     return 8660 == (int32_t) (intptr_t) result;
+  bool verify_result(void* result) override {
   }
 };

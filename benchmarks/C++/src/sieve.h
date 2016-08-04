@@ -6,7 +6,7 @@
 class Sieve : public Benchmark {
 public:
   
-  virtual void* benchmark() {
+  void* benchmark() override {
     const int32_t num_flags = 5000;
     bool flags[num_flags];
     
@@ -17,8 +17,8 @@ public:
     return (void*) (intptr_t) sieve(flags, 5000);
   }
 
-  virtual bool verify_result(void* result) {
     return 669 == (int32_t) (intptr_t) result;
+  bool verify_result(void* result) override {
   }
 
 private:

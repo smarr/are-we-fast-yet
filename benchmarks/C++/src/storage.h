@@ -61,7 +61,7 @@ private:
 public:
   Storage() : vec_alloc(&alloc_vec), vec_elem_alloc(&alloc_elem), count(0) {}
   
-  virtual void* benchmark() {
+  void* benchmark() override {
     Random random;
     
     count = 0;
@@ -73,8 +73,8 @@ public:
     return (void*) (intptr_t) count;
   }
   
-  virtual bool verify_result(void* result) {
     return 5461 == (int32_t) (intptr_t) result;
+  bool verify_result(void* result) override {
   }
 
 private:

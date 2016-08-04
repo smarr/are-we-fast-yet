@@ -8,10 +8,10 @@
 class Mandelbrot : public Benchmark {
 public:
 
-  virtual void* benchmark() { return nullptr; };
-  virtual bool  verify_result(void* result) { return false; };
+  void* benchmark() override { return nullptr; };
+  bool  verify_result(void*) override { return false; };
   
-  virtual bool inner_benchmark_loop(int32_t inner_iterations) {
+  bool inner_benchmark_loop(int32_t inner_iterations) override {
     return verify_result(mandelbrot(inner_iterations), inner_iterations);
   }
 

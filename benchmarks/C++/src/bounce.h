@@ -45,7 +45,7 @@ public:
 
 class Bounce : public Benchmark {
 public:
-  virtual void* benchmark() {
+  void* benchmark() override {
     Random random;
     
     const int32_t ball_count = 100;
@@ -66,7 +66,7 @@ public:
     return (void*) (intptr_t) bounces;
   }
   
-  virtual bool verify_result(void* result) {
     return 1331 == (int32_t) (intptr_t) result;
+  bool verify_result(void* result) override {
   }
 };

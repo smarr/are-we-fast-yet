@@ -35,7 +35,7 @@ private:
 
 public:
   
-  virtual void* benchmark() {
+  void* benchmark() override {
     piles = std::array<TowersDisk*, 3>();
     build_tower_at(0, 13);
     moves_done = 0;
@@ -45,8 +45,8 @@ public:
     return (void*) (intptr_t) moves_done;
   }
   
-  virtual bool verify_result(void* result) {
     return 8191 == (int32_t) (intptr_t) result;
+  bool verify_result(void* result) override {
   }
   
 private:
