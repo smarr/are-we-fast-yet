@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdlib.h>
 #include <array>
+#include <cstdlib>
 
 #include "benchmark.h"
 #include "som/random.h"

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <chrono>
-#include <stdio.h>
+#include <cstdio>
 
 #include "bounce.h"
 #include "mandelbrot.h"
