@@ -43,7 +43,7 @@ public:
     return result;
   }
   
-  void deallocate(T* p, std::size_t) const { }
+  void deallocate(T*, std::size_t) const { }
   void reset() const { mem->next = mem->mem; }
 };
 
