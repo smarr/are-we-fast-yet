@@ -13,7 +13,7 @@ private:
 
 public:
   
-  TowersDisk(int32_t size) : size(size) {}
+  explicit TowersDisk(int32_t size) : size(size), next(nullptr) {}
   
   ~TowersDisk() {
     if (next != nullptr) {

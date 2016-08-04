@@ -59,7 +59,7 @@ private:
   AllocMem<vec>   alloc_vec;
 
 public:
-  Storage() : vec_alloc(&alloc_vec), vec_elem_alloc(&alloc_elem) {}
+  Storage() : vec_alloc(&alloc_vec), vec_elem_alloc(&alloc_elem), count(0) {}
   
   virtual void* benchmark() {
     Random random;

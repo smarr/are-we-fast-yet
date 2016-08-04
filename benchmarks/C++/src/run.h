@@ -54,7 +54,7 @@ private:
 
 public:
   
-  Run(std::string& name) : name(name), suite(select_benchmark(name)) {
+  explicit Run(std::string& name) : name(name), suite(select_benchmark(name)) {
     num_iterations   = 1;
     inner_iterations = 1;
     total = 0;

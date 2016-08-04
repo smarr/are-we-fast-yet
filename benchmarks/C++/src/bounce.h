@@ -19,7 +19,7 @@ public:
   
   Ball(Ball&&) = default;
 
-  Ball(Random& random) {
+  explicit Ball(Random& random) {
     x = random.next() % 500;
     y = random.next() % 500;
     x_vel = (random.next() % 300) - 150;
