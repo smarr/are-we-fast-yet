@@ -83,14 +83,14 @@ private:
     if (depth == 1) {
       vec* mem = vec_alloc.allocate(1);
       return new(mem) vec(random.next() % 10 + 1, nullptr, vec_elem_alloc);
-    } else {
-      vec* mem = vec_alloc.allocate(1);
-      vec* arr = new(mem) vec(4, nullptr, vec_elem_alloc);
-      
-      std::for_each(arr->begin(), arr->end(),
-                    [this, depth, &random](void*& i) {
-                      i = build_tree_depth(depth - 1, random); });
-      return arr;
     }
+
+    vec* mem = vec_alloc.allocate(1);
+    vec* arr = new(mem) vec(4, nullptr, vec_elem_alloc);
+    
+    std::for_each(arr->begin(), arr->end(),
+                  [this, depth, &random](void*& i) {
+                    i = build_tree_depth(depth - 1, random); });
+    return arr;
   }
 };

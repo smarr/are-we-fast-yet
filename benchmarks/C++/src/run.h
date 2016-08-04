@@ -87,22 +87,28 @@ private:
   benchmark_suite select_benchmark(std::string& name) {
     if (name == "Bounce") {
       return &new_bounce;
-    } else if (name == "Mandelbrot") {
-      return &new_mandelbrot;
-    } else if (name == "Permute") {
-      return &new_permute;
-    } else if (name == "Queens") {
-      return &new_queens;
-    } else if (name == "Sieve") {
-      return &new_sieve;
-    } else if (name == "Storage") {
-      return &new_storage;
-    } else if (name == "Towers") {
-      return &new_towers;
-    } else {
-      std::cerr << "Benchmark not recognized: " << name << "\n";
-      exit(1);
     }
+    if (name == "Mandelbrot") {
+      return &new_mandelbrot;
+    }
+    if (name == "Permute") {
+      return &new_permute;
+    }
+    if (name == "Queens") {
+      return &new_queens;
+    }
+    if (name == "Sieve") {
+      return &new_sieve;
+    }
+    if (name == "Storage") {
+      return &new_storage;
+    }
+    if (name == "Towers") {
+      return &new_towers;
+    }
+
+    std::cerr << "Benchmark not recognized: " << name << "\n";
+    exit(1);
   }
   
   void measure(Benchmark* const bench) {

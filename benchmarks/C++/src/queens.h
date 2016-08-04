@@ -12,15 +12,6 @@ private:
   bool* free_mins;
   int32_t*  queen_rows;
   
-public:
-  virtual void* benchmark() {
-    bool result = true;
-    for (int32_t i = 0; i < 10; i++) {
-      result = result && queens();
-    }
-    return (void*) result;
-  }
-  
   bool queens() {
     free_rows  = new bool[ 8]; std::fill_n(free_rows,  8, true);
     free_maxs  = new bool[16]; std::fill_n(free_maxs, 16, true);
@@ -64,6 +55,15 @@ public:
     free_rows[r        ] = v;
     free_maxs[c + r    ] = v;
     free_mins[c - r + 7] = v;
+  }
+  
+public:
+  void* benchmark() override {
+    bool result = true;
+    for (int32_t i = 0; i < 10; i++) {
+      result = result && queens();
+    }
+    return reinterpret_cast<void*>(result);
   }
   
   bool verify_result(void* result) override {
