@@ -40,7 +40,7 @@ static Benchmark* new_towers() {
   return new Towers();
 }
 
-typedef Benchmark* (*benchmark_suite)();
+using benchmark_suite = Benchmark* (*)();
 
 
 class Run {

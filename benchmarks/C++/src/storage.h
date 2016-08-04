@@ -26,7 +26,7 @@ private:
   AllocMem<T>* const mem;
 
 public:
-  typedef T value_type;
+  using value_type = T;
   
   explicit Allocator(AllocMem<T>* mem) : mem(mem) {}
   Allocator(Allocator&&) = default;
@@ -47,7 +47,7 @@ public:
   void reset() const { mem->next = mem->mem; }
 };
 
-typedef std::vector<void*, Allocator<void*>> vec;
+using vec = std::vector<void*, Allocator<void*>>;
 
 
 class Storage : public Benchmark {
