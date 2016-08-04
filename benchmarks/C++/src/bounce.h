@@ -15,7 +15,7 @@ private:
   int32_t y_vel;
 
 public:
-  Ball() {}
+  Ball() = default;
   
   Ball(Ball&&) = default;
 
