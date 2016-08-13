@@ -18,6 +18,9 @@ Style/PredicateName:
 Style/IfInsideElse:
   Enabled: false
 
+Style/NumericPredicate:
+  Enabled: false
+
 Lint/ShadowingOuterLocalVariable:
   Enabled: false
 
