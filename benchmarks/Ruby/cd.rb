@@ -484,7 +484,7 @@ class CallSign
   end
 
   def compare_to(other)
-    value == other.value ? 0 : ((value < other.value) ? -1 : 1)
+    value == other.value ? 0 : (value < other.value ? -1 : 1)
   end
 end
 
