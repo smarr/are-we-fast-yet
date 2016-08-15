@@ -8,6 +8,7 @@
    too.
  - fixed some style issues for Ruby benchmarks for latest rubocop
  - fixed Java Checkstyle URL
+ - fixed Dictionary size tracking (not benchmark relevant)
 
 ## [v1.0] - 2016-06-22
 

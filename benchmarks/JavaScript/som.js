@@ -338,11 +338,11 @@ Dictionary.prototype.atPut = function (key, value) {
 
   if (!current) {
     this.buckets[i] = this.newEntry(key, value, hash_);
+    this.size_ += 1;
   } else {
     this.insertBucketEntry(key, value, hash_, current);
   }
 
-  this.size_ += 1;
   if (this.size_ > this.buckets.length) {
     this.resize();
   }
@@ -361,6 +361,7 @@ Dictionary.prototype.insertBucketEntry = function (key, value, hash, head) {
       return;
     }
     if (!current.next) {
+      this.size_ += 1;
       current.next = this.newEntry(key, value, hash);
       return;
     }

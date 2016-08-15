@@ -122,11 +122,11 @@ public class Dictionary<K extends CustomHash, V> {
 
     if (current == null) {
       buckets[i] = newEntry(key, value, hash);
+      size += 1;
     } else {
       insertBucketEntry(key, value, hash, current);
     }
 
-    size += 1;
     if (size > buckets.length) {
       resize();
     }
@@ -146,6 +146,7 @@ public class Dictionary<K extends CustomHash, V> {
         return;
       }
       if (current.next == null) {
+        size += 1;
         current.next = newEntry(key, value, hash);
         return;
       }

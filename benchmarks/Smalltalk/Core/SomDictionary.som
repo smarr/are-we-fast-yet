@@ -75,11 +75,11 @@ SomDictionary = (
     
     current isNil
       ifTrue: [
-        buckets at: i put: (self newEntry: aKey value: aVal hash: hash) ]
+        buckets at: i put: (self newEntry: aKey value: aVal hash: hash).
+        size_ := size_ + 1 ]
       ifFalse: [
         self insertBucketEntry: aKey value: aVal hash: hash head: current ].
 
-    size_ := size_ + 1.
     size_ > buckets size ifTrue: [ self resize ]
   )
 
@@ -96,6 +96,7 @@ SomDictionary = (
         current value: value.
         ^ self ].
       current next isNil ifTrue: [
+        size_ := size_ + 1.
         current next: (self newEntry: key value: value hash: hash).
         ^ self ].
       current := current next ]

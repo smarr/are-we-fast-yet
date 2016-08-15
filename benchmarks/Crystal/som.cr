@@ -379,11 +379,11 @@ class Dictionary(K, V)
 
     unless current
       @buckets[i] = new_entry(key, value, hash)
+      @size += 1
     else
       insert_bucket_entry(key, value, hash, current)
     end
 
-    @size += 1
     if @size > @buckets.size
       resize
     end
@@ -402,6 +402,7 @@ class Dictionary(K, V)
         return
       end
       unless current.next
+        @size += 1
         current.next = new_entry(key, value, hash)
         return
       end
