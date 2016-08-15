@@ -1,11 +1,12 @@
 #!/bin/sh
+exit 0
 # rebench -d --without-nice rebench.conf steady-java
 # rebench -d --without-nice rebench.conf steady-crystal
 # rebench -d --without-nice rebench.conf steady-js
 # rebench -d --without-nice rebench.conf ruby-others
 # rebench -d --without-nice rebench.conf steady-ruby
 # rebench -d --without-nice rebench.conf steady-som
-rebench -d --without-nice rebench.conf pharo
+# rebench -d --without-nice rebench.conf pharo
 # rebench -d --without-nice rebench.conf all
 
 DATA_ROOT=~/benchmark-results/are-we-fast-yet
