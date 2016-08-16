@@ -47,7 +47,7 @@ function Run(name) {
       throw "Benchmark failed with incorrect result";
     }
     var diff =  process.hrtime(startTime);
-    var runTime = (diff[0] * 1e9 + diff[1]) / 1000;
+    var runTime = ((diff[0] * 1e9 + diff[1]) / 1000) | 0; // truncate to integer
 
     printResult(runTime);
     total += runTime;
