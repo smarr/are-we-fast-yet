@@ -25,11 +25,12 @@ vm_names <- c("Java8U66"              = "Java",
               "JRubyJ8"               = "JRuby",
               "JRubyTruffleEnterprise" = "JRuby+Truffle",
               "MRI23"                 = "MRI",
-              "RBX314"                = "Rubinius")
+              "RBX314"                = "Rubinius",
+              "Pharo"                 = "Pharo")
 
 
 vms_all  <- names(vm_names)
-vms_slow <- c("RBX314", "MRI23", "JRubyJ8")
+vms_slow <- c("RBX314", "MRI23", "JRubyJ8", "Pharo")
 vms_fast <- c("Crystal", "GraalJS", "JRubyTruffleEnterprise",
               "Java8U66", "Node", "SOMns-Enterprise",
               "TruffleSOM-TOM-Enterprise")
@@ -38,17 +39,19 @@ vms_truffle <- c("GraalJS", "JRubyTruffleEnterprise",
 
 assert_that(all(sort(c(vms_slow, vms_fast)) == sort(vms_all))) ## sanity check
 
-vm_colors <- brewer.pal(10, "Paired")  # to replace scale_fill_brewer(type = "qual", palette = "Paired")
+vm_colors <- brewer.pal(11, "Paired")  # to replace scale_fill_brewer(type = "qual", palette = "Paired")
 names(vm_colors) <- vm_names
 
 
 data <- load_data_file("data/benchmark.data.bz2")
+data_p <- load_data_file("data/pharo.data")
+data <- rbind(data, data_p)
 data <- droplevels(subset(data, Benchmark != "DeltaBlueV8" & VM %in% vms_all,
                           select = c(Value, Unit, Benchmark, VM, Iteration)))
 
 data_fast_vms      <- droplevels(subset(data, Iteration >= 1500 & Iteration < 2500 & VM %in% vms_fast))
 data_very_slow_vms <- droplevels(subset(data, VM %in% vms_slow & VM != "JRubyJ8"))
-data_slow_vms      <- droplevels(subset(data, Iteration >= 100 & VM == "JRubyJ8"))
+data_slow_vms      <- droplevels(subset(data, Iteration >= 100 & (VM == "JRubyJ8" | VM == "Pharo")))
 data <- rbind(data_fast_vms, data_slow_vms, data_very_slow_vms)
 
 
