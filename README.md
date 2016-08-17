@@ -33,6 +33,13 @@ For the detailed set of rules see [the guidelines](docs/guidelines.md) document.
 For a description of the set of common language abstractions see [the *core*
 language](docs/core-language.md) document.
 
+The initial publication describing the project is [Cross-Language Compiler 
+Benchmarking: Are We Fast Yet?][3] and can be cited as follows:
+
+  > Stefan Marr, Benoit Daloze, Hanspeter Mössenböck. 2016.
+  > [Cross-Language Compiler Benchmarking: Are We Fast Yet?][4]
+  > In Proceedings of the 12th Symposium on Dynamic Languages (DLS '16). ACM.
+
 ##### Disclaimer: This is an Academic Project to Facilitate Research on Languages
 
 To facilitate research, the goal of this project is specifically to assess the
@@ -205,6 +212,8 @@ benchmarks.
 
  [1]: https://github.com/smarr/SOMns
  [2]: http://www.newspeaklanguage.org/
+ [3]: http://stefan-marr.de/papers/dls-marr-et-al-cross-language-compiler-benchmarking-are-we-fast-yet/
+ [4]: http://stefan-marr.de/downloads/dls16-marr-et-al-cross-language-compiler-benchmarking-are-we-fast-yet.pdf
 
  [CD]:        https://www.cs.purdue.edu/sss/projects/cdx/
  [CDjs]:      https://github.com/WebKit/webkit/tree/master/PerformanceTests/JetStream/cdjs
