@@ -210,10 +210,17 @@ here to avoid requiring root rights.
 benchmarks to execute. It also defines the arguments to be passed to the
 benchmarks.
 
+## Papers using this benchmark suite
+
+  > Benoit Daloze, Stefan Marr, Daniele Bonetta, Hanspeter Mössenböck. 2016.
+  > [Efficient and Thread-Safe Objects for Dynamically-Typed Languages][5]
+  > In Proceedings of the 2016 ACM SIGPLAN International Conference on Object-Oriented Programming, Systems, Languages, and Applications (OOPSLA '16). ACM.
+
  [1]: https://github.com/smarr/SOMns
  [2]: http://www.newspeaklanguage.org/
  [3]: http://stefan-marr.de/papers/dls-marr-et-al-cross-language-compiler-benchmarking-are-we-fast-yet/
  [4]: http://stefan-marr.de/downloads/dls16-marr-et-al-cross-language-compiler-benchmarking-are-we-fast-yet.pdf
+ [5]: http://2016.splashcon.org/event/splash-2016-oopsla-efficient-and-thread-safe-objects-for-dynamically-typed-languages
 
  [CD]:        https://www.cs.purdue.edu/sss/projects/cdx/
  [CDjs]:      https://github.com/WebKit/webkit/tree/master/PerformanceTests/JetStream/cdjs
