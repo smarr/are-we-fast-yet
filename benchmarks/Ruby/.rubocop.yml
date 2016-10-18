@@ -53,6 +53,9 @@ Metrics/ParameterLists:
 Metrics/BlockNesting:
   Enabled: false
 
+Metrics/BlockLength:
+  Max: 28
+
 Style/ZeroLengthPredicate:
   Enabled: false
 
