@@ -65,10 +65,10 @@ public final class Bounce extends Benchmark {
 
     Arrays.setAll(balls, v -> new Ball(random));
 
-    for (int i = 1; i <= 50; i++) {
+    for (int i = 0; i < 50; i++) {
       for (Ball ball : balls) {
         if (ball.bounce()) {
-          bounces++;
+          bounces += 1;
         }
       }
     }
