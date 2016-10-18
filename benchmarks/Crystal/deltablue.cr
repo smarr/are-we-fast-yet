@@ -40,6 +40,73 @@ class DeltaBlue < Benchmark
   end
 end
 
+abstract class AbstractConstraint
+  getter :strength
+
+  def initialize(strength_sym)
+    @strength = Strength.of(strength_sym)
+  end
+
+  def is_input
+    false
+  end
+
+  def add_constraint(planner)
+    add_to_graph
+    planner.incremental_add(self)
+  end
+
+  def destroy_constraint(planner)
+    if is_satisfied
+      planner.incremental_remove(self)
+    end
+    remove_from_graph
+  end
+
+  def inputs_known(mark)
+    !inputs_has_one { | v | !(v.mark == mark || v.stay || !v.determined_by) }
+  end
+
+  def satisfy(mark, planner)
+    choose_method(mark)
+
+    if is_satisfied
+      inputs_do { | i | i.mark = mark }
+
+      outx = output
+      overridden = outx.determined_by
+
+      if overridden
+        overridden.mark_unsatisfied
+      end
+
+      outx.determined_by = self
+
+      unless planner.add_propagate(self, mark)
+        raise "Cycle encountered adding: Constraint removed"
+      end
+
+      outx.mark = mark
+      overridden
+    else
+      if @strength.same_as(REQUIRED)
+        raise "Failed to satisfy a required constraint"
+      end
+      nil
+    end
+  end
+
+  abstract def choose_method(mark)
+  abstract def execute
+  abstract def inputs_do(&block : Variable -> Void)
+  abstract def inputs_has_one(&block : Variable -> Bool)
+  abstract def is_satisfied
+  abstract def mark_unsatisfied
+  abstract def output
+  abstract def recalculate
+  abstract def remove_from_graph
+end
+
 class Plan < Vector(AbstractConstraint?)
   def initialize
     super(15)
@@ -356,74 +423,6 @@ class Strength
   def self.of(sym) : Strength
     STRENGHT_CONSTANTS.at(sym).not_nil!
   end
-end
-
-
-abstract class AbstractConstraint
-  getter :strength
-
-  def initialize(strength_sym)
-    @strength = Strength.of(strength_sym)
-  end
-
-  def is_input
-    false
-  end
-
-  def add_constraint(planner)
-    add_to_graph
-    planner.incremental_add(self)
-  end
-
-  def destroy_constraint(planner)
-    if is_satisfied
-      planner.incremental_remove(self)
-    end
-    remove_from_graph
-  end
-
-  def inputs_known(mark)
-    !inputs_has_one { | v | !(v.mark == mark || v.stay || !v.determined_by) }
-  end
-
-  def satisfy(mark, planner)
-    choose_method(mark)
-
-    if is_satisfied
-      inputs_do { | i | i.mark = mark }
-
-      outx = output
-      overridden = outx.determined_by
-
-      if overridden
-        overridden.mark_unsatisfied
-      end
-
-      outx.determined_by = self
-
-      unless planner.add_propagate(self, mark)
-        raise "Cycle encountered adding: Constraint removed"
-      end
-
-      outx.mark = mark
-      overridden
-    else
-      if @strength.same_as(REQUIRED)
-        raise "Failed to satisfy a required constraint"
-      end
-      nil
-    end
-  end
-
-  abstract def choose_method(mark)
-  abstract def execute
-  abstract def inputs_do(&block : Variable -> Void)
-  abstract def inputs_has_one(&block : Variable -> Bool)
-  abstract def is_satisfied
-  abstract def mark_unsatisfied
-  abstract def output
-  abstract def recalculate
-  abstract def remove_from_graph
 end
 
 abstract class BinaryConstraint < AbstractConstraint

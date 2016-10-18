@@ -81,7 +81,7 @@ class RichardsScheduler < RBObject
   def create_device(identity, priority, work, state)
     data = DeviceTaskDataRecord.new
     create_task(identity, priority, work, state, data) { | work, word |
-      data_record = word as DeviceTaskDataRecord
+      data_record = word.as(DeviceTaskDataRecord)
       function_work = work
       if function_work # NO_WORK == 
         data_record.pending = function_work
@@ -104,7 +104,7 @@ class RichardsScheduler < RBObject
   def create_handler(identity, priority, work, state)
     data = HandlerTaskDataRecord.new
     create_task(identity, priority, work, state, data) { | work, word |
-      data_record = word as HandlerTaskDataRecord
+      data_record = word.as(HandlerTaskDataRecord)
       unless NO_WORK == work
         w = work.not_nil!
         if WORK_PACKET_KIND == w.kind
@@ -141,7 +141,7 @@ class RichardsScheduler < RBObject
   def create_idler(identity, priority, work, state)
     data = IdleTaskDataRecord.new
     create_task(identity, priority, work, state, data) { | work, word |
-      data_record = word as IdleTaskDataRecord
+      data_record = word.as(IdleTaskDataRecord)
       data_record.count -= 1
       if 0 == data_record.count
         hold_self
@@ -171,7 +171,7 @@ class RichardsScheduler < RBObject
   def create_worker(identity, priority, work, state)
     data_record = WorkerTaskDataRecord.new
     create_task(identity, priority, work, state, data_record) { | work, word |
-      data = word as WorkerTaskDataRecord
+      data = word.as(WorkerTaskDataRecord)
       if work
         data.destination = HANDLER_A == data.destination ? HANDLER_B : HANDLER_A
         work.identity = data.destination
