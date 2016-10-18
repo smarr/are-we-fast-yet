@@ -101,24 +101,8 @@ public final class Run {
     // Checkstyle: resume
   }
 
-  public String getName() {
-    return name;
-  }
-
-  public Class<? extends Benchmark> getBenchmarkSuite() {
-    return benchmarkSuite;
-  }
-
-  public int getNumIterations() {
-    return numIterations;
-  }
-
   public void setNumIterations(final int numIterations) {
     this.numIterations = numIterations;
-  }
-
-  public int getInnerIterations() {
-    return innerIterations;
   }
 
   public void setInnerIterations(final int innerIterations) {
