@@ -83,7 +83,7 @@ abstract class AbstractConstraint {
         return value;
       }
     }
-    void apply(final Variable var) throws BlockFunction.Return;
+    void apply(Variable var) throws BlockFunction.Return;
   }
 
   public abstract void inputsDo(ForEachInterface<Variable> fn);

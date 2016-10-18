@@ -11,5 +11,5 @@ package richards;
 
 @FunctionalInterface
 public interface ProcessFunction {
-  TaskControlBlock apply(final Packet work, final RBObject word);
+  TaskControlBlock apply(Packet work, RBObject word);
 }
