@@ -9,18 +9,18 @@ SCRIPT_PATH=`dirname $0`
 source $SCRIPT_PATH/script.inc
 source $SCRIPT_PATH/config.inc
 
+if [ ! -d "$SCRIPT_PATH/pharo-vm" ]; then
+  INFO Get Pharo VM
+  cd $SCRIPT_PATH
+  get_web_getter
+  $GET get.pharo.org/vm50 || $GET get.pharo.org/vm50
+  bash vm50
 
-
-INFO Get Pharo VM
-cd $SCRIPT_PATH
-get_web_getter
-$GET get.pharo.org/vm50 || $GET get.pharo.org/vm50
-bash vm50
-
-INFO Get Pharo Image
-cd $SCRIPT_PATH/../benchmarks/Smalltalk
-$GET get.pharo.org/stable || $GET get.pharo.org/stable
-bash stable
+  INFO Get Pharo Image
+  cd $SCRIPT_PATH/../benchmarks/Smalltalk
+  $GET get.pharo.org/stable || $GET get.pharo.org/stable
+  bash stable
+fi
 
 INFO Build Benchmarking Image
 $SCRIPT_PATH/pharo Pharo.image build-image.st
