@@ -8,7 +8,7 @@ popd > /dev/null
 ## Graal-Core Binary
 ##  folder is different depending on host JDK version
 ##  take the first, might pick up outdated version unfortunately
-GRAAL_CORE_CMD=`find $SCRIPT_PATH -perm +111 -type f -name java | grep "product/bin/" | head -n 1`
+GRAAL_CORE_CMD=`find $SCRIPT_PATH -perm /111 -type f -name java | grep "product/bin/" | head -n 1`
 
 GRAAL_HOSTED_FLAGS="-server -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCI -d64 "
 GRAAL_JIT_FLAGS="-server -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCI -XX:+UseJVMCICompiler -d64 "
