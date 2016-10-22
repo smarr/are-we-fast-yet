@@ -23,4 +23,5 @@ if [ ! -d "$SCRIPT_PATH/pharo-vm" ]; then
 fi
 
 INFO Build Benchmarking Image
+cd $SCRIPT_PATH/../benchmarks/Smalltalk
 $SCRIPT_PATH/pharo Pharo.image build-image.st
