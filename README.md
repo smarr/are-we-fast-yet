@@ -62,6 +62,9 @@ last update 2016-06-20](docs/figures/all-langs-overview-1.png?raw=true)
 
 A detailed overview of the results is in [docs/performance.md](docs/performance.md).
 
+For a performance comparison over time, see the [timeline view on awfy-speed.stefan-marr.de](http://awfy-speed.stefan-marr.de/timeline/).
+The runs are managed at [smarr/awfy-runs](https://github.com/smarr/awfy-runs).
+
 The benchmarks are listed below. A detailed analysis including metrics for the
 benchmarks is in [docs/metrics.md](docs/metrics.md).
 
