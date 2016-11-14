@@ -66,12 +66,9 @@ public class Grid {
 
 	private static int divisor = 100000;
 
-	private final boolean releasable;
-
 	/** Creates a new instance of Grid */
 	public Grid(int gridWidth, int gridHeight, int gridDepth, boolean rel) {
 		// Set up PCB grid
-		releasable = false;
 		width = gridWidth;
 		height = gridHeight;
 		depth = gridDepth;

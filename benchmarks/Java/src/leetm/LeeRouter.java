@@ -84,11 +84,7 @@ public class LeeRouter {
 
     final Object gridLock = new Object();
 
-    private static Document doc;
-
     static int netNo = 0;
-
-//	private static int printDest = 0; // 1 for file, 0 for screen.
 
     // note these very useful arrays
     final static int dx[][] = { { -1, 1, 0, 0 }, { 0, 0, -1, 1 } };
@@ -188,7 +184,6 @@ public class LeeRouter {
 
             inputFile = new BufferedReader(new InputStreamReader(
                     new FileInputStream(fileName)));
-            int i = 0;
             while (true) {
                 nextLine();
                 char c = readChar();
@@ -210,7 +205,6 @@ public class LeeRouter {
                 }
                 if (c == 'J') // join connection pts
                 {
-                    i++;
                     int x0 = readInt();
                     int y0 = readInt();
                     int x1 = readInt();
@@ -406,8 +400,6 @@ public class LeeRouter {
             front = tmp_front;
             tmp_front = tf;
         }
-//		 view.pad(x,y,red);
-//		 view.pad(xGoal,yGoal,red);
         return false;
     }
 
@@ -429,26 +421,6 @@ public class LeeRouter {
         int sq = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
         return (int) Math.sqrt(sq);
     }
-
-//	private static int ratio(int x1, int y1, int x2, int y2) {
-//		int xdiff = x2 - x1;
-//		int ydiff = y2 - y1;
-//		if (xdiff < 0)
-//			xdiff = -xdiff;
-//		if (ydiff < 0)
-//			ydiff = -ydiff;
-//		if (xdiff > ydiff) {
-//			if (ydiff == 0)
-//				return 100000;
-//			else
-//				return xdiff / ydiff;
-//		} else {
-//			if (xdiff == 0)
-//				return 100000;
-//			else
-//				return ydiff / xdiff;
-//		}
-//	}
 
     private static int deviation(int x1, int y1, int x2, int y2) {
         int xdiff = x2 - x1;
@@ -752,7 +724,7 @@ public class LeeRouter {
         System.out.println("Numthreads: " + numThreads);
         //System.out.println("Throughput:  " + throughput);
         System.out.println("ElapsedTime: " + elapsedTime);
-        lr.report(startTime,exitByTimeout,true);
+        LeeRouter.report(startTime, exitByTimeout, true);
         lr.sanityCheck();
     }
 

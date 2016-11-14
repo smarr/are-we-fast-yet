@@ -241,7 +241,5 @@ public class XMLHelper {
 		element = doc.createElement("LaidTracks");
 		element.setTextContent(Long.toString(tracks));
 		root.appendChild(element);
-
-
 	}
 }

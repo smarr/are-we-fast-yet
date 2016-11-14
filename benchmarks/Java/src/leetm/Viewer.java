@@ -46,7 +46,9 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 
 public class Viewer extends Frame {
-    private BufferedImage image;
+	private static final long serialVersionUID = 9191414219415062372L;
+
+	private BufferedImage image;
 
     public Viewer() {
         image = new BufferedImage(600,600,1); //TYPE_INT_RGB
@@ -69,9 +71,6 @@ public class Viewer extends Frame {
 
     @Override
 	public void paint(Graphics graphics) {
-	//drawSquare(10,10,20,20,0xFFFFFF);
-	//drawSquare(10,50,20,60,0xFFFF);
-	//      drawSquare(10,90,20,100,0xFF);
 	graphics.drawImage(image, 0, 30, null);
     }
 
@@ -80,8 +79,6 @@ public class Viewer extends Frame {
     }
 
     public void pad(int x,int y,int col){
-//      x = x*2;
-//      y = y*2;
       drawSquare(x-1,y-1,x+1,y+1,col);
     }
 

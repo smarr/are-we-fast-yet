@@ -149,9 +149,6 @@ public class LeeThread extends Thread {
 
     public void collectMyStatistics() {
         myLaidTracks=_threadState.get().myLaidTracks-myLaidTracks;
-
-
-
     }
 
     public void resetMyStatistics() {
