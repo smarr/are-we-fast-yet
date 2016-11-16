@@ -34,83 +34,86 @@
  */
 package leetm;
 
-
 public class WorkQueue {
 
-	public int x1, y1, x2, y2, nn;
+  public int x1;
+  public int y1;
+  public int x2;
+  public int y2;
+  public int nn;
 
-	public WorkQueue next;
+  public WorkQueue next;
 
-	WorkQueue() {
-		next = null;
-	}
+  WorkQueue() {
+    next = null;
+  }
 
-	WorkQueue(int xx1, int yy1, int xx2, int yy2, int n) {
-		x1 = xx1;
-		y1 = yy1;
-		x2 = xx2;
-		y2 = yy2;
-		nn = n;
-	}
+  WorkQueue(final int xx1, final int yy1, final int xx2, final int yy2, final int n) {
+    x1 = xx1;
+    y1 = yy1;
+    x2 = xx2;
+    y2 = yy2;
+    nn = n;
+  }
 
-	public WorkQueue enQueue(int x1, int y1, int x2, int y2, int n) {
-		WorkQueue q = new WorkQueue(x1, y1, x2, y2, n);
-		q.next = this.next;
-		return q;
-	}
+  public WorkQueue enQueue(final int x1, final int y1, final int x2, final int y2, final int n) {
+    WorkQueue q = new WorkQueue(x1, y1, x2, y2, n);
+    q.next = this.next;
+    return q;
+  }
 
-	public WorkQueue deQueue() {
-		WorkQueue q = this.next;
-		this.next = this.next.next;
-		return q;
-	}
+  public WorkQueue deQueue() {
+    WorkQueue q = this.next;
+    this.next = this.next.next;
+    return q;
+  }
 
-	public boolean less(int xx1, int yy1, int xx2, int yy2) {
-		return (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1) > (xx2 - xx1)
-				* (xx2 - xx1) + (yy2 - yy1) * (yy2 - yy1);
-	}
+  public boolean less(final int xx1, final int yy1, final int xx2, final int yy2) {
+    return (x2 - x1) * (x2 - x1)
+        + (y2 - y1) * (y2 - y1) > (xx2 - xx1) * (xx2 - xx1)
+            + (yy2 - yy1) * (yy2 - yy1);
+  }
 
-	public boolean pass() {
-		boolean done = true;
-		WorkQueue ent = this;
-		WorkQueue a = ent.next;
-		while (a.next != null) {
-			WorkQueue b = a.next;
-			if (a.less(b.x1, b.y1, b.x2, b.y2)) {
-				ent.next = b;
-				a.next = b.next;
-				b.next = a;
-				done = false;
-			}
-			ent = a;
-			a = b;
-			b = b.next;
-			// System.out.print("#");
-		}
-		return done;
-	}
+  public boolean pass() {
+    boolean done = true;
+    WorkQueue ent = this;
+    WorkQueue a = ent.next;
+    while (a.next != null) {
+      WorkQueue b = a.next;
+      if (a.less(b.x1, b.y1, b.x2, b.y2)) {
+        ent.next = b;
+        a.next = b.next;
+        b.next = a;
+        done = false;
+      }
+      ent = a;
+      a = b;
+      b = b.next;
+      // System.out.print("#");
+    }
+    return done;
+  }
 
-	public void sort() {
-		while (!pass())
-			;
-	}
+  public void sort() {
+    while (!pass()) {
+      ;
+    }
+  }
 
-	public WorkQueue enQueue(WorkQueue q) {
-		WorkQueue n = new WorkQueue(q.x1, q.y1, q.x2, q.y2, q.nn);
-		n.next = this.next;
-		return n;
-	}
+  public WorkQueue enQueue(final WorkQueue q) {
+    WorkQueue n = new WorkQueue(q.x1, q.y1, q.x2, q.y2, q.nn);
+    n.next = this.next;
+    return n;
+  }
 
-	public int length() {
-		WorkQueue curr = this.next;
-		int retval = 0;
+  public int length() {
+    WorkQueue curr = this.next;
+    int retval = 0;
 
-		while(curr!=null) {
-			retval++;
-			curr = curr.next;
-		}
-
-		return retval;
-	}
-
+    while (curr != null) {
+      retval++;
+      curr = curr.next;
+    }
+    return retval;
+  }
 }

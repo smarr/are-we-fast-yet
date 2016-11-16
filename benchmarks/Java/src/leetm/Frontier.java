@@ -34,15 +34,17 @@
  */
 package leetm;
 
-
 public class Frontier {
 
-	public int x, y, z, dw;
+  public int x;
+  public int y;
+  public int z;
+  public int dw;
 
-	Frontier(int xx, int yy, int zz, int ddw) {
-		x = xx;
-		y = yy;
-		z = zz;
-		dw = ddw;
-	}
+  Frontier(final int xx, final int yy, final int zz, final int ddw) {
+    x = xx;
+    y = yy;
+    z = zz;
+    dw = ddw;
+  }
 }

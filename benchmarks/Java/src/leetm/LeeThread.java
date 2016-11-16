@@ -40,119 +40,44 @@ package leetm;
  */
 public class LeeThread extends Thread {
 
-    public static boolean stop = false;
+  public long myLaidTracks = 0;
+
+  LeeRouter lt;
+  int[][][] tempg;
+
+  public LeeThread(final LeeRouter lt) {
+    this.lt = lt;
+    tempg = new int[lt.gridSize][lt.gridSize][2]; // Lee 2D Grid copy
+  }
+
+  @Override
+  public void run() {
     boolean finished = false;
-    public boolean sampleNow = false;
-    public boolean doneSample = true;
-   // public static long totalTracks=0;
-    public static long totalLaidTracks=0;
-    public long myLaidTracks=0;
-    private static Object lock = new Object();
-    public String hardware = System.getenv("HOSTNAME");
-    protected static ThreadLocal<ThreadState> _threadState = new ThreadLocal<ThreadState>() {
-        @Override
-		protected synchronized ThreadState initialValue() {
-            return new ThreadState();
-        }
-    };
-    static ThreadLocal<Thread> _thread = new ThreadLocal<Thread>() {
-        @Override
-		protected synchronized Thread initialValue() {
-            return null;
-        }
-    };
+    while (!finished) {
+      boolean done = true;
+      WorkQueue t = null;
 
-    LeeRouter lt;
-    WorkQueue t;
-    boolean done = true;
-    int[][][] tempg;
-
-    LeeThread(LeeRouter lt) {
-        this.lt = lt;
-        tempg = new int[lt.GRID_SIZE][lt.GRID_SIZE][2]; // Lee 2D Grid copy
+      if (done) {
+        t = lt.getNextTrack();
+        done = false;
+      }
+      if (t == null) {
+        finished = true;
+        break;
+      } else {
+        // System.out.println("Laying track "+t.nn);
+        lt.layNextTrack(t, tempg);
+        done = true;
+        updateStatistics();
+      }
     }
+  }
 
-    @Override
-	public void run() {
-        while (!finished && !stop) {
-            if(sampleNow) {
-                collectMyStatistics();
-                doneSample = true;
-                sampleNow = false;
-            }
-            if(done) {
-                t = lt.getNextTrack();
-                done = false;
-            }
-            if(t==null) {
-                finished = true;
-                System.out.println("Finished");
-                collectMyStatistics();
-                collectStatistics(_threadState.get());
-                break;
-            } else {
-                //System.out.println("Laying track "+t.nn);
-                lt.layNextTrack(t, tempg);
-                done = true;
-                updateStatistics();
-            }
-        }
-    }
+  public void updateStatistics() {
+    myLaidTracks += 1;
+  }
 
-
-
-    /**
-     * Class that holds thread's actual state
-     */
-    public static class ThreadState {
-
-
-        private long myLaidTracks = 0;        // number of laid tracks
-
-        /**
-         * Creates new ThreadState
-         */
-        public ThreadState() {
-        }
-
-        /**
-         * Resets any metering information (commits/aborts, etc).
-         */
-        public void reset() {
-            myLaidTracks = 0;            // total number of transactions
-        }
-
-        /**
-         * used for debugging
-         * @return string representation of thread state
-         */
-        @Override
-		public String toString() {
-            return
-                    "Thread" + hashCode() + "["+
-                    "total: " +  myLaidTracks + "," +
-                    "]";
-        }
-
-    }
-    protected static void collectStatistics(ThreadState threadState) {
-        // collect statistics
-        synchronized (lock){
-            totalLaidTracks+=threadState.myLaidTracks;
-            threadState.reset();  // set up for next iteration
-        }
-    }
-
-    public void updateStatistics(){
-        _threadState.get().myLaidTracks++;
-    }
-
-    public void collectMyStatistics() {
-        myLaidTracks=_threadState.get().myLaidTracks-myLaidTracks;
-    }
-
-    public void resetMyStatistics() {
-        myLaidTracks=0;
-    }
-
+  public void reset() {
+    myLaidTracks = 0;
+  }
 }

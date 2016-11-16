@@ -36,14 +36,14 @@ package leetm;
 
 public class GridCell {
 
-	private int value;
+  private int value;
 
-	public int getRouteID() {
-		return value;
-	}
+  public int getRouteID() {
+    return value;
+  }
 
-	public void setRouteID(int v) {
-		value = v;
-	}
+  public void setRouteID(final int v) {
+    value = v;
+  }
 
 }
