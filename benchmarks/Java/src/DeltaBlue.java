@@ -11,7 +11,7 @@ import deltablue.Planner;
 public class DeltaBlue extends Benchmark {
 
   @Override
-  public boolean innerBenchmarkLoop(final int innerIterations) {
+  public boolean innerBenchmarkLoop(final int innerIterations, int numThreads) {
     Planner.chainTest(innerIterations);
     Planner.projectionTest(innerIterations);
     return true;

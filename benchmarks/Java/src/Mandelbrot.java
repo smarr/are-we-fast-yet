@@ -44,7 +44,7 @@
 final class Mandelbrot extends Benchmark {
 
   @Override
-  public boolean innerBenchmarkLoop(final int innerIterations) {
+  public boolean innerBenchmarkLoop(final int innerIterations, int numThreads) {
     return verifyResult(mandelbrot(innerIterations), innerIterations);
   }
 

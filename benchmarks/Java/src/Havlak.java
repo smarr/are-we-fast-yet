@@ -24,7 +24,7 @@ import havlak.LoopTesterApp;
 public final class Havlak extends Benchmark {
 
   @Override
-  public boolean innerBenchmarkLoop(final int innerIterations) {
+  public boolean innerBenchmarkLoop(final int innerIterations, int numThreads) {
     return verifyResult((new LoopTesterApp()).main(
         innerIterations, 50, 10 /* was 100 */, 10, 5), innerIterations);
   }

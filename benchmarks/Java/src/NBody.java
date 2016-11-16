@@ -8,7 +8,7 @@ import nbody.NBodySystem;
 public final class NBody extends Benchmark {
 
   @Override
-  public boolean innerBenchmarkLoop(final int innerIterations) {
+  public boolean innerBenchmarkLoop(final int innerIterations, int numThreads) {
     NBodySystem system = new NBodySystem();
     for (int i = 0; i < innerIterations; i++) {
       system.advance(0.01);

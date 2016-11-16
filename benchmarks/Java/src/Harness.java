@@ -29,6 +29,9 @@ public final class Harness {
       run.setNumIterations(Integer.valueOf(args[1]));
       if (args.length > 2) {
         run.setInnerIterations(Integer.valueOf(args[2]));
+        if (args.length > 3) {
+          run.setThreads(Integer.valueOf(args[3]));
+        }
       }
     }
 
@@ -37,12 +40,13 @@ public final class Harness {
 
   private static void printUsage() {
     // Checkstyle: stop
-    System.out.println("Harness [benchmark] [num-iterations [inner-iter]]");
+    System.out.println("Harness [benchmark] [num-iterations [inner-iter [threads]]");
     System.out.println();
     System.out.println("  benchmark      - benchmark class name ");
     System.out.println("  num-iterations - number of times to execute benchmark, default: 1");
     System.out.println("  inner-iter     - number of times the benchmark is executed in an inner loop, ");
     System.out.println("                   which is measured in total, default: 1");
+    System.out.println("  threads        - upper limit of threads the benchmark might use");
     // Checkstyle: resume
   }
 

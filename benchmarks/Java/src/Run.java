@@ -25,6 +25,7 @@ public final class Run {
   private final Class<? extends Benchmark> benchmarkSuite;
   private int numIterations;
   private int innerIterations;
+  private int numThreads;
   private long total;
 
   public Run(final String name) {
@@ -32,6 +33,7 @@ public final class Run {
     this.benchmarkSuite = getSuiteFromName(name);
     numIterations   = 1;
     innerIterations = 1;
+    this.numThreads = 1;
   }
 
   @SuppressWarnings("unchecked")
@@ -65,7 +67,7 @@ public final class Run {
 
   private void measure(final Benchmark bench) {
     long startTime = System.nanoTime();
-    if (!bench.innerBenchmarkLoop(innerIterations)) {
+    if (!bench.innerBenchmarkLoop(innerIterations, numThreads)) {
       throw new RuntimeException("Benchmark failed with incorrect result");
     }
     long endTime = System.nanoTime();
@@ -107,5 +109,9 @@ public final class Run {
 
   public void setInnerIterations(final int innerIterations) {
     this.innerIterations = innerIterations;
+  }
+
+  public void setThreads(final int numThreads) {
+    this.numThreads = numThreads;
   }
 }

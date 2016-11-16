@@ -44,7 +44,7 @@ public final class CD extends Benchmark {
   }
 
   @Override
-  public boolean innerBenchmarkLoop(final int innerIterations) {
+  public boolean innerBenchmarkLoop(final int innerIterations, int numThreads) {
     return verifyResult(benchmark(innerIterations), innerIterations);
   }
 
