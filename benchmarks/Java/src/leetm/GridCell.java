@@ -38,6 +38,10 @@ public class GridCell {
 
   private int value;
 
+  public GridCell(final int value) {
+    this.value = value;
+  }
+
   public int getRouteID() {
     return value;
   }

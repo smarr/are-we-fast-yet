@@ -38,46 +38,45 @@ import java.util.Vector;
 
 public class LeeRouter {
 
-  final int                    gridSize;
+  final int gridSize;
 
-  static final int             EMPTY                = 0;
-  static final int             TEMP_EMPTY           = 10000;
-  static final int             OCC                  = 5120;
-  static final int             VIA                  = 6000;
-  static final int             BVIA                 = 6001;
-  static final int             TRACK                = 8192;
-  static final int             MAX_WEIGHT           = 1;
+  static final int EMPTY      = 0;
+  static final int TEMP_EMPTY = 10000;
+  static final int OCC        = 5120;
+  static final int VIA        = 6000;
+  static final int BVIA       = 6001;
+  static final int TRACK      = 8192;
+  static final int MAX_WEIGHT = 1;
 
-  final Grid   grid;
-  final Object gridLock = new Object();
+  private final Grid   grid;
+  private final Object gridLock = new Object();
 
-  int netNo = 0;
+  private int netNo = 0;
 
   // note these very useful arrays
-  static final int[][] dx = {{-1, 1, 0, 0}, {0, 0, -1, 1}};
+  private static final int[][] dx = {{-1, 1, 0, 0}, {0, 0, -1, 1}};
 
   // to help look NSEW.
-  static final int[][] dy = {{0, 0, -1, 1}, {-1, 1, 0, 0}};
+  private static final int[][] dy = {{0, 0, -1, 1}, {-1, 1, 0, 0}};
 
-  int failures   = 0;
-  int numVias    = 0;
-  int forcedVias = 0;
+  private int failures   = 0;
+  private int numVias    = 0;
+  private int forcedVias = 0;
 
-  String inputLine;
-  int    linepos = 0;
+  private String inputLine;
+  private int    linePos = 0;
 
-  final Object                 queueLock            = new Object();
-
-  final WorkQueue              work;
+  private final Object    queueLock = new Object();
+  private final WorkQueue work;
 
   public static final boolean  DEBUG = false;
 
-  public LeeRouter(final String[] data, final int gridSize, final boolean rel) {
+  public LeeRouter(final String[] data, final int gridSize) {
     this.gridSize = gridSize;
     if (DEBUG) {
       System.out.println("Creating grid...");
     }
-    grid = new Grid(gridSize, gridSize, 2, rel); // the Lee 3D Grid;
+    grid = new Grid(gridSize, gridSize, 2); // the Lee 3D Grid;
     if (DEBUG) {
       System.out.println("Done creating grid");
     }
@@ -91,7 +90,7 @@ public class LeeRouter {
       System.out.println("Done parsing data");
       System.out.println("Adding weights...");
     }
-    grid.addweights();
+    grid.addWeights();
     if (DEBUG) {
       System.out.println("Done adding weights");
     }
@@ -102,7 +101,7 @@ public class LeeRouter {
     // Read very simple HDL file
     for (String line : data) {
       inputLine = line;
-      linepos = 0;
+      linePos = 0;
 
       char c = readChar();
       if (c == 'E') {
@@ -129,7 +128,7 @@ public class LeeRouter {
         int x1 = readInt();
         int y1 = readInt();
         netNo++;
-        work.next = work.enQueue(x0, y0, x1, y1, netNo);
+        work.next = work.enqueue(x0, y0, x1, y1, netNo);
       }
     }
   }
@@ -137,7 +136,7 @@ public class LeeRouter {
   public WorkQueue getNextTrack() {
     synchronized (queueLock) {
       if (work.next != null) {
-        return work.deQueue();
+        return work.dequeue();
       }
     }
     return null;
@@ -147,132 +146,125 @@ public class LeeRouter {
     // start transaction
     boolean done = false;
     synchronized (gridLock) {
-      done = connect(q.x1, q.y1, q.x2, q.y2, q.nn, tempg, grid);
+      done = connect(q.x1, q.y1, q.x2, q.y2, q.nn, tempg);
     }
     return done;
     // end transaction
   }
 
   private char readChar() {
-    while ((inputLine.charAt(linepos) == ' ')
-        && (inputLine.charAt(linepos) == '\t')) {
-      linepos++;
+    while ((inputLine.charAt(linePos) == ' ')
+        && (inputLine.charAt(linePos) == '\t')) {
+      linePos++;
     }
-    char c = inputLine.charAt(linepos);
-    if (linepos < inputLine.length() - 1) {
-      linepos++;
+    char c = inputLine.charAt(linePos);
+    if (linePos < inputLine.length() - 1) {
+      linePos++;
     }
     return c;
   }
 
   private int readInt() {
-    while ((inputLine.charAt(linepos) == ' ')
-        || (inputLine.charAt(linepos) == '\t')) {
-      linepos++;
+    while ((inputLine.charAt(linePos) == ' ')
+        || (inputLine.charAt(linePos) == '\t')) {
+      linePos++;
     }
-    int fpos = linepos;
-    while ((linepos < inputLine.length())
-        && (inputLine.charAt(linepos) != ' ')
-        && (inputLine.charAt(linepos) != '\t')) {
-      linepos++;
+    int fpos = linePos;
+    while ((linePos < inputLine.length())
+        && (inputLine.charAt(linePos) != ' ')
+        && (inputLine.charAt(linePos) != '\t')) {
+      linePos++;
     }
-    int n = Integer.parseInt(inputLine.substring(fpos, linepos));
+    int n = Integer.parseInt(inputLine.substring(fpos, linePos));
     return n;
   }
 
   public boolean ok(final int x, final int y) {
     // checks that point is actually within the bounds
     // of grid array
-    return (x > 0 && x < gridSize - 1 && y > 0 && y < gridSize - 1);
+    return x > 0 && x < gridSize - 1 && y > 0 && y < gridSize - 1;
   }
 
   public boolean expandFromTo(final int x, final int y, final int xGoal,
-      final int yGoal, final int num, final int[][][] tempg, final Grid grid) {
+      final int yGoal, final int num, final int[][][] tempg) {
     // this method should use Lee's expansion algorithm from
     // coordinate (x,y) to (xGoal, yGoal) for the num iterations
     // it should return true if the goal is found and false if it is not
     // reached within the number of iterations allowed.
 
-    // g[xGoal][yGoal][0] = EMPTY; // set goal as empty
-    // g[xGoal][yGoal][1] = EMPTY; // set goal as empty
-    Vector<Frontier> front = new Vector<Frontier>();
-    Vector<Frontier> tmp_front = new Vector<Frontier>();
+    Vector<Frontier> front     = new Vector<Frontier>();
+    Vector<Frontier> tmpFront = new Vector<Frontier>();
     tempg[x][y][0] = 1; // set grid (x,y) as 1
     tempg[x][y][1] = 1; // set grid (x,y) as 1
-    boolean trace1 = false;
+
     front.addElement(new Frontier(x, y, 0, 0));
     front.addElement(new Frontier(x, y, 1, 0)); // we can start from either
     // side
     if (DEBUG) {
       System.out.println("Expanding " + x + " " + y + " " + xGoal + " " + yGoal);
     }
-    int extra_iterations = 50;
+    int extraIterations = 50;
     boolean reached0 = false;
     boolean reached1 = false;
     while (!front.isEmpty()) {
       while (!front.isEmpty()) {
-        int weight, prev_val;
+        int weight;
+        int prevVal;
         Frontier f = front.elementAt(0);
         front.removeElementAt(0);
         if (f.dw > 0) {
-          tmp_front.addElement(new Frontier(f.x, f.y, f.z, f.dw - 1));
+          tmpFront.addElement(new Frontier(f.x, f.y, f.z, f.dw - 1));
         } else {
-          if (trace1) {
-            if (DEBUG) {
-              System.out.println("X " + f.x + " Y " + f.y + " Z " + f.z + " DW "
-                  + f.dw + " processing - val " + tempg[f.x][f.y][f.z]);
-            }
-          }
           // int dir_weight = 1;
           weight = grid.getPoint(f.x, f.y + 1, f.z) + 1;
-          prev_val = tempg[f.x][f.y + 1][f.z];
+          prevVal = tempg[f.x][f.y + 1][f.z];
           boolean reached = (f.x == xGoal) && (f.y + 1 == yGoal);
-          if ((prev_val > tempg[f.x][f.y][f.z] + weight) && (weight < OCC)
+          if ((prevVal > tempg[f.x][f.y][f.z] + weight) && (weight < OCC)
               || reached) {
             if (ok(f.x, f.y + 1)) {
               tempg[f.x][f.y + 1][f.z] = tempg[f.x][f.y][f.z] + weight; // looking
                                                                         // north
               if (!reached) {
-                tmp_front.addElement(new Frontier(f.x, f.y + 1, f.z, 0));
+                tmpFront.addElement(new Frontier(f.x, f.y + 1, f.z, 0));
               }
             }
           }
           weight = grid.getPoint(f.x + 1, f.y, f.z) + 1;
-          prev_val = tempg[f.x + 1][f.y][f.z];
+          prevVal = tempg[f.x + 1][f.y][f.z];
           reached = (f.x + 1 == xGoal) && (f.y == yGoal);
-          if ((prev_val > tempg[f.x][f.y][f.z] + weight) && (weight < OCC)
+          if ((prevVal > tempg[f.x][f.y][f.z] + weight) && (weight < OCC)
               || reached) {
             if (ok(f.x + 1, f.y)) {
               tempg[f.x + 1][f.y][f.z] = tempg[f.x][f.y][f.z] + weight; // looking
                                                                         // east
               if (!reached) {
-                tmp_front.addElement(new Frontier(f.x + 1, f.y, f.z, 0));
+                tmpFront.addElement(new Frontier(f.x + 1, f.y, f.z, 0));
               }
             }
           }
           weight = grid.getPoint(f.x, f.y - 1, f.z) + 1;
-          prev_val = tempg[f.x][f.y - 1][f.z];
+          prevVal = tempg[f.x][f.y - 1][f.z];
           reached = (f.x == xGoal) && (f.y - 1 == yGoal);
-          if ((prev_val > tempg[f.x][f.y][f.z] + weight) && (weight < OCC)
+          if ((prevVal > tempg[f.x][f.y][f.z] + weight) && (weight < OCC)
               || reached) {
             if (ok(f.x, f.y - 1)) {
               tempg[f.x][f.y - 1][f.z] = tempg[f.x][f.y][f.z] + weight; // looking
                                                                         // south
               if (!reached) {
-                tmp_front.addElement(new Frontier(f.x, f.y - 1, f.z, 0));
+                tmpFront.addElement(new Frontier(f.x, f.y - 1, f.z, 0));
               }
             }
           }
           weight = grid.getPoint(f.x - 1, f.y, f.z) + 1;
-          prev_val = tempg[f.x - 1][f.y][f.z];
+          prevVal = tempg[f.x - 1][f.y][f.z];
           reached = (f.x - 1 == xGoal) && (f.y == yGoal);
-          if ((prev_val > tempg[f.x][f.y][f.z] + weight) && (weight < OCC)
+          if ((prevVal > tempg[f.x][f.y][f.z] + weight) && (weight < OCC)
               || reached) {
             if (ok(f.x - 1, f.y)) {
               tempg[f.x - 1][f.y][f.z] = tempg[f.x][f.y][f.z] + weight; // looking
                                                                         // west
               if (!reached) {
-                tmp_front.addElement(new Frontier(f.x - 1, f.y, f.z, 0));
+                tmpFront.addElement(new Frontier(f.x - 1, f.y, f.z, 0));
               }
             }
           }
@@ -280,51 +272,51 @@ public class LeeRouter {
             weight = grid.getPoint(f.x, f.y, 1) + 1;
             if ((tempg[f.x][f.y][1] > tempg[f.x][f.y][0]) && (weight < OCC)) {
               tempg[f.x][f.y][1] = tempg[f.x][f.y][0];
-              tmp_front.addElement(new Frontier(f.x, f.y, 1, 0));
+              tmpFront.addElement(new Frontier(f.x, f.y, 1, 0));
             }
           } else {
             weight = grid.getPoint(f.x, f.y, 0) + 1;
             if ((tempg[f.x][f.y][0] > tempg[f.x][f.y][1]) && (weight < OCC)) {
               tempg[f.x][f.y][0] = tempg[f.x][f.y][1];
-              tmp_front.addElement(new Frontier(f.x, f.y, 0, 0));
+              tmpFront.addElement(new Frontier(f.x, f.y, 0, 0));
             }
           }
           // must check if found goal, if so return TRUE
           reached0 = tempg[xGoal][yGoal][0] != TEMP_EMPTY;
           reached1 = tempg[xGoal][yGoal][1] != TEMP_EMPTY;
           if ((reached0 && !reached1) || (!reached0 && reached1)) {
-            extra_iterations = 100;
+            extraIterations = 100;
           }
-          if ((extra_iterations == 0) && (reached0 || reached1)
+          if ((extraIterations == 0) && (reached0 || reached1)
               || (reached0 && reached1)) {
             return true; // if (xGoal, yGoal) can be found in
             // time
           } else {
-            extra_iterations--;
+            extraIterations--;
           }
         }
       }
       Vector<Frontier> tf;
       tf = front;
-      front = tmp_front;
-      tmp_front = tf;
+      front = tmpFront;
+      tmpFront = tf;
     }
     return false;
   }
 
-  private boolean pathFromOtherSide(final int[][][] g, final int X, final int Y,
-      final int Z) {
+  private boolean pathFromOtherSide(final int[][][] g, final int x, final int y,
+      final int z) {
     boolean ok;
-    int Zo;
-    Zo = 1 - Z; // other side
-    int sqval = g[X][Y][Zo];
+    int zo;
+    zo = 1 - z; // other side
+    int sqval = g[x][y][zo];
     if ((sqval == VIA) || (sqval == BVIA)) {
       return false;
     }
-    ok = (g[X][Y][Zo] <= g[X][Y][Z]);
+    ok = (g[x][y][zo] <= g[x][y][z]);
     if (ok) {
-      ok = (g[X - 1][Y][Zo] < sqval) || (g[X + 1][Y][Zo] < sqval)
-          || (g[X][Y - 1][Zo] < sqval) || (g[X][Y + 1][Zo] < sqval);
+      ok = (g[x - 1][y][zo] < sqval) || (g[x + 1][y][zo] < sqval)
+          || (g[x][y - 1][zo] < sqval) || (g[x][y + 1][zo] < sqval);
     }
     return ok;
   }
@@ -352,8 +344,7 @@ public class LeeRouter {
   }
 
   public void backtrackFrom(final int xGoal, final int yGoal, final int xStart,
-      final int yStart, final int trackNo, final int[][][] tempg,
-      final Grid grid) {
+      final int yStart, final int trackNo, final int[][][] tempg) {
     // this method should backtrack from the goal position (xGoal, yGoal)
     // back to the starting position (xStart, yStart) filling in the
     // grid array g with the specified track number trackNo ( + TRACK).
@@ -396,18 +387,14 @@ public class LeeRouter {
       boolean advanced = false;
       int mind = 0;
       int dir = 0;
-      int min_square = 100000;
-      int d;
-      for (d = 0; d < 4; d++) { // PDL: Find dir to start back from
+      int minSquare = 100000;
+      for (int d = 0; d < 4; d++) { // PDL: Find dir to start back from
         // current position
-        if ((tempg[tempX + dx[tempZ][d]][tempY
-            + dy[tempZ][d]][tempZ] < tempg[tempX][tempY][tempZ])
-            && (tempg[tempX + dx[tempZ][d]][tempY
-                + dy[tempZ][d]][tempZ] != TEMP_EMPTY)) {
-          if (tempg[tempX + dx[tempZ][d]][tempY
-              + dy[tempZ][d]][tempZ] < min_square) {
-            min_square = tempg[tempX + dx[tempZ][d]][tempY
-                + dy[tempZ][d]][tempZ];
+        int p = tempg[tempX + dx[tempZ][d]][tempY + dy[tempZ][d]][tempZ];
+        if ((p < tempg[tempX][tempY][tempZ])
+            && (p != TEMP_EMPTY)) {
+          if (p < minSquare) {
+            minSquare = p;
             mind = d;
             dir = dx[tempZ][d] * 2 + dy[tempZ][d]; // hashed dir
             if (lastdir < -2) {
@@ -424,13 +411,15 @@ public class LeeRouter {
         System.out.println("Backtracking " + tempX + " " + tempY + " " + tempZ
             + " " + tempg[tempX][tempY][tempZ] + " " + advanced + " " + mind);
       }
-      if (pathFromOtherSide(tempg, tempX, tempY,
-          tempZ) && ((mind > 1) && // not preferred dir for this layer
-              (distsofar > 15) && (tlength(tempX, tempY, xStart, yStart) > 15)
+      if (pathFromOtherSide(tempg, tempX, tempY, tempZ) &&
+
+          ((mind > 1 && // not preferred dir for this layer
+            distsofar > 15 &&
+            tlength(tempX, tempY, xStart, yStart) > 15)
               ||
-              // (deviation(tempX,tempY,xStart,yStart) > 3) ||
-              (!advanced && ((grid.getPoint(tempX, tempY, tempZ) != VIA)
-                  && (grid.getPoint(tempX, tempY, tempZ) != BVIA))))) {
+              (!advanced &&
+               grid.getPoint(tempX, tempY, tempZ) != VIA &&
+               grid.getPoint(tempX, tempY, tempZ) != BVIA))) {
         int tZ = 1 - tempZ; // 0 if 1, 1 if 0
         int viat;
         if (advanced) {
@@ -441,13 +430,11 @@ public class LeeRouter {
         // mark via
         tempg[tempX][tempY][tempZ] = viat;
         grid.setPoint(tempX, tempY, tempZ, viat);
-        grid.setDebugPoint(tempX, tempY, tempZ, trackNo);
 
         tempZ = tZ;
         // and the other side
         tempg[tempX][tempY][tempZ] = viat;
         grid.setPoint(tempX, tempY, tempZ, viat);
-        grid.setDebugPoint(tempX, tempY, tempZ, trackNo);
 
         numVias++;
         if (!advanced) {
@@ -465,16 +452,6 @@ public class LeeRouter {
         if (grid.getPoint(tempX, tempY, tempZ) < OCC) {
           // PDL: fill in track unless connection point
           grid.setPoint(tempX, tempY, tempZ, TRACK);
-          if (DEBUG) {
-            grid.setDebugPoint(tempX, tempY, tempZ, trackNo);
-          }
-        } else if (grid.getPoint(tempX, tempY, tempZ) == OCC) {
-          if (DEBUG) {
-            grid.setDebugPoint(tempX, tempY, tempZ, OCC);
-          }
-          if (DEBUG) {
-            grid.setDebugPoint(tempX, tempY, 1 - tempZ, OCC);
-          }
         }
         tempX = tempX + dx[tempZ][mind]; // PDL: updating current
         // position on x axis
@@ -489,26 +466,20 @@ public class LeeRouter {
   }
 
   public boolean connect(final int xs, final int ys, final int xg, final int yg,
-      final int netNo, final int[][][] tempg, final Grid grid) {
+      final int netNo, final int[][][] tempg) {
     // calls expandFrom and backtrackFrom to create connection
     // This is the only real change needed to make the program
-    // transactional.
-    // Instead of using the grid 'in place' to do the expansion, we take a
-    // copy
-    // but the backtrack writes to the original grid.
-    // This is not a correctness issue. The transactions would still
-    // complete eventually without it.
-    // However the expansion writes are only temporary and do not logically
-    // conflict.
-    // There is a question as to whether a copy is really necessary as a
-    // transaction will anyway create
-    // its own copy. if we were then to distinguish between writes not to be
-    // committed (expansion) and
-    // those to be committed (backtrack), we would not need an explicit
-    // copy.
-    // Taking the copy is not really a computational(time) overhead because
-    // it avoids the grid 'reset' phase
-    // needed if we do the expansion in place.
+    // transactional. Instead of using the grid 'in place' to do the expansion,
+    // we take a copy but the backtrack writes to the original grid.
+    // This is not a correctness issue. The transactions would still complete
+    // eventually without it. However the expansion writes are only temporary
+    // and do not logically conflict. There is a question as to whether a copy
+    // is really necessary as a transaction will anyway create its own copy.
+    // if we were then to distinguish between writes not to be committed
+    // (expansion) and those to be committed (backtrack), we would not need an
+    // explicit copy. Taking the copy is not really a computational(time)
+    // overhead because it avoids the grid 'reset' phase needed if we do the
+    // expansion in place.
     for (int x = 0; x < gridSize; x++) {
       for (int y = 0; y < gridSize; y++) {
         for (int z = 0; z < 2; z++) {
@@ -517,12 +488,12 @@ public class LeeRouter {
       }
     }
     // call the expansion method to return found/not found boolean
-    boolean found = expandFromTo(xs, ys, xg, yg, gridSize * 5, tempg, grid);
+    boolean found = expandFromTo(xs, ys, xg, yg, gridSize * 5, tempg);
     if (found) {
       if (DEBUG) {
         System.out.println("Target (" + xg + ", " + yg + ")... FOUND!");
       }
-      backtrackFrom(xg, yg, xs, ys, netNo, tempg, grid); // call the
+      backtrackFrom(xg, yg, xs, ys, netNo, tempg); // call the
       // backtrack method
     } // print outcome of expansion method
     else {
@@ -536,10 +507,6 @@ public class LeeRouter {
   }
 
   public void report() {
-    // Open GUI view of PCB
-    // view.display();
-    // Print the PCB in ASCII, output to file
-    // grid.printLayout(true);
     System.out.println("Total Tracks " + netNo + " Failures " + failures
         + " Vias " + numVias + " Forced Vias " + forcedVias);
   }

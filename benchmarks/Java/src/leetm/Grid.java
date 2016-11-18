@@ -34,10 +34,7 @@
  */
 package leetm;
 
-import java.util.LinkedList;
-
 /**
- *
  * @author Mohammad Ansari
  */
 public class Grid {
@@ -49,47 +46,27 @@ public class Grid {
 
   private final GridCell[][][] grid;
 
-  // Variables used in debugging only
-  private final GridCell[][][] verifyGrid;
-
-  private static int           debugCount = 0;
-
-  private static int           divisor    = 100000;
-
-  public Grid(final int gridWidth, final int gridHeight, final int gridDepth,
-      final boolean rel) {
+  public Grid(final int width, final int height, final int depth) {
     // Set up PCB grid
-    width  = gridWidth;
-    height = gridHeight;
-    depth  = gridDepth;
+    this.width  = width;
+    this.height = height;
+    this.depth  = depth;
 
     grid = new GridCell[width][height][depth];
-    instantiateGrid(grid);
-    resetGrid(grid);
-
-    verifyGrid = new GridCell[width][height][depth];
-    instantiateGrid(verifyGrid);
-    resetGrid(verifyGrid);
-  }
-
-  boolean isValidTrackID(final int i) {
-    return !(i == LeeRouter.EMPTY || i == LeeRouter.OCC);
+    instantiateGrid();
   }
 
   public void occupy(final int loX, final int loY, final int upX, final int upY) {
-    int x = 0;
-    int y = 0;
-    for (x = loX; x <= upX; x++) {
-      for (y = loY; y <= upY; y++) {
+    for (int x = loX; x <= upX; x++) {
+      for (int y = loY; y <= upY; y++) {
         for (int z = 0; z < depth; z++) {
           grid[x][y][z].setRouteID(LeeRouter.OCC);
-          verifyGrid[x][y][z].setRouteID(LeeRouter.OCC);
         }
       }
     }
   }
 
-  public void addweights() {
+  public void addWeights() {
     for (int i = 0; i < LeeRouter.MAX_WEIGHT; i++) {
       for (int z = 0; z < depth; z++) {
         for (int x = 1; x < width - 1; x++) {
@@ -127,148 +104,19 @@ public class Grid {
     }
   }
 
-  public boolean findTrack(final int x1, final int y1, final int x2,
-      final int y2, final int nn) {
-    int x = x1;
-    int y = y1;
-    int z = 0;
-    boolean found = false;
-    LinkedList<Triplet> trackSoFar = new LinkedList<Triplet>();
-
-    trackSoFar.addFirst(new Triplet(x, y, z));
-
-    // Start search
-    while (true) {
-      x = trackSoFar.getFirst().val1;
-      y = trackSoFar.getFirst().val2;
-      z = trackSoFar.getFirst().val3;
-      // See if there is a surrounding cell with same id, but hasn't been
-      // visited yet
-      if (isNeighbouringCellNN(x, y, z, nn, trackSoFar)) {
-        continue;
-      } else if (isNeighbouringCellNN(x, y, z, LeeRouter.OCC, trackSoFar)) {
-        continue;
-      }
-
-      // No node with same id found, check if we are at dest and exit
-      if (x == x2 && y == y2) {
-        found = true;
-      }
-      break;
-    }
-    return found;
-  }
-
-  private boolean isNeighbouringCellNN(int x, int y, int z, final int nn,
-      final LinkedList<Triplet> trackSoFar) {
-    boolean retval = false;
-    if (x + 1 < width && verifyGrid[x + 1][y][z].getRouteID() == nn
-        && !trackSoFar.contains(new Triplet(x + 1, y, z))) {
-      trackSoFar.addFirst(new Triplet(x + 1, y, z));
-      x = x + 1;
-      retval = true;
-    } else if (y + 1 < height && verifyGrid[x][y + 1][z].getRouteID() == nn
-        && !trackSoFar.contains(new Triplet(x, y + 1, z))) {
-      trackSoFar.addFirst(new Triplet(x, y + 1, z));
-      y = y + 1;
-      retval = true;
-    } else if (z + 1 < depth && verifyGrid[x][y][z + 1].getRouteID() == nn
-        && !trackSoFar.contains(new Triplet(x, y, z + 1))) {
-      trackSoFar.addFirst(new Triplet(x, y, z + 1));
-      z = z + 1;
-      retval = true;
-    } else if (x - 1 >= 0 && verifyGrid[x - 1][y][z].getRouteID() == nn
-        && !trackSoFar.contains(new Triplet(x - 1, y, z))) {
-      trackSoFar.addFirst(new Triplet(x - 1, y, z));
-      x = x - 1;
-      retval = true;
-    } else if (y - 1 >= 0 && verifyGrid[x][y - 1][z].getRouteID() == nn
-        && !trackSoFar.contains(new Triplet(x, y - 1, z))) {
-      trackSoFar.addFirst(new Triplet(x, y - 1, z));
-      y = y - 1;
-      retval = true;
-    } else if (z - 1 >= 0 && verifyGrid[x][y][z - 1].getRouteID() == nn
-        && !trackSoFar.contains(new Triplet(x, y, z - 1))) {
-      trackSoFar.addFirst(new Triplet(x, y, z - 1));
-      z = z - 1;
-      retval = true;
-    }
-
-    return retval;
-  }
-
-  private class Triplet {
-
-    int val1;
-    int val2;
-    int val3;
-
-    Triplet(final int v1, final int v2, final int v3) {
-      val1 = v1;
-      val2 = v2;
-      val3 = v3;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-      Triplet t = (Triplet) o;
-      return (t.val1 == val1) && (t.val2 == val2) && (t.val3 == val3);
-    }
-  }
-
   public int getPoint(final int x, final int y, final int z) {
-    GridCell retCell = grid[x][y][z];
-    int ret = retCell.getRouteID();
-    return ret;
-  }
-
-  public int getDebugPoint(final int x, final int y, final int z) {
-    GridCell retCell = verifyGrid[x][y][z];
-    int ret = retCell.getRouteID();
-    return ret;
+    return grid[x][y][z].getRouteID();
   }
 
   public void setPoint(final int x, final int y, final int z, final int val) {
     grid[x][y][z].setRouteID(val);
   }
 
-  public void setDebugPoint(final int x, final int y, final int z, final int val) {
-    verifyGrid[x][y][z].setRouteID(val);
-  }
-
-  public int getWidth() {
-    return width;
-  }
-
-  public int getHeight() {
-    return height;
-  }
-
-  public int getDepth() {
-    return depth;
-  }
-
-  public void resetGrid(final GridCell[][][] g) {
+  private void instantiateGrid() {
     for (int i = 0; i < width; i++) {
       for (int j = 0; j < height; j++) {
         for (int k = 0; k < depth; k++) {
-          g[i][j][k].setRouteID(LeeRouter.EMPTY);
-        }
-      }
-    }
-  }
-
-  private void instantiateGrid(final GridCell[][][] g) {
-    for (int i = 0; i < width; i++) {
-      for (int j = 0; j < height; j++) {
-        for (int k = 0; k < depth; k++) {
-          g[i][j][k] = new GridCell();
-          if (LeeRouter.DEBUG) {
-            if (debugCount++ == divisor) {
-              System.out.println(debugCount);
-              debugCount = 0;
-            }
-          }
+          grid[i][j][k] = new GridCell(LeeRouter.EMPTY);
         }
       }
     }

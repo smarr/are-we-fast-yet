@@ -56,13 +56,14 @@ public class WorkQueue {
     nn = n;
   }
 
-  public WorkQueue enQueue(final int x1, final int y1, final int x2, final int y2, final int n) {
+  public WorkQueue enqueue(final int x1, final int y1, final int x2,
+      final int y2, final int n) {
     WorkQueue q = new WorkQueue(x1, y1, x2, y2, n);
     q.next = this.next;
     return q;
   }
 
-  public WorkQueue deQueue() {
+  public WorkQueue dequeue() {
     WorkQueue q = this.next;
     this.next = this.next.next;
     return q;
@@ -98,22 +99,5 @@ public class WorkQueue {
     while (!pass()) {
       ;
     }
-  }
-
-  public WorkQueue enQueue(final WorkQueue q) {
-    WorkQueue n = new WorkQueue(q.x1, q.y1, q.x2, q.y2, q.nn);
-    n.next = this.next;
-    return n;
-  }
-
-  public int length() {
-    WorkQueue curr = this.next;
-    int retval = 0;
-
-    while (curr != null) {
-      retval++;
-      curr = curr.next;
-    }
-    return retval;
   }
 }

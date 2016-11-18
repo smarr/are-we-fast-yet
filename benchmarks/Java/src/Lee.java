@@ -16,7 +16,7 @@ public class Lee extends Benchmark {
     if (data == null) { loadData(problemSize); }
 
     int totalLaidTracks = 0;
-    LeeRouter lr = new LeeRouter(data, gridSize, false);
+    LeeRouter lr = new LeeRouter(data, gridSize);
 
     LeeThread[] threads = new LeeThread[numThreads];
 

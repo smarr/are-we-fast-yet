@@ -42,8 +42,8 @@ public class LeeThread extends Thread {
 
   public long myLaidTracks = 0;
 
-  LeeRouter lt;
-  int[][][] tempg;
+  private final LeeRouter lt;
+  private final int[][][] tempg;
 
   public LeeThread(final LeeRouter lt) {
     this.lt = lt;
@@ -54,20 +54,12 @@ public class LeeThread extends Thread {
   public void run() {
     boolean finished = false;
     while (!finished) {
-      boolean done = true;
-      WorkQueue t = null;
-
-      if (done) {
-        t = lt.getNextTrack();
-        done = false;
-      }
+      WorkQueue t = lt.getNextTrack();
       if (t == null) {
         finished = true;
-        break;
       } else {
         // System.out.println("Laying track "+t.nn);
         lt.layNextTrack(t, tempg);
-        done = true;
         updateStatistics();
       }
     }
