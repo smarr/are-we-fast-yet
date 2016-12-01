@@ -66,12 +66,6 @@ public class Grid {
     }
   }
 
-  private void setEmptyToMaxWeight(final int x, final int y, final int z) {
-    if (getPoint(x, y, z) == LeeRouter.EMPTY) {
-      setPoint(x, y, z, LeeRouter.MAX_WEIGHT);
-    }
-  }
-
   private void setEmptyTo(final int x, final int y, final int z, final int weight) {
     if (getPoint(x, y, z) == LeeRouter.EMPTY) {
       setPoint(x, y, z, weight);
@@ -85,10 +79,10 @@ public class Grid {
           for (int y = 1; y < height - 1; y++) {
             int weight = getPoint(x, y, z);
             if (weight == LeeRouter.OCC) {
-              setEmptyToMaxWeight(x,     y + 1, z);
-              setEmptyToMaxWeight(x + 1, y,     z);
-              setEmptyToMaxWeight(x,     y - 1, z);
-              setEmptyToMaxWeight(x - 1, y,     z);
+              setEmptyTo(x,     y + 1, z, LeeRouter.MAX_WEIGHT);
+              setEmptyTo(x + 1, y,     z, LeeRouter.MAX_WEIGHT);
+              setEmptyTo(x,     y - 1, z, LeeRouter.MAX_WEIGHT);
+              setEmptyTo(x - 1, y,     z, LeeRouter.MAX_WEIGHT);
             } else if (weight != LeeRouter.EMPTY) {
               setEmptyTo(x,     y + 1, z, weight);
               setEmptyTo(x + 1, y,     z, weight);
