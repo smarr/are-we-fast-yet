@@ -216,8 +216,7 @@ public class LeeRouter {
           }
           if ((extraIterations == 0) && (reached0 || reached1)
               || (reached0 && reached1)) {
-            return true; // if (xGoal, yGoal) can be found in
-            // time
+            return true; // if (xGoal, yGoal) can be found in time
           } else {
             extraIterations--;
           }
