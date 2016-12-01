@@ -208,78 +208,20 @@ public class LeeRouter {
     boolean reached1 = false;
     while (!front.isEmpty()) {
       while (!front.isEmpty()) {
-        int weight;
-        int prevVal;
         Frontier f = front.elementAt(0);
         front.removeElementAt(0);
         if (f.dw > 0) {
           tmpFront.addElement(new Frontier(f.x, f.y, f.z, f.dw - 1));
         } else {
-          // int dir_weight = 1;
-          weight = grid.getPoint(f.x, f.y + 1, f.z) + 1;
-          prevVal = tempg[f.x][f.y + 1][f.z];
-          boolean reached = (f.x == xGoal) && (f.y + 1 == yGoal);
-          if ((prevVal > tempg[f.x][f.y][f.z] + weight) && (weight < OCC)
-              || reached) {
-            if (ok(f.x, f.y + 1)) {
-              tempg[f.x][f.y + 1][f.z] = tempg[f.x][f.y][f.z] + weight; // looking
-                                                                        // north
-              if (!reached) {
-                tmpFront.addElement(new Frontier(f.x, f.y + 1, f.z, 0));
-              }
-            }
-          }
-          weight = grid.getPoint(f.x + 1, f.y, f.z) + 1;
-          prevVal = tempg[f.x + 1][f.y][f.z];
-          reached = (f.x + 1 == xGoal) && (f.y == yGoal);
-          if ((prevVal > tempg[f.x][f.y][f.z] + weight) && (weight < OCC)
-              || reached) {
-            if (ok(f.x + 1, f.y)) {
-              tempg[f.x + 1][f.y][f.z] = tempg[f.x][f.y][f.z] + weight; // looking
-                                                                        // east
-              if (!reached) {
-                tmpFront.addElement(new Frontier(f.x + 1, f.y, f.z, 0));
-              }
-            }
-          }
-          weight = grid.getPoint(f.x, f.y - 1, f.z) + 1;
-          prevVal = tempg[f.x][f.y - 1][f.z];
-          reached = (f.x == xGoal) && (f.y - 1 == yGoal);
-          if ((prevVal > tempg[f.x][f.y][f.z] + weight) && (weight < OCC)
-              || reached) {
-            if (ok(f.x, f.y - 1)) {
-              tempg[f.x][f.y - 1][f.z] = tempg[f.x][f.y][f.z] + weight; // looking
-                                                                        // south
-              if (!reached) {
-                tmpFront.addElement(new Frontier(f.x, f.y - 1, f.z, 0));
-              }
-            }
-          }
-          weight = grid.getPoint(f.x - 1, f.y, f.z) + 1;
-          prevVal = tempg[f.x - 1][f.y][f.z];
-          reached = (f.x - 1 == xGoal) && (f.y == yGoal);
-          if ((prevVal > tempg[f.x][f.y][f.z] + weight) && (weight < OCC)
-              || reached) {
-            if (ok(f.x - 1, f.y)) {
-              tempg[f.x - 1][f.y][f.z] = tempg[f.x][f.y][f.z] + weight; // looking
-                                                                        // west
-              if (!reached) {
-                tmpFront.addElement(new Frontier(f.x - 1, f.y, f.z, 0));
-              }
-            }
-          }
+          expand(xGoal, yGoal, tempg, tmpFront, f,  0,  1); // looking north
+          expand(xGoal, yGoal, tempg, tmpFront, f,  1,  0); // looking east
+          expand(xGoal, yGoal, tempg, tmpFront, f,  0, -1); // looking south
+          expand(xGoal, yGoal, tempg, tmpFront, f, -1,  0); // looking west
+
           if (f.z == 0) {
-            weight = grid.getPoint(f.x, f.y, 1) + 1;
-            if ((tempg[f.x][f.y][1] > tempg[f.x][f.y][0]) && (weight < OCC)) {
-              tempg[f.x][f.y][1] = tempg[f.x][f.y][0];
-              tmpFront.addElement(new Frontier(f.x, f.y, 1, 0));
-            }
+            expandOnZ(tempg, tmpFront, f, 1, 0);
           } else {
-            weight = grid.getPoint(f.x, f.y, 0) + 1;
-            if ((tempg[f.x][f.y][0] > tempg[f.x][f.y][1]) && (weight < OCC)) {
-              tempg[f.x][f.y][0] = tempg[f.x][f.y][1];
-              tmpFront.addElement(new Frontier(f.x, f.y, 0, 0));
-            }
+            expandOnZ(tempg, tmpFront, f, 0, 1);
           }
           // must check if found goal, if so return TRUE
           reached0 = tempg[xGoal][yGoal][0] != TEMP_EMPTY;
@@ -296,12 +238,36 @@ public class LeeRouter {
           }
         }
       }
-      Vector<Frontier> tf;
-      tf = front;
+      Vector<Frontier> tf = front;
       front = tmpFront;
       tmpFront = tf;
     }
     return false;
+  }
+
+  private void expandOnZ(final int[][][] tempg, final Vector<Frontier> tmpFront,
+      final Frontier f, final int z1, final int z2) {
+    int weight = grid.getPoint(f.x, f.y, z1) + 1;
+    if ((tempg[f.x][f.y][z1] > tempg[f.x][f.y][z2]) && (weight < OCC)) {
+      tempg[f.x][f.y][z1] = tempg[f.x][f.y][z2];
+      tmpFront.addElement(new Frontier(f.x, f.y, z1, 0));
+    }
+  }
+
+  private void expand(final int xGoal, final int yGoal, final int[][][] tempg,
+      final Vector<Frontier> tmpFront, final Frontier f, final int dirX, final int dirY) {
+    int weight = grid.getPoint(f.x + dirX, f.y + dirY, f.z) + 1;
+    int prevVal = tempg[f.x + dirX][f.y + dirY][f.z];
+    boolean reached = (f.x + dirX == xGoal) && (f.y + dirY == yGoal);
+    if ((prevVal > tempg[f.x][f.y][f.z] + weight) && (weight < OCC)
+        || reached) {
+      if (ok(f.x + dirX, f.y + dirY)) {
+        tempg[f.x + dirX][f.y + dirY][f.z] = tempg[f.x][f.y][f.z] + weight;
+        if (!reached) {
+          tmpFront.addElement(new Frontier(f.x + dirX, f.y + dirY, f.z, 0));
+        }
+      }
+    }
   }
 
   private boolean pathFromOtherSide(final int[][][] g, final int x, final int y,
