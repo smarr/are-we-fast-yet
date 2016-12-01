@@ -90,14 +90,15 @@ public class WorkQueue {
       ent = a;
       a = b;
       b = b.next;
-      // System.out.print("#");
     }
     return done;
   }
 
   public void sort() {
     while (!pass()) {
+      // Checkstyle: stop
       ;
+      // Checkstyle: resume
     }
   }
 }
