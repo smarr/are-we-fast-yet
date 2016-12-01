@@ -66,37 +66,34 @@ public class Grid {
     }
   }
 
+  private void setEmptyToMaxWeight(final int x, final int y, final int z) {
+    if (getPoint(x, y, z) == LeeRouter.EMPTY) {
+      setPoint(x, y, z, LeeRouter.MAX_WEIGHT);
+    }
+  }
+
+  private void setEmptyTo(final int x, final int y, final int z, final int weight) {
+    if (getPoint(x, y, z) == LeeRouter.EMPTY) {
+      setPoint(x, y, z, weight);
+    }
+  }
+
   public void addWeights() {
     for (int i = 0; i < LeeRouter.MAX_WEIGHT; i++) {
       for (int z = 0; z < depth; z++) {
         for (int x = 1; x < width - 1; x++) {
           for (int y = 1; y < height - 1; y++) {
-            if (grid[x][y][z].getRouteID() == LeeRouter.OCC) {
-              if (grid[x][y + 1][z].getRouteID() == LeeRouter.EMPTY) {
-                grid[x][y + 1][z].setRouteID(LeeRouter.MAX_WEIGHT);
-              }
-              if (grid[x + 1][y][z].getRouteID() == LeeRouter.EMPTY) {
-                grid[x + 1][y][z].setRouteID(LeeRouter.MAX_WEIGHT);
-              }
-              if (grid[x][y - 1][z].getRouteID() == LeeRouter.EMPTY) {
-                grid[x][y - 1][z].setRouteID(LeeRouter.MAX_WEIGHT);
-              }
-              if (grid[x - 1][y][z].getRouteID() == LeeRouter.EMPTY) {
-                grid[x - 1][y][z].setRouteID(LeeRouter.MAX_WEIGHT);
-              }
-            } else if (grid[x][y][z].getRouteID() != LeeRouter.EMPTY) {
-              if (grid[x][y + 1][z].getRouteID() == LeeRouter.EMPTY) {
-                grid[x][y + 1][z].setRouteID(grid[x][y][z].getRouteID() - 1);
-              }
-              if (grid[x + 1][y][z].getRouteID() == LeeRouter.EMPTY) {
-                grid[x + 1][y][z].setRouteID(grid[x][y][z].getRouteID() - 1);
-              }
-              if (grid[x][y - 1][z].getRouteID() == LeeRouter.EMPTY) {
-                grid[x][y - 1][z].setRouteID(grid[x][y][z].getRouteID() - 1);
-              }
-              if (grid[x - 1][y][z].getRouteID() == LeeRouter.EMPTY) {
-                grid[x - 1][y][z].setRouteID(grid[x][y][z].getRouteID() - 1);
-              }
+            int weight = getPoint(x, y, z);
+            if (weight == LeeRouter.OCC) {
+              setEmptyToMaxWeight(x,     y + 1, z);
+              setEmptyToMaxWeight(x + 1, y,     z);
+              setEmptyToMaxWeight(x,     y - 1, z);
+              setEmptyToMaxWeight(x - 1, y,     z);
+            } else if (weight != LeeRouter.EMPTY) {
+              setEmptyTo(x,     y + 1, z, weight);
+              setEmptyTo(x + 1, y,     z, weight);
+              setEmptyTo(x,     y - 1, z, weight);
+              setEmptyTo(x - 1, y,     z, weight);
             }
           }
         }
