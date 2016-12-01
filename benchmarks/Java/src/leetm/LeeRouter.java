@@ -73,27 +73,12 @@ public class LeeRouter {
 
   public LeeRouter(final String[] data, final int gridSize) {
     this.gridSize = gridSize;
-    if (DEBUG) {
-      System.out.println("Creating grid...");
-    }
     grid = new Grid(gridSize, gridSize, 2); // the Lee 3D Grid;
-    if (DEBUG) {
-      System.out.println("Done creating grid");
-    }
     work = new WorkQueue(); // empty
-    if (DEBUG) {
-      System.out.println("Parsing data...");
-    }
+
     parseData(data);
 
-    if (DEBUG) {
-      System.out.println("Done parsing data");
-      System.out.println("Adding weights...");
-    }
     grid.addWeights();
-    if (DEBUG) {
-      System.out.println("Done adding weights");
-    }
     work.sort();
   }
 
