@@ -2,38 +2,13 @@ package vacation;
 
 /* =============================================================================
  *
- * manager.c
- * -- Travel reservation resource manager
+ * Travel reservation resource manager
  *
  * =============================================================================
  *
  * Copyright (C) Stanford University, 2006.  All Rights Reserved.
  * Author: Chi Cao Minh
  *
- * =============================================================================
- *
- * For the license of bayes/sort.h and bayes/sort.c, please see the header
- * of the files.
- *
- * ------------------------------------------------------------------------
- *
- * For the license of kmeans, please see kmeans/LICENSE.kmeans
- *
- * ------------------------------------------------------------------------
- *
- * For the license of ssca2, please see ssca2/COPYRIGHT
- *
- * ------------------------------------------------------------------------
- *
- * For the license of lib/mt19937ar.c and lib/mt19937ar.h, please see the
- * header of the files.
- *
- * ------------------------------------------------------------------------
- *
- * For the license of lib/rbtree.h and lib/rbtree.c, please see
- * lib/LEGALNOTICE.rbtree and lib/LICENSE.rbtree
- *
- * ------------------------------------------------------------------------
  *
  * Unless otherwise noted, the following license applies to STAMP files:
  *
@@ -71,16 +46,12 @@ package vacation;
  * =============================================================================
  */
 
-/* =============================================================================
- * DECLARATION OF TM_CALLABLE FUNCTIONS
- * =============================================================================
- */
 public class Manager {
 
-  RBTree carTablePtr;
-  RBTree roomTablePtr;
-  RBTree flightTablePtr;
-  RBTree customerTablePtr;
+  RBTree cars;
+  RBTree rooms;
+  RBTree flights;
+  RBTree customers;
 
   /*
    * ===========================================================================
@@ -89,469 +60,359 @@ public class Manager {
    * ==
    */
   public Manager() {
-    carTablePtr = new RBTree();
-    roomTablePtr = new RBTree();
-    flightTablePtr = new RBTree();
-    customerTablePtr = new RBTree();
+    cars = new RBTree();
+    rooms = new RBTree();
+    flights = new RBTree();
+    customers = new RBTree();
   }
 
-  /*
-   * ===========================================================================
-   * == addReservation -- If 'num' > 0 then add, if < 0 remove -- Adding 0 seats
-   * is error if does not exist -- If 'price' < 0, do not update price --
-   * Returns TRUE on success, else FALSE
-   * ===========================================================================
-   * ==
+  /**
+   * If 'num' > 0 then add, if < 0 remove.
+   * Adding 0 seats is error if does not exist.
+   * If 'price' < 0, do not update price.
+   *
+   * @return true on success, else false
    */
-  boolean addReservation(final RBTree tablePtr, final int id, final int num,
-      final int price) {
-    Reservation reservationPtr;
-
-    reservationPtr = (Reservation) tablePtr.find(id);
-    if (reservationPtr == null) {
+  private boolean addReservation(final RBTree reservations, final int id,
+      final int num, final int price) {
+    Reservation reservation = (Reservation) reservations.find(id);
+    if (reservation == null) {
       /* Create new reservation */
       if (num < 1 || price < 0) {
         return false;
       }
-      reservationPtr = new Reservation(id, num, price);
-      // assert(reservationPtr != NULL);
-      tablePtr.insert(id, reservationPtr);
+      reservation = new Reservation(id, num, price);
+      reservations.insert(id, reservation);
     } else {
       /* Update existing reservation */
-      if (!reservationPtr.reservation_addToTotal(num)) {
+      if (!reservation.addToTotal(num)) {
         return false;
       }
-      if (reservationPtr.numTotal == 0) {
-        boolean status = tablePtr.remove(id);
+      if (reservation.numTotal == 0) {
+        reservations.remove(id);
       } else {
-        reservationPtr.reservation_updatePrice(price);
+        reservation.updatePrice(price);
       }
     }
-
     return true;
   }
 
-  /*
-   * ===========================================================================
-   * == manager_addCar -- Add cars to a city -- Adding to an existing car
-   * overwrite the price if 'price' >= 0 -- Returns TRUE on success, else FALSE
-   * ===========================================================================
-   * ==
+  /**
+   * Add cars to a city.
+   * Adding to an existing car overwrite the price if 'price' >= 0.
+   *
+   * @return true on success, else false
    */
-  boolean manager_addCar(final int carId, final int numCars, final int price) {
-    return addReservation(carTablePtr, carId, numCars, price);
+  boolean addCar(final int carId, final int numCars, final int price) {
+    return addReservation(cars, carId, numCars, price);
   }
 
-  /*
-   * ===========================================================================
-   * == manager_deleteCar -- Delete cars from a city -- Decreases available car
-   * count (those not allocated to a customer) -- Fails if would make available
-   * car count negative -- If decresed to 0, deletes entire entry -- Returns
-   * TRUE on success, else FALSE
-   * ===========================================================================
-   * ==
+  /**
+   * Delete cars from a city.
+   *
+   * Decreases available car count (those not allocated to a customer).
+   * Fails if would make available car count negative.
+   * If decreased to 0, deletes entire entry.
+   *
+   * @return true on success, else false
    */
-  boolean manager_deleteCar(final int carId, final int numCar) {
+  boolean deleteCar(final int carId, final int numCar) {
     /* -1 keeps old price */
-    return addReservation(carTablePtr, carId, -numCar, -1);
+    return addReservation(cars, carId, -numCar, -1);
   }
 
-  /*
-   * ===========================================================================
-   * == manager_addRoom -- Add rooms to a city -- Adding to an existing room
-   * overwrite the price if 'price' >= 0 -- Returns TRUE on success, else FALSE
-   * ===========================================================================
-   * ==
+  /**
+   * Add rooms to a city.
+   *
+   * Adding to an existing room overwrite the price if 'price' >= 0.
+   *
+   * @return true on success, else false
    */
-  boolean manager_addRoom(final int roomId, final int numRoom,
+  boolean addRoom(final int roomId, final int numRoom,
       final int price) {
-    return addReservation(roomTablePtr, roomId, numRoom, price);
+    return addReservation(rooms, roomId, numRoom, price);
   }
 
-  /*
-   * ===========================================================================
-   * == manager_deleteRoom -- Delete rooms from a city -- Decreases available
-   * room count (those not allocated to a customer) -- Fails if would make
-   * available room count negative -- If decresed to 0, deletes entire entry --
-   * Returns TRUE on success, else FALSE
-   * ===========================================================================
-   * ==
+  /**
+   * Delete rooms from a city.
+   *
+   * Decreases available room count (those not allocated to a customer).
+   * Fails if would make available room count negative.
+   * If decreased to 0, deletes entire entry.
+   *
+   * @return true on success, else false
    */
   boolean manager_deleteRoom(final int roomId, final int numRoom) {
     /* -1 keeps old price */
-    return addReservation(roomTablePtr, roomId, -numRoom, -1);
+    return addReservation(rooms, roomId, -numRoom, -1);
   }
 
-  /*
-   * ===========================================================================
-   * == manager_addFlight -- Add seats to a flight -- Adding to an existing
-   * flight overwrite the price if 'price' >= 0 -- Returns TRUE on success,
-   * FALSE on failure
-   * ===========================================================================
-   * ==
+  /**
+   * Add seats to a flight.
+   *
+   * Adding to an existing flight overwrite the price if 'price' >= 0
+   *
+   * @return true on success, else false
    */
-  boolean manager_addFlight(final int flightId, final int numSeat,
-      final int price) {
-    return addReservation(flightTablePtr, flightId, numSeat, price);
+  boolean addFlight(final int flightId, final int numSeat, final int price) {
+    return addReservation(flights, flightId, numSeat, price);
   }
 
-  /*
-   * ===========================================================================
-   * == manager_deleteFlight -- Delete an entire flight -- Fails if customer has
-   * reservation on this flight -- Returns TRUE on success, else FALSE
-   * ===========================================================================
-   * ==
+  /**
+   * Delete an entire flight.
+   *
+   * Fails if customer has reservation on this flight.
+   *
+   * @return true on success, else false
    */
   boolean manager_deleteFlight(final int flightId) {
-    Reservation reservationPtr = (Reservation) flightTablePtr.find(flightId);
-    if (reservationPtr == null) {
+    Reservation reservation = (Reservation) flights.find(flightId);
+    if (reservation == null) {
       return false;
     }
 
-    if (reservationPtr.numUsed > 0) {
+    if (reservation.numUsed > 0) {
       return false; /* somebody has a reservation */
     }
 
-    return addReservation(flightTablePtr, flightId, -reservationPtr.numTotal,
-        -1 /* -1 keeps old price */);
+    return addReservation(flights, flightId, -reservation.numTotal, -1 /* -1 keeps old price */);
   }
 
-  /*
-   * ===========================================================================
-   * == manager_addCustomer -- If customer already exists, returns failure --
-   * Returns TRUE on success, else FALSE
-   * ===========================================================================
-   * ==
+  /**
+   * If customer already exists, returns failure.
+   *
+   * @return true on success, else false
    */
-  boolean manager_addCustomer(final int customerId) {
-    Customer customerPtr;
-    boolean status;
-
-    if (customerTablePtr.contains(customerId)) {
+  boolean addCustomer(final int customerId) {
+    if (customers.contains(customerId)) {
       return false;
     }
 
-    customerPtr = new Customer(customerId);
-    // assert(customerPtr != null);
-    status = customerTablePtr.insert(customerId, customerPtr);
+    Customer customer = new Customer(customerId);
+    customers.insert(customerId, customer);
 
     return true;
   }
 
-  /*
-   * ===========================================================================
-   * == manager_deleteCustomer -- Delete this customer and associated
-   * reservations -- If customer does not exist, returns success -- Returns TRUE
-   * on success, else FALSE
-   * ===========================================================================
-   * ==
+  /**
+   * Delete this customer and associated reservations.
+   *
+   * If customer does not exist, returns success.
+   *
+   * @return true on success, else false
    */
   boolean manager_deleteCustomer(final int customerId) {
-    Customer customerPtr;
-    RBTree reservationTables[] = new RBTree[Defines.NUM_RESERVATION_TYPE];
-    List_t reservationInfoListPtr;
-    List_Node it;
-    boolean status;
-
-    customerPtr = (Customer) customerTablePtr.find(customerId);
-    if (customerPtr == null) {
+    Customer customer = (Customer) customers.find(customerId);
+    if (customer == null) {
       return false;
     }
 
-    reservationTables[Defines.RESERVATION_CAR] = carTablePtr;
-    reservationTables[Defines.RESERVATION_ROOM] = roomTablePtr;
-    reservationTables[Defines.RESERVATION_FLIGHT] = flightTablePtr;
+    RBTree[] reservations = new RBTree[Defines.NUM_RESERVATION_TYPE];
+
+    reservations[Defines.RESERVATION_CAR]    = cars;
+    reservations[Defines.RESERVATION_ROOM]   = rooms;
+    reservations[Defines.RESERVATION_FLIGHT] = flights;
 
     /* Cancel this customer's reservations */
-    reservationInfoListPtr = customerPtr.reservationInfoListPtr;
-    it = reservationInfoListPtr.head;
-    while (it.nextPtr != null) {
-      ReservationInfo reservationInfoPtr;
-      Reservation reservationPtr;
-      it = it.nextPtr;
-      reservationInfoPtr = (ReservationInfo) it.dataPtr;
-      reservationPtr = (Reservation) reservationTables[reservationInfoPtr.type]
-          .find(reservationInfoPtr.id);
-      status = reservationPtr.reservation_cancel();
+    List reservationList = customer.reservations;
+    ListNode it = reservationList.head;
+    while (it.next != null) {
+      it = it.next;
+      ReservationInfo reservation = it.data;
+      Reservation resrv = (Reservation) reservations[reservation.type].find(reservation.id);
+      resrv.cancel();
     }
 
-    status = customerTablePtr.remove(customerId);
+    customers.remove(customerId);
     return true;
   }
 
-  /*
-   * ===========================================================================
-   * == QUERY INTERFACE
-   * ===========================================================================
-   * ==
+  /**
+   * @return numFree of a reservation, -1 if failure
    */
-
-  /*
-   * ===========================================================================
-   * == queryNumFree -- Return numFree of a reservation, -1 if failure
-   * ===========================================================================
-   * ==
-   */
-  int queryNumFree(final RBTree tablePtr, final int id) {
+  int queryNumFree(final RBTree table, final int id) {
     int numFree = -1;
-    Reservation reservationPtr = (Reservation) tablePtr.find(id);
-    if (reservationPtr != null) {
-      numFree = reservationPtr.numFree;
+    Reservation reservation = (Reservation) table.find(id);
+    if (reservation != null) {
+      numFree = reservation.numFree;
     }
 
     return numFree;
   }
 
-  /*
-   * ===========================================================================
-   * == queryPrice -- Return price of a reservation, -1 if failure
-   * ===========================================================================
-   * ==
+  /**
+   * @return price of a reservation, -1 if failure
    */
-  int queryPrice(final RBTree tablePtr, final int id) {
+  int queryPrice(final RBTree table, final int id) {
     int price = -1;
-    Reservation reservationPtr = (Reservation) tablePtr.find(id);
-    if (reservationPtr != null) {
-      price = reservationPtr.price;
+    Reservation reservation = (Reservation) table.find(id);
+    if (reservation != null) {
+      price = reservation.price;
     }
 
     return price;
   }
 
-  /*
-   * ===========================================================================
-   * == manager_queryCar -- Return the number of empty seats on a car -- Returns
-   * -1 if the car does not exist
-   * ===========================================================================
-   * ==
+  /**
+   * @return the number of empty seats on a car, returns -1 if the car does not exist
    */
-  int manager_queryCar(final int carId) {
-    return queryNumFree(carTablePtr, carId);
+  int queryCar(final int carId) {
+    return queryNumFree(cars, carId);
   }
 
-  /*
-   * ===========================================================================
-   * == manager_queryCarPrice -- Return the price of the car -- Returns -1 if
-   * the car does not exist
-   * ===========================================================================
-   * ==
+  /**
+   * @return the price of the car, returns -1 if the car does not exist
    */
-  int manager_queryCarPrice(final int carId) {
-    return queryPrice(carTablePtr, carId);
+  int queryCarPrice(final int carId) {
+    return queryPrice(cars, carId);
   }
 
-  /*
-   * ===========================================================================
-   * == manager_queryRoom -- Return the number of empty seats on a room --
-   * Returns -1 if the room does not exist
-   * ===========================================================================
-   * ==
+  /**
+   * @return the number of empty seats on a room, returns -1 if the room does not exist
    */
-  int manager_queryRoom(final int roomId) {
-    return queryNumFree(roomTablePtr, roomId);
+  int queryRoom(final int roomId) {
+    return queryNumFree(rooms, roomId);
   }
 
-  /*
-   * ===========================================================================
-   * == manager_queryRoomPrice -- Return the price of the room -- Returns -1 if
-   * the room does not exist
-   * ===========================================================================
-   * ==
+  /**
+   * @return the price of the room, returns -1 if the room does not exist
    */
-  int manager_queryRoomPrice(final int roomId) {
-    return queryPrice(roomTablePtr, roomId);
+  int queryRoomPrice(final int roomId) {
+    return queryPrice(rooms, roomId);
   }
 
-  /*
-   * ===========================================================================
-   * == manager_queryFlight -- Return the number of empty seats on a flight --
-   * Returns -1 if the flight does not exist
-   * ===========================================================================
-   * ==
+  /**
+   * @return the number of empty seats on a flight, returns -1 if the flight does not exist
    */
-  int manager_queryFlight(final int flightId) {
-    return queryNumFree(flightTablePtr, flightId);
+  int queryFlight(final int flightId) {
+    return queryNumFree(flights, flightId);
   }
 
-  /*
-   * ===========================================================================
-   * == manager_queryFlightPrice -- Return the price of the flight -- Returns -1
-   * if the flight does not exist
-   * ===========================================================================
-   * ==
+  /**
+   * @return the price of the flight, returns -1 if the flight does not exist
    */
-  int manager_queryFlightPrice(final int flightId) {
-    return queryPrice(flightTablePtr, flightId);
+  int queryFlightPrice(final int flightId) {
+    return queryPrice(flights, flightId);
   }
 
-  /*
-   * ===========================================================================
-   * == manager_queryCustomerBill -- Return the total price of all reservations
-   * held for a customer -- Returns -1 if the customer does not exist
-   * ===========================================================================
-   * ==
+  /**
+   * @return the total price of all reservations held for a customer, returns -1 if the customer does not exist
    */
-  int manager_queryCustomerBill(final int customerId) {
+  int queryCustomerBill(final int customerId) {
     int bill = -1;
-    Customer customerPtr;
+    Customer customer = (Customer) customers.find(customerId);
 
-    customerPtr = (Customer) customerTablePtr.find(customerId);
-
-    if (customerPtr != null) {
-      bill = customerPtr.customer_getBill();
+    if (customer != null) {
+      bill = customer.getBill();
     }
 
     return bill;
   }
 
-  /*
-   * ===========================================================================
-   * == RESERVATION INTERFACE
-   * ===========================================================================
-   * ==
+  /**
+   * Customer is not allowed to reserve same (type, id) multiple times.
+   *
+   * @returns true on success, else false
    */
-
-  /*
-   * ===========================================================================
-   * == reserve -- Customer is not allowed to reserve same (type, id) multiple
-   * times -- Returns TRUE on success, else FALSE
-   * ===========================================================================
-   * ==
-   */
-  static boolean reserve(final RBTree tablePtr, final RBTree customerTablePtr,
+  static boolean reserve(final RBTree table, final RBTree customers,
       final int customerId, final int id, final int type) {
-    Customer customerPtr;
-    Reservation reservationPtr;
+    Customer customer = (Customer) customers.find(customerId);
 
-    customerPtr = (Customer) customerTablePtr.find(customerId);
-
-    if (customerPtr == null) {
+    if (customer == null) {
       return false;
     }
 
-    reservationPtr = (Reservation) tablePtr.find(id);
-    if (reservationPtr == null) {
+    Reservation reservation = (Reservation) table.find(id);
+    if (reservation == null) {
       return false;
     }
 
-    if (!reservationPtr.reservation_make()) {
+    if (!reservation.makeReservation()) {
       return false;
     }
 
-    if (!customerPtr.customer_addReservationInfo(type, id,
-        reservationPtr.price)) {
+    if (!customer.customer_addReservationInfo(type, id, reservation.price)) {
       /* Undo previous successful reservation */
-      boolean status = reservationPtr.reservation_cancel();
+      reservation.cancel();
       return false;
     }
 
     return true;
   }
 
-  /*
-   * ===========================================================================
-   * == manager_reserveCar -- Returns failure if the car or customer does not
-   * exist -- Returns TRUE on success, else FALSE
-   * ===========================================================================
-   * ==
+  /**
+   * @return failure if the car or customer does not exist
    */
-  boolean manager_reserveCar(final int customerId, final int carId) {
-    return reserve(carTablePtr, customerTablePtr, customerId, carId,
+  boolean reserveCar(final int customerId, final int carId) {
+    return reserve(cars, customers, customerId, carId,
         Defines.RESERVATION_CAR);
   }
 
-  /*
-   * ===========================================================================
-   * == manager_reserveRoom -- Returns failure if the room or customer does not
-   * exist -- Returns TRUE on success, else FALSE
-   * ===========================================================================
-   * ==
+  /**
+   * @return failure if the room or customer does not exist
    */
-  boolean manager_reserveRoom(final int customerId, final int roomId) {
-    return reserve(roomTablePtr, customerTablePtr, customerId, roomId,
+  boolean reserveRoom(final int customerId, final int roomId) {
+    return reserve(rooms, customers, customerId, roomId,
         Defines.RESERVATION_ROOM);
   }
 
-  /*
-   * ===========================================================================
-   * == manager_reserveFlight -- Returns failure if the flight or customer does
-   * not exist -- Returns TRUE on success, else FALSE
-   * ===========================================================================
-   * ==
+  /**
+   * @return failure if the flight or customer does not exist
    */
-  boolean manager_reserveFlight(final int customerId, final int flightId) {
-    return reserve(flightTablePtr, customerTablePtr, customerId, flightId,
+  boolean reserveFlight(final int customerId, final int flightId) {
+    return reserve(flights, customers, customerId, flightId,
         Defines.RESERVATION_FLIGHT);
   }
 
-  /*
-   * ===========================================================================
-   * == cancel -- Customer is not allowed to cancel multiple times -- Returns
-   * TRUE on success, else FALSE
-   * ===========================================================================
-   * ==
+  /**
+   * Customer is not allowed to cancel multiple times.
    */
-  static boolean cancel(final RBTree tablePtr, final RBTree customerTablePtr,
+  static boolean cancel(final RBTree table, final RBTree customers,
       final int customerId, final int id, final int type) {
-    Customer customerPtr;
-    Reservation reservationPtr;
-
-    customerPtr = (Customer) customerTablePtr.find(customerId);
-    if (customerPtr == null) {
+    Customer customer = (Customer) customers.find(customerId);
+    if (customer == null) {
       return false;
     }
 
-    reservationPtr = (Reservation) tablePtr.find(id);
-    if (reservationPtr == null) {
+    Reservation reservation = (Reservation) table.find(id);
+    if (reservation == null) {
       return false;
     }
 
-    if (!reservationPtr.reservation_cancel()) {
+    if (!reservation.cancel()) {
       return false;
     }
 
-    if (!customerPtr.customer_removeReservationInfo(type, id)) {
+    if (!customer.removeReservationInfo(type, id)) {
       /* Undo previous successful cancellation */
-      boolean status = reservationPtr.reservation_make();
+      reservation.makeReservation();
       return false;
     }
 
     return true;
   }
 
-  /*
-   * ===========================================================================
-   * == manager_cancelCar -- Returns failure if the car, reservation, or
-   * customer does not exist -- Returns TRUE on success, else FALSE
-   * ===========================================================================
-   * ==
+  /**
+   * @return failure if the car, reservation, or customer does not exist
    */
-  boolean manager_cancelCar(final int customerId, final int carId) {
-    return cancel(carTablePtr, customerTablePtr, customerId, carId,
+  boolean cancelCar(final int customerId, final int carId) {
+    return cancel(cars, customers, customerId, carId,
         Defines.RESERVATION_CAR);
   }
 
-  /*
-   * ===========================================================================
-   * == manager_cancelRoom -- Returns failure if the room, reservation, or
-   * customer does not exist -- Returns TRUE on success, else FALSE
-   * ===========================================================================
-   * ==
+  /**
+   * @return failure if the room, reservation, or customer does not exist
    */
-  boolean manager_cancelRoom(final int customerId, final int roomId) {
-    return cancel(roomTablePtr, customerTablePtr, customerId, roomId,
+  boolean cancelRoom(final int customerId, final int roomId) {
+    return cancel(rooms, customers, customerId, roomId,
         Defines.RESERVATION_ROOM);
   }
 
-  /*
-   * ===========================================================================
-   * == manager_cancelFlight -- Returns failure if the flight, reservation, or
-   * customer does not exist -- Returns TRUE on success, else FALSE
-   * ===========================================================================
-   * ==
+  /**
+   * @return failure if the flight, reservation, or customer does not exist
    */
-  boolean manager_cancelFlight(final int customerId, final int flightId) {
-    return cancel(flightTablePtr, customerTablePtr, customerId, flightId,
+  boolean cancelFlight(final int customerId, final int flightId) {
+    return cancel(flights, customers, customerId, flightId,
         Defines.RESERVATION_FLIGHT);
   }
 }

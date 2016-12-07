@@ -10,12 +10,8 @@ public class Barrier {
   public static void enterBarrier() {
     try {
       barrier.await();
-    } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (BrokenBarrierException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+    } catch (InterruptedException | BrokenBarrierException e) {
+      throw new RuntimeException(e);
     }
   }
 

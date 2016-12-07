@@ -9,6 +9,4 @@ public class Node {
   Node   r; // right
   int    c; // color
 
-  public Node() {}
-
 }

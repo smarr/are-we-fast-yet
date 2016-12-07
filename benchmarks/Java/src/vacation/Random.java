@@ -2,22 +2,26 @@ package vacation;
 
 public class Random {
 
-  long[] mt;
-  int    mti;
-  int    RANDOM_DEFAULT_SEED;
+  private final long[] mt;
+  private int    mti;
+  private static final int RANDOM_DEFAULT_SEED = 0;
   /* period parameter */
 
   public Random() {
-    RANDOM_DEFAULT_SEED = 0;
     mt = new long[624];
+    init_genrand(RANDOM_DEFAULT_SEED);
   }
 
-  public void random_alloc() {
-    init_genrand(this.RANDOM_DEFAULT_SEED);
+  public Random(final int seed) {
+    this();
+    init_genrand(seed);
+    // TODO: is this redundant?
   }
 
-  /* initializes mt[N] with a seed */
-  public void init_genrand(final int s) {
+  /**
+   * Initializes mt[N] with a seed.
+   */
+  private void init_genrand(final int s) {
     mt[0] = (s) & 0xFFFFFFFFL;
     for (int mti = 1; mti < 624; mti++) {
       mt[mti] = (1812433253L * (mt[mti - 1] ^ (mt[mti - 1] >> 30))
@@ -32,11 +36,7 @@ public class Random {
     this.mti = 624;
   }
 
-  public void random_seed(final int seed) {
-    init_genrand(seed);
-  }
-
-  public int random_generate() {
+  public int next() {
     long genrandInt32 = genrand_int32();
     long x = genrandInt32 & 0xFFFFFFFFL;
     int x2 = (int) x;
@@ -66,7 +66,7 @@ public class Random {
     }
   }
 
-  public long genrand_int32() {
+  private long genrand_int32() {
     long y;
     int mti = this.mti;
     long[] mt = this.mt;

@@ -2,15 +2,16 @@ package vacation;
 
 /* =============================================================================
  *
- * reservation.c
- * -- Representation of car, flight, and hotel relations
+ * List_t.java
+ * -- Sorted singly linked list
+ * -- Options: duplicate allowed
+ *    (DLIST_NO_DUPLICATES) is no implemented yet (default: allow duplicates)
  *
  * =============================================================================
  *
  * Copyright (C) Stanford University, 2006.  All Rights Reserved.
  * Author: Chi Cao Minh
- *
- * Unless otherwise noted, the following license applies to STAMP files:
+ * * Unless otherwise noted, the following license applies to STAMP files:
  *
  * Copyright (c) 2007, Stanford University
  * All rights reserved.
@@ -46,99 +47,72 @@ package vacation;
  * =============================================================================
  */
 
-public class Reservation {
+public class List {
 
-  int id;
-  int numUsed;
-  int numFree;
-  int numTotal;
-  int price;
+  public ListNode head;
+  int             size;
 
-  public Reservation(final int id, final int numTotal, final int price) {
-    this.id = id;
-    this.numUsed = 0;
-    this.numFree = numTotal;
-    this.numTotal = numTotal;
-    this.price = price;
-    checkReservation();
+  public List() {
+    head = new ListNode(null);
   }
 
-  /**
-   * Check if consistent.
-   */
-  // TODO: unclear how this works, is that an STM thing?
-  public void checkReservation() {
-    int numUsed = this.numUsed;
-    int numFree = this.numFree;
-    int numTotal = this.numTotal;
-    int price = this.price;
+  public boolean isEmpty() {
+    return head.next == null;
   }
 
-  /**
-   * Adds if 'num' > 0, removes if 'num' < 0.
-   *
-   * @return true on success, else false
-   */
-  boolean addToTotal(final int num) {
-    if (numFree + num < 0) {
-      return false;
+  public int getSize() {
+    return size;
+  }
+
+  private ListNode findPrevious(final ReservationInfo data) {
+    ListNode prev = head;
+    ListNode node = prev.next;
+
+    for (; node != null; node = node.next) {
+      if (ReservationInfo.compare(node.data, data) >= 0) {
+        return prev;
+      }
+      prev = node;
     }
 
-    numFree += num;
-    numTotal += num;
-    checkReservation();
+    return prev;
+  }
+
+  public Object find(final ReservationInfo data) {
+    ListNode prev = findPrevious(data);
+    ListNode node = prev.next;
+
+    if (node == null || ReservationInfo.compare(node.data, data) != 0) {
+      return null;
+    }
+
+    return node.data;
+  }
+
+  public boolean insert(final ReservationInfo data) {
+    ListNode prev = findPrevious(data);
+    ListNode node = new ListNode(data);
+    ListNode curr = prev.next;
+
+    node.next = curr;
+    prev.next = node;
+    size++;
+
     return true;
   }
 
-  /**
-   * @return true on success, else false
-   */
-  public boolean makeReservation() {
-    if (numFree < 1) {
-      return false;
+  public boolean remove(final ReservationInfo data) {
+    ListNode prev = findPrevious(data);
+    ListNode node = prev.next;
+
+    if (node != null && ReservationInfo.compare(node.data, data) == 0) {
+      prev.next = node.next;
+      node.next = null;
+      node = null;
+      size--;
+
+      return true;
     }
-    numUsed++;
-    numFree--;
-    checkReservation();
-    return true;
-  }
-
-  /**
-   * @return true on success, else false
-   */
-  boolean cancel() {
-    if (numUsed < 1) {
-      return false;
-    }
-    numUsed--;
-    numFree++;
-    checkReservation();
-    return true;
-  }
-
-  /**
-   * Failure if 'price' < 0.
-   *
-   *  @return true on success, else false
-   */
-  boolean updatePrice(final int newPrice) {
-    if (newPrice < 0) {
-      return false;
-    }
-
-    this.price = newPrice;
-    checkReservation();
-    return true;
-  }
-
-  /**
-   * @return -1 if A < B, 0 if A = B, 1 if A > B
-   */
-  int compare(final Reservation a, final Reservation b) {
-    return a.id - b.id;
-  }
-
-  int hash() {
-    return id;
+    return false;
   }
 }

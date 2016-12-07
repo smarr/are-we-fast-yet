@@ -1,10 +1,6 @@
 package vacation;
 
-/* =============================================================================
- * reservation_info_alloc
- * -- Returns NULL on failure
- * =============================================================================
- */
+
 public class ReservationInfo {
 
   int id;
@@ -17,11 +13,8 @@ public class ReservationInfo {
     this.price = price;
   }
 
-  /*
-   * ===========================================================================
-   * == reservation_info_compare -- Returns -1 if A < B, 0 if A = B, 1 if A > B
-   * ===========================================================================
-   * ==
+  /**
+   * @return -1 if A < B, 0 if A = B, 1 if A > B
    */
   public static int compare(final ReservationInfo a, final ReservationInfo b) {
     int typeDiff = a.type - b.type;

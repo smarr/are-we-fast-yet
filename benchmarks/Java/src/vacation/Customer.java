@@ -47,7 +47,7 @@ public class Customer {
    * ==
    */
   int    id;
-  List_t reservationInfoListPtr;
+  List reservations;
 
   /*
    * ===========================================================================
@@ -57,7 +57,7 @@ public class Customer {
    */
   public Customer(final int id) {
     this.id = id;
-    reservationInfoListPtr = new List_t();
+    reservations = new List();
   }
 
   /*
@@ -81,7 +81,7 @@ public class Customer {
     ReservationInfo reservationInfoPtr = new ReservationInfo(type, id, price);
     // assert(reservationInfoPtr != NULL);
 
-    return reservationInfoListPtr.insert(reservationInfoPtr);
+    return reservations.insert(reservationInfoPtr);
   }
 
   /*
@@ -90,17 +90,16 @@ public class Customer {
    * ===========================================================================
    * ==
    */
-  boolean customer_removeReservationInfo(final int type, final int id) {
+  boolean removeReservationInfo(final int type, final int id) {
     ReservationInfo findReservationInfo = new ReservationInfo(type, id, 0);
 
-    ReservationInfo reservationInfoPtr = (ReservationInfo) reservationInfoListPtr
-        .find(findReservationInfo);
+    ReservationInfo reservation = (ReservationInfo) reservations.find(findReservationInfo);
 
-    if (reservationInfoPtr == null) {
+    if (reservation == null) {
       return false;
     }
 
-    boolean status = reservationInfoListPtr.remove(findReservationInfo);
+    reservations.remove(findReservationInfo);
     return true;
   }
 
@@ -110,15 +109,15 @@ public class Customer {
    * ===========================================================================
    * ==
    */
-  int customer_getBill() {
+  int getBill() {
     int bill = 0;
-    List_Node it;
+    ListNode it;
 
-    it = reservationInfoListPtr.head;
-    while (it.nextPtr != null) {
-      it = it.nextPtr;
-      ReservationInfo reservationInfoPtr = (ReservationInfo) it.dataPtr;
-      bill += reservationInfoPtr.price;
+    it = reservations.head;
+    while (it.next != null) {
+      it = it.next;
+      ReservationInfo reservation = it.data;
+      bill += reservation.price;
     }
 
     return bill;

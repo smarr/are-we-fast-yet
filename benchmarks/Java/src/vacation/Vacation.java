@@ -109,7 +109,7 @@ public class Vacation {
    * ===========================================================================
    * ==
    */
-  public void parseArgs(final String argv[]) {
+  public void parseArgs(final String[] argv) {
     int opterr = 0;
 
     setDefaultParams();
@@ -145,7 +145,7 @@ public class Vacation {
    */
   public static boolean addCustomer(final Manager managerPtr, final int id,
       final int num, final int price) {
-    return managerPtr.manager_addCustomer(id);
+    return managerPtr.addCustomer(id);
   }
 
   /*
@@ -155,64 +155,50 @@ public class Vacation {
    * ==
    */
   public Manager initializeManager() {
-    int i;
-    int t;
     System.out.println("Initializing manager... ");
 
-    Random randomPtr = new Random();
-    randomPtr.random_alloc();
-    Manager managerPtr = new Manager();
+    Random  random  = new Random();
+    Manager manager = new Manager();
 
     int numRelation = RELATIONS;
-    int ids[] = new int[numRelation];
-    for (i = 0; i < numRelation; i++) {
+    int[] ids = new int[numRelation];
+    for (int i = 0; i < numRelation; i++) {
       ids[i] = i + 1;
     }
 
-    for (t = 0; t < 4; t++) {
+    for (int t = 0; t < 4; t++) {
 
       /* Shuffle ids */
-      for (i = 0; i < numRelation; i++) {
-        int x = randomPtr.posrandom_generate() % numRelation;
-        int y = randomPtr.posrandom_generate() % numRelation;
+      for (int i = 0; i < numRelation; i++) {
+        int x = random.posrandom_generate() % numRelation;
+        int y = random.posrandom_generate() % numRelation;
         int tmp = ids[x];
         ids[x] = ids[y];
         ids[y] = tmp;
       }
 
       /* Populate table */
-      for (i = 0; i < numRelation; i++) {
-        boolean status;
+      for (int i = 0; i < numRelation; i++) {
         int id = ids[i];
-        int num = ((randomPtr.posrandom_generate() % 5) + 1) * 100;
-        int price = ((randomPtr.posrandom_generate() % 5) * 10) + 50;
+        int num = ((random.posrandom_generate() % 5) + 1) * 100;
+        int price = ((random.posrandom_generate() % 5) * 10) + 50;
         if (t == 0) {
-          status = managerPtr.manager_addCar(id, num, price);
+          manager.addCar(id, num, price);
         } else if (t == 1) {
-          status = managerPtr.manager_addFlight(id, num, price);
+          manager.addFlight(id, num, price);
         } else if (t == 2) {
-          status = managerPtr.manager_addRoom(id, num, price);
+          manager.addRoom(id, num, price);
         } else if (t == 3) {
-          status = managerPtr.manager_addCustomer(id);
+          manager.addCustomer(id);
         }
-        // assert(status);
       }
-
-    } /* for t */
+    }
 
     System.out.println("done.");
-    return managerPtr;
+    return manager;
   }
 
-  /*
-   * ===========================================================================
-   * == initializeClients
-   * ===========================================================================
-   * ==
-   */
   public Client[] initializeClients(final Manager managerPtr) {
-    Random randomPtr;
-    Client clients[];
     int i;
     int numClient = CLIENTS;
     int numTransaction = TRANSACTIONS;
@@ -223,12 +209,9 @@ public class Vacation {
     int queryRange;
     int percentUser = USER;
 
+    Client[] clients = new Client[numClient];
+
     System.out.println("Initializing clients... ");
-
-    randomPtr = new Random();
-    randomPtr.random_alloc();
-
-    clients = new Client[numClient];
 
     numTransactionPerClient = (int) ((double) numTransaction
         / (double) numClient + 0.5);
@@ -303,11 +286,11 @@ public class Vacation {
   void checkTables(final Manager managerPtr) {
     int i;
     int numRelation = RELATIONS;
-    RBTree customerTablePtr = managerPtr.customerTablePtr;
+    RBTree customerTablePtr = managerPtr.customers;
     RBTree tables[] = new RBTree[3];
-    tables[0] = managerPtr.carTablePtr;
-    tables[1] = managerPtr.flightTablePtr;
-    tables[2] = managerPtr.roomTablePtr;
+    tables[0] = managerPtr.cars;
+    tables[1] = managerPtr.flights;
+    tables[2] = managerPtr.rooms;
     int numTable = 3;
 
     int t;
@@ -330,11 +313,11 @@ public class Vacation {
       for (i = 1; i <= numRelation; i++) {
         if (tablePtr.find(i) != null) {
           if (t == 0) {
-            managerPtr.manager_addCar(i, 0, 0);
+            managerPtr.addCar(i, 0, 0);
           } else if (t == 1) {
-            managerPtr.manager_addFlight(i, 0, 0);
+            managerPtr.addFlight(i, 0, 0);
           } else if (t == 2) {
-            managerPtr.manager_addRoom(i, 0, 0);
+            managerPtr.addRoom(i, 0, 0);
           }
           tablePtr.remove(i);
         }
