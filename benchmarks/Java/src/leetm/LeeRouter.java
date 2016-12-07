@@ -34,7 +34,7 @@
  */
 package leetm;
 
-import java.util.Vector;
+import som.Vector;
 
 public class LeeRouter {
 
@@ -163,8 +163,7 @@ public class LeeRouter {
   }
 
   public boolean ok(final int x, final int y) {
-    // checks that point is actually within the bounds
-    // of grid array
+    // checks that point is actually within the bounds of grid array
     return x > 0 && x < gridSize - 1 && y > 0 && y < gridSize - 1;
   }
 
@@ -174,24 +173,23 @@ public class LeeRouter {
     // coordinate (x,y) to (xGoal, yGoal) for the num iterations
     // it should return true if the goal is found and false if it is not
     // reached within the number of iterations allowed.
-
-    Vector<Frontier> front     = new Vector<Frontier>();
+    Vector<Frontier> front    = new Vector<Frontier>();
     Vector<Frontier> tmpFront = new Vector<Frontier>();
     tempg[x][y][0] = 1; // set grid (x,y) as 1
     tempg[x][y][1] = 1; // set grid (x,y) as 1
 
-    front.addElement(new Frontier(x, y, 0, 0));
-    front.addElement(new Frontier(x, y, 1, 0)); // we can start from either
+    front.append(new Frontier(x, y, 0, 0));
+    front.append(new Frontier(x, y, 1, 0)); // we can start from either
     // side
     int extraIterations = 50;
     boolean reached0 = false;
     boolean reached1 = false;
     while (!front.isEmpty()) {
       while (!front.isEmpty()) {
-        Frontier f = front.elementAt(0);
-        front.removeElementAt(0);
+        Frontier f = front.first();
+        front.removeFirst();
         if (f.dw > 0) {
-          tmpFront.addElement(new Frontier(f.x, f.y, f.z, f.dw - 1));
+          tmpFront.append(new Frontier(f.x, f.y, f.z, f.dw - 1));
         } else {
           expand(xGoal, yGoal, tempg, tmpFront, f,  0,  1); // looking north
           expand(xGoal, yGoal, tempg, tmpFront, f,  1,  0); // looking east
@@ -206,6 +204,7 @@ public class LeeRouter {
           // must check if found goal, if so return TRUE
           reached0 = tempg[xGoal][yGoal][0] != TEMP_EMPTY;
           reached1 = tempg[xGoal][yGoal][1] != TEMP_EMPTY;
+
           if ((reached0 && !reached1) || (!reached0 && reached1)) {
             extraIterations = 100;
           }
@@ -229,7 +228,7 @@ public class LeeRouter {
     int weight = grid.getPoint(f.x, f.y, z1) + 1;
     if ((tempg[f.x][f.y][z1] > tempg[f.x][f.y][z2]) && (weight < OCC)) {
       tempg[f.x][f.y][z1] = tempg[f.x][f.y][z2];
-      tmpFront.addElement(new Frontier(f.x, f.y, z1, 0));
+      tmpFront.append(new Frontier(f.x, f.y, z1, 0));
     }
   }
 
@@ -238,12 +237,13 @@ public class LeeRouter {
     int weight = grid.getPoint(f.x + dirX, f.y + dirY, f.z) + 1;
     int prevVal = tempg[f.x + dirX][f.y + dirY][f.z];
     boolean reached = (f.x + dirX == xGoal) && (f.y + dirY == yGoal);
+
     if ((prevVal > tempg[f.x][f.y][f.z] + weight) && (weight < OCC)
         || reached) {
       if (ok(f.x + dirX, f.y + dirY)) {
         tempg[f.x + dirX][f.y + dirY][f.z] = tempg[f.x][f.y][f.z] + weight;
         if (!reached) {
-          tmpFront.addElement(new Frontier(f.x + dirX, f.y + dirY, f.z, 0));
+          tmpFront.append(new Frontier(f.x + dirX, f.y + dirY, f.z, 0));
         }
       }
     }
