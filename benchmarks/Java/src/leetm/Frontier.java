@@ -42,9 +42,14 @@ public class Frontier {
   public int dw;
 
   Frontier(final int xx, final int yy, final int zz, final int ddw) {
-    x = xx;
-    y = yy;
-    z = zz;
+    x  = xx;
+    y  = yy;
+    z  = zz;
     dw = ddw;
+  }
+
+  @Override
+  public String toString() {
+    return "Frontier " + x + " " + y + " " + z + " " + dw;
   }
 }
