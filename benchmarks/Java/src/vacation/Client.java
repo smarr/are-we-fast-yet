@@ -158,9 +158,9 @@ public class Client extends Thread {
         if (t == Defines.RESERVATION_CAR) {
           managerPtr.deleteCar(id, 100);
         } else if (t == Defines.RESERVATION_FLIGHT) {
-          managerPtr.manager_deleteFlight(id);
+          managerPtr.deleteFlight(id);
         } else if (t == Defines.RESERVATION_ROOM) {
-          managerPtr.manager_deleteRoom(id, 100);
+          managerPtr.deleteRoom(id, 100);
         }
       }
     }
@@ -171,7 +171,7 @@ public class Client extends Thread {
   private void atomicMethodTwo(final Manager managerPtr, final int customerId) {
     int bill = managerPtr.queryCustomerBill(customerId);
     if (bill >= 0) {
-      managerPtr.manager_deleteCustomer(customerId);
+      managerPtr.deleteCustomer(customerId);
     }
   }
 
@@ -207,16 +207,13 @@ public class Client extends Thread {
       manager.addCustomer(customerId);
     }
     if (maxIds[Defines.RESERVATION_CAR] > 0) {
-      manager.reserveCar(customerId,
-          maxIds[Defines.RESERVATION_CAR]);
+      manager.reserveCar(customerId, maxIds[Defines.RESERVATION_CAR]);
     }
     if (maxIds[Defines.RESERVATION_FLIGHT] > 0) {
-      manager.reserveFlight(customerId,
-          maxIds[Defines.RESERVATION_FLIGHT]);
+      manager.reserveFlight(customerId, maxIds[Defines.RESERVATION_FLIGHT]);
     }
     if (maxIds[Defines.RESERVATION_ROOM] > 0) {
-      manager.reserveRoom(customerId,
-          maxIds[Defines.RESERVATION_ROOM]);
+      manager.reserveRoom(customerId, maxIds[Defines.RESERVATION_ROOM]);
     }
     return n;
   }

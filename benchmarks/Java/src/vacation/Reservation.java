@@ -48,7 +48,7 @@ package vacation;
 
 public class Reservation {
 
-  int id;
+  final int id;
   int numUsed;
   int numFree;
   int numTotal;
@@ -79,7 +79,7 @@ public class Reservation {
    *
    * @return true on success, else false
    */
-  boolean addToTotal(final int num) {
+  synchronized boolean addToTotal(final int num) {
     if (numFree + num < 0) {
       return false;
     }
@@ -93,7 +93,7 @@ public class Reservation {
   /**
    * @return true on success, else false
    */
-  public boolean makeReservation() {
+  public synchronized boolean makeReservation() {
     if (numFree < 1) {
       return false;
     }
@@ -106,7 +106,7 @@ public class Reservation {
   /**
    * @return true on success, else false
    */
-  boolean cancel() {
+  synchronized boolean cancel() {
     if (numUsed < 1) {
       return false;
     }
@@ -121,7 +121,7 @@ public class Reservation {
    *
    *  @return true on success, else false
    */
-  boolean updatePrice(final int newPrice) {
+  synchronized boolean updatePrice(final int newPrice) {
     if (newPrice < 0) {
       return false;
     }

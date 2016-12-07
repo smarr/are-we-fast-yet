@@ -109,7 +109,7 @@ public class Customer {
    * ===========================================================================
    * ==
    */
-  int getBill() {
+  synchronized int getBill() {
     int bill = 0;
     ListNode it;
 

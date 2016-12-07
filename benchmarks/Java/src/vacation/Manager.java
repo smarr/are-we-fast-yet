@@ -75,25 +75,28 @@ public class Manager {
    */
   private boolean addReservation(final RBTree reservations, final int id,
       final int num, final int price) {
-    Reservation reservation = (Reservation) reservations.find(id);
-    if (reservation == null) {
-      /* Create new reservation */
-      if (num < 1 || price < 0) {
-        return false;
-      }
-      reservation = new Reservation(id, num, price);
-      reservations.insert(id, reservation);
-    } else {
-      /* Update existing reservation */
-      if (!reservation.addToTotal(num)) {
-        return false;
-      }
-      if (reservation.numTotal == 0) {
-        reservations.remove(id);
+    synchronized (reservations) {
+      Reservation reservation = (Reservation) reservations.find(id);
+      if (reservation == null) {
+        /* Create new reservation */
+        if (num < 1 || price < 0) {
+          return false;
+        }
+        reservation = new Reservation(id, num, price);
+        reservations.insert(id, reservation);
       } else {
-        reservation.updatePrice(price);
+        /* Update existing reservation */
+        if (!reservation.addToTotal(num)) {
+          return false;
+        }
+        if (reservation.numTotal == 0) {
+          reservations.remove(id);
+        } else {
+          reservation.updatePrice(price);
+        }
       }
     }
+
     return true;
   }
 
@@ -142,7 +145,7 @@ public class Manager {
    *
    * @return true on success, else false
    */
-  boolean manager_deleteRoom(final int roomId, final int numRoom) {
+  boolean deleteRoom(final int roomId, final int numRoom) {
     /* -1 keeps old price */
     return addReservation(rooms, roomId, -numRoom, -1);
   }
@@ -165,7 +168,7 @@ public class Manager {
    *
    * @return true on success, else false
    */
-  boolean manager_deleteFlight(final int flightId) {
+  boolean deleteFlight(final int flightId) {
     Reservation reservation = (Reservation) flights.find(flightId);
     if (reservation == null) {
       return false;
@@ -184,12 +187,14 @@ public class Manager {
    * @return true on success, else false
    */
   boolean addCustomer(final int customerId) {
-    if (customers.contains(customerId)) {
-      return false;
-    }
+    synchronized (customers) {
+      if (customers.contains(customerId)) {
+        return false;
+      }
 
-    Customer customer = new Customer(customerId);
-    customers.insert(customerId, customer);
+      Customer customer = new Customer(customerId);
+      customers.insert(customerId, customer);
+    }
 
     return true;
   }
@@ -201,7 +206,7 @@ public class Manager {
    *
    * @return true on success, else false
    */
-  boolean manager_deleteCustomer(final int customerId) {
+  synchronized boolean deleteCustomer(final int customerId) {
     Customer customer = (Customer) customers.find(customerId);
     if (customer == null) {
       return false;

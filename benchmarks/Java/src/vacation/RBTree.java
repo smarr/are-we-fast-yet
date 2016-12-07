@@ -86,11 +86,7 @@ public class RBTree {
   Node root;
   int  compID;
 
-  public RBTree() {}
-
-  /* private Methods */
-  /* lookup */
-  private Node lookup(final int k) {
+  private synchronized Node lookup(final int k) {
     Node p = root;
 
     while (p != null) {
@@ -104,7 +100,6 @@ public class RBTree {
     return null;
   }
 
-  /* rotateLeft */
   private void rotateLeft(final Node x) {
     Node r = x.r;
     Node rl = r.l;
@@ -126,7 +121,6 @@ public class RBTree {
     x.p = r;
   }
 
-  /* rotateRight */
   private void rotateRight(final Node x) {
     Node l = x.l;
     Node lr = l.r;
@@ -148,34 +142,28 @@ public class RBTree {
     x.p = l;
   }
 
-  /* parentOf */
   private Node parentOf(final Node n) {
     return ((n != null) ? n.p : null);
   }
 
-  /* leftOf */
   private Node leftOf(final Node n) {
     return ((n != null) ? n.l : null);
   }
 
-  /* rightOf */
   private Node rightOf(final Node n) {
     return ((n != null) ? n.r : null);
   }
 
-  /* colorOf */
   private int colorOf(final Node n) {
     return ((n != null) ? n.c : Defines.BLACK);
   }
 
-  /* setColor */
   private void setColor(final Node n, final int c) {
     if (n != null) {
       n.c = c;
     }
   }
 
-  /* fixAfterInsertion */
   private void fixAfterInsertion(Node x) {
     x.c = Defines.RED;
 
@@ -230,7 +218,7 @@ public class RBTree {
     }
   }
 
-  private Node insert(final int k, final Object v, final Node n) {
+  private synchronized Node insert(final int k, final Object v, final Node n) {
     Node t = root;
     if (t == null) {
       if (n == null) {
