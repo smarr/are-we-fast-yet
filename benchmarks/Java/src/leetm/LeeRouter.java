@@ -69,8 +69,6 @@ public class LeeRouter {
   private final Object    queueLock = new Object();
   private final WorkQueue work;
 
-  public static final boolean  DEBUG = false;
-
   public LeeRouter(final String[] data, final int gridSize) {
     this.gridSize = gridSize;
     grid = new Grid(gridSize, gridSize, 2); // the Lee 3D Grid;
@@ -185,9 +183,6 @@ public class LeeRouter {
     front.addElement(new Frontier(x, y, 0, 0));
     front.addElement(new Frontier(x, y, 1, 0)); // we can start from either
     // side
-    if (DEBUG) {
-      System.out.println("Expanding " + x + " " + y + " " + xGoal + " " + yGoal);
-    }
     int extraIterations = 50;
     boolean reached0 = false;
     boolean reached1 = false;
@@ -308,12 +303,6 @@ public class LeeRouter {
     // Until box number increases in this current dir
     // Until back at starting point
     // ***
-    // int count = 100;
-    if (DEBUG) {
-      System.out.println("Track " + trackNo + " backtrack " + "Length "
-          + tlength(xStart, yStart, xGoal, yGoal));
-    }
-    // boolean trace = false;
     int zGoal;
     int distsofar = 0;
     if (Math.abs(xGoal - xStart) > Math.abs(yGoal - yStart)) {
@@ -322,9 +311,6 @@ public class LeeRouter {
       zGoal = 1;
     }
     if (tempg[xGoal][yGoal][zGoal] == TEMP_EMPTY) {
-      if (DEBUG) {
-        System.out.println("Preferred Layer not reached " + zGoal);
-      }
       zGoal = 1 - zGoal;
     }
     int tempY = yGoal;
@@ -357,12 +343,8 @@ public class LeeRouter {
       if (advanced) {
         distsofar++;
       }
-      if (DEBUG) {
-        System.out.println("Backtracking " + tempX + " " + tempY + " " + tempZ
-            + " " + tempg[tempX][tempY][tempZ] + " " + advanced + " " + mind);
-      }
-      if (pathFromOtherSide(tempg, tempX, tempY, tempZ) &&
 
+      if (pathFromOtherSide(tempg, tempX, tempY, tempZ) &&
           ((mind > 1 && // not preferred dir for this layer
             distsofar > 15 &&
             tlength(tempX, tempY, xStart, yStart) > 15)
@@ -390,13 +372,6 @@ public class LeeRouter {
         if (!advanced) {
           forcedVias++;
         }
-        if (advanced) {
-          if (DEBUG) {
-            System.out.println(
-                "Via " + distsofar + " " + tlength(tempX, tempY, xStart, yStart)
-                    + " " + deviation(tempX, tempY, xStart, yStart));
-          }
-        }
         distsofar = 0;
       } else {
         if (grid.getPoint(tempX, tempY, tempZ) < OCC) {
@@ -409,9 +384,6 @@ public class LeeRouter {
         // position on y axis
       }
       lastdir = dir;
-    }
-    if (DEBUG) {
-      System.out.println("Track " + trackNo + " completed");
     }
   }
 
@@ -440,25 +412,20 @@ public class LeeRouter {
     // call the expansion method to return found/not found boolean
     boolean found = expandFromTo(xs, ys, xg, yg, gridSize * 5, tempg);
     if (found) {
-      if (DEBUG) {
-        System.out.println("Target (" + xg + ", " + yg + ")... FOUND!");
-      }
       backtrackFrom(xg, yg, xs, ys, netNo, tempg); // call the
       // backtrack method
     } // print outcome of expansion method
     else {
-      if (DEBUG) {
-        System.out.println(
-            "Failed to route " + xs + " " + ys + " to " + xg + "  " + yg);
-      }
       failures += 1;
     }
     return found;
   }
 
   public void report() {
+    // Checkstyle: stop
     System.out.println("Total Tracks " + netNo + " Failures " + failures
         + " Vias " + numVias + " Forced Vias " + forcedVias);
+    // Checkstyle: resume
   }
 
   public boolean sanityCheck(final int totalLaidTracks, final int file) {

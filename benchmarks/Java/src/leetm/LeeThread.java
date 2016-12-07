@@ -58,7 +58,6 @@ public class LeeThread extends Thread {
       if (t == null) {
         finished = true;
       } else {
-        // System.out.println("Laying track "+t.nn);
         lt.layNextTrack(t, tempg);
         updateStatistics();
       }
