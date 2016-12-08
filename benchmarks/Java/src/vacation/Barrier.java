@@ -24,8 +24,6 @@ public class Barrier {
     if (numberWaiting != 0) {
       // Checkstyle: stop
       System.out.println(String.format("Bad barrier: %d waiting", numberWaiting));
-    } else {
-      System.out.println("Barrier is clear.");
       // Checkstyle: resume
     }
   }

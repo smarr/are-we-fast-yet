@@ -80,8 +80,8 @@ public class Client extends Thread {
 
     int numOperation = this.numOperation;
     int numQueryPerTransaction = this.numQueryPerTransaction;
-    int queryRange = this.queryRange;
-    int percentUser = this.percentUser;
+    int queryRange   = this.queryRange;
+    int percentUser  = this.percentUser;
 
     int[] types  = new int[numQueryPerTransaction];
     int[] ids    = new int[numQueryPerTransaction];
@@ -102,44 +102,36 @@ public class Client extends Thread {
         maxIds[0] = -1;
         maxIds[1] = -1;
         maxIds[2] = -1;
-        int n;
-        int numQuery = random.posrandom_generate() % numQueryPerTransaction
-            + 1;
+        int numQuery = random.posrandom_generate() % numQueryPerTransaction + 1;
         int customerId = random.posrandom_generate() % queryRange + 1;
-        for (n = 0; n < numQuery; n++) {
+        for (int n = 0; n < numQuery; n++) {
           types[n] = random.next() % Defines.NUM_RESERVATION_TYPE;
           ids[n] = (random.next() % queryRange) + 1;
         }
-        boolean isFound = false;
-
-        n = atomicMethodOne(manager, types, ids, maxPrices, maxIds, numQuery,
-            customerId, isFound);
-
+        atomicMethodOne(manager, types, ids, maxPrices, maxIds, numQuery,
+            customerId, false);
       } else if (action == Defines.ACTION_DELETE_CUSTOMER) {
         int customerId = random.posrandom_generate() % queryRange + 1;
         atomicMethodTwo(manager, customerId);
       } else if (action == Defines.ACTION_UPDATE_TABLES) {
         int numUpdate = random.posrandom_generate() % numQueryPerTransaction + 1;
-        int n;
-        for (n = 0; n < numUpdate; n++) {
-          types[n] = random.posrandom_generate()
-              % Defines.NUM_RESERVATION_TYPE;
+        for (int n = 0; n < numUpdate; n++) {
+          types[n] = random.posrandom_generate() % Defines.NUM_RESERVATION_TYPE;
           ids[n] = (random.posrandom_generate() % queryRange) + 1;
           ops[n] = random.posrandom_generate() % 2;
           if (ops[n] == 1) {
             prices[n] = ((random.posrandom_generate() % 5) * 10) + 50;
           }
         }
-        n = atomicMethodThree(manager, types, ids, ops, prices, numUpdate);
+        atomicMethodThree(manager, types, ids, ops, prices, numUpdate);
       }
     }
     Barrier.enterBarrier();
   }
 
 //  @Atomic
-  private int atomicMethodThree(final Manager managerPtr,
-      final int[] types, final int[] ids, final int[] ops, final int[] prices,
-      final int numUpdate) {
+  private int atomicMethodThree(final Manager manager, final int[] types,
+      final int[] ids, final int[] ops, final int[] prices, final int numUpdate) {
     int n;
     for (n = 0; n < numUpdate; n++) {
       int t = types[n];
@@ -148,19 +140,19 @@ public class Client extends Thread {
       if (doAdd == 1) {
         int newPrice = prices[n];
         if (t == Defines.RESERVATION_CAR) {
-          managerPtr.addCar(id, 100, newPrice);
+          manager.addCar(id, 100, newPrice);
         } else if (t == Defines.RESERVATION_FLIGHT) {
-          managerPtr.addFlight(id, 100, newPrice);
+          manager.addFlight(id, 100, newPrice);
         } else if (t == Defines.RESERVATION_ROOM) {
-          managerPtr.addRoom(id, 100, newPrice);
+          manager.addRoom(id, 100, newPrice);
         }
       } else { /* do delete */
         if (t == Defines.RESERVATION_CAR) {
-          managerPtr.deleteCar(id, 100);
+          manager.deleteCar(id, 100);
         } else if (t == Defines.RESERVATION_FLIGHT) {
-          managerPtr.deleteFlight(id);
+          manager.deleteFlight(id);
         } else if (t == Defines.RESERVATION_ROOM) {
-          managerPtr.deleteRoom(id, 100);
+          manager.deleteRoom(id, 100);
         }
       }
     }

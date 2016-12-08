@@ -48,10 +48,10 @@ package vacation;
 
 public class Manager {
 
-  RBTree cars;
-  RBTree rooms;
-  RBTree flights;
-  RBTree customers;
+  private final RBTree cars;
+  private final RBTree rooms;
+  private final RBTree flights;
+  private final RBTree customers;
 
   /*
    * ===========================================================================
@@ -64,6 +64,22 @@ public class Manager {
     rooms = new RBTree();
     flights = new RBTree();
     customers = new RBTree();
+  }
+
+  public RBTree getCars() {
+    return cars;
+  }
+
+  public RBTree getRooms() {
+    return rooms;
+  }
+
+  public RBTree getFlights() {
+    return flights;
+  }
+
+  public RBTree getCustomers() {
+    return customers;
   }
 
   /**
@@ -106,7 +122,7 @@ public class Manager {
    *
    * @return true on success, else false
    */
-  boolean addCar(final int carId, final int numCars, final int price) {
+  public boolean addCar(final int carId, final int numCars, final int price) {
     return addReservation(cars, carId, numCars, price);
   }
 
@@ -131,7 +147,7 @@ public class Manager {
    *
    * @return true on success, else false
    */
-  boolean addRoom(final int roomId, final int numRoom,
+  public boolean addRoom(final int roomId, final int numRoom,
       final int price) {
     return addReservation(rooms, roomId, numRoom, price);
   }
@@ -157,7 +173,7 @@ public class Manager {
    *
    * @return true on success, else false
    */
-  boolean addFlight(final int flightId, final int numSeat, final int price) {
+  public boolean addFlight(final int flightId, final int numSeat, final int price) {
     return addReservation(flights, flightId, numSeat, price);
   }
 
@@ -186,7 +202,7 @@ public class Manager {
    *
    * @return true on success, else false
    */
-  boolean addCustomer(final int customerId) {
+  public boolean addCustomer(final int customerId) {
     synchronized (customers) {
       if (customers.contains(customerId)) {
         return false;
