@@ -49,7 +49,7 @@ public class Vacation extends Benchmark {
   @Override
   public boolean innerBenchmarkLoop(final int problemSize, final int numThreads) {
     Manager manager = initializeManager();
-    Client[] clients = initializeClients(manager, numThreads);
+    Client[] clients = initializeClients(manager, numThreads, problemSize);
 
     /* Run transactions */
     Barrier.setBarrier(numThreads + 1);
@@ -104,9 +104,10 @@ public class Vacation extends Benchmark {
     return manager;
   }
 
-  private static Client[] initializeClients(final Manager manager, final int numClients) {
-    int numTransaction = Defines.PARAM_DEFAULT_TRANSACTIONS;
-    int numRelation = Defines.PARAM_DEFAULT_RELATIONS;
+  private static Client[] initializeClients(final Manager manager,
+      final int numClients, final int problemSize) {
+    int numTransaction = Defines.PARAM_DEFAULT_TRANSACTIONS << problemSize;
+    int numRelation  = Defines.PARAM_DEFAULT_RELATIONS;
     int percentQuery = Defines.PARAM_DEFAULT_QUERIES;
     Client[] clients = new Client[numClients];
 

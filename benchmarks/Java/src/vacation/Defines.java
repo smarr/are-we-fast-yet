@@ -10,7 +10,7 @@ public class Defines {
   public static final int  PARAM_DEFAULT_NUMBER       = 10; // number of user queries/transaction
   public static final int  PARAM_DEFAULT_QUERIES      = 90; // percentage of relations queried
   public static final int  PARAM_DEFAULT_RELATIONS    = 1 << 16; // number of possible relations
-  public static final int  PARAM_DEFAULT_TRANSACTIONS = 1 << 18; // number of transactions
+  public static final int  PARAM_DEFAULT_TRANSACTIONS = 1 << 16; // number of transactions
   public static final int  PARAM_DEFAULT_USER         = 80;      // percentage of user transactions
   public static final int  RESERVATION_CAR            = 0;
   public static final int  RESERVATION_FLIGHT         = 1;
@@ -23,5 +23,4 @@ public class Defines {
 
   public static final int  RED                        = 0;
   public static final int  BLACK                      = 1;
-
 }
