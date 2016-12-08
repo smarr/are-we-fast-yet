@@ -37,18 +37,20 @@
  *
  * =============================================================================
  */
+import cd.RedBlackTree;
 import vacation.Barrier;
 import vacation.Client;
+import vacation.Customer;
 import vacation.Defines;
 import vacation.Manager;
-import vacation.RBTree;
 import vacation.Random;
+import vacation.Reservation;
 
 public class Vacation extends Benchmark {
 
   @Override
   public boolean innerBenchmarkLoop(final int problemSize, final int numThreads) {
-    Manager manager = initializeManager();
+    Manager manager  = initializeManager();
     Client[] clients = initializeClients(manager, numThreads, problemSize);
 
     /* Run transactions */
@@ -124,8 +126,10 @@ public class Vacation extends Benchmark {
 
   private static boolean checkTables(final Manager manager) {
     int numRelation = Defines.PARAM_DEFAULT_RELATIONS;
-    RBTree customerTablePtr = manager.getCustomers();
-    RBTree[] tables = new RBTree[] {
+    RedBlackTree<Integer, Customer> customers = manager.getCustomers();
+
+    @SuppressWarnings("unchecked")
+    RedBlackTree<Integer, Reservation>[] tables = new RedBlackTree[] {
         manager.getCars(), manager.getFlights(), manager.getRooms()};
 
     /* Check for unique customer IDs */
@@ -133,8 +137,8 @@ public class Vacation extends Benchmark {
     int queryRange = (int) (percentQuery / 100.0 * numRelation + 0.5);
     int maxCustomerId = queryRange + 1;
     for (int i = 1; i <= maxCustomerId; i++) {
-      if (customerTablePtr.find(i) != null) {
-        if (!customerTablePtr.remove(i)) {
+      if (customers.get(i) != null) {
+        if (customers.remove(i) == null) {
           return false;
         }
       }
@@ -142,9 +146,9 @@ public class Vacation extends Benchmark {
 
     /* Check reservation tables for consistency and unique ids */
     for (int t = 0; t < tables.length; t++) {
-      RBTree tablePtr = tables[t];
+      RedBlackTree<Integer, Reservation> table = tables[t];
       for (int i = 1; i <= numRelation; i++) {
-        if (tablePtr.find(i) != null) {
+        if (table.get(i) != null) {
           if (t == 0) {
             if (!manager.addCar(i, 0, 0)) {
               return false;
@@ -158,7 +162,7 @@ public class Vacation extends Benchmark {
               return false;
             }
           }
-          if (!tablePtr.remove(i)) {
+          if (table.remove(i) == null) {
             return false;
           }
         }

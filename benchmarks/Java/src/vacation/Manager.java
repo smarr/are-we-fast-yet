@@ -1,5 +1,7 @@
 package vacation;
 
+import cd.RedBlackTree;
+
 /* =============================================================================
  *
  * Travel reservation resource manager
@@ -48,10 +50,10 @@ package vacation;
 
 public class Manager {
 
-  private final RBTree cars;
-  private final RBTree rooms;
-  private final RBTree flights;
-  private final RBTree customers;
+  private final RedBlackTree<Integer, Reservation> cars;
+  private final RedBlackTree<Integer, Reservation> rooms;
+  private final RedBlackTree<Integer, Reservation> flights;
+  private final RedBlackTree<Integer, Customer>    customers;
 
   /*
    * ===========================================================================
@@ -60,25 +62,25 @@ public class Manager {
    * ==
    */
   public Manager() {
-    cars = new RBTree();
-    rooms = new RBTree();
-    flights = new RBTree();
-    customers = new RBTree();
+    cars      = new RedBlackTree<>();
+    rooms     = new RedBlackTree<>();
+    flights   = new RedBlackTree<>();
+    customers = new RedBlackTree<>();
   }
 
-  public RBTree getCars() {
+  public RedBlackTree<Integer, Reservation> getCars() {
     return cars;
   }
 
-  public RBTree getRooms() {
+  public RedBlackTree<Integer, Reservation> getRooms() {
     return rooms;
   }
 
-  public RBTree getFlights() {
+  public RedBlackTree<Integer, Reservation> getFlights() {
     return flights;
   }
 
-  public RBTree getCustomers() {
+  public RedBlackTree<Integer, Customer> getCustomers() {
     return customers;
   }
 
@@ -89,17 +91,17 @@ public class Manager {
    *
    * @return true on success, else false
    */
-  private boolean addReservation(final RBTree reservations, final int id,
+  private boolean addReservation(final RedBlackTree<Integer, Reservation> reservations, final int id,
       final int num, final int price) {
     synchronized (reservations) {
-      Reservation reservation = (Reservation) reservations.find(id);
+      Reservation reservation = reservations.get(id);
       if (reservation == null) {
         /* Create new reservation */
         if (num < 1 || price < 0) {
           return false;
         }
         reservation = new Reservation(id, num, price);
-        reservations.insert(id, reservation);
+        reservations.put(id, reservation);
       } else {
         /* Update existing reservation */
         if (!reservation.addToTotal(num)) {
@@ -185,7 +187,7 @@ public class Manager {
    * @return true on success, else false
    */
   boolean deleteFlight(final int flightId) {
-    Reservation reservation = (Reservation) flights.find(flightId);
+    Reservation reservation = flights.get(flightId);
     if (reservation == null) {
       return false;
     }
@@ -209,7 +211,7 @@ public class Manager {
       }
 
       Customer customer = new Customer(customerId);
-      customers.insert(customerId, customer);
+      customers.put(customerId, customer);
     }
 
     return true;
@@ -223,12 +225,13 @@ public class Manager {
    * @return true on success, else false
    */
   synchronized boolean deleteCustomer(final int customerId) {
-    Customer customer = (Customer) customers.find(customerId);
+    Customer customer = customers.get(customerId);
     if (customer == null) {
       return false;
     }
 
-    RBTree[] reservations = new RBTree[Defines.NUM_RESERVATION_TYPE];
+    @SuppressWarnings("unchecked")
+    RedBlackTree<Integer, Reservation>[] reservations = new RedBlackTree[Defines.NUM_RESERVATION_TYPE];
 
     reservations[Defines.RESERVATION_CAR]    = cars;
     reservations[Defines.RESERVATION_ROOM]   = rooms;
@@ -240,7 +243,7 @@ public class Manager {
     while (it.next != null) {
       it = it.next;
       ReservationInfo reservation = it.data;
-      Reservation resrv = (Reservation) reservations[reservation.type].find(reservation.id);
+      Reservation resrv = reservations[reservation.type].get(reservation.id);
       resrv.cancel();
     }
 
@@ -251,9 +254,9 @@ public class Manager {
   /**
    * @return numFree of a reservation, -1 if failure
    */
-  int queryNumFree(final RBTree table, final int id) {
+  int queryNumFree(final RedBlackTree<Integer, Reservation> table, final int id) {
     int numFree = -1;
-    Reservation reservation = (Reservation) table.find(id);
+    Reservation reservation = table.get(id);
     if (reservation != null) {
       numFree = reservation.numFree;
     }
@@ -264,9 +267,9 @@ public class Manager {
   /**
    * @return price of a reservation, -1 if failure
    */
-  int queryPrice(final RBTree table, final int id) {
+  int queryPrice(final RedBlackTree<Integer, Reservation> table, final int id) {
     int price = -1;
-    Reservation reservation = (Reservation) table.find(id);
+    Reservation reservation = table.get(id);
     if (reservation != null) {
       price = reservation.price;
     }
@@ -321,7 +324,7 @@ public class Manager {
    */
   int queryCustomerBill(final int customerId) {
     int bill = -1;
-    Customer customer = (Customer) customers.find(customerId);
+    Customer customer = customers.get(customerId);
 
     if (customer != null) {
       bill = customer.getBill();
@@ -335,15 +338,14 @@ public class Manager {
    *
    * @returns true on success, else false
    */
-  static boolean reserve(final RBTree table, final RBTree customers,
-      final int customerId, final int id, final int type) {
-    Customer customer = (Customer) customers.find(customerId);
-
+  static boolean reserve(final RedBlackTree<Integer, Reservation> table,
+      final RedBlackTree<Integer, Customer> customers, final int customerId, final int id, final int type) {
+    Customer customer = customers.get(customerId);
     if (customer == null) {
       return false;
     }
 
-    Reservation reservation = (Reservation) table.find(id);
+    Reservation reservation = table.get(id);
     if (reservation == null) {
       return false;
     }
@@ -388,14 +390,15 @@ public class Manager {
   /**
    * Customer is not allowed to cancel multiple times.
    */
-  static boolean cancel(final RBTree table, final RBTree customers,
+  static boolean cancel(final RedBlackTree<Integer, Reservation> table,
+      final RedBlackTree<Integer, Customer> customers,
       final int customerId, final int id, final int type) {
-    Customer customer = (Customer) customers.find(customerId);
+    Customer customer = customers.get(customerId);
     if (customer == null) {
       return false;
     }
 
-    Reservation reservation = (Reservation) table.find(id);
+    Reservation reservation = table.get(id);
     if (reservation == null) {
       return false;
     }

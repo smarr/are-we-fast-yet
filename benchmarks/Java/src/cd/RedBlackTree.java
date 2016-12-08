@@ -190,6 +190,10 @@ public final class RedBlackTree<K extends Comparable<K>, V> {
     return node.value;
   }
 
+  public boolean contains(final K key) {
+    return findNode(key) != null;
+  }
+
   public static final class Entry<K, V> {
     public final K key;
     public final V value;
