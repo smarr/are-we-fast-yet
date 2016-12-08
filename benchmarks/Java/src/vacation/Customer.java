@@ -40,59 +40,22 @@ package vacation;
 
 public class Customer {
 
-  /*
-   * ===========================================================================
-   * == compareReservationInfo
-   * ===========================================================================
-   * ==
-   */
-  int    id;
-  List reservations;
+  private final int id;
+  final List reservations;
 
-  /*
-   * ===========================================================================
-   * == customer_alloc
-   * ===========================================================================
-   * ==
-   */
   public Customer(final int id) {
     this.id = id;
     reservations = new List();
   }
 
-  /*
-   * ===========================================================================
-   * == customer_compare -- Returns -1 if A < B, 0 if A = B, 1 if A > B
-   * ===========================================================================
-   * ==
-   */
-  int customer_compare(final Customer aPtr, final Customer bPtr) {
-    return (aPtr.id - bPtr.id);
-  }
-
-  /*
-   * ===========================================================================
-   * == customer_addReservationInfo -- Returns true if success, else FALSE
-   * ===========================================================================
-   * ==
-   */
-  boolean customer_addReservationInfo(final int type, final int id,
+  boolean addReservationInfo(final int type, final int id,
       final int price) {
-    ReservationInfo reservationInfoPtr = new ReservationInfo(type, id, price);
-    // assert(reservationInfoPtr != NULL);
-
-    return reservations.insert(reservationInfoPtr);
+    ReservationInfo reservation = new ReservationInfo(type, id, price);
+    return reservations.insert(reservation);
   }
 
-  /*
-   * ===========================================================================
-   * == customer_removeReservationInfo -- Returns true if success, else FALSE
-   * ===========================================================================
-   * ==
-   */
   boolean removeReservationInfo(final int type, final int id) {
     ReservationInfo findReservationInfo = new ReservationInfo(type, id, 0);
-
     ReservationInfo reservation = (ReservationInfo) reservations.find(findReservationInfo);
 
     if (reservation == null) {
@@ -103,11 +66,8 @@ public class Customer {
     return true;
   }
 
-  /*
-   * ===========================================================================
-   * == customer_getBill -- Returns total cost of reservations
-   * ===========================================================================
-   * ==
+  /**
+   * @return total cost of reservations
    */
   synchronized int getBill() {
     int bill = 0;

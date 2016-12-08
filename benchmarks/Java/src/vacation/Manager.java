@@ -354,7 +354,7 @@ public class Manager {
       return false;
     }
 
-    if (!customer.customer_addReservationInfo(type, id, reservation.price)) {
+    if (!customer.addReservationInfo(type, id, reservation.price)) {
       /* Undo previous successful reservation */
       reservation.cancel();
       return false;
@@ -384,59 +384,6 @@ public class Manager {
    */
   boolean reserveFlight(final int customerId, final int flightId) {
     return reserve(flights, customers, customerId, flightId,
-        Defines.RESERVATION_FLIGHT);
-  }
-
-  /**
-   * Customer is not allowed to cancel multiple times.
-   */
-  static boolean cancel(final RedBlackTree<Integer, Reservation> table,
-      final RedBlackTree<Integer, Customer> customers,
-      final int customerId, final int id, final int type) {
-    Customer customer = customers.get(customerId);
-    if (customer == null) {
-      return false;
-    }
-
-    Reservation reservation = table.get(id);
-    if (reservation == null) {
-      return false;
-    }
-
-    if (!reservation.cancel()) {
-      return false;
-    }
-
-    if (!customer.removeReservationInfo(type, id)) {
-      /* Undo previous successful cancellation */
-      reservation.makeReservation();
-      return false;
-    }
-
-    return true;
-  }
-
-  /**
-   * @return failure if the car, reservation, or customer does not exist
-   */
-  boolean cancelCar(final int customerId, final int carId) {
-    return cancel(cars, customers, customerId, carId,
-        Defines.RESERVATION_CAR);
-  }
-
-  /**
-   * @return failure if the room, reservation, or customer does not exist
-   */
-  boolean cancelRoom(final int customerId, final int roomId) {
-    return cancel(rooms, customers, customerId, roomId,
-        Defines.RESERVATION_ROOM);
-  }
-
-  /**
-   * @return failure if the flight, reservation, or customer does not exist
-   */
-  boolean cancelFlight(final int customerId, final int flightId) {
-    return cancel(flights, customers, customerId, flightId,
         Defines.RESERVATION_FLIGHT);
   }
 }
