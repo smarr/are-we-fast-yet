@@ -187,7 +187,11 @@ public class Manager {
    * @return true on success, else false
    */
   boolean deleteFlight(final int flightId) {
-    Reservation reservation = flights.get(flightId);
+    Reservation reservation;
+    synchronized (flights) {
+      reservation = flights.get(flightId);
+    }
+
     if (reservation == null) {
       return false;
     }
@@ -224,8 +228,11 @@ public class Manager {
    *
    * @return true on success, else false
    */
-  synchronized boolean deleteCustomer(final int customerId) {
-    Customer customer = customers.get(customerId);
+  boolean deleteCustomer(final int customerId) {
+    Customer customer;
+    synchronized (customers) {
+      customer = customers.get(customerId);
+    }
     if (customer == null) {
       return false;
     }
@@ -238,16 +245,24 @@ public class Manager {
     reservations[Defines.RESERVATION_FLIGHT] = flights;
 
     /* Cancel this customer's reservations */
-    List reservationList = customer.reservations;
-    ListNode it = reservationList.head;
-    while (it.next != null) {
-      it = it.next;
-      ReservationInfo reservation = it.data;
-      Reservation resrv = reservations[reservation.type].get(reservation.id);
-      resrv.cancel();
+    synchronized (customer) {
+      List reservationList = customer.reservations;
+      ListNode it = reservationList.head;
+      while (it.next != null) {
+        it = it.next;
+        ReservationInfo reservation = it.data;
+        RedBlackTree<Integer, Reservation> table = reservations[reservation.type];
+        Reservation resrv;
+        synchronized (table) {
+          resrv = table.get(reservation.id);
+        }
+        resrv.cancel();
+      }
     }
 
-    customers.remove(customerId);
+    synchronized (customers) {
+      customers.remove(customerId);
+    }
     return true;
   }
 
@@ -256,7 +271,10 @@ public class Manager {
    */
   int queryNumFree(final RedBlackTree<Integer, Reservation> table, final int id) {
     int numFree = -1;
-    Reservation reservation = table.get(id);
+    Reservation reservation;
+    synchronized (table) {
+      reservation = table.get(id);
+    }
     if (reservation != null) {
       numFree = reservation.numFree;
     }
@@ -269,7 +287,11 @@ public class Manager {
    */
   int queryPrice(final RedBlackTree<Integer, Reservation> table, final int id) {
     int price = -1;
-    Reservation reservation = table.get(id);
+    Reservation reservation;
+    synchronized (table) {
+      reservation = table.get(id);
+    }
+
     if (reservation != null) {
       price = reservation.price;
     }
@@ -324,7 +346,10 @@ public class Manager {
    */
   int queryCustomerBill(final int customerId) {
     int bill = -1;
-    Customer customer = customers.get(customerId);
+    Customer customer;
+    synchronized (customers) {
+      customer = customers.get(customerId);
+    }
 
     if (customer != null) {
       bill = customer.getBill();
@@ -340,12 +365,21 @@ public class Manager {
    */
   static boolean reserve(final RedBlackTree<Integer, Reservation> table,
       final RedBlackTree<Integer, Customer> customers, final int customerId, final int id, final int type) {
-    Customer customer = customers.get(customerId);
+    Customer customer;
+
+    synchronized (customers) {
+      customer = customers.get(customerId);
+    }
+
     if (customer == null) {
       return false;
     }
 
-    Reservation reservation = table.get(id);
+    Reservation reservation;
+    synchronized (table) {
+      reservation = table.get(id);
+    }
+
     if (reservation == null) {
       return false;
     }
