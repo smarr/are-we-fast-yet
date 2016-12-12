@@ -92,13 +92,14 @@ public class Vacation extends Benchmark {
         int id = ids[i];
         int num = ((random.posrandom_generate() % 5) + 1) * 100;
         int price = ((random.posrandom_generate() % 5) * 10) + 50;
-        if (t == 0) {
+        if (t == Defines.RESERVATION_CAR) {
           manager.addCar(id, num, price);
-        } else if (t == 1) {
+        } else if (t == Defines.RESERVATION_FLIGHT) {
           manager.addFlight(id, num, price);
-        } else if (t == 2) {
+        } else if (t == Defines.RESERVATION_ROOM) {
           manager.addRoom(id, num, price);
-        } else if (t == 3) {
+        } else {
+          assert t == 4;
           manager.addCustomer(id);
         }
       }
@@ -149,15 +150,15 @@ public class Vacation extends Benchmark {
       RedBlackTree<Integer, Reservation> table = tables[t];
       for (int i = 1; i <= numRelation; i++) {
         if (table.get(i) != null) {
-          if (t == 0) {
+          if (t == Defines.RESERVATION_CAR) {
             if (!manager.addCar(i, 0, 0)) {
               return false;
             }
-          } else if (t == 1) {
+          } else if (t == Defines.RESERVATION_FLIGHT) {
             if (!manager.addFlight(i, 0, 0)) {
               return false;
             }
-          } else if (t == 2) {
+          } else if (t == Defines.RESERVATION_ROOM) {
             if (!manager.addRoom(i, 0, 0)) {
               return false;
             }
