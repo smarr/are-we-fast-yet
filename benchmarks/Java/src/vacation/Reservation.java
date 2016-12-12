@@ -146,15 +146,4 @@ public class Reservation {
     checkReservation();
     return true;
   }
-
-  /**
-   * @return -1 if A < B, 0 if A = B, 1 if A > B
-   */
-  int compare(final Reservation a, final Reservation b) {
-    return a.id - b.id;
-  }
-
-  int hash() {
-    return id;
-  }
 }
