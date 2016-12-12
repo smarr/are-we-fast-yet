@@ -23,7 +23,15 @@
 package som;
 
 public class Random {
-  private int seed = 74755;
+  private int seed;
+
+  public Random(final int seed) {
+    this.seed = seed;
+  }
+
+  public Random() {
+    this(74755);
+  }
 
   public int next() {
     seed = ((seed * 1309) + 13849) & 65535;

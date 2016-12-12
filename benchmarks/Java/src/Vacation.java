@@ -38,12 +38,12 @@
  * =============================================================================
  */
 import cd.RedBlackTree;
+import som.Random;
 import vacation.Barrier;
 import vacation.Client;
 import vacation.Customer;
 import vacation.Defines;
 import vacation.Manager;
-import vacation.Random;
 import vacation.Reservation;
 
 public class Vacation extends Benchmark {
@@ -80,8 +80,8 @@ public class Vacation extends Benchmark {
     for (int t = 0; t < 4; t++) {
       /* Shuffle ids */
       for (int i = 0; i < numRelation; i++) {
-        int x = random.posrandom_generate() % numRelation;
-        int y = random.posrandom_generate() % numRelation;
+        int x = random.next() % numRelation;
+        int y = random.next() % numRelation;
         int tmp = ids[x];
         ids[x] = ids[y];
         ids[y] = tmp;
@@ -90,8 +90,8 @@ public class Vacation extends Benchmark {
       /* Populate table */
       for (int i = 0; i < numRelation; i++) {
         int id = ids[i];
-        int num = ((random.posrandom_generate() % 5) + 1) * 100;
-        int price = ((random.posrandom_generate() % 5) * 10) + 50;
+        int num = ((random.next() % 5) + 1) * 100;
+        int price = ((random.next() % 5) * 10) + 50;
         if (t == Defines.RESERVATION_CAR) {
           manager.addCar(id, num, price);
         } else if (t == Defines.RESERVATION_FLIGHT) {

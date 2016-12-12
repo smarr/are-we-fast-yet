@@ -1,5 +1,7 @@
 package vacation;
 
+import som.Random;
+
 /*
  * Copyright (C) Stanford University, 2006.  All Rights Reserved.
  * Author: Chi Cao Minh
@@ -90,14 +92,14 @@ public class Client extends Thread {
 
     Barrier.enterBarrier();
     for (int i = 0; i < numOperation; i++) {
-      int r = random.posrandom_generate() % 100;
+      int r = random.next() % 100;
       int action = selectAction(r, percentUser);
 
       if (action == Defines.ACTION_MAKE_RESERVATION) {
         int[] maxPrices = new int[] {-1, -1, -1};
         int[] maxIds = new int[] {-1, -1, -1};
-        int numQuery = random.posrandom_generate() % numQueryPerTransaction + 1;
-        int customerId = random.posrandom_generate() % queryRange + 1;
+        int numQuery = random.next() % numQueryPerTransaction + 1;
+        int customerId = random.next() % queryRange + 1;
         for (int n = 0; n < numQuery; n++) {
           types[n] = random.next() % Defines.NUM_RESERVATION_TYPE;
           ids[n] = (random.next() % queryRange) + 1;
@@ -105,16 +107,16 @@ public class Client extends Thread {
         atomicMethodOne(manager, types, ids, maxPrices, maxIds, numQuery,
             customerId, false);
       } else if (action == Defines.ACTION_DELETE_CUSTOMER) {
-        int customerId = random.posrandom_generate() % queryRange + 1;
+        int customerId = random.next() % queryRange + 1;
         atomicMethodTwo(manager, customerId);
       } else if (action == Defines.ACTION_UPDATE_TABLES) {
-        int numUpdate = random.posrandom_generate() % numQueryPerTransaction + 1;
+        int numUpdate = random.next() % numQueryPerTransaction + 1;
         for (int n = 0; n < numUpdate; n++) {
-          types[n] = random.posrandom_generate() % Defines.NUM_RESERVATION_TYPE;
-          ids[n] = (random.posrandom_generate() % queryRange) + 1;
-          ops[n] = random.posrandom_generate() % 2;
+          types[n] = random.next() % Defines.NUM_RESERVATION_TYPE;
+          ids[n] = (random.next() % queryRange) + 1;
+          ops[n] = random.next() % 2;
           if (ops[n] == 1) {
-            prices[n] = ((random.posrandom_generate() % 5) * 10) + 50;
+            prices[n] = ((random.next() % 5) * 10) + 50;
           }
         }
         atomicMethodThree(manager, types, ids, ops, prices, numUpdate);
