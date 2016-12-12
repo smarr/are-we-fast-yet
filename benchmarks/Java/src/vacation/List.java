@@ -49,27 +49,27 @@ package vacation;
 
 public class List {
 
-  public ListNode head;
-  int             size;
+  private final ListNode head;
+  private int size;
 
   public List() {
     head = new ListNode(null);
   }
 
-  public boolean isEmpty() {
-    return head.next == null;
+  public ListNode getHead() {
+    return head;
   }
 
-  public int getSize() {
-    return size;
+  public boolean isEmpty() {
+    return head.getNext() == null;
   }
 
   private ListNode findPrevious(final ReservationInfo data) {
     ListNode prev = head;
-    ListNode node = prev.next;
+    ListNode node = prev.getNext();
 
-    for (; node != null; node = node.next) {
-      if (ReservationInfo.compare(node.data, data) >= 0) {
+    for (; node != null; node = node.getNext()) {
+      if (ReservationInfo.compare(node.getData(), data) >= 0) {
         return prev;
       }
       prev = node;
@@ -80,22 +80,22 @@ public class List {
 
   public Object find(final ReservationInfo data) {
     ListNode prev = findPrevious(data);
-    ListNode node = prev.next;
+    ListNode node = prev.getNext();
 
-    if (node == null || ReservationInfo.compare(node.data, data) != 0) {
+    if (node == null || ReservationInfo.compare(node.getData(), data) != 0) {
       return null;
     }
 
-    return node.data;
+    return node.getData();
   }
 
   public boolean insert(final ReservationInfo data) {
     ListNode prev = findPrevious(data);
     ListNode node = new ListNode(data);
-    ListNode curr = prev.next;
+    ListNode curr = prev.getNext();
 
-    node.next = curr;
-    prev.next = node;
+    node.setNext(curr);
+    prev.setNext(node);
     size++;
 
     return true;
@@ -103,11 +103,11 @@ public class List {
 
   public boolean remove(final ReservationInfo data) {
     ListNode prev = findPrevious(data);
-    ListNode node = prev.next;
+    ListNode node = prev.getNext();
 
-    if (node != null && ReservationInfo.compare(node.data, data) == 0) {
-      prev.next = node.next;
-      node.next = null;
+    if (node != null && ReservationInfo.compare(node.getData(), data) == 0) {
+      prev.setNext(node.getNext());
+      node.setNext(null);
       node = null;
       size--;
 

@@ -107,7 +107,7 @@ public class Manager {
         if (!reservation.addToTotal(num)) {
           return false;
         }
-        if (reservation.numTotal == 0) {
+        if (reservation.getNumTotal() == 0) {
           reservations.remove(id);
         } else {
           reservation.updatePrice(price);
@@ -196,11 +196,11 @@ public class Manager {
       return false;
     }
 
-    if (reservation.numUsed > 0) {
+    if (reservation.getNumUsed() > 0) {
       return false; /* somebody has a reservation */
     }
 
-    return addReservation(flights, flightId, -reservation.numTotal, -1 /* -1 keeps old price */);
+    return addReservation(flights, flightId, -reservation.getNumTotal(), -1 /* -1 keeps old price */);
   }
 
   /**
@@ -246,15 +246,15 @@ public class Manager {
 
     /* Cancel this customer's reservations */
     synchronized (customer) {
-      List reservationList = customer.reservations;
-      ListNode it = reservationList.head;
-      while (it.next != null) {
-        it = it.next;
-        ReservationInfo reservation = it.data;
-        RedBlackTree<Integer, Reservation> table = reservations[reservation.type];
+      List reservationList = customer.getReservations();
+      ListNode it = reservationList.getHead();
+      while (it.getNext() != null) {
+        it = it.getNext();
+        ReservationInfo reservation = it.getData();
+        RedBlackTree<Integer, Reservation> table = reservations[reservation.getType()];
         Reservation resrv;
         synchronized (table) {
-          resrv = table.get(reservation.id);
+          resrv = table.get(reservation.getId());
         }
         resrv.cancel();
       }
@@ -276,7 +276,7 @@ public class Manager {
       reservation = table.get(id);
     }
     if (reservation != null) {
-      numFree = reservation.numFree;
+      numFree = reservation.getNumFree();
     }
 
     return numFree;
@@ -293,7 +293,7 @@ public class Manager {
     }
 
     if (reservation != null) {
-      price = reservation.price;
+      price = reservation.getPrice();
     }
 
     return price;
@@ -388,7 +388,7 @@ public class Manager {
       return false;
     }
 
-    if (!customer.addReservationInfo(type, id, reservation.price)) {
+    if (!customer.addReservationInfo(type, id, reservation.getPrice())) {
       /* Undo previous successful reservation */
       reservation.cancel();
       return false;

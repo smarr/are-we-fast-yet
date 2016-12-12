@@ -48,11 +48,11 @@ package vacation;
 
 public class Reservation {
 
-  final int id;
-  int numUsed;
-  int numFree;
-  int numTotal;
-  int price;
+  private final int id;
+  private int numUsed;
+  private int numFree;
+  private int numTotal;
+  private int price;
 
   public Reservation(final int id, final int numTotal, final int price) {
     this.id = id;
@@ -61,6 +61,22 @@ public class Reservation {
     this.numTotal = numTotal;
     this.price = price;
     checkReservation();
+  }
+
+  int getNumUsed() {
+    return numUsed;
+  }
+
+  int getNumFree() {
+    return numFree;
+  }
+
+  int getNumTotal() {
+    return numTotal;
+  }
+
+  int getPrice() {
+    return price;
   }
 
   /**

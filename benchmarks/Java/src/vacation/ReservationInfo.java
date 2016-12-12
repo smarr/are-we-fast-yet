@@ -3,14 +3,26 @@ package vacation;
 
 public class ReservationInfo {
 
-  int id;
-  int type;
-  int price;
+  private final int id;
+  private final int type;
+  private final int price;
 
   public ReservationInfo(final int type, final int id, final int price) {
     this.type = type;
     this.id = id;
     this.price = price;
+  }
+
+  int getId() {
+    return id;
+  }
+
+  int getType() {
+    return type;
+  }
+
+  int getPrice() {
+    return price;
   }
 
   /**

@@ -40,20 +40,20 @@ package vacation;
 
 public class Client extends Thread {
 
-  int     id;
-  Manager managerPtr;
-  Random  randomPtr;
-  int     numOperation;
-  int     numQueryPerTransaction;
-  int     queryRange;
-  int     percentUser;
+  private int     id;
+  private Manager manager;
+  private Random  random;
+  private int     numOperation;
+  private int     numQueryPerTransaction;
+  private int     queryRange;
+  private int     percentUser;
 
-  public Client(final int id, final Manager managerPtr, final int numOperation,
+  public Client(final int id, final Manager manager, final int numOperation,
       final int numQueryPerTransaction, final int queryRange,
       final int percentUser) {
-    this.randomPtr = new Random(id);
+    this.random = new Random(id);
     this.id = id;
-    this.managerPtr = managerPtr;
+    this.manager = manager;
     this.numOperation = numOperation;
     this.numQueryPerTransaction = numQueryPerTransaction;
     this.queryRange = queryRange;
@@ -75,8 +75,8 @@ public class Client extends Thread {
    */
   @Override
   public void run() {
-    Manager manager = this.managerPtr;
-    Random random = this.randomPtr;
+    Manager manager = this.manager;
+    Random random = this.random;
 
     int numOperation = this.numOperation;
     int numQueryPerTransaction = this.numQueryPerTransaction;
@@ -163,7 +163,7 @@ public class Client extends Thread {
   private void atomicMethodTwo(final Manager managerPtr, final int customerId) {
     int bill = managerPtr.queryCustomerBill(customerId);
     if (bill >= 0) {
-      managerPtr.deleteCustomer(customerId);
+      manager.deleteCustomer(customerId);
     }
   }
 

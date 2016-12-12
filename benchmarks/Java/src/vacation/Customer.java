@@ -41,11 +41,15 @@ package vacation;
 public class Customer {
 
   private final int id;
-  final List reservations;
+  private final List reservations;
 
   public Customer(final int id) {
     this.id = id;
     reservations = new List();
+  }
+
+  List getReservations() {
+    return reservations;
   }
 
   boolean addReservationInfo(final int type, final int id,
@@ -71,13 +75,11 @@ public class Customer {
    */
   synchronized int getBill() {
     int bill = 0;
-    ListNode it;
-
-    it = reservations.head;
-    while (it.next != null) {
-      it = it.next;
-      ReservationInfo reservation = it.data;
-      bill += reservation.price;
+    ListNode it = reservations.getHead();
+    while (it.getNext() != null) {
+      it = it.getNext();
+      ReservationInfo reservation = it.getData();
+      bill += reservation.getPrice();
     }
 
     return bill;
