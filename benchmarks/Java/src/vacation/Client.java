@@ -94,14 +94,8 @@ public class Client extends Thread {
       int action = selectAction(r, percentUser);
 
       if (action == Defines.ACTION_MAKE_RESERVATION) {
-        int[] maxPrices = new int[Defines.NUM_RESERVATION_TYPE];
-        int[] maxIds = new int[Defines.NUM_RESERVATION_TYPE];
-        maxPrices[0] = -1;
-        maxPrices[1] = -1;
-        maxPrices[2] = -1;
-        maxIds[0] = -1;
-        maxIds[1] = -1;
-        maxIds[2] = -1;
+        int[] maxPrices = new int[] {-1, -1, -1};
+        int[] maxIds = new int[] {-1, -1, -1};
         int numQuery = random.posrandom_generate() % numQueryPerTransaction + 1;
         int customerId = random.posrandom_generate() % queryRange + 1;
         for (int n = 0; n < numQuery; n++) {
@@ -130,10 +124,9 @@ public class Client extends Thread {
   }
 
 //  @Atomic
-  private int atomicMethodThree(final Manager manager, final int[] types,
+  private void atomicMethodThree(final Manager manager, final int[] types,
       final int[] ids, final int[] ops, final int[] prices, final int numUpdate) {
-    int n;
-    for (n = 0; n < numUpdate; n++) {
+    for (int n = 0; n < numUpdate; n++) {
       int t = types[n];
       int id = ids[n];
       int doAdd = ops[n];
@@ -156,23 +149,21 @@ public class Client extends Thread {
         }
       }
     }
-    return n;
   }
 
 //  @Atomic
-  private void atomicMethodTwo(final Manager managerPtr, final int customerId) {
-    int bill = managerPtr.queryCustomerBill(customerId);
+  private void atomicMethodTwo(final Manager manager, final int customerId) {
+    int bill = manager.queryCustomerBill(customerId);
     if (bill >= 0) {
       manager.deleteCustomer(customerId);
     }
   }
 
 //  @Atomic
-  private int atomicMethodOne(final Manager manager, final int[] types,
+  private void atomicMethodOne(final Manager manager, final int[] types,
       final int[] ids, final int[] maxPrices, final int[] maxIds,
       final int numQuery, final int customerId, boolean isFound) {
-    int n;
-    for (n = 0; n < numQuery; n++) {
+    for (int n = 0; n < numQuery; n++) {
       int t = types[n];
       int id = ids[n];
       int price = -1;
@@ -207,6 +198,5 @@ public class Client extends Thread {
     if (maxIds[Defines.RESERVATION_ROOM] > 0) {
       manager.reserveRoom(customerId, maxIds[Defines.RESERVATION_ROOM]);
     }
-    return n;
   }
 }
