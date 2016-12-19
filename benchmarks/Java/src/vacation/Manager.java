@@ -55,12 +55,6 @@ public class Manager {
   private final RedBlackTree<Integer, Reservation> flights;
   private final RedBlackTree<Integer, Customer>    customers;
 
-  /*
-   * ===========================================================================
-   * == manager_alloc
-   * ===========================================================================
-   * ==
-   */
   public Manager() {
     cars      = new RedBlackTree<>();
     rooms     = new RedBlackTree<>();
