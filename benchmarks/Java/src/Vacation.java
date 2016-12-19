@@ -79,9 +79,9 @@ public class Vacation extends Benchmark {
 
     for (int t = 0; t < 4; t++) {
       /* Shuffle ids */
-      for (int i = 0; i < numRelation; i++) {
         int x = random.next() % numRelation;
         int y = random.next() % numRelation;
+      for (int i = 0; i < numRelation / 2; i++) {
         int tmp = ids[x];
         ids[x] = ids[y];
         ids[y] = tmp;
