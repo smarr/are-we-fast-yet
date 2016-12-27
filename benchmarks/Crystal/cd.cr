@@ -178,7 +178,7 @@ class InsertResult(K, V)
   end
 end
 
-def tree_minimum(x : Node(K, V))
+def tree_minimum(x : Node(K, V)) forall K, V
   current = x
   while current.left
     current = current.left.not_nil!
