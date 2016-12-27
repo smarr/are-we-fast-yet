@@ -26,7 +26,7 @@ function Body.new (x, y, z, vx, vy, vz, mass)
     return setmetatable(obj, {__index = Body})
 end
 
-function Body:offset_momentum(px, py, pz)
+function Body:offset_momentum (px, py, pz)
     self.vx = 0.0 - (px / SOLAR_MASS)
     self.vy = 0.0 - (py / SOLAR_MASS)
     self.vz = 0.0 - (pz / SOLAR_MASS)

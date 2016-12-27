@@ -158,7 +158,7 @@ function Vector:sort (fn)
     end
 end
 
-function Vector:sort_range(i, j, fn)
+function Vector:sort_range (i, j, fn)
     assert(fn)
 
     -- The prefix d means the data at that index.
@@ -249,7 +249,7 @@ function Set:has_some (fn)
     return self.items:has_some(fn)
 end
 
-function Set:get_one(fn)
+function Set:get_one (fn)
     return self.items:get_one(fn)
 end
 

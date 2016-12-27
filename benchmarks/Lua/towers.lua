@@ -48,7 +48,7 @@ function towers:push_disk (disk, pile)
     self.piles[pile] = disk
 end
 
-function towers:pop_disk_from(pile)
+function towers:pop_disk_from (pile)
     local top = self.piles[pile]
     assert(top, 'Attempting to remove a disk from an empty pile')
     self.piles[pile] = top.next
@@ -67,7 +67,7 @@ function towers:build_tower_at (pile, disks)
     end
 end
 
-function towers:move_disks(disks, from_pile, to_pile)
+function towers:move_disks (disks, from_pile, to_pile)
     if disks == 1 then
         self:move_top_disk(from_pile, to_pile)
     else

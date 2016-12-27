@@ -38,7 +38,7 @@ function run:init (name, num_iterations, inner_iterations)
     self.inner_iterations = tonumber(inner_iterations)
 end
 
-function run:run_benchmark()
+function run:run_benchmark ()
     print(("Starting %s benchmark ..."):format(self.name))
     self:do_runs()
     self:report_benchmark()
