@@ -48,7 +48,9 @@ function permute:permute (n)
 end
 
 function permute:swap (i, j)
-    self.v[i], self.v[j] = self.v[j], self.v[i]
+    local tmp = self.v[i]
+    self.v[i] = self.v[j]
+    self.v[j] = tmp
 end
 
 end -- object permute

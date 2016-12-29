@@ -725,14 +725,18 @@ function CollisionDetector:is_in_voxel (voxel, motion)
     local high_x = (v_x + v_s + r - x0) / xv
 
     if xv < 0.0 then
-        low_x, high_x = high_x, low_x
+        local tmp = low_x
+        low_x = high_x
+        high_x = tmp
     end
 
     local low_y  = (v_y - r - y0) / yv
     local high_y = (v_y + v_s + r - y0) / yv
 
     if yv < 0.0 then
-        low_y, high_y = high_y, low_y
+        local tmp = low_y
+        low_y = high_y
+        high_y = tmp
     end
 
     return (((xv == 0.0 and v_x <= x0 + r and x0 - r <= v_x + v_s) or -- no motion in x

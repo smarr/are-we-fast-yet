@@ -136,7 +136,6 @@ languages.
  - We write code compatible with Lua 5.1, 5.2 and 5.3.
  - Smalltalk/Ruby symbols are represented as normal strings.
  - We use Lua 1-based array and the length operator #.
- - We use the idiomatic swap allowed by the multiple assignment.
  - We use single object when a class is not required.
  - Bitwise operators with various Lua versions is a nightmare.
  - We use luacheck as a linter.
