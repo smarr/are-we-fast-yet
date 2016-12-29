@@ -175,8 +175,12 @@ function Vector:sort_range (i, j, fn)
 
     -- i.e., should di precede dj?
     if not fn(di, dj) then
-        storage[i], storage[j] = storage[j], storage[i]
-        di, dj = dj, di
+        local tmp = storage[i]
+        storage[i] = storage[j]
+        storage[j] = tmp
+        local tt = di
+        di = dj
+        dj = tt
     end
 
     -- NOTE: For DeltaBlue, this is never reached.
@@ -186,11 +190,15 @@ function Vector:sort_range (i, j, fn)
 
         if fn(di, dij) then             -- i.e. should di precede dij?
             if not fn(dij, dj) then     -- i.e., should dij precede dj?
-               storage[j], storage[ij] = storage[ij], storage[j]
+               local tmp = storage[j]
+               storage[j] = storage[ij]
+               storage[ij] = tmp
                dij = dj
             end
         else                            -- i.e. di should come after dij
-            storage[i], storage[ij] = storage[ij], storage[i]
+            local tmp = storage[i]
+            storage[i] = storage[ij]
+            storage[ij] = tmp
             dij = di
         end
 
@@ -215,7 +223,10 @@ function Vector:sort_range (i, j, fn)
                 if k > l then
                     break
                 end
-                storage[k], storage[l] = storage[l], storage[k]
+
+                local tmp = storage[k]
+                storage[k] = storage[l]
+                storage[l] = tmp
             end
 
             -- Now l < k (either 1 or 2 less), and di through dl are all
