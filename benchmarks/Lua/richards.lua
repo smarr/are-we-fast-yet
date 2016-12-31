@@ -42,11 +42,6 @@ local HANDLER_B = 4
 local DEVICE_A  = 5
 local DEVICE_B  = 6
 
-local DEVICE_PACKET_KIND = 0
-local WORK_PACKET_KIND   = 1
-
-local DATA_SIZE = 4
-
 local TRACING = false
 
 local RBObject = {_CLASS = 'RBObject'} do
@@ -281,6 +276,11 @@ end -- class TaskControlBlock
 
 local Scheduler = {_CLASS = 'Scheduler'} do
 setmetatable(Scheduler, {__index = RBObject})
+
+local DEVICE_PACKET_KIND = 0
+local WORK_PACKET_KIND   = 1
+
+local DATA_SIZE = 4
 
 function Scheduler.new ()
     local obj = {

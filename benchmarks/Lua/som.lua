@@ -20,9 +20,6 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 -- THE SOFTWARE.
 
-local INITIAL_SIZE = 10
-local INITIAL_CAPACITY = 16
-
 local Vector = {_CLASS = 'Vector'} do
 
 local floor = math.floor
@@ -241,6 +238,8 @@ end -- class Vector
 
 local Set = {_CLASS = 'Set'} do
 
+local INITIAL_SIZE = 10
+
 function Set.new (size)
     local obj = {
         items = Vector.new(size or INITIAL_SIZE)
@@ -322,6 +321,7 @@ end -- class Entry
 
 local Dictionary = {_CLASS = 'Dictionary'} do
 
+local INITIAL_CAPACITY = 16
 local floor = math.floor
 
 function Dictionary.new (size)

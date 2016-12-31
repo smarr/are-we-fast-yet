@@ -6,12 +6,11 @@
 --
 -- Based on nbody.java ported to SOM, and then Lua by Francois Perrad.
 
-local sqrt          = math.sqrt
+local Body = {_CLASS = 'Body'} do
+
 local PI            = 3.141592653589793
 local SOLAR_MASS    = 4.0 * PI * PI
 local DAYS_PER_YEAR = 365.24
-
-local Body = {_CLASS = 'Body'} do
 
 function Body.new (x, y, z, vx, vy, vz, mass)
     local obj = {
@@ -79,6 +78,8 @@ end
 end -- class Body
 
 local NBodySystem = {_CLASS = 'NBodySystem'} do
+
+local sqrt = math.sqrt
 
 local function create_bodies ()
     local bodies = {Body.sun(),
