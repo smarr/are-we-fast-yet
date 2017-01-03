@@ -557,55 +557,6 @@ end
 
 end -- class IdentityDictionary
 
-local LuaDictionary = {_CLASS = 'LuaDictionary'} do
-
-function LuaDictionary.new ()
-    local obj = {
-        size = 0,
-        dict = {},
-    }
-    return setmetatable(obj, {__index = LuaDictionary})
-end
-
-function LuaDictionary:is_empty ()
-    return self.size == 0
-end
-
-function LuaDictionary:at (key)
-    return self.dict[key]
-end
-
-function LuaDictionary:at_put (key, value)
-    local current = self.dict[key]
-    if not current then
-        self.size = self.size + 1
-    end
-    self.dict[key] = value
-end
-
-function LuaDictionary:remove_all ()
-    self.dict = {}
-    self.size = 0
-end
-
-function LuaDictionary:keys ()
-    local keys = Vector.new(self.size)
-    for k in pairs(self.dict) do
-        keys:append(k)
-    end
-    return keys
-end
-
-function LuaDictionary:values ()
-    local values = Vector.new(self.size)
-    for _, v in pairs(self.dict) do
-        values:append(v)
-    end
-    return values
-end
-
-end -- class LuaDictionary
-
 local Random = {_CLASS = 'Random'} do
 
 function Random.new ()
@@ -626,6 +577,5 @@ return {
     IdentitySet = IdentitySet,
     Dictionary = Dictionary,
     IdentityDictionary = IdentityDictionary,
-    LuaDictionary = LuaDictionary,
     Random = Random,
 }
