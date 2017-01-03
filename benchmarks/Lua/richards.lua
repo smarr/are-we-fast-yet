@@ -24,11 +24,13 @@
     The bitwise operators are added to Lua 5.3 as new lexemes (there causes
     lexical error in older version)
 --]]
-local bxor
+local band, bxor
 if _VERSION < 'Lua 5.3' then
     local bit = bit32 or require'bit'
+    band = bit.band
     bxor = bit.bxor
 else
+    band = assert(load'--[[band]] return function (a, b) return a & b end')()
     bxor = assert(load'--[[bxor]] return function (a, b) return a ~ b end')()
 end
 
@@ -364,7 +366,7 @@ function Scheduler:create_idler (identity, priority, work, state)
         if 0 == data.count then
             return self:hold_self()
         else
-            if 0 == (data.control % 2) then
+            if 0 == band(data.control, 1) then
                 data.control = data.control / 2
                 return self:release(DEVICE_A)
             else

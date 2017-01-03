@@ -20,6 +20,30 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 -- THE SOFTWARE.
 
+--[[
+    The module 'bit' is available with:
+      * LuaJIT
+      * LuaBitOp extension which is available for:
+          * Lua 5.1
+          * Lua 5.2
+    The module 'bit32' is available with:
+      * Lua 5.2
+      * Lua 5.3 when compiled with LUA_COMPAT_5_2
+    The bitwise operators are added to Lua 5.3 as new lexemes (there causes
+    lexical error in older version)
+--]]
+local band, bxor, rshift
+if _VERSION < 'Lua 5.3' then
+    local bit = bit32 or require'bit'
+    band = bit.band
+    bxor = bit.bxor
+    rshift = bit.rshift
+else
+    band = assert(load'--[[band]] return function (a, b) return a & b end')()
+    bxor = assert(load'--[[bxor]] return function (a, b) return a ~ b end')()
+    rshift = assert(load'--[[rshift]] return function (a, b) return a >> b end')()
+end
+
 local Vector = {_CLASS = 'Vector'} do
 
 local floor = math.floor
@@ -314,7 +338,6 @@ end -- class Entry
 local Dictionary = {_CLASS = 'Dictionary'} do
 
 local INITIAL_CAPACITY = 16
-local floor = math.floor
 
 function Dictionary.new (size)
     local obj = {
@@ -324,41 +347,12 @@ function Dictionary.new (size)
     return setmetatable(obj, {__index = Dictionary})
 end
 
---[[
-    The module 'bit' is available with:
-      * LuaJIT
-      * LuaBitOp extension which is available for:
-          * Lua 5.1
-          * Lua 5.2
-    The module 'bit32' is available with:
-      * Lua 5.2
-      * Lua 5.3 when compiled with LUA_COMPAT_5_2
-    The bitwise operators are added to Lua 5.3 as new lexemes (there causes
-    lexical error in older version)
---]]
-if _VERSION < 'Lua 5.3' then
-    local bit = bit32 or require'bit'
-    local bxor = bit.bxor
-    local rshift = bit.rshift
-
-    function Dictionary:hash (key)
-        if not key then
-            return 0
-        end
-        local hash = key:custom_hash()
-        return bxor(hash, rshift(hash, 16))
+function Dictionary:hash (key)
+    if not key then
+        return 0
     end
-else
-    Dictionary.hash = assert(load[[
-    --  Lua 5.3 variant with bitwise operators
-    return function (self, key)
-        if not key then
-            return 0
-        end
-        local hash = key:custom_hash()
-        return hash ~ (hash >> 16)
-    end
-]])()
+    local hash = key:custom_hash()
+    return bxor(hash, rshift(hash, 16))
 end
 
 function Dictionary:is_empty ()
@@ -366,7 +360,7 @@ function Dictionary:is_empty ()
 end
 
 function Dictionary:get_bucket_idx (hash)
-    return (hash % self.buckets.n) + 1
+    return band(self.buckets.n - 1, hash) + 1
 end
 
 function Dictionary:get_bucket (hash)
@@ -445,7 +439,7 @@ function Dictionary:transfer_entries (old_storage)
         if current then
             old_storage[i] = nil
             if not current.next then
-                local hash = (current.hash % buckets.n) + 1
+                local hash = band(current.hash, buckets.n - 1) + 1
                 buckets[hash] = current
             else
                 self:split_bucket(old_storage, i, current)
@@ -460,7 +454,7 @@ function Dictionary:split_bucket (old_storage, i, head)
     local current = head
 
     while current do
-        if (floor(current.hash / old_storage.n) % 2) == 0 then
+        if band(current.hash, old_storage.n) == 0 then
             if not lo_tail then
                lo_head = current
             else
@@ -557,7 +551,7 @@ function Random.new ()
 end
 
 function Random:next ()
-  self.seed = ((self.seed * 1309) + 13849) % 65536;
+  self.seed = band(((self.seed * 1309) + 13849), 65535);
   return self.seed;
 end
 

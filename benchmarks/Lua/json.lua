@@ -170,6 +170,26 @@ setmetatable(JsonObject, {__index = JsonValue})
 
 local HashIndexTable = {_CLASS = 'HashIndexTable'} do
 
+--[[
+    The module 'bit' is available with:
+      * LuaJIT
+      * LuaBitOp extension which is available for:
+          * Lua 5.1
+          * Lua 5.2
+    The module 'bit32' is available with:
+      * Lua 5.2
+      * Lua 5.3 when compiled with LUA_COMPAT_5_2
+    The bitwise operators are added to Lua 5.3 as new lexemes (there causes
+    lexical error in older version)
+--]]
+local band
+if _VERSION < 'Lua 5.3' then
+    local bit = bit32 or require'bit'
+    band = bit.band
+else
+    band = assert(load'--[[band]] return function (a, b) return a & b end')()
+end
+
 function HashIndexTable.new ()
     local obj = {
         hash_table = {length = 32;
@@ -185,7 +205,7 @@ function HashIndexTable:add (name, index)
     local slot = self:hash_slot_for(name)
     if index < 255 then
         -- increment by 1, 0 stands for empty
-        self.hash_table[slot] = (index + 1) % 256
+        self.hash_table[slot] = band(index + 1, 0xFF)
     else
         self.hash_table[slot] = 0
     end
@@ -194,7 +214,7 @@ end
 function HashIndexTable:get (name)
     local slot = self:hash_slot_for(name)
     -- subtract 1, 0 stands for empty
-    return (self.hash_table[slot] % 256) - 1
+    return band(self.hash_table[slot], 0xFF) - 1
 end
 
 function HashIndexTable:string_hash (s)
@@ -204,7 +224,7 @@ function HashIndexTable:string_hash (s)
 end
 
 function HashIndexTable:hash_slot_for (element)
-    return (self:string_hash(element) % self.hash_table.length) + 1
+    return band(self:string_hash(element), self.hash_table.length - 1) + 1
 end
 
 end -- class HashIndexTable
