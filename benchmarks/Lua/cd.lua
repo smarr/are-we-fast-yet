@@ -654,7 +654,7 @@ function CollisionDetector:handle_new_frame (frame)
     local motions = Vector.new()
     local seen    = RedBlackTree.new()
 
-    for aircraft in frame:each() do
+    frame:each(function (aircraft)
         local old_position = self.state:put(aircraft.callsign, aircraft.position)
         local new_position = aircraft.position
         seen:put(aircraft.callsign, true)
@@ -665,7 +665,7 @@ function CollisionDetector:handle_new_frame (frame)
         end
 
         motions:append(Motion.new(aircraft.callsign, old_position, new_position))
-    end
+    end)
 
     -- Remove aircraft that are no longer present.
     local to_remove = Vector.new()
@@ -675,13 +675,13 @@ function CollisionDetector:handle_new_frame (frame)
         end
     end
 
-    for e in to_remove:each() do
+    to_remove:each(function (e)
         self.state:remove(e)
-    end
+    end)
 
     local all_reduced = self:reduce_collision_set(motions)
     local collisions = Vector.new()
-    for reduced in all_reduced:each() do
+    all_reduced:each(function (reduced)
         for i = 1, reduced:size() do
             local motion1 = reduced:at(i)
             for j = i + 1, reduced:size() do
@@ -694,7 +694,7 @@ function CollisionDetector:handle_new_frame (frame)
                 end
             end
         end
-    end
+    end)
 
     return collisions
 end
@@ -782,9 +782,9 @@ end
 
 function CollisionDetector:reduce_collision_set (motions)
     local voxel_map = RedBlackTree.new()
-    for motion in motions:each() do
+    motions:each(function (motion)
         self:draw_motion_on_voxel_map(voxel_map, motion)
-    end
+    end)
 
     local result = Vector.new()
     for _, value in voxel_map:for_each() do

@@ -183,13 +183,13 @@ end
 
 function LoopStructureGraph:calculate_nesting_level ()
     -- link up all 1st level loops to artificial root node.
-    for it in self.loops:each() do
+    self.loops:each(function (it)
         if not it.is_root then
             if not it.parent then
                 it:set_parent(self.root)
             end
         end
-    end
+    end)
     -- recursively traverse the tree and assign levels.
     self:calculate_nesting_level_rec(self.root, 0)
 end
@@ -200,10 +200,10 @@ end
 
 function LoopStructureGraph:calculate_nesting_level_rec (loop, depth)
     loop.depth_level = depth
-    for it in loop.children:each() do
+    loop.children:each(function (it)
         self:calculate_nesting_level_rec(it, depth + 1)
         loop:set_nesting_level(max(loop.nesting_level, 1 + it.nesting_level))
-    end
+    end)
 end
 
 function LoopStructureGraph:num_loops ()
@@ -241,9 +241,9 @@ function UnionFindNode:find_set ()
         node = node.parent
     end
     -- Path Compression, all nodes' parents point to the 1st level parent.
-    for it in node_list:each() do
+    node_list:each(function (it)
         it:union(self.parent)
-    end
+    end)
     return node
 end
 
@@ -295,11 +295,11 @@ function HavlakLoopFinder:do_dfs (current_node, current)
     local last_id = current
     local outer_blocks = current_node.out_edges
 
-    for target in outer_blocks:each() do
+    outer_blocks:each(function (target)
         if self.number:at(target) == UNVISITED then
             last_id = self:do_dfs(target, last_id + 1)
         end
-    end
+    end)
 
     self.last[current] = last_id
     return last_id
@@ -310,9 +310,9 @@ function HavlakLoopFinder:init_all_nodes ()
     --   - initialize all nodes as unvisited.
     --   - depth-first traversal and numbering.
     --   - unreached BB's are marked as dead.
-    for bb in self.cfg:get_basic_blocks():each() do
+    self.cfg:get_basic_blocks():each(function (bb)
         self.number:at_put(bb, UNVISITED)
-    end
+    end)
     self:do_dfs(self.cfg:get_start_basic_block(), 1)
 end
 
@@ -341,7 +341,7 @@ end
 function HavlakLoopFinder:process_edges (node_w, w)
     local number = self.number
     if node_w:num_pred() > 0 then
-        for node_v in node_w.in_edges:each() do
+        node_w.in_edges:each(function (node_v)
             local v = number:at(node_v)
             if v ~= UNVISITED then
                 if self:is_ancestor(w, v) then
@@ -350,7 +350,7 @@ function HavlakLoopFinder:process_edges (node_w, w)
                     self.non_back_preds:at(w):add(v)
                 end
             end
-        end
+        end)
     end
 end
 
@@ -407,9 +407,9 @@ function HavlakLoopFinder:find_loops ()
 
             -- Copy nodePool to workList.
             local work_list = Vector.new()
-            for it in node_pool:each() do
+            node_pool:each(function (it)
                 work_list:append(it)
-            end
+            end)
 
             if node_pool:size() ~= 0 then
                 self.type[w] = 'BB_REDUCIBLE'
@@ -447,7 +447,7 @@ function HavlakLoopFinder:find_loops ()
 end
 
 function HavlakLoopFinder:step_e_process_non_back_preds (w, node_pool, work_list, x)
-    for it in self.non_back_preds:at(x.dfs_number):each() do
+    self.non_back_preds:at(x.dfs_number):each(function (it)
         local y = self.nodes[it]
         local ydash = y:find_set()
         if not self:is_ancestor(w, ydash.dfs_number) then
@@ -459,7 +459,7 @@ function HavlakLoopFinder:step_e_process_non_back_preds (w, node_pool, work_list
                 node_pool:append(ydash)
             end
         end
-    end
+    end)
 end
 
 function HavlakLoopFinder:set_loop_attributes (w, node_pool, loop)
@@ -475,7 +475,7 @@ function HavlakLoopFinder:set_loop_attributes (w, node_pool, loop)
     -- whether this loop is reducible:
     --    type[w] != BasicBlockClass.BB_IRREDUCIBLE
     self.nodes[w].loop = loop
-    for node in node_pool:each() do
+    node_pool:each(function (node)
         -- Add nodes to loop descriptor.
         self.header[node.dfs_number] = w
         node:union(self.nodes[w])
@@ -485,17 +485,17 @@ function HavlakLoopFinder:set_loop_attributes (w, node_pool, loop)
         else
             loop:add_node(node.bb)
         end
-    end
+    end)
 end
 
 function HavlakLoopFinder:step_d (w, node_pool)
-    for v in self.back_preds:at(w):each() do
+    self.back_preds:at(w):each(function (v)
         if v ~= w then
             node_pool:append(self.nodes[v]:find_set())
         else
             self.type[w] = 'BB_SELF'
         end
-    end
+    end)
 end
 
 end -- class HavlakLoopFinder

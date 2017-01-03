@@ -72,9 +72,9 @@ end
 
 local function create_strength_constants ()
     local dict = IdentityDictionary.new()
-    for key in STRENGHT_TABLE:keys():each() do
+    STRENGHT_TABLE:keys():each(function (key)
         dict:at_put(key, Strength.new(key))
-    end
+    end)
     return dict
 end
 
@@ -513,9 +513,9 @@ function Plan.new ()
 end
 
 function Plan:execute ()
-    for c in self:each() do
+    self:each(function (c)
         c:execute()
-    end
+    end)
 end
 
 end -- class Plan
@@ -540,18 +540,18 @@ function Planner:incremental_remove (constraint)
     constraint:mark_unsatisfied()
     constraint:remove_from_graph()
     local unsatisfied = self:remove_propagate_from(out)
-    for u in unsatisfied:each() do
+    unsatisfied:each(function (u)
         self:incremental_add(u)
-    end
+    end)
 end
 
 function Planner:extract_plan_from_constraints (constraints)
     local sources = Vector.new()
-    for c in constraints:each() do
+    constraints:each(function (c)
         if c:is_input() and c:is_satisfied() then
             sources:append(c)
         end
-    end
+    end)
     return self:make_plan(sources)
 end
 
@@ -583,11 +583,11 @@ end
 
 function Planner:add_constraints_consuming_to (v, coll)
     local determining_c = v.determined_by
-    for c in v.constraints:each() do
+    v.constraints:each(function (c)
         if (c ~= determining_c) and c:is_satisfied() then
             coll:append(c)
         end
-    end
+    end)
 end
 
 function Planner:add_propagate (c, mark)
@@ -614,20 +614,13 @@ function Planner:change_var (var, val)
     edit_constraint:destroy_constraint(self)
 end
 
-function Planner:constraints_consuming (v)
+function Planner:constraints_consuming (v, fn)
     local determining_c = v.determined_by
-    local iterator = v.constraints:each()
-    local function iter ()
-        local c = iterator()
-        while c do
-            if (c ~= determining_c) and c:is_satisfied() then
-                return c
-            end
-            c = iterator()
+    v.constraints:each(function (c)
+        if (c ~= determining_c) and c:is_satisfied() then
+            fn(c)
         end
-        return nil
-    end
-    return iter
+    end)
 end
 
 function Planner:new_mark ()
@@ -647,16 +640,16 @@ function Planner:remove_propagate_from (out)
     while not todo:is_empty() do
         local v = todo:remove_first()
 
-        for c in v.constraints:each() do
+        v.constraints:each(function (c)
             if not c:is_satisfied() then
                 unsatisfied:append(c)
             end
-        end
+        end)
 
-        for c in self:constraints_consuming(v) do
+        self:constraints_consuming(v, function (c)
             c:recalculate()
             todo:append(c:output())
-        end
+        end)
     end
 
     unsatisfied:sort(function (c1, c2)

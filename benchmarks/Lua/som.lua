@@ -73,18 +73,10 @@ function Vector:is_empty ()
     return self.last_idx == self.first_idx
 end
 
-function Vector:each ()
-    local i = self.first_idx
-    local function iter ()
-        if i < self.last_idx then
-            local val = self.storage[i]
-            i = i + 1
-            return val
-        else
-            return nil
-        end
+function Vector:each (fn)
+    for i = self.first_idx, self.last_idx - 1 do
+        fn(self.storage[i])
     end
-    return iter
 end
 
 function Vector:has_some (fn)
@@ -118,14 +110,14 @@ function Vector:remove (obj)
     local new_array = {n = self:capacity()}
     local new_last = 1
     local found = false
-    for it in self:each() do
+    self:each(function (it)
         if it == obj then
             found = true
         else
             new_array[new_last] = it
             new_last = new_last + 1
         end
-    end
+    end)
     self.storage   = new_array
     self.last_idx  = new_last
     self.first_idx = 1
@@ -251,8 +243,8 @@ function Set:size ()
     return self.items:size()
 end
 
-function Set:each ()
-    return self.items:each()
+function Set:each (fn)
+    self.items:each(fn)
 end
 
 function Set:has_some (fn)
@@ -275,9 +267,9 @@ end
 
 function Set:collect (fn)
     local coll = Vector.new()
-    for e in self:each() do
-        coll:append(fn(e))
-    end
+    self:each(function (it)
+        coll:append(fn(it))
+    end)
     return coll
 end
 
