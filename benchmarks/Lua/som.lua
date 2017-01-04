@@ -44,13 +44,25 @@ else
     rshift = assert(load'--[[rshift]] return function (a, b) return a >> b end')()
 end
 
+local memoize = {}
+local function alloc_array (n)
+    if not memoize[n] then
+        local code = 'return {n = '
+                  .. tostring(n)
+                  .. string.rep(', false', n)
+                  .. '}'
+        memoize[n] = assert(load(code))
+    end
+    return memoize[n]()
+end
+
 local Vector = {_CLASS = 'Vector'} do
 
 local floor = math.floor
 
 function Vector.new (size)
     local obj = {
-        storage   = {n = size or 50},
+        storage   = alloc_array(size or 50),
         first_idx = 1,
         last_idx  = 1,
     }
@@ -76,7 +88,11 @@ function Vector:at_put (idx, val)
         while idx > new_n do
             new_n = new_n * 2
         end
-        self.storage.n = new_n
+        local new_storage = alloc_array(new_n)
+        for i = 1, self.storage.n do
+            new_storage[i] = self.storage[i]
+        end
+        self.storage = new_storage
     end
     self.storage[idx] = val
     if self.last_idx < idx + 1 then
@@ -87,7 +103,11 @@ end
 function Vector:append (elem)
     if self.last_idx > self.storage.n then
         -- Need to expand capacity first
-        self.storage.n = 2 * self.storage.n
+        local new_storage = alloc_array(2 * self.storage.n)
+        for i = 1, self.storage.n do
+            new_storage[i] = self.storage[i]
+        end
+        self.storage = new_storage
     end
     self.storage[self.last_idx] = elem
     self.last_idx = self.last_idx + 1
@@ -131,7 +151,7 @@ function Vector:remove_first ()
 end
 
 function Vector:remove (obj)
-    local new_array = {n = self:capacity()}
+    local new_array = alloc_array(self:capacity())
     local new_last = 1
     local found = false
     self:each(function (it)
@@ -151,7 +171,7 @@ end
 function Vector:remove_all ()
     self.first_idx = 1
     self.last_idx = 1
-    self.storage = {n = self:capacity()}
+    self.storage = alloc_array(self:capacity())
 end
 
 function Vector:size ()
@@ -341,7 +361,7 @@ local INITIAL_CAPACITY = 16
 
 function Dictionary.new (size)
     local obj = {
-        buckets = {n = size or INITIAL_CAPACITY},
+        buckets = alloc_array(size or INITIAL_CAPACITY),
         size    = 0,
     }
     return setmetatable(obj, {__index = Dictionary})
@@ -428,7 +448,7 @@ end
 
 function Dictionary:resize ()
     local old_storage = self.buckets
-    self.buckets = {n = old_storage.n * 2}
+    self.buckets = alloc_array(old_storage.n * 2)
     self:transfer_entries(old_storage)
 end
 
@@ -483,7 +503,7 @@ function Dictionary:split_bucket (old_storage, i, head)
 end
 
 function Dictionary:remove_all ()
-    self.buckets = {n = self.buckets.n}
+    self.buckets = alloc_array(self.buckets.n)
     self.size = 0
 end
 
