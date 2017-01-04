@@ -83,8 +83,8 @@ function ControlFlowGraph:create_node (name)
     if self.basic_block_map:at(name) then
         node = self.basic_block_map:at(name)
     else
-      node = BasicBlock.new(name)
-      self.basic_block_map:at_put(name, node)
+        node = BasicBlock.new(name)
+        self.basic_block_map:at_put(name, node)
     end
     if self:num_nodes() == 1 then
         self.start_node = node
@@ -150,7 +150,7 @@ end
 function SimpleLoop:set_nesting_level (level)
     self.nesting_level = level
     if level == 0 then
-       self:set_is_root()
+        self:set_is_root()
     end
 end
 
