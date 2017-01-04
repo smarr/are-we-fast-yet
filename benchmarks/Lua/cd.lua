@@ -290,18 +290,15 @@ function RedBlackTree:get (key)
     return nil
 end
 
-function RedBlackTree:for_each ()
-    local current = self.root and tree_minimum(self.root) or nil
-    local function iter ()
-        if current then
-            local key, value = current.key, current.value
-            current = current:successor()
-            return key, value
-        else
-            return nil
-        end
+function RedBlackTree:for_each (fn)
+    if not self.root then
+        return
     end
-    return iter
+    local current = tree_minimum(self.root)
+    while current do
+        fn(current.key, current.value)
+        current = current:successor()
+     end
 end
 
 function RedBlackTree:find_node (key)
@@ -669,11 +666,11 @@ function CollisionDetector:handle_new_frame (frame)
 
     -- Remove aircraft that are no longer present.
     local to_remove = Vector.new()
-    for key in self.state:for_each() do
+    self.state:for_each(function (key)
         if not seen:get(key) then
             to_remove:append(key)
         end
-    end
+    end)
 
     to_remove:each(function (e)
         self.state:remove(e)
@@ -787,11 +784,11 @@ function CollisionDetector:reduce_collision_set (motions)
     end)
 
     local result = Vector.new()
-    for _, value in voxel_map:for_each() do
+    voxel_map:for_each(function (_, value)
         if value:size() > 1 then
             result:append(value)
         end
-    end
+    end)
     return result
 end
 
