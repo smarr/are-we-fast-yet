@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+sudo `dirname $0`/set_rtprio_limit $$
+exec `dirname $0`/Squeak5.1*.app/Contents/Linux-i686/bin/squeak -nodisplay -nosound $@

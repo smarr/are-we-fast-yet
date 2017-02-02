@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+export SDL_VIDEODRIVER=dummy
+exec `dirname $0`/RSqueak.sh $@

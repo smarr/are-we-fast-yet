@@ -31,18 +31,18 @@ Scheduler = RBObject (
       work: work
       state: state
       function: 
-        [:work :word |
-        | data functionWork | 
-        data := word.
-        functionWork := work.
+        [:thework :word |
+        | thedata functionWork | 
+        thedata := word.
+        functionWork := thework.
         RBObject NoWork == functionWork ifTrue: [
-          RBObject NoWork == (functionWork := data pending)
+          RBObject NoWork == (functionWork := thedata pending)
             ifTrue: [ self wait ]
             ifFalse: [
-              data pending: RBObject NoWork.
+              thedata pending: RBObject NoWork.
               self queuePacket: functionWork]]
           ifFalse: [
-            data pending: functionWork.
+            thedata pending: functionWork.
             self tracing ifTrue: [
               self trace: functionWork datum].
             self holdSelf]]
@@ -56,29 +56,29 @@ Scheduler = RBObject (
          priority:   priority
          work:       work
          state:      state
-         function:   [:work :word | 
-           | data workPacket |
-           data := word.
-           RBObject NoWork == work ifFalse: [
-             RBObject WorkPacketKind == work kind 
-               ifTrue:  [ data workInAdd: work ]
-               ifFalse: [ data deviceInAdd: work ]].
+         function:   [:thework :word | 
+           | thedata workPacket |
+           thedata := word.
+           RBObject NoWork == thework ifFalse: [
+             RBObject WorkPacketKind == thework kind 
+               ifTrue:  [ thedata workInAdd: thework ]
+               ifFalse: [ thedata deviceInAdd: thework ]].
 
-           RBObject NoWork == (workPacket := data workIn)
+           RBObject NoWork == (workPacket := thedata workIn)
              ifTrue: [ self wait ]
              ifFalse: [
                | count |
                count := workPacket datum.
                count > 4
                  ifTrue: [
-                   data workIn: workPacket link.
+                   thedata workIn: workPacket link.
                    self queuePacket: workPacket]
                  ifFalse: [
                    | devicePacket |
-                   RBObject NoWork == (devicePacket := data deviceIn)
+                   RBObject NoWork == (devicePacket := thedata deviceIn)
                      ifTrue: [ self wait ]
                      ifFalse: [
-                       data deviceIn: devicePacket link.
+                       thedata deviceIn: devicePacket link.
                        devicePacket datum: (workPacket data at: count).
                        workPacket datum: count + 1.
                        self queuePacket: devicePacket]]]]
@@ -92,19 +92,19 @@ Scheduler = RBObject (
            priority:   priority
            work:       work
            state:      state
-           function:  [:work :word | 
-             | data |
-             data := word.
-             data count: data count - 1.
-             0 = data count
+           function:  [:thework :word | 
+             | thedata |
+             thedata := word.
+             thedata count: thedata count - 1.
+             0 = thedata count
                ifTrue:  [ self holdSelf ]
                ifFalse: [
-                 0 = (data control & 1 )
+                 0 = (thedata control & 1 )
                  ifTrue: [
-                   data control: data control // 2.
+                   thedata control: thedata control // 2.
                    self release: RBObject DeviceA]
                  ifFalse: [
-                   data control: (data control // 2 bitXor: 53256).
+                   thedata control: (thedata control // 2 bitXor: 53256).
                    self release: RBObject DeviceB]]]
            data: data
   )
@@ -135,23 +135,23 @@ Scheduler = RBObject (
            priority:   priority
            work:       work
            state:      state
-           function: [:work :word |
-             | data | 
-             data := word.
-             RBObject NoWork == work
+           function: [:thework :word |
+             | thedata | 
+             thedata := word.
+             RBObject NoWork == thework
                ifTrue: [ self wait ]
                ifFalse: [
-                 data destination: (RBObject HandlerA = data destination
+                 thedata destination: (RBObject HandlerA = thedata destination
                                        ifTrue:  [RBObject HandlerB]
                                        ifFalse: [RBObject HandlerA]).
-                 work identity: data destination.
-                 work datum: 1.
+                 thework identity: thedata destination.
+                 thework datum: 1.
                  1 to: 4 do: [:i | 
-                   data count: data count + 1.
-                   data count > 26 ifTrue: [data count: 1].
-                   "work data at: i put: $A asInteger + data count - 1]."
-                   work data at: i put: 65 + data count - 1].
-                 self queuePacket: work]]
+                   thedata count: thedata count + 1.
+                   thedata count > 26 ifTrue: [thedata count: 1].
+                   "thework data at: i put: $A asInteger + thedata count - 1]."
+                   thework data at: i put: 65 + thedata count - 1].
+                 self queuePacket: thework]]
           data: data
   )
 

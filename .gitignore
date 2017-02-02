@@ -18,7 +18,16 @@ implementations/jvmci
 implementations/truffle
 benchmarks/Smalltalk/*.changes
 benchmarks/Smalltalk/*.image
+benchmarks/Smalltalk/*.sources
 implementations/pharo
 implementations/pharo-ui
 implementations/pharo-vm
 implementations/vm50
+implementations/rsqueak.*
+implementations/Squeak*
+implementations/RSqueak.*
+implementations/squeak.sh
+implementations/squeak.bat
+implementations/COPYING-SDL2.txt
+implementations/pypy-pypy-*
+implementations/pypy.tar.bz2
