@@ -26,10 +26,24 @@ matrix:
     - env: LANG=pharo
       language: smalltalk
       smalltalk: Pharo-5.0
+    - env: LANG=squeak
+      sudo: required
+      language: smalltalk
+      smalltalk: Squeak-5.1
+    - env: LANG=rsqueak
+      sudo: required
+      language: smalltalk
+      smalltalk: Squeak-5.1
+      addons:
+        apt:
+          packages:
+            - python-scipy
+            - python-yaml
+            - libsdl2-2.0-0
+            - libffi6
     - env: LANG=ruby
       language: ruby
       rvm: 2.3.1
-
 
 install:
   - pip install --user ReBench

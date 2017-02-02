@@ -29,7 +29,7 @@ testLoadBall
 !SomLoaderTests methodsFor: 'test' stamp: 'StefanMarr 7/21/2016 16:18'!
 testLoadCDRedBlackTree
 	| result |
-	result := SomCompiler new load: 'CD/RedBlackTree.som'.
+	result := SomCompiler new load: 'CD', DiskStore delimiter asString, 'RedBlackTree.som'.
 	self deny: result isNil.
 	self assert: result classFields size equals: 0.
 	self assert: result classMethods size equals: 1.
@@ -39,7 +39,7 @@ testLoadCDRedBlackTree
 !SomLoaderTests methodsFor: 'test' stamp: 'StefanMarr 7/21/2016 16:20'!
 testLoadJson
 	| result |
-	result := SomCompiler new load: 'Json/Json.som'.
+	result := SomCompiler new load: 'Json', DiskStore delimiter asString, 'Json.som'.
 	self deny: result isNil.
 	self assert: result classFields size equals: 0.
 	self assert: result classMethods size equals: 2.
