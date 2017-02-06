@@ -8,7 +8,7 @@ pushd $SCRIPT_PATH
   git clone git://github.com/topazproject/topaz
   pushd topaz
     git checkout tim/features
-    pip install invoke
+    pip install --upgrade invoke
     export TEST_TYPE=translate-jit-notest
     invoke travis.install_requirements
     invoke travis.run_tests
