@@ -1,5 +1,5 @@
 #!/bin/sh
-exit 0
+rebench -d --without-nice rebench.conf steady-som vm:SOMns
 # rebench -d --without-nice rebench.conf steady-java
 # rebench -d --without-nice rebench.conf steady-crystal
 # rebench -d --without-nice rebench.conf steady-js
