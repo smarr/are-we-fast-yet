@@ -12,12 +12,8 @@ check_for ruby    "Please see https://www.ruby-lang.org/en/documentation/install
 check_for_graalvm "non-fatal"
 
 $SCRIPT_PATH/build-java.sh
-$SCRIPT_PATH/build-crystal.sh
 $SCRIPT_PATH/build-jruby.sh
 $SCRIPT_PATH/build-som.sh
-$SCRIPT_PATH/build-somns.sh
-$SCRIPT_PATH/build-graal.sh
-$SCRIPT_PATH/build-pharo.sh
 
 if [ -e "$GRAALVM_ARCHIVE" ]; then
   mkdir -p $SCRIPT_PATH/graalvm
