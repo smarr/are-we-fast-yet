@@ -16,3 +16,6 @@
 [submodule "implementations/mx"]
 	path = implementations/mx
 	url = https://github.com/graalvm/mx.git
+[submodule "implementations/Topaz"]
+	path = implementations/Topaz
+	url = https://github.com/topazproject/topaz

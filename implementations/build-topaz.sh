@@ -5,9 +5,8 @@ source $SCRIPT_PATH/script.inc
 
 INFO Build Topaz
 pushd $SCRIPT_PATH
-  git clone git://github.com/topazproject/topaz
-  pushd topaz
-    git checkout tim/features
+  load_submodule $SCRIPT_PATH/Topaz
+  pushd Topaz
     pip install --upgrade invoke
     export TEST_TYPE=translate-jit-notest
     invoke travis.install_requirements
