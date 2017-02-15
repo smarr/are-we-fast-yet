@@ -210,8 +210,15 @@ Other language implementations are not necessarily reaching performance similar
 to Java on our benchmarks. The following plot include all of the
 implementations.
 
-```{r all-langs-overview, fig.width=8, fig.height=3}
-p <- overview_box_plot(stats, vms_all)
+```{r all-langs-overview, fig.width=8, fig.height=10}
+p <- overview_box_plot(stats_latest, vms_all)
+p + scale_y_continuous(breaks = c(0, 5, seq(from=10, by=10, to=100)))
+```
+
+###### Ruby Performance
+
+```{r ruby-overview, fig.width=8, fig.height=6}
+p <- overview_box_plot(stats_latest, c("Crystal", "Java8U66", "RBX314", "Topaz", "MRU23", "JRubyC2", "JRubyTruffleEnterprise", "Pharo"))
 p + scale_y_continuous(breaks = c(0, 5, seq(from=10, by=10, to=100)))
 ```
 
