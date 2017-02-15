@@ -222,7 +222,7 @@ The following table contains the numerical representation of the results
 depicted above.
 
 ```{r truffle-lang-table, results='asis', echo=FALSE}
-vm_stats <- ddply(stats, ~ VM, summarise,
+vm_stats <- ddply(stats_latest, ~ VM, summarise,
                      geomean = geometric.mean(RuntimeFactor),
                      sd      = sd(RuntimeFactor),
                      min     = min(RuntimeFactor),
@@ -246,13 +246,13 @@ The following plots show results for each of the benchmarks.
 ##### Fast Language Implementations
 
 ```{r fast-langs-benchmarks, fig.width=4, fig.height=16}
-plot_benchmarks_speedup_for_vms_faceted(stats, vms_fast)
+plot_benchmarks_speedup_for_vms_faceted(stats_latest, vms_fast)
 ```
 
 ##### Slow Language Implementations
 
 ```{r slow-langs-benchmarks, fig.width=4, fig.height=16}
-plot_benchmarks_speedup_for_vms_faceted(stats, vms_slow)
+plot_benchmarks_speedup_for_vms_faceted(stats_latest, vms_slow)
 ```
 
 ##### Benchmark Results
@@ -261,9 +261,9 @@ plot_benchmarks_speedup_for_vms_faceted(stats, vms_slow)
 The following table contains the numerical results for all benchmarks.
 
 ```{r benchmark-table, results='asis', echo=FALSE}
-t_stats <- stats
 t_stats$VM <- revalue(t_stats$VM, vm_names)
 t_stats$VM <- reorder(t_stats$VM, X=t_stats$VMMean)
+t_stats <- stats_latest
 
 
 t <- tabular(Justify("l")*Heading()*Benchmark*VM ~
