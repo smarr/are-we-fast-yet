@@ -94,7 +94,7 @@ stats <- norm %>%
   summarise(
     Time.ms = mean(Value),
     sd      = sd(Value),
-    RuntimeFactor = geometric.mean(RuntimeRatio),
+    RuntimeFactor = mean(RuntimeRatio),
     RR.sd         = sd(RuntimeRatio),
     RR.median     = median(RuntimeRatio))
 
@@ -268,7 +268,7 @@ t_stats$VM <- reorder(t_stats$VM, X=t_stats$VMMean)
 
 t <- tabular(Justify("l")*Heading()*Benchmark*VM ~
              Heading('Runtime Factor over Java')*Justify("r")*Format(sprintf("%.2f"))*((
-                 Heading("geomean")*RuntimeFactor
+                 Heading("mean")*RuntimeFactor
                + Heading("sd")*RR.sd
                # + Heading("median")*RR.median
                )*Heading()*identity), data=t_stats)
