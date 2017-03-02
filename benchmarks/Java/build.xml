@@ -1,5 +1,5 @@
 <project name="Java-benchmarks" basedir="." default="compile">
-    <property name="checkstyle.version" value="7.1.2" />
+    <property name="checkstyle.version" value="7.6" />
 
     <property name="src.dir"   value="src" />
     <property name="build.dir" value="build" />
@@ -19,7 +19,7 @@
 
     <target name="checkstyle-jar">
         <mkdir dir="${build.dir}" />
-        <get src="http://heanet.dl.sourceforge.net/project/checkstyle/checkstyle/${checkstyle.version}/checkstyle-${checkstyle.version}-all.jar"
+        <get src="https://master.dl.sourceforge.net/project/checkstyle/checkstyle/${checkstyle.version}/checkstyle-${checkstyle.version}-all.jar"
             usetimestamp="true"
             dest="${build.dir}/checkstyle-${checkstyle.version}-all.jar" />
     </target>
