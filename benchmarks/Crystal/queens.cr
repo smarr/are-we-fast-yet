@@ -35,6 +35,7 @@ class Queens < Benchmark
     10.times {
       result = result && queens
     }
+    result
   end
 
   def verify_result(result)
