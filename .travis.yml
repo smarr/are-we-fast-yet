@@ -27,11 +27,9 @@ matrix:
       language: smalltalk
       smalltalk: Pharo-5.0
     - env: LANG=squeak
-      sudo: required
       language: smalltalk
       smalltalk: Squeak-5.1
     - env: LANG=rsqueak
-      sudo: required
       language: smalltalk
       smalltalk: Squeak-5.1
       addons:
