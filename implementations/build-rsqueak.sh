@@ -8,7 +8,9 @@ set -e # make script fail on first error
 SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source $SCRIPT_PATH/script.inc
 
+pushd $SCRIPT_PATH
 load_submodule RSqueak
+popd
 
 # TODO: override PyPy of RSqueak with a fixed version once >5.6.0 was released
 # if [ \! -d pypy ]; then
