@@ -19,3 +19,6 @@
 [submodule "implementations/Topaz"]
 	path = implementations/Topaz
 	url = https://github.com/topazproject/topaz
+[submodule "implementations/RSqueak"]
+	path = implementations/RSqueak
+	url = https://github.com/HPI-SWA-Lab/RSqueak.git
