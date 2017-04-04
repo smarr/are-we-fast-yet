@@ -44,16 +44,26 @@ else
     rshift = assert(load'--[[rshift]] return function (a, b) return a >> b end')()
 end
 
-local memoize = {}
-local function alloc_array (n)
-    if not memoize[n] then
-        local code = 'return {n = '
-                  .. tostring(n)
-                  .. string.rep(', false', n)
-                  .. '}'
-        memoize[n] = assert(load(code))
+local alloc_array
+local ok, table_new = pcall(require, 'table.new')       -- LuaJIT 2.1 extension
+if ok then
+    alloc_array = function (n)
+        local t = table_new(n, 1)
+        t.n = n
+        return t
     end
-    return memoize[n]()
+else
+    local memoize = {}
+    alloc_array = function (n)
+        if not memoize[n] then
+            local code = 'return {n = '
+                      .. tostring(n)
+                      .. string.rep(', false', n)
+                      .. '}'
+            memoize[n] = assert(load(code))
+        end
+        return memoize[n]()
+    end
 end
 
 local Vector = {_CLASS = 'Vector'} do
