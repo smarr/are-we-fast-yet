@@ -436,9 +436,9 @@ function Scheduler:start ()
 end
 
 function Scheduler:find_task (identity)
-    local t = self.task_table[identity]
-    assert(t ~= NO_TASK, 'find_task failed')
-    return t
+    local task = self.task_table[identity]
+    assert(task ~= NO_TASK, 'find_task failed')
+    return task
 end
 
 function Scheduler:hold_self ()
