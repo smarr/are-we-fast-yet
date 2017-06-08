@@ -56,6 +56,9 @@ Metrics/BlockNesting:
 Metrics/BlockLength:
   Max: 28
 
+Style/YodaCondition:
+  Enabled: false
+
 Style/ZeroLengthPredicate:
   Enabled: false
 
