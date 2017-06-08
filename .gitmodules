@@ -25,3 +25,6 @@
 [submodule "implementations/SOM"]
 	path = implementations/SOM
 	url = https://github.com/SOM-st/som-java.git
+[submodule "implementations/SOMpp"]
+	path = implementations/SOMpp
+	url = https://github.com/SOM-st/SOMpp.git
