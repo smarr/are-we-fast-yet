@@ -11,6 +11,6 @@ then
 else
   load_submodule $SCRIPT_PATH/SOMns
   pushd $SCRIPT_PATH/SOMns
-  make clean; make
+  ant clobber; ant compile
 fi
 OK SOMns Build Completed.
