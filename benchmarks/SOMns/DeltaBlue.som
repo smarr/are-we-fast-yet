@@ -60,7 +60,6 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
     resatisfy all currently satisfiable constraints in the face of one or more
     changing inputs. *)
   )(
-    'execution'
     public execute = (
       (* Execute my constraints in order. *)
       self forEach: [:c | c execute ]
@@ -77,7 +76,6 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
      To run the benchmark, execute the expression `Planner standardBenchmark`. *)
     | currentMark ::= 1. |
   )(
-    'add/remove'
     public incrementalAdd: c = (
       (* Attempt to satisfy the given constraint and, if successful,
          incrementally update the dataflow graph.
@@ -118,7 +116,6 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       unsatisfied forEach: [: u | self incrementalAdd: u]
     )
 
-    'planning/value propagation'
     public extractPlanFromConstraints: constraints = (
       (* Extract a plan for resatisfaction starting from the outputs of the
          given constraints, usually a set of input constraints. *)
@@ -171,8 +168,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
         self addConstraintsConsuming: c output to: todo].
     )
 
-    'private'
-    addConstraintsConsuming: v to: aCollection = (
+    private addConstraintsConsuming: v to: aCollection = (
       | determiningC |
       determiningC := v determinedBy.
       v constraints forEach: [:c |
@@ -256,7 +252,6 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       ^ unsatisfied
     )
   ) : (
-    'benchmarks'
     public chainTest: n = (
       (* Do chain-of-equality-constraints performance tests. *)
       | vars editConstraint plan planner |
@@ -337,7 +332,6 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
     | private symbolicValue   = symVal.
       public  arithmeticValue = strengthTable at: symVal. |
   ) (
-    'comparing'
     public sameAs: aStrength = (
       (* Answer true if I am the same strength as the given Strength. *)
       ^ arithmeticValue = aStrength arithmeticValue
@@ -353,7 +347,6 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       ^ arithmeticValue > aStrength arithmeticValue
     )
 
-    'max/min'
     public strongest: aStrength = (
       (* Answer the stronger of myself and aStrength. *)
       (aStrength stronger: self)
@@ -393,7 +386,6 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       ^ constants
     )
 
-    'instance creation'
     public of: aSymbol = (
       (* Answer an instance with the specified strength. *)
       ^ strengthConstants at: aSymbol
@@ -410,7 +402,6 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
           strength            the strength of this constraint <Strength> *)
     | public strength = Strength of: strengthSymbol. |
   ) (
-    'queries'
     public isInput = (
       (* Normal constraints are not input constraints. An input constraint is
          one that depends on external state, such as the mouse, the keyboard,
@@ -423,7 +414,6 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       self subclassResponsibility
     )
 
-    'add/remove'
     addConstraint: planner = (
       (* Activate this constraint and attempt to satisfy it. *)
       self addToGraph.
@@ -447,7 +437,6 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       self subclassResponsibility
     )
 
-    'planning'
     public chooseMethod: mark = (
       (* Decide if I can be satisfied and record that decision. The output of
          the choosen method must not have the given mark and must have a
@@ -537,13 +526,11 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       v2 = var2.
       direction ::= nil. |
   ) (
-    'queries'
     public isSatisfied = (
       (* Answer true if this constraint is satisfied in the current solution. *)
       ^ direction notNil
     )
 
-    'add/remove'
     addToGraph = (
       (* Add myself to the constraint graph. *)
       v1 addConstraint: self.
@@ -558,7 +545,6 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       direction := nil.
     )
 
-    'planning'
     chooseMethod: mark = (
       (* Decide if I can be satisfied and which way I should flow based on
        the relative strength of the variables I relate, and record that
@@ -641,13 +627,11 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       satisfied     ::= false. |
     self addConstraint: planner.
   )(
-    'queries'
     public isSatisfied = (
       (* Answer true if this constraint is satisfied in the current solution. *)
       ^ satisfied
     )
 
-    'add/remove'
     addToGraph = (
       (* Add myself to the constraint graph. *)
       output addConstraint: self.
@@ -660,7 +644,6 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       satisfied := false.
     )
 
-    'planning'
     chooseMethod: mark = (
       (* Decide if I can be satisfied and record that decision. *)
       satisfied :=
@@ -701,13 +684,11 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
     (* I am a unary input constraint used to mark a variable that the client
        wishes to change. *)
   )(
-    'queries'
     public isInput = (
       (* I indicate that a variable is to be changed by imperative code. *)
       ^ true
     )
 
-    'execution'
     public execute = (
       (* Edit constraints do nothing. *)
     )
@@ -717,7 +698,6 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
     (* I constrain two variables to have the same value: `v1 = v2`. *)
     self addConstraint: planner.
   )(
-    'execution'
     public execute = (
       (* Enforce this constraint. Assume that it is satisfied. *)
       direction = #forward
@@ -738,7 +718,6 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       offset = offsetVar. |
     self addConstraint: planner.
   )(
-    'add/remove'
     addToGraph = (
       (* Add myself to the constraint graph. *)
       v1 addConstraint: self.
@@ -757,7 +736,6 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       direction := nil.
     )
 
-    'planning'
     public execute = (
       (* Enforce this constraint. Assume that it is satisfied. *)
       direction = #forward
@@ -797,7 +775,6 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
        will not change during plan execution.
        This is called 'stay optimization.' *)
   ) (
-    'execution'
     public execute = (
       (* Stay constraints do nothing. *)
     )
@@ -824,7 +801,6 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       public mark         ::= 0.
     |
   )(
-    'access'
     public addConstraint: aConstraint = (
       (* Add the given constraint to the set of all constraints that refer to me. *)
       constraints append: aConstraint.
