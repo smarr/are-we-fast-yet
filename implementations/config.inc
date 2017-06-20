@@ -5,6 +5,7 @@ pushd `dirname $0` > /dev/null
 SCRIPT_PATH=`pwd`
 popd > /dev/null
 
+export JVMCI_VERSION_CHECK=ignore
 GRAAL_CORE_CMD=$SCRIPT_PATH/graal-core/bin/java
 
 GRAAL_HOSTED_FLAGS="-server -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCI -d64 "

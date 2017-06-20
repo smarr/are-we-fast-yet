@@ -5,12 +5,13 @@ source $SCRIPT_PATH/script.inc
 source $SCRIPT_PATH/config.inc
 
 INFO Build Graal
-load_submodule $SCRIPT_PATH/graal
+cd $SCRIPT_PATH
+load_submodule graal
 cd $SCRIPT_PATH/graal
 
 cd graal-jvmci-8
-../mx/mx clean
-../mx/mx build
+../mx/mx --java-home ${JAVA8_HOME} clean
+../mx/mx --java-home ${JAVA8_HOME} build
 
 export JVMCI_HOME=`../mx/mx --java-home ${JAVA8_HOME} jdkhome`
 
@@ -30,6 +31,6 @@ cp mxbuild/dists/graal.jar ${JVMCI_HOME}/jre/lib/jvmci/
 if [ -d $SCRIPT_PATH/graal-core ]; then
   rm -Rf $SCRIPT_PATH/graal-core
 fi
-mv $JAVA_HOME $SCRIPT_PATH/graal-core
+mv $JVMCI_HOME $SCRIPT_PATH/graal-core
 
 OK Graal Build Completed.
