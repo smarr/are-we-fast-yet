@@ -25,3 +25,6 @@
 [submodule "implementations/graal"]
 	path = implementations/graal
 	url = https://github.com/smarr/GraalBasic.git
+[submodule "implementations/SOMppOMR"]
+	path = implementations/SOMppOMR
+	url = https://github.com/SOM-st/SOMpp.git
