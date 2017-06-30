@@ -14,7 +14,7 @@ else
   git submodule update --init
   chmod +x getLibJitBuilder.sh
   GC_TYPE=omr_gc ./getLibJitBuilder.sh
-  make clean
+  make clean || true
   USE_TAGGING=true GC_TYPE=omr_gc CACHE_INTEGER=false DEFAULT_OMR_JIT_ON=true make
   popd
 fi
