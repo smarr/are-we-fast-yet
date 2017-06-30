@@ -11,6 +11,7 @@ then
 else
   load_submodule $SCRIPT_PATH/SOMppOMR
   pushd $SCRIPT_PATH/SOMppOMR
+  git submodule update --init
   chmod +x getLibJitBuilder.sh
   GC_TYPE=omr_gc ./getLibJitBuilder.sh
   make clean
