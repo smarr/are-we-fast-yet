@@ -52,7 +52,7 @@ function get_pypy() {
     get_web_getter
     
     INFO Get PyPy Source
-    PYPY_VERSION="5.6.0"
+    PYPY_VERSION="5.8.0"
     PYPY_DIR="pypy2-v${PYPY_VERSION}-src"
     PYPY_TAR="${PYPY_DIR}.tar.bz2"
     DOWNLOAD_URL="https://bitbucket.org/pypy/pypy/downloads/${PYPY_TAR}"
