@@ -106,11 +106,13 @@ end
 function NBodySystem:advance (dt)
     for i = 1, #self.bodies do
         local i_body = self.bodies[i]
+
         for j = i + 1, #self.bodies do
             local j_body = self.bodies[j]
             local dx = i_body.x - j_body.x
             local dy = i_body.y - j_body.y
             local dz = i_body.z - j_body.z
+
             local dSquared = dx * dx + dy * dy + dz * dz
             local distance = sqrt(dSquared)
             local mag = dt / (dSquared * distance)
@@ -124,6 +126,7 @@ function NBodySystem:advance (dt)
             j_body.vz = j_body.vz + dz * i_body.mass * mag
         end
     end
+
     for i = 1, #self.bodies do
         local body = self.bodies[i]
         body.x = body.x + dt * body.vx
@@ -134,16 +137,21 @@ end
 
 function NBodySystem:energy ()
     local e = 0.0
+
     for i = 1, #self.bodies do
         local i_body = self.bodies[i]
+
         e = e + 0.5 * i_body.mass * (i_body.vx * i_body.vx +
                                      i_body.vy * i_body.vy +
                                      i_body.vz * i_body.vz)
+
         for j = i + 1, #self.bodies do
             local j_body = self.bodies[j]
+
             local dx = i_body.x - j_body.x
             local dy = i_body.y - j_body.y
             local dz = i_body.z - j_body.z
+
             local distance = sqrt(dx * dx + dy * dy + dz * dz)
             e = e - (i_body.mass * j_body.mass) / distance;
         end

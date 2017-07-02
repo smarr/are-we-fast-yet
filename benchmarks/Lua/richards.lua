@@ -53,12 +53,15 @@ function RBObject:append (packet, queue_head)
     if NO_WORK == queue_head then
         return packet
     end
+
     local mouse = queue_head
+
     local link = mouse.link
     while NO_WORK ~= link do
         mouse = link
         link = mouse.link
     end
+
     mouse.link = packet
     return queue_head
 end
@@ -236,10 +239,12 @@ function TaskControlBlock.new (link, identity, priority, initial_work_queue,
         identity = identity,
         priority = priority,
         input = initial_work_queue,
+        handle = private_data,
+
         packt_pending = initial_state:is_packet_pending(),
         task_waiting  = initial_state:is_task_waiting(),
         task_holding  = initial_state:is_task_holding(),
-        handle = private_data,
+
         fn = fn,
     }
     return setmetatable(obj, {__index = TaskControlBlock})
@@ -453,7 +458,9 @@ function Scheduler:queue_packet (packet)
     if NO_TASK == task then
         return NO_TASK
     end
+
     self.queue_count = self.queue_count + 1
+
     packet.link     = NO_WORK
     packet.identity = self.current_task_identity
     return task:add_input_and_check_priority(packet, self.current_task)
@@ -464,7 +471,9 @@ function Scheduler:release (identity)
     if NO_TASK == task then
         return NO_TASK
     end
+
     task.task_holding = false
+
     if task.priority > self.current_task.priority then
         return task
     else

@@ -98,6 +98,7 @@ function Vector:at_put (idx, val)
         while idx > new_n do
             new_n = new_n * 2
         end
+
         local new_storage = alloc_array(new_n)
         for i = 1, self.storage.n do
             new_storage[i] = self.storage[i]
@@ -105,6 +106,7 @@ function Vector:at_put (idx, val)
         self.storage = new_storage
     end
     self.storage[idx] = val
+
     if self.last_idx < idx + 1 then
         self.last_idx = idx + 1
     end
@@ -119,6 +121,7 @@ function Vector:append (elem)
         end
         self.storage = new_storage
     end
+
     self.storage[self.last_idx] = elem
     self.last_idx = self.last_idx + 1
 end
@@ -156,6 +159,7 @@ function Vector:remove_first ()
     if self:is_empty() then
         return nil
     end
+
     self.first_idx = self.first_idx + 1
     return self.storage[self.first_idx - 1]
 end
@@ -164,6 +168,7 @@ function Vector:remove (obj)
     local new_array = alloc_array(self:capacity())
     local new_last = 1
     local found = false
+
     self:each(function (it)
         if it == obj then
             found = true
@@ -172,6 +177,7 @@ function Vector:remove (obj)
             new_last = new_last + 1
         end
     end)
+
     self.storage   = new_array
     self.last_idx  = new_last
     self.first_idx = 1
@@ -400,6 +406,7 @@ end
 function Dictionary:at (key)
     local hash = self:hash(key)
     local e = self:get_bucket(hash)
+
     while e do
         if e:match(hash, key) then
             return e.value
@@ -412,6 +419,7 @@ end
 function Dictionary:contains_key (key)
     local hash = self:hash(key)
     local e = self:get_bucket(hash)
+
     while e do
         if e.match(hash, key) then
             return true
@@ -425,12 +433,14 @@ function Dictionary:at_put (key, value)
     local hash = self:hash(key)
     local i = self:get_bucket_idx(hash)
     local current = self.buckets[i]
+
     if not current then
         self.buckets[i] = self:new_entry(key, value, hash)
         self.size = self.size + 1
     else
         self:insert_bucket_entry(key, value, hash, current)
     end
+
     if self.size > self.buckets.n then
         self:resize()
     end
@@ -442,6 +452,7 @@ end
 
 function Dictionary:insert_bucket_entry (key, value, hash, head)
     local current = head
+
     while true do
         if current:match(hash, key) then
             current.value = value
@@ -466,6 +477,7 @@ function Dictionary:transfer_entries (old_storage)
     local buckets = self.buckets
     for i = 1, old_storage.n do
         local current = old_storage[i]
+
         if current then
             old_storage[i] = nil
             if not current.next then

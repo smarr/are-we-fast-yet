@@ -54,6 +54,7 @@ local BasicBlockEdge = {_CLASS = 'BasicBlockEdge'} do
 function BasicBlockEdge.new (cfg, from_name, to_name)
     local from = cfg:create_node(from_name)
     local to   = cfg:create_node(to_name)
+
     from:add_out_edge(to)
     to:add_in_edge(from)
     local obj = {
@@ -61,6 +62,7 @@ function BasicBlockEdge.new (cfg, from_name, to_name)
         to   = to,
     }
     setmetatable(obj, {__index = BasicBlockEdge})
+
     cfg:add_edge(obj)
     return obj
 end
@@ -114,10 +116,10 @@ local SimpleLoop = {_CLASS = 'SimpleLoop'} do
 
 function SimpleLoop.new (bb, is_reducible)
     local obj = {
-        header = bb,
-        is_reducible = is_reducible,
-        parent = nil,
-        is_root = false,
+        header        = bb,
+        is_reducible  = is_reducible,
+        parent        = nil,
+        is_root       = false,
         nesting_level = 0,
         depth_level   = 0,
         counter       = 0,
@@ -233,6 +235,7 @@ end
 
 function UnionFindNode:find_set ()
     local node_list = Vector.new()
+
     local node = self
     while node ~= node.parent do
         if node.parent ~= node.parent.parent then
@@ -240,6 +243,7 @@ function UnionFindNode:find_set ()
         end
         node = node.parent
     end
+
     -- Path Compression, all nodes' parents point to the 1st level parent.
     node_list:each(function (it)
         it:union(self.parent)
@@ -329,6 +333,7 @@ function HavlakLoopFinder:identify_edges (size)
     for w = 1, size do
         self.header[w] = 1
         self.type[w] = 'BB_NONHEADER'
+
         local node_w = self.nodes[w].bb
         if not node_w then
             self.type[w] = 'BB_DEAD'
@@ -367,6 +372,7 @@ function HavlakLoopFinder:find_loops ()
     self.non_back_preds:remove_all()
     self.back_preds:remove_all()
     self.number:remove_all()
+
     if size > self.max_size then
         self.header   = {}
         self.type     = {}
@@ -450,6 +456,7 @@ function HavlakLoopFinder:step_e_process_non_back_preds (w, node_pool, work_list
     self.non_back_preds:at(x.dfs_number):each(function (it)
         local y = self.nodes[it]
         local ydash = y:find_set()
+
         if not self:is_ancestor(w, ydash.dfs_number) then
             self.type[w] = 'BB_IRREDUCIBLE'
             self.non_back_preds:at(w):add(ydash.dfs_number)
@@ -479,6 +486,7 @@ function HavlakLoopFinder:set_loop_attributes (w, node_pool, loop)
         -- Add nodes to loop descriptor.
         self.header[node.dfs_number] = w
         node:union(self.nodes[w])
+
         -- Nested loops are not added, but linked together.
         if node.loop then
             node.loop:set_parent(loop)
@@ -555,21 +563,26 @@ function LoopTesterApp:main (num_dummy_loops, find_loop_iterations, par_loops,
     self:construct_simple_cfg()
     self:add_dummy_loops(num_dummy_loops)
     self:construct_cfg(par_loops, ppar_loops, pppar_loops)
+
     -- Performing Loop Recognition, 1 Iteration, then findLoopIteration
     self:find_loops(self.lsg)
+
     for _ = 0, find_loop_iterations do
         self:find_loops(LoopStructureGraph.new())
     end
+
     self.lsg:calculate_nesting_level()
     return {self.lsg:num_loops(), self.cfg:num_nodes()}
 end
 
 function LoopTesterApp:construct_cfg (par_loops, ppar_loops, pppar_loops)
     local n = 3
+
     for _ = 1, par_loops do
         self.cfg:create_node(n + 1)
         self:build_connect(3, n + 1)
         n = n + 1
+
         for _ = 1, ppar_loops do
             local top = n
             n = self:build_straight(n, 1)

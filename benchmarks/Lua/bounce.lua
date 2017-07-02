@@ -74,9 +74,11 @@ function bounce:benchmark ()
     local ball_count = 100
     local bounces    = 0
     local balls      = {}
+
     for i = 1, ball_count do
         balls[i] = Ball.new(random)
     end
+
     for _ = 1, 50 do
         for i = 1, #balls do
             local ball = balls[i]

@@ -241,6 +241,7 @@ end
 function JsonObject:add (name, value)
     assert(name, 'name is null')
     assert(value, 'value is null')
+
     self.names:append(name)
     self.values:append(value)
     self.table:add(name, self.names:size())
@@ -370,6 +371,7 @@ function Parser:read_object ()
         if not self:read_char(':') then
             error(self:expected("':'"))
         end
+
         self:skip_white_space()
         object:add(name, self:read_value())
         self:skip_white_space()
@@ -497,15 +499,18 @@ function Parser:read_exponent ()
     if not self:read_char('e') and not self:read_char('E') then
         return false
     end
+
     if not self:read_char('+') then
         self:read_char('-')
     end
+
     if not self:read_digit() then
         error(self:expected('digit'))
     end
 
     while self:read_digit() do
     end
+
     return true
 end
 

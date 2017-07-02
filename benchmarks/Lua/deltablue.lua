@@ -60,7 +60,7 @@ local function create_strength_table ()
     return dict
 end
 
-local STRENGHT_TABLE     = create_strength_table()
+local STRENGHT_TABLE = create_strength_table()
 
 function Strength.new (strength_sym)
     local obj = {
