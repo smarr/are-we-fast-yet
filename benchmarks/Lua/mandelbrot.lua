@@ -49,7 +49,7 @@ local _mandelbrot
 if _VERSION < 'Lua 5.3' then
     _mandelbrot = require 'mandelbrot-fn'
 else
-    _mandelbrot = require 'mandelbrot-fn.53'
+    _mandelbrot = require 'mandelbrot-fn-53'
 end
 
 function mandelbrot:inner_benchmark_loop (inner_iterations)

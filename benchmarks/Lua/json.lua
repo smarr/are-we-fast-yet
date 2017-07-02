@@ -169,7 +169,7 @@ local HashIndexTable
 if _VERSION < 'Lua 5.3' then
     HashIndexTable = require'hashindextable'
 else
-    HashIndexTable = require'hashindextable.53'
+    HashIndexTable = require'hashindextable-53'
 end
 
 local JsonObject = {_CLASS = 'JsonObject'} do
