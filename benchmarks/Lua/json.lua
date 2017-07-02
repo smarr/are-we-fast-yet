@@ -197,7 +197,11 @@ end
 function JsonObject:get (name)
     assert(name, 'name is null')
     local index = self:index_of(name)
-    return index ~= -1 and self.values:at(index) or nil
+    if index == -1 then
+        return nil
+    else
+        return self.values:at(index)
+    end
 end
 
 function JsonObject:size ()
@@ -218,7 +222,10 @@ end
 
 function JsonObject:index_of (name)
     local index = self.table:get(name)
-    return index or -1
+    if index ~= -1 and name == self.names:at(index) then
+        return index
+    end
+    error('NotImplemented')
 end
 
 end -- class JsonObject
