@@ -13,7 +13,7 @@ else
   pushd $SCRIPT_PATH/RTruffleSOM
   get_pypy
   make clean
-  make -j4
+  make -j4 RTruffleSOM-jit RTruffleSOM-no-jit
   popd
   
   load_submodule $SCRIPT_PATH/TruffleSOM-TOM
