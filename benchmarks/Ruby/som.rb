@@ -136,6 +136,8 @@ class Vector
   end
 
   def remove_all
+    @first_idx = 0
+    @last_idx  = 0
     @storage = Array.new(@storage.size)
   end
 
