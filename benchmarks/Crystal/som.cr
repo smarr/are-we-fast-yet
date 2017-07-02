@@ -146,6 +146,8 @@ class Vector(T)
   end
 
   def remove_all
+    @first_idx = 0
+    @last_idx  = 0
     @storage = Array(T).new(@storage.size, nil)
   end
 
