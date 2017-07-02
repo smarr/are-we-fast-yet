@@ -432,6 +432,7 @@ class HavlakLoopFinder
 
         until work_list.empty?
           x = work_list.remove_first
+
           non_back_size = @non_back_preds.at(x.dfs_number).size
           return self if non_back_size > MAXNONBACKPREDS
 

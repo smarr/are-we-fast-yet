@@ -131,6 +131,15 @@ languages.
  - We use RuboCop as a linter.
  - We use `if var` to check for non-null instead of the less idiomatic `if !var.nil?`.
 
+### Lua
+
+ - We write code compatible with Lua 5.1, 5.2 and 5.3.
+ - Smalltalk/Ruby symbols are represented as normal strings.
+ - We use Lua 1-based array and the length operator #.
+ - We use single object when a class is not required.
+ - Bitwise operators with various Lua versions is a nightmare.
+ - We use luacheck as a linter.
+
 ## Repository Structure
 
  - `[benchmarks](../benchmarks)` contains for each language one folder with the

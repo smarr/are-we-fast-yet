@@ -42,11 +42,21 @@ matrix:
     - env: PLANG=ruby
       language: ruby
       rvm: 2.3.1
+    - env: PLANG=lua52
+      dist: trusty
+      sudo: false
+      addons:
+        apt:
+          packages:
+            - lua5.1
+            - lua5.2
+            - luarocks
 
 install:
   - pip install --user ReBench
   - if [ "$PLANG" = "ruby" ]; then gem install rubocop;   fi
   - if [ "$PLANG" = "js" ];   then npm install -g jshint; fi
+  - if [ "$PLANG" = "lua52" ]; then luarocks install --local luacheck; export PATH=$PATH:/home/travis/.luarocks/bin/; fi
 
 script:
   - implementations/build-$PLANG.sh && rebench test.conf test-$PLANG

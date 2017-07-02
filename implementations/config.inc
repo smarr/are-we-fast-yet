@@ -31,12 +31,6 @@ else
   WARN Java directories could not be guessed, please check config.inc
 fi
 
-if [ ! -d "$JAVA8_HOME" ]
-then
-  ERR "Java 8 was not found. Please check config.inc file"
-  exit 1
-fi
-
 export JRUBY_CMD=$SCRIPT_PATH/JRuby/bin/jruby
 
 function home_from_command() {
