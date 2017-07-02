@@ -53,16 +53,10 @@ if ok then
         return t
     end
 else
-    local memoize = {}
     alloc_array = function (n)
-        if not memoize[n] then
-            local code = 'return {n = '
-                      .. tostring(n)
-                      .. string.rep(', false', n)
-                      .. '}'
-            memoize[n] = assert(load(code))
-        end
-        return memoize[n]()
+        local t = {}
+        t.n = n
+        return t
     end
 end
 
