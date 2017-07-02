@@ -144,10 +144,35 @@ end
 
 end -- class Node
 
+local RbtEntry = {_CLASS = 'RbtEntry'} do
+
+function RbtEntry.new(key, value)
+    local obj = {
+        key   = key,
+        value = value
+    }
+    return setmetatable(obj, {__index = RbtEntry})
+end
+
+end -- class RbtEntry
+
+local InsertResult = {_CLASS = 'InsertResult'} do
+
+function InsertResult.new(is_new_entry, new_node, old_value)
+    local obj = {
+        is_new_entry = is_new_entry,
+        new_node     = new_node,
+        old_value    = old_value,
+    }
+    return setmetatable(obj, {__index = InsertResult})
+end
+
+end -- class InsertResult
+
 local RedBlackTree = {_CLASS = 'RedBlackTree'} do
 
 function RedBlackTree.new ()
-    local obj = {root  = nil}
+    local obj = {root = nil}
     return setmetatable(obj, {__index = RedBlackTree})
 end
 
@@ -296,7 +321,7 @@ function RedBlackTree:for_each (fn)
     end
     local current = tree_minimum(self.root)
     while current do
-        fn(current.key, current.value)
+        fn(RbtEntry.new(current.key, current.value))
         current = current:successor()
      end
 end
@@ -316,14 +341,6 @@ function RedBlackTree:find_node (key)
     return nil
 end
 
-local function create_result (is_new_entry, new_node, old_value)
-    return {
-        is_new_entry = is_new_entry,
-        new_node = new_node,
-        old_value = old_value,
-    }
-end
-
 function RedBlackTree:tree_insert (key, value)
     local y = nil
     local x = self.root
@@ -338,7 +355,7 @@ function RedBlackTree:tree_insert (key, value)
         else
             local old_value = x.value
             x.value = value
-            return create_result(false, nil, old_value)
+            return InsertResult.new(false, nil, old_value)
         end
     end
 
@@ -354,7 +371,7 @@ function RedBlackTree:tree_insert (key, value)
             y.right = z
         end
     end
-    return create_result(true, z, nil)
+    return InsertResult.new(true, z, nil)
 end
 
 function RedBlackTree:left_rotate (x)
@@ -506,6 +523,19 @@ end
 
 end -- class CallSign
 
+local Collision = {_CLASS = 'Collision'} do
+
+function Collision.new (aircraft_a, aircraft_b, position)
+    local obj = {
+        aircraft_a = aircraft_a,
+        aircraft_b = aircraft_b,
+        position   = position
+    }
+    return setmetatable(obj, {__index = Collision})
+end
+
+end -- class Collision
+
 local Motion = {_CLASS = 'Motion'} do
 
 local sqrt = math.sqrt
@@ -638,10 +668,6 @@ local floor = math.floor
 local HORIZONTAL = Vector2D.new(GOOD_VOXEL_SIZE, 0.0)
 local VERTICAL   = Vector2D.new(0.0, GOOD_VOXEL_SIZE)
 
-local function create_collision (aircraft_a, aircraft_b, position)
-    return {aircraft_a = aircraft_a, aircraft_b = aircraft_b, position = position}
-end
-
 function CollisionDetector.new ()
     local obj = {state = RedBlackTree.new()}
     return setmetatable(obj, {__index = CollisionDetector})
@@ -666,9 +692,9 @@ function CollisionDetector:handle_new_frame (frame)
 
     -- Remove aircraft that are no longer present.
     local to_remove = Vector.new()
-    self.state:for_each(function (key)
-        if not seen:get(key) then
-            to_remove:append(key)
+    self.state:for_each(function (e)
+        if not seen:get(e.key) then
+            to_remove:append(e.key)
         end
     end)
 
@@ -685,9 +711,9 @@ function CollisionDetector:handle_new_frame (frame)
                 local motion2 = reduced:at(j)
                 local collision = motion1:find_intersection(motion2)
                 if collision then
-                    collisions:append(create_collision(motion1.callsign,
-                                                       motion2.callsign,
-                                                       collision))
+                    collisions:append(Collision.new(motion1.callsign,
+                                                    motion2.callsign,
+                                                    collision))
                 end
             end
         end
@@ -784,9 +810,9 @@ function CollisionDetector:reduce_collision_set (motions)
     end)
 
     local result = Vector.new()
-    voxel_map:for_each(function (_, value)
-        if value:size() > 1 then
-            result:append(value)
+    voxel_map:for_each(function (e)
+        if e.value:size() > 1 then
+            result:append(e.value)
         end
     end)
     return result
@@ -816,14 +842,22 @@ end
 
 end -- class CollisionDetector
 
+local Aircraft = {_CLASS = 'Aircraft'} do
+
+function Aircraft.new (callsign, position)
+    local obj = {
+        callsign = callsign,
+        position = position
+    }
+    return setmetatable(obj, {__index = Aircraft})
+end
+
+end -- class Collision
+
 local Simulator = {_CLASS = 'Simulator'} do
 
 local cos = math.cos
 local sin = math.sin
-
-local function create_aircraft (callsign, position)
-    return {callsign = callsign, position = position}
-end
 
 function Simulator.new (num_aircrafts)
     local aircraft = Vector.new()
@@ -837,14 +871,14 @@ end
 function Simulator:simulate (time)
     local frame = Vector.new()
     for i = 1, self.aircraft:size() - 1, 2 do
-        frame:append(create_aircraft(self.aircraft:at(i),
-                                     Vector3D.new(time,
-                                                  cos(time) * 2 + (i - 1) * 3,
-                                                  10.0)))
-        frame:append(create_aircraft(self.aircraft:at(i + 1),
-                                     Vector3D.new(time,
-                                                  sin(time) * 2 + (i - 1) * 3,
-                                                  10.0)))
+        frame:append(Aircraft.new(self.aircraft:at(i),
+                                  Vector3D.new(time,
+                                               cos(time) * 2 + (i - 1) * 3,
+                                               10.0)))
+        frame:append(Aircraft.new(self.aircraft:at(i + 1),
+                                  Vector3D.new(time,
+                                               sin(time) * 2 + (i - 1) * 3,
+                                               10.0)))
     end
     return frame
 end
