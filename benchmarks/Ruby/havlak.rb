@@ -331,7 +331,6 @@ class HavlakLoopFinder
     @non_back_preds = nil
     @back_preds     = nil
     @number         = nil
-    @max_size = 0
     @header = nil
     @type   = nil
     @last   = nil
@@ -399,14 +398,10 @@ class HavlakLoopFinder
     @non_back_preds = Vector.new
     @back_preds     = Vector.new
     @number         = IdentityDictionary.new
-
-    if size > @max_size
-      @header   = Array.new(size)
-      @type     = Array.new(size)
-      @last     = Array.new(size)
-      @nodes    = Array.new(size)
-      @max_size = size
-    end
+    @header         = Array.new(size)
+    @type           = Array.new(size)
+    @last           = Array.new(size)
+    @nodes          = Array.new(size)
 
     (0...size).each do |i|
       @non_back_preds.append(Set.new)
