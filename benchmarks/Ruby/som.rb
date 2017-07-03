@@ -135,12 +135,6 @@ class Vector
     found
   end
 
-  def remove_all
-    @first_idx = 0
-    @last_idx  = 0
-    @storage = Array.new(@storage.size)
-  end
-
   def size
     @last_idx - @first_idx
   end
@@ -415,11 +409,6 @@ class Dictionary
       hi_tail.next = nil
       @buckets[i + old_storage.size] = hi_head
     end
-  end
-
-  def remove_all
-    @buckets = Array.new(@buckets.size)
-    @size = 0
   end
 
   def keys
