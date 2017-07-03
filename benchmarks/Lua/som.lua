@@ -178,12 +178,6 @@ function Vector:remove (obj)
     return found
 end
 
-function Vector:remove_all ()
-    self.first_idx = 1
-    self.last_idx = 1
-    self.storage = alloc_array(self:capacity())
-end
-
 function Vector:size ()
     return self.last_idx - self.first_idx
 end
@@ -313,10 +307,6 @@ function Set:add (obj)
     if not self:contains(obj) then
         self.items:append(obj)
     end
-end
-
-function Set:remove_all ()
-    self.items:remove_all()
 end
 
 function Set:collect (fn)
@@ -516,11 +506,6 @@ function Dictionary:split_bucket (old_storage, i, head)
         hi_tail.next = nil
         self.buckets[i + old_storage.n] = hi_head
     end
-end
-
-function Dictionary:remove_all ()
-    self.buckets = alloc_array(self.buckets.n)
-    self.size = 0
 end
 
 function Dictionary:keys ()
