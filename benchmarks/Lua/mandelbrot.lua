@@ -47,9 +47,9 @@ setmetatable(mandelbrot, {__index = require'benchmark'})
 
 local _mandelbrot
 if _VERSION < 'Lua 5.3' then
-    _mandelbrot = require 'mandelbrot-fn'
+    _mandelbrot = dofile'mandelbrot-fn.lua'
 else
-    _mandelbrot = require 'mandelbrot-fn-53'
+    _mandelbrot = dofile'mandelbrot-fn-53.lua'
 end
 
 function mandelbrot:inner_benchmark_loop (inner_iterations)
