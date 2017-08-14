@@ -824,6 +824,7 @@ function CD() {
     if (numAircrafts == 1000) { return actualCollisions == 14484; }
     if (numAircrafts ==  500) { return actualCollisions == 14484; }
     if (numAircrafts ==  250) { return actualCollisions == 10830; }
+    if (numAircrafts ==  200) { return actualCollisions ==  8655; }
     if (numAircrafts ==  100) { return actualCollisions ==  4305; }
     if (numAircrafts ==   10) { return actualCollisions ==   390; }
 

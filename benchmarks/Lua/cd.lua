@@ -913,6 +913,8 @@ function cd:verify_result (actual_collisions, num_aircrafts)
         return actual_collisions == 14484
     elseif num_aircrafts ==  250 then
         return actual_collisions == 10830
+    elseif num_aircrafts ==  200 then
+        return actual_collisions ==  8655
     elseif num_aircrafts ==  100 then
         return actual_collisions ==  4305
     elseif num_aircrafts ==   10 then

@@ -890,6 +890,7 @@ class CD < Benchmark
     if num_aircrafts == 1000; return actual_collisions == 14484 end
     if num_aircrafts ==  500; return actual_collisions == 14484 end
     if num_aircrafts ==  250; return actual_collisions == 10830 end
+    if num_aircrafts ==  200; return actual_collisions ==  8655 end
     if num_aircrafts ==  100; return actual_collisions ==  4305 end
     if num_aircrafts ==   10; return actual_collisions ==   390 end
 
