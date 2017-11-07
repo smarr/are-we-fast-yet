@@ -7,7 +7,7 @@ INFO Build Topaz
 pushd $SCRIPT_PATH
   load_submodule $SCRIPT_PATH/Topaz
   pushd Topaz
-    pip install --upgrade invoke
+    pip install --upgrade invoke==0.15.0
     export TEST_TYPE=translate-jit-notest
     invoke travis.install_requirements
     invoke travis.run_tests
