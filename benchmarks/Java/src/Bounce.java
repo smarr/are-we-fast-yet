@@ -22,6 +22,7 @@
  */
 import java.util.Arrays;
 
+import som.Benchmark;
 import som.Random;
 
 

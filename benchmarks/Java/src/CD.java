@@ -22,6 +22,7 @@
 import cd.Collision;
 import cd.CollisionDetector;
 import cd.Simulator;
+import som.Benchmark;
 import som.Vector;
 
 public final class CD extends Benchmark {

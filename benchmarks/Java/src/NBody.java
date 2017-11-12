@@ -4,6 +4,7 @@
  * Based on nbody.java and adapted basde on the SOM version.
  */
 import nbody.NBodySystem;
+import som.Benchmark;
 
 public final class NBody extends Benchmark {
 

@@ -7,6 +7,7 @@
  *   http://web.archive.org/web/20050825101121/http://www.sunlabs.com/people/mario/java_benchmarking/index.html
  */
 import richards.Scheduler;
+import som.Benchmark;
 
 /*
  * This version is a port of the SOM Richards benchmark to Java.

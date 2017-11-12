@@ -7,6 +7,7 @@
  *   http://web.archive.org/web/20050825101121/http://www.sunlabs.com/people/mario/java_benchmarking/index.html
  */
 import deltablue.Planner;
+import som.Benchmark;
 
 public class DeltaBlue extends Benchmark {
 

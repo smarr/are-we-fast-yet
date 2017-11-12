@@ -21,6 +21,7 @@
  ******************************************************************************/
 import json.JsonPureStringParser;
 import json.JsonValue;
+import som.Benchmark;
 
 /**
  * This benchmark uses a variant of the JsonParser that operates only on

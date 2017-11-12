@@ -1,3 +1,5 @@
+import som.Benchmark;
+
 // This benchmark has been modified based on the SOM benchmark.
 //
 // Copyright (C) 2004-2013 Brent Fulgham

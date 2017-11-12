@@ -22,6 +22,8 @@
  */
 import java.util.Arrays;
 
+import som.Benchmark;
+
 
 public class Sieve extends Benchmark {
 

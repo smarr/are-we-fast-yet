@@ -20,6 +20,7 @@
  * THE SOFTWARE.
  */
 import havlak.LoopTesterApp;
+import som.Benchmark;
 
 public final class Havlak extends Benchmark {
 
