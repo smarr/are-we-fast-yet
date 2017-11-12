@@ -2,15 +2,19 @@ import java.util.Random;
 
 public class QuickSort {
 
-	private static int partition(int[] data, int left, int right) {
+	private static int partition(final int[] data, final int left, final int right) {
 		int i = left;
 		int j = right;
 		int tmp;
 		int pivot = data[(left + right) / 2];
 
 		while (i <= j) {
-			while (data[i] < pivot) i++;
-			while (data[j] > pivot) j--;
+			while (data[i] < pivot) {
+        i++;
+      }
+			while (data[j] > pivot) {
+        j--;
+      }
 			if (i <= j) {
 				tmp = data[i];
 				data[i] = data[j];
@@ -35,20 +39,22 @@ public class QuickSort {
 			if (index < right) {
 				qsort(data, index, right);
 			}
-		}  
+		}
 	}
 
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		int N = 10000000; // 10 million
 		boolean check = true;
 
-		if (args.length > 0)
-			N = Integer.parseInt(args[0]);
-		if(args.length > 1)
-			check = Boolean.parseBoolean(args[1]);
+		if (args.length > 0) {
+      N = Integer.parseInt(args[0]);
+    }
+		if(args.length > 1) {
+      check = Boolean.parseBoolean(args[1]);
+    }
 
 		System.out.println("Input: N = "+N+" check = "+check);
-		
+
 		final int[] data = new int[N];
 		final int[] backup = new int[N];
 
@@ -56,15 +62,19 @@ public class QuickSort {
 		for(int i=0; i<N; i++) {
 			backup[i] = r.nextInt(9999);
 		}
-		
+
 		boolean harnessStarted = false;
 
 		int l_start=2;
 		int inner = 5;
 		int outter = 3;
-		if(args.length > l_start) inner = Integer.parseInt(args[l_start]);
-		if(args.length > (l_start+1)) outter = Integer.parseInt(args[l_start+1]);
-		
+		if(args.length > l_start) {
+      inner = Integer.parseInt(args[l_start]);
+    }
+		if(args.length > (l_start+1)) {
+      outter = Integer.parseInt(args[l_start+1]);
+    }
+
 		final long start = System.nanoTime();
 		for(int i=0;i <outter; i++) {
 			if(i+1 == outter) {
@@ -78,7 +88,7 @@ public class QuickSort {
 				final long startTime = System.currentTimeMillis();
 				qsort(data, 0, N-1);
 				final long time = System.currentTimeMillis() - startTime;
-				final double secs = ((double)time) / 1000.0;
+				final double secs = (time) / 1000.0;
 				//check the result
 				int a = 0;
 				int b;
@@ -98,10 +108,10 @@ public class QuickSort {
 						a = b;
 					}
 					if(ok){
-						System.out.println("QuickSort ("+ N +"): passed. Time = "+ secs+" secs");   
+						System.out.println("QuickSort ("+ N +"): passed. Time = "+ secs+" secs");
 					}
 					else{
-						System.out.printf("QuickSort ("+ N +"): failed. Time = "+secs +" secs"); 
+						System.out.printf("QuickSort ("+ N +"): failed. Time = "+secs +" secs");
 					}
 				}
 				else {
@@ -114,7 +124,7 @@ public class QuickSort {
 		org.jikesrvm.scheduler.RVMThread.perfEventStop();
 		org.mmtk.plan.Plan.harnessEnd();
 
-		final double duration = (((double)(System.nanoTime() - start))/((double)(1.0E9))) * 1000;
+		final double duration = ((System.nanoTime() - start)/((1.0E9))) * 1000;
 		System.out.printf("===== Test PASSED in %d msec =====\n",(int)duration);
 	}
 }

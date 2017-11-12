@@ -30,7 +30,7 @@
  *
  *
  * The procedure cilkmerge does the following:
- *       
+ *
  *       cilkmerge(A[1..n], B[1..m], C[1..(n+m)]) =
  *          find the median of A union B using binary
  *          search.  The binary search gives a pair
@@ -55,7 +55,7 @@
  */
 
 /*
- * Vivek Kumar: Ported to JavaTC work-asyncing.  
+ * Vivek Kumar: Ported to JavaTC work-asyncing.
  */
 
 import java.util.Random;
@@ -64,16 +64,18 @@ public class CilkSort {
 	public static final int KILO = 1024;
 	public static final int MERGESIZE = (2 * KILO);
 	public static final int QUICKSIZE = (2 * KILO);
-	public static int partition(int left, int right) {
+	public static int partition(final int left, final int right) {
 		int i = left;
 		int j = right;
 		int tmpx;
 		int pivot = array[(left + right) / 2];
 		while(i <= j){
-			while(array[i] < pivot)
-				i++;
-			while(array[j] > pivot)
-				j--;
+			while(array[i] < pivot) {
+        i++;
+      }
+			while(array[j] > pivot) {
+        j--;
+      }
 			if(i <= j) {
 				tmpx = array[i];
 				array[i] = array[j];
@@ -85,15 +87,17 @@ public class CilkSort {
 		return i;
 	}
 
-	public static void quicksort(int left, int right) {
+	public static void quicksort(final int left, final int right) {
 		final int index = partition(left, right);
-		if(left < index - 1) 
-			quicksort(left, index - 1);
-		if(index < right) 
-			quicksort(index, right);
+		if(left < index - 1) {
+      quicksort(left, index - 1);
+    }
+		if(index < right) {
+      quicksort(index, right);
+    }
 	}
 
-	public static void seqmerge(int low1, int high1, int low2, int high2, int lowdest, int[] src, int[] dest) {
+	public static void seqmerge(int low1, final int high1, int low2, final int high2, int lowdest, final int[] src, final int[] dest) {
 		int a1;
 		int a2;
 		if(low1 < high1 && low2 < high2) {
@@ -103,14 +107,16 @@ public class CilkSort {
 				if(a1 < a2) {
 					dest[lowdest++] = a1;
 					a1 = src[++low1];
-					if(low1 >= high1) 
-						break ;
+					if(low1 >= high1) {
+            break ;
+          }
 				}
 				else {
 					dest[lowdest++] = a2;
 					a2 = dest[++low2];
-					if(low2 >= high2) 
-						break ;
+					if(low2 >= high2) {
+            break ;
+          }
 				}
 			}
 		}
@@ -121,15 +127,17 @@ public class CilkSort {
 				if(a1 < a2) {
 					dest[lowdest++] = a1;
 					++low1;
-					if(low1 > high1) 
-						break ;
+					if(low1 > high1) {
+            break ;
+          }
 					a1 = src[low1];
 				}
 				else {
 					dest[lowdest++] = a2;
 					++low2;
-					if(low2 > high2) 
-						break ;
+					if(low2 > high2) {
+            break ;
+          }
 					a2 = src[low2];
 				}
 			}
@@ -142,22 +150,24 @@ public class CilkSort {
 		}
 	}
 
-	public static int binsplit(int val, int low, int high, int[] src) {
+	public static int binsplit(final int val, int low, int high, final int[] src) {
 		int mid;
 		while(low != high){
 			mid = low + ((high - low + 1) >> 1);
-			if(val <= src[mid]) 
-				high = mid - 1;
-			else 
-				low = mid;
+			if(val <= src[mid]) {
+        high = mid - 1;
+      } else {
+        low = mid;
+      }
 		}
-		if(src[low] > val) 
-			return low - 1;
-		else 
-			return low;
+		if(src[low] > val) {
+      return low - 1;
+    } else {
+      return low;
+    }
 	}
 
-	public static void cilkmerge(int low1, int high1, int low2, int high2, int lowdest, int[] src, int[] dest) {
+	public static void cilkmerge(int low1, int high1, int low2, int high2, final int lowdest, final int[] src, final int[] dest) {
 		int split1;
 		int split2;
 		int lowsize;
@@ -194,7 +204,7 @@ public class CilkSort {
 		}
 	}
 
-	public static void cilksort(int low, int tmpx, int size) {
+	public static void cilksort(final int low, final int tmpx, final int size) {
 		int quarter = size / 4;
 		int A;
 		int B;
@@ -249,20 +259,28 @@ public class CilkSort {
 	public static int[] array;
 	public static int[] tmp;
 
-	public static void main(String[] args) { 
+	public static void main(final String[] args) {
 		boolean check = false;
 		int size = 10000000; // 10 million
-		
-		if(args.length > 0) size = Integer.parseInt(args[0]);
-		if(args.length > 1) check = Boolean.parseBoolean(args[1]);
-		
+
+		if(args.length > 0) {
+      size = Integer.parseInt(args[0]);
+    }
+		if(args.length > 1) {
+      check = Boolean.parseBoolean(args[1]);
+    }
+
 		int inner = 5;
 		int outter = 3;
-		if(args.length > 2) inner = Integer.parseInt(args[2]);
-		if(args.length > 3) outter = Integer.parseInt(args[3]);
-		
+		if(args.length > 2) {
+      inner = Integer.parseInt(args[2]);
+    }
+		if(args.length > 3) {
+      outter = Integer.parseInt(args[3]);
+    }
+
 		System.out.println("Size = "+size+" check = "+check);
-		
+
 		array = new int[size];
 		tmp = new int[size];
 		final int[] backup = new int[size];
@@ -286,7 +304,7 @@ public class CilkSort {
 				final long startTime = System.currentTimeMillis();
 				cilksort(0, 0, size);
 				final long time = System.currentTimeMillis() - startTime;
-				final double secs = ((double)time) / 1000.0D;
+				final double secs = (time) / 1000.0D;
 				if(harnessStarted) {
 					if(size == 10000000) {
 						if(org.jikesrvm.scheduler.WS.wsTotalPush() != 34105) {
@@ -323,7 +341,7 @@ public class CilkSort {
 		org.jikesrvm.scheduler.RVMThread.perfEventStop();
 		org.mmtk.plan.Plan.harnessEnd();
 
-		final double duration = (((double)(System.nanoTime() - start))/((double)(1.0E9))) * 1000;
+		final double duration = ((System.nanoTime() - start)/((1.0E9))) * 1000;
 		System.out.printf("===== Test PASSED in %d msec =====\n",(int)duration);
 	}
 }

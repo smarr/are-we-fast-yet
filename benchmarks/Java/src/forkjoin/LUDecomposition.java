@@ -19,7 +19,7 @@
  */
 
 /*
- * Vivek Kumar: Ported to JavaTC work-asyncing.  
+ * Vivek Kumar: Ported to JavaTC work-asyncing.
  */
 
 public class LUDecomposition {
@@ -162,7 +162,7 @@ public class LUDecomposition {
 		}
 	}
 
-	public static void auxLowerSolve(final int posMaR, int posMaC, final int posMbR, final int posMbC, final int posLR, final int posLC, final int numOfBlocks) {
+	public static void auxLowerSolve(final int posMaR, final int posMaC, final int posMbR, final int posMbC, final int posLR, final int posLC, final int numOfBlocks) {
 		final int posL00R = posLR;
 		final int posL00C = posLC;
 		final int posL01R = posLR;
@@ -237,25 +237,33 @@ public class LUDecomposition {
 		calcLU(pos11R, pos11C, halfNb);
 	}
 
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		size = 1024;
 		boolean check = false;
-		
-		if(args.length > 0) size = Integer.parseInt(args[0]);
-		if(args.length > 1) check = Boolean.parseBoolean(args[1]);
-		
+
+		if(args.length > 0) {
+      size = Integer.parseInt(args[0]);
+    }
+		if(args.length > 1) {
+      check = Boolean.parseBoolean(args[1]);
+    }
+
 		System.out.println("Size = "+size+"X"+size+" check = "+check);
 		final int numOfBlocks = size / BLOCK_SIZE;
 		allocate(size);
 
 		boolean harnessStarted = false;
-		
+
 		int l_start=2;
 		int inner = 5;
 		int outter = 3;
-		if(args.length > l_start) inner = Integer.parseInt(args[l_start]);
-		if(args.length > (l_start+1)) outter = Integer.parseInt(args[l_start+1]);
-		
+		if(args.length > l_start) {
+      inner = Integer.parseInt(args[l_start]);
+    }
+		if(args.length > (l_start+1)) {
+      outter = Integer.parseInt(args[l_start+1]);
+    }
+
 		final long start = System.nanoTime();
 		for(int i=0;i <outter; i++) {
 			if(i+1 == outter) {
@@ -270,7 +278,7 @@ public class LUDecomposition {
 				final long startTime = System.currentTimeMillis();
 				calcLU(0, 0, numOfBlocks);
 				final long time = System.currentTimeMillis() - startTime;
-				final double secs = ((double)time) / 1000.0D;
+				final double secs = (time) / 1000.0D;
 				System.out.println("LUDecomposition (" + size + "x" + size + ") Done. Time = " + secs+" secs");
 				if(harnessStarted) {
 					if(size == 1024 && BLOCK_SIZE == 16) {
@@ -281,33 +289,40 @@ public class LUDecomposition {
 					}
 				}
 				org.jikesrvm.scheduler.WS.dumpWSStatistics();
-				if(check) verifyResult();
+				if(check) {
+          verifyResult();
+        }
 			}
 		}
 
 		System.out.println("Test Kernel under harness passed successfully....");
-		
+
 		org.jikesrvm.scheduler.RVMThread.perfEventStop();
 		org.mmtk.plan.Plan.harnessEnd();
 
-		final double duration = (((double)(System.nanoTime() - start))/((double)(1.0E9))) * 1000;
+		final double duration = ((System.nanoTime() - start)/((1.0E9))) * 1000;
 		System.out.printf("===== Test PASSED in %d msec =====\n",(int)duration);
 	}
 
-	public static void allocate(int n) {
+	public static void allocate(final int n) {
 		LU = new double[n][n];
 		LUSave = new double[n][n];
-		for(int i = 0; i < n; i++) 
-			for(int j = 0; j < n; j++) 
-				LUSave[i][j] = Math.random();
-		for(int k = 0; k < n; ++k) 
-			LUSave[k][k] *= 10.0D;
+		for(int i = 0; i < n; i++) {
+      for(int j = 0; j < n; j++) {
+        LUSave[i][j] = Math.random();
+      }
+    }
+		for(int k = 0; k < n; ++k) {
+      LUSave[k][k] *= 10.0D;
+    }
 	}
 
-	public static void initialize(int n) {
-		for(int i = 0; i < n; i++) 
-			for(int j = 0; j < n; j++) 
-				LU[i][j] = LUSave[i][j];
+	public static void initialize(final int n) {
+		for(int i = 0; i < n; i++) {
+      for(int j = 0; j < n; j++) {
+        LU[i][j] = LUSave[i][j];
+      }
+    }
 	}
 
 	public static boolean verifyResult() {
@@ -328,8 +343,9 @@ public class LUDecomposition {
 					v += LU[k][j];
 				}
 				diff = Math.abs(LUSave[i][j] - v);
-				if(diff > maxDiff) 
-					maxDiff = diff;
+				if(diff > maxDiff) {
+          maxDiff = diff;
+        }
 			}
 		}
 		if(maxDiff <= 0.00001D) {

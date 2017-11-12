@@ -1,6 +1,6 @@
 
 /*
- * This is a cilk FFTWS code. 
+ * This is a cilk FFTWS code.
  * Copyright (c) 2000 Massachusetts Institute of Technology
  * Copyright (c) 2000 Matteo Frigo
  *
@@ -20,20 +20,20 @@
  */
 
 /*
- * Vivek Kumar: Ported to JavaTC work-asyncing.  
+ * Vivek Kumar: Ported to JavaTC work-asyncing.
  */
 
 class COMPLEX {
 	public float re;
 	public float im;
-	public static void copy(COMPLEX to, COMPLEX from) {
+	public static void copy(final COMPLEX to, final COMPLEX from) {
 		to.re = from.re;
 		to.im = from.im;
 	}
 }
 
 public class FFT {
-	public static void compute_w_coefficients(int n, int a, int b, COMPLEX[] W) {
+	public static void compute_w_coefficients(final int n, final int a, final int b, final COMPLEX[] W) {
 		if(b - a < 128) {
 			final double twoPiOverN = 2.0D * 3.1415926535897932384626434D / n;
 			for(int k = a; k <= b; ++k) {
@@ -54,25 +54,33 @@ public class FFT {
 			}
 		}
 	}
-	public static int factor(int n) {
-		if(n < 2) 
-			return 1;
-		if(n == 64 || n == 128 || n == 256 || n == 1024 || n == 2048 || n == 4096) 
-			return 8;
-		if((n & 15) == 0) 
-			return 16;
-		if((n & 7) == 0) 
-			return 8;
-		if((n & 3) == 0) 
-			return 4;
-		if((n & 1) == 0) 
-			return 2;
-		for(int r = 3; r < n; r += 2) 
-			if(n % r == 0) 
-				return r;
+	public static int factor(final int n) {
+		if(n < 2) {
+      return 1;
+    }
+		if(n == 64 || n == 128 || n == 256 || n == 1024 || n == 2048 || n == 4096) {
+      return 8;
+    }
+		if((n & 15) == 0) {
+      return 16;
+    }
+		if((n & 7) == 0) {
+      return 8;
+    }
+		if((n & 3) == 0) {
+      return 4;
+    }
+		if((n & 1) == 0) {
+      return 2;
+    }
+		for(int r = 3; r < n; r += 2) {
+      if(n % r == 0) {
+        return r;
+      }
+    }
 		return n;
 	}
-	public static void unshuffle(int a, int b, int startIndexInOut, COMPLEX[] in, COMPLEX[] out, int r, int m) {
+	public static void unshuffle(final int a, final int b, final int startIndexInOut, final COMPLEX[] in, final COMPLEX[] out, final int r, final int m) {
 		int j;
 		final int r4 = r & (~0x3);
 		if(b - a < 16) {
@@ -103,7 +111,7 @@ public class FFT {
 			}
 		}
 	}
-	public static void fft_twiddle_gen1(int startIndexInOut, COMPLEX[] in, COMPLEX[] out, COMPLEX[] W, int r, int m, int nW, int nWdnti, int nWdntm) {
+	public static void fft_twiddle_gen1(final int startIndexInOut, final COMPLEX[] in, final COMPLEX[] out, final COMPLEX[] W, final int r, final int m, final int nW, final int nWdnti, final int nWdntm) {
 		for(int k = 0, kp_start = startIndexInOut; k < r; ++k, kp_start += m) {
 			float r0;
 			float i0;
@@ -121,14 +129,15 @@ public class FFT {
 				r0 += rt * rw - it * iw;
 				i0 += rt * iw + it * rw;
 				l0 += l1;
-				if(l0 > nW) 
-					l0 -= nW;
+				if(l0 > nW) {
+          l0 -= nW;
+        }
 			}
 			out[kp_start].re = r0;
 			out[kp_start].im = i0;
 		}
 	}
-	public static void fft_twiddle_gen(int i, int i1, int startIndexInOut, COMPLEX[] in, COMPLEX[] out, COMPLEX[] W, int nW, int nWdn, int r, int m) {
+	public static void fft_twiddle_gen(final int i, final int i1, final int startIndexInOut, final COMPLEX[] in, final COMPLEX[] out, final COMPLEX[] W, final int nW, final int nWdn, final int r, final int m) {
 		if(i == i1 - 1) {
 			fft_twiddle_gen1(startIndexInOut + i, in, out, W, r, m, nW, nWdn * i, nWdn * m);
 		}
@@ -142,7 +151,7 @@ public class FFT {
 			}
 		}
 	}
-	public static void fft_base_2(int startIndexInOut, COMPLEX[] in, COMPLEX[] out) {
+	public static void fft_base_2(final int startIndexInOut, final COMPLEX[] in, final COMPLEX[] out) {
 		float r1_0;
 		float i1_0;
 		float r1_1;
@@ -156,7 +165,7 @@ public class FFT {
 		out[startIndexInOut + 1].re = (r1_0 - r1_1);
 		out[startIndexInOut + 1].im = (i1_0 - i1_1);
 	}
-	public static void fft_twiddle_2(int a, int b, int startIndexInOut, COMPLEX[] in, COMPLEX[] out, COMPLEX[] W, int nW, int nWdn, int m) {
+	public static void fft_twiddle_2(final int a, final int b, final int startIndexInOut, final COMPLEX[] in, final COMPLEX[] out, final COMPLEX[] W, final int nW, final int nWdn, final int m) {
 		if((b - a) < 128) {
 			for(int i = a, l1 = nWdn * i, kp_start = startIndexInOut + i; i < b; i++, l1 += nWdn, kp_start++) {
 				final int jp_start = startIndexInOut + i;
@@ -186,7 +195,7 @@ public class FFT {
 			}
 		}
 	}
-	public static void fft_unshuffle_2(int a, int b, int startIndexInOut, COMPLEX[] in, COMPLEX[] out, int m) {
+	public static void fft_unshuffle_2(final int a, final int b, final int startIndexInOut, final COMPLEX[] in, final COMPLEX[] out, final int m) {
 		if((b - a) < 128) {
 			int ip_start = startIndexInOut + a * 2;
 			for(int i = a; i < b; ++i) {
@@ -206,7 +215,7 @@ public class FFT {
 			}
 		}
 	}
-	public static void fft_base_4(int startIndexInOut, COMPLEX[] in, COMPLEX[] out) {
+	public static void fft_base_4(final int startIndexInOut, final COMPLEX[] in, final COMPLEX[] out) {
 		float r1_0;
 		float i1_0;
 		float r1_1;
@@ -252,7 +261,7 @@ public class FFT {
 		out[startIndexInOut + 3].re = (r1_2 - i1_3);
 		out[startIndexInOut + 3].im = (i1_2 + r1_3);
 	}
-	public static void fft_twiddle_4(int a, int b, int startIndexInOut, COMPLEX[] in, COMPLEX[] out, COMPLEX[] W, int nW, int nWdn, int m) {
+	public static void fft_twiddle_4(final int a, final int b, final int startIndexInOut, final COMPLEX[] in, final COMPLEX[] out, final COMPLEX[] W, final int nW, final int nWdn, final int m) {
 		float tmpr;
 		float tmpi;
 		float wr;
@@ -330,7 +339,7 @@ public class FFT {
 			}
 		}
 	}
-	public static void fft_unshuffle_4(int a, int b, int startIndexInOut, COMPLEX[] in, COMPLEX[] out, int m) {
+	public static void fft_unshuffle_4(final int a, final int b, final int startIndexInOut, final COMPLEX[] in, final COMPLEX[] out, final int m) {
 		if((b - a) < 128) {
 			int ip_start = startIndexInOut + a * 4;
 			for(int i = a; i < b; ++i) {
@@ -354,7 +363,7 @@ public class FFT {
 			}
 		}
 	}
-	public static void fft_base_8(int startIndexInOut, COMPLEX[] in, COMPLEX[] out) {
+	public static void fft_base_8(final int startIndexInOut, final COMPLEX[] in, final COMPLEX[] out) {
 		float tmpr;
 		float tmpi;
 		{
@@ -488,7 +497,7 @@ public class FFT {
 			out[startIndexInOut + 7].im = (i1_6 + tmpi);
 		}
 	}
-	public static void fft_twiddle_8(int a, int b, int startIndexInOut, COMPLEX[] in, COMPLEX[] out, COMPLEX[] W, int nW, int nWdn, int m) {
+	public static void fft_twiddle_8(final int a, final int b, final int startIndexInOut, final COMPLEX[] in, final COMPLEX[] out, final COMPLEX[] W, final int nW, final int nWdn, final int m) {
 		float tmpr;
 		float tmpi;
 		float wr;
@@ -666,7 +675,7 @@ public class FFT {
 			}
 		}
 	}
-	public static void fft_unshuffle_8(int a, int b, int startIndexInOut, COMPLEX[] in, COMPLEX[] out, int m) {
+	public static void fft_unshuffle_8(final int a, final int b, final int startIndexInOut, final COMPLEX[] in, final COMPLEX[] out, final int m) {
 		if((b - a) < 128) {
 			int ip_start = startIndexInOut + a * 8;
 			for(int i = a; i < b; ++i) {
@@ -698,7 +707,7 @@ public class FFT {
 			}
 		}
 	}
-	public static void fft_base_16(int startIndexInOut, COMPLEX[] in, COMPLEX[] out) {
+	public static void fft_base_16(final int startIndexInOut, final COMPLEX[] in, final COMPLEX[] out) {
 		float tmpr;
 		float tmpi;
 		{
@@ -1040,7 +1049,7 @@ public class FFT {
 			out[startIndexInOut + 15].im = (i1_14 + tmpi);
 		}
 	}
-	public static void fft_twiddle_16(int a, int b, int startIndexInOut, COMPLEX[] in, COMPLEX[] out, COMPLEX[] W, int nW, int nWdn, int m) {
+	public static void fft_twiddle_16(final int a, final int b, final int startIndexInOut, final COMPLEX[] in, final COMPLEX[] out, final COMPLEX[] W, final int nW, final int nWdn, final int m) {
 		float tmpr;
 		float tmpi;
 		float wr;
@@ -1458,7 +1467,7 @@ public class FFT {
 			}
 		}
 	}
-	public static void fft_unshuffle_16(int a, int b, int startIndexInOut, COMPLEX[] in, COMPLEX[] out, int m) {
+	public static void fft_unshuffle_16(final int a, final int b, final int startIndexInOut, final COMPLEX[] in, final COMPLEX[] out, final int m) {
 		if((b - a) < 128) {
 			int ip_start = startIndexInOut + a * 16;
 			for(int i = a; i < b; ++i) {
@@ -1506,7 +1515,7 @@ public class FFT {
 			}
 		}
 	}
-	public static void fft_base_32(int startIndexInOut, COMPLEX[] in, COMPLEX[] out) {
+	public static void fft_base_32(final int startIndexInOut, final COMPLEX[] in, final COMPLEX[] out) {
 		float tmpr;
 		float tmpi;
 		{
@@ -2344,7 +2353,7 @@ public class FFT {
 			out[startIndexInOut + 31].im = (i1_30 + tmpi);
 		}
 	}
-	public static void fft_twiddle_32(int a, int b, int startIndexInOut, COMPLEX[] in, COMPLEX[] out, COMPLEX[] W, int nW, int nWdn, int m) {
+	public static void fft_twiddle_32(final int a, final int b, final int startIndexInOut, final COMPLEX[] in, final COMPLEX[] out, final COMPLEX[] W, final int nW, final int nWdn, final int m) {
 		float tmpr;
 		float tmpi;
 		float wr;
@@ -3322,7 +3331,7 @@ public class FFT {
 			}
 		}
 	}
-	public static void fft_unshuffle_32(int a, int b, int startIndexInOut, COMPLEX[] in, COMPLEX[] out, int m) {
+	public static void fft_unshuffle_32(final int a, final int b, final int startIndexInOut, final COMPLEX[] in, final COMPLEX[] out, final int m) {
 		if((b - a) < 128) {
 			int ip_start = startIndexInOut + a * 32;
 			for(int i = a; i < b; ++i) {
@@ -3402,8 +3411,8 @@ public class FFT {
 			}
 		}
 	}
-	
-	public static void fft_aux(int n, int startIndexInOut, COMPLEX[] in, COMPLEX[] out, int posFactors, int[] factors, COMPLEX[] W, int nW) {
+
+	public static void fft_aux(final int n, final int startIndexInOut, final COMPLEX[] in, final COMPLEX[] out, final int posFactors, final int[] factors, final COMPLEX[] W, final int nW) {
 		if(n == 32) {
 			fft_base_32(startIndexInOut, in, out);
 			return ;
@@ -3427,17 +3436,17 @@ public class FFT {
 		final int r = factors[posFactors];
 		final int m = n / r;
 		if(r < n) {
-			if(r == 32) 
+			if(r == 32)
 				fft_unshuffle_32(0, m, startIndexInOut, in, out, m);
-			else if(r == 16) 
+			else if(r == 16)
 				fft_unshuffle_16(0, m, startIndexInOut, in, out, m);
-			else if(r == 8) 
+			else if(r == 8)
 				fft_unshuffle_8(0, m, startIndexInOut, in, out, m);
-			else if(r == 4) 
+			else if(r == 4)
 				fft_unshuffle_4(0, m, startIndexInOut, in, out, m);
-			else if(r == 2) 
+			else if(r == 2)
 				fft_unshuffle_2(0, m, startIndexInOut, in, out, m);
-			else 
+			else
 				unshuffle(0, m, startIndexInOut, in, out, r, m);
 
 			finish {
@@ -3448,21 +3457,21 @@ public class FFT {
 				}
 			}
 		}
-		if(r == 2) 
+		if(r == 2)
 			fft_twiddle_2(0, m, startIndexInOut, in, out, W, nW, nW / n, m);
-		else if(r == 4) 
+		else if(r == 4)
 			fft_twiddle_4(0, m, startIndexInOut, in, out, W, nW, nW / n, m);
-		else if(r == 8) 
+		else if(r == 8)
 			fft_twiddle_8(0, m, startIndexInOut, in, out, W, nW, nW / n, m);
-		else if(r == 16) 
+		else if(r == 16)
 			fft_twiddle_16(0, m, startIndexInOut, in, out, W, nW, nW / n, m);
-		else if(r == 32) 
+		else if(r == 32)
 			fft_twiddle_32(0, m, startIndexInOut, in, out, W, nW, nW / n, m);
-		else 
+		else
 			fft_twiddle_gen(0, m, startIndexInOut, in, out, W, nW, nW / n, r, m);
 	}
 
-	public static void cilk_fft(int n, COMPLEX[] in, COMPLEX[] out, boolean correctness) {
+	public static void cilk_fft(final int n, final COMPLEX[] in, final COMPLEX[] out, final boolean correctness) {
 		int l = n;
 		int r;
 		if(correctness)	{
@@ -3479,7 +3488,7 @@ public class FFT {
 		}while(l > 1);
 		fft_aux(n, 0, in, out, 0, factors, W, n);
 	}
-	public static void test_fft_elem(int n, int j, COMPLEX[] in, COMPLEX[] out) {
+	public static void test_fft_elem(final int n, final int j, final COMPLEX[] in, final COMPLEX[] out) {
 		COMPLEX sum = new COMPLEX();
 		COMPLEX w = new COMPLEX();
 		final double pi = 3.1415926535897932384626434D;
@@ -3492,9 +3501,10 @@ public class FFT {
 		}
 		out[j] = sum;
 	}
-	public static void test_fft(int n, COMPLEX[] in, COMPLEX[] out) {
-		for(int j = 0; j < n; ++j) 
-			test_fft_elem(n, j, in, out);
+	public static void test_fft(final int n, final COMPLEX[] in, final COMPLEX[] out) {
+		for(int j = 0; j < n; ++j) {
+      test_fft_elem(n, j, in, out);
+    }
 	}
 	public static void test_correctness() {
 		double error;
@@ -3515,22 +3525,27 @@ public class FFT {
 				double d;
 				a = Math.sqrt((out1[i].re - out2[i].re) * (out1[i].re - out2[i].re) + (out1[i].im - out2[i].im) * (out1[i].im - out2[i].im));
 				d = Math.sqrt(out2[i].re * out2[i].re + out2[i].im * out2[i].im);
-				if(d < -1.0e-10D || d > 1.0e-10D) 
-					a /= d;
-				if(a > error) 
-					error = a;
+				if(d < -1.0e-10D || d > 1.0e-10D) {
+          a /= d;
+        }
+				if(a > error) {
+          error = a;
+        }
 			}
 			if(error > 1e-3D) {
 				System.out.println("n=" + n + " error= " + error);
 				System.out.println("CT:");
-				for(int i = 0; i < n; ++i) 
-					System.out.println(out2[i].re + " + " + out2[i].im);
+				for(int i = 0; i < n; ++i) {
+          System.out.println(out2[i].re + " + " + out2[i].im);
+        }
 				System.out.println("SEQ:");
-				for(int i = 0; i < n; ++i) 
-					System.out.println(out1[i].re + " + " + out1[i].im);
+				for(int i = 0; i < n; ++i) {
+          System.out.println(out1[i].re + " + " + out1[i].im);
+        }
 			}
-			if(n % 10 == 0) 
-				System.out.println("n=" + n + " OK");
+			if(n % 10 == 0) {
+        System.out.println("n=" + n + " OK");
+      }
 		}
 	}
 
@@ -3538,7 +3553,7 @@ public class FFT {
 	public static int[] factors;
 	public static boolean allocation_done = false;
 
-	public static COMPLEX[] allocate(int size) {
+	public static COMPLEX[] allocate(final int size) {
 		final COMPLEX[] m = new COMPLEX[size];
 		for(int i = 0; i < size; i++) {
 			m[i] = new COMPLEX();
@@ -3546,7 +3561,7 @@ public class FFT {
 		return m;
 	}
 
-	public static void allocate_speed(int size) {
+	public static void allocate_speed(final int size) {
 		if(!allocation_done) {
 			factors = new int[40];
 			in = new COMPLEX[size];
@@ -3576,12 +3591,12 @@ public class FFT {
 		W[size].im = 0;
 	}
 
-	public static void test_speed(int size) {
+	public static void test_speed(final int size) {
 		allocate_speed(size);
 		final long startTime = System.currentTimeMillis();
 		cilk_fft(size, in, out, false);
 		final long time = System.currentTimeMillis() - startTime;
-		final float secs = ((float)time) / 1000.0F;
+		final float secs = (time) / 1000.0F;
 		System.out.println("Time: " + secs);
 	}
 
@@ -3593,9 +3608,11 @@ public class FFT {
 	}
 	final static int MAX = 800;
 
-	public static void main(String[] args) { 
+	public static void main(final String[] args) {
 		int n  = 1024;
-		if(args.length > 0) n = Integer.parseInt(args[0]);
+		if(args.length > 0) {
+      n = Integer.parseInt(args[0]);
+    }
 		System.out.println("Size = "+n+"X"+n);
 		int size = n * n;
 		boolean correctness = false;
@@ -3604,9 +3621,13 @@ public class FFT {
 
 		int inner = 5;
 		int outter = 3;
-		if(args.length > 1) inner = Integer.parseInt(args[1]);
-		if(args.length > 2) outter = Integer.parseInt(args[2]);
-		
+		if(args.length > 1) {
+      inner = Integer.parseInt(args[1]);
+    }
+		if(args.length > 2) {
+      outter = Integer.parseInt(args[2]);
+    }
+
 		final long start = System.nanoTime();
 		for(int i=0;i <outter; i++) {
 			if(i+1 == outter) {
@@ -3637,11 +3658,11 @@ public class FFT {
 		}
 
 		System.out.println("Test Kernel under harness passed successfully....");
-		
+
 		org.jikesrvm.scheduler.RVMThread.perfEventStop();
 		org.mmtk.plan.Plan.harnessEnd();
 
-		final double duration = (((double)(System.nanoTime() - start))/((double)(1.0E9))) * 1000;
+		final double duration = ((System.nanoTime() - start)/((1.0E9))) * 1000;
 		System.out.printf("===== Test PASSED in %d msec =====\n",(int)duration);
 	}
 }

@@ -1,25 +1,25 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// 
+//
 // UTS	-- Unbalanced UTS Search Benchmark
 // Source: http://www.csm.ornl.gov/essc/x10/x10/
 // Primary Algorithm: Sequential, Recursive Depth First
-// 
+//
 // Comments:
-// 
+//
 // Despite this being a tree search, there is no stored "tree", per se,
 // traversed by the search. Rather, the tree nodes are generated on the fly by
 // identifying each node with a random number in a very large sequence. Thus at
 // any given time, only a small number of nodes are "live" and thus retained
 // in memory. This allows for very large tree searches to be configured and
 // tested even with limit memory.
-// 
+//
 // Since there is no "tree" and no parent-child pointers, the "link" from parent
 // to child is obtained by creating the identifier for each chi ld based on
 // the identifier of the parent. The parent's identifier is the state of a
 // split-able random number generator.  The parent's children are obtained by
 // reseeding the random number generator using the parent's local identifier
 // for each child and the parent's node idetifier.
-// 
+//
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 import java.lang.Math;
@@ -52,7 +52,7 @@ public class UTS {
 	// output parameters
 	private int     debug        = 0;			// debug level
 	private int     verbose      = 1;			// output verbosity level
-	private int     stats        = 0;			// keep stats 
+	private int     stats        = 0;			// keep stats
 	// UTS Performance Statistics
 	private double  searchTimer  = 0;			// search timer
 	private AtomicInteger 	  nNodes;				// total number of nodes discovered in tree
@@ -60,7 +60,7 @@ public class UTS {
 	private AtomicInteger     maxUTSDepth;		// maximum tree depth
 	private String type;
 
-	UTS(int tree_type){
+	UTS(final int tree_type){
 		// T1 & T3 used in other papers
 		if(tree_type == 2) {
 			// T2="-t 1 -a 2 -d 16 -b 6 -r 502"
@@ -127,7 +127,7 @@ public class UTS {
 		maxUTSDepth = new AtomicInteger(0);
 	}
 
-	public static void main(String args[]){
+	public static void main(final String args[]){
 		int tree_type = 0;
 		if(args.length > 0) {
 			tree_type = Integer.parseInt(args[0]);
@@ -137,13 +137,17 @@ public class UTS {
 			}
 		}
 		System.out.println("Tree type = "+tree_type);
-		
+
 		int l_start=1;
 		int inner = 5;
 		int outter = 3;
-		if(args.length > l_start) inner = Integer.parseInt(args[l_start]);
-		if(args.length > (l_start+1)) outter = Integer.parseInt(args[l_start+1]);
-		
+		if(args.length > l_start) {
+      inner = Integer.parseInt(args[l_start]);
+    }
+		if(args.length > (l_start+1)) {
+      outter = Integer.parseInt(args[l_start+1]);
+    }
+
 		boolean harnessStarted = false;
 		final long start = System.nanoTime();
 		for(int i=0;i <outter; i++) {
@@ -164,11 +168,11 @@ public class UTS {
 		}
 
 		System.out.println("Test Kernel under harness passed successfully....");
-		
+
 		org.jikesrvm.scheduler.RVMThread.perfEventStop();
 		org.mmtk.plan.Plan.harnessEnd();
 
-		final double duration = (((double)(System.nanoTime() - start))/((double)(1.0E9))) * 1000;
+		final double duration = ((System.nanoTime() - start)/((1.0E9))) * 1000;
 		System.out.printf("===== Test PASSED in %d msec =====\n",(int)duration);
 	}
 
@@ -180,8 +184,8 @@ public class UTS {
 		}
 		stopTimer();
 	}
-	
-	final void search(Node parent){
+
+	final void search(final Node parent){
 		nNodes.incrementAndGet();
 		maxUTSDepth.set(Math.max(parent.height, maxUTSDepth.get()));
 		int numChildren = parent.numChildren();
@@ -222,7 +226,7 @@ public class UTS {
 			nNodes = 4117769;
 			maxUTSDepth = 81;
 			nLeaves = 2342762;
-		} 
+		}
 		else if(type.equals("T3")) {
 			nNodes = 1732;
 			maxUTSDepth = 6;
@@ -243,13 +247,13 @@ public class UTS {
 			maxUTSDepth = 6;
 			nLeaves = 1050;
 		}
-		
+
 		String s1="", s2="", s3="";
-		
+
 		final int nNodes_r = this.nNodes.get();
 		final int maxUTSDepth_r = this.maxUTSDepth.get();
 		final int nLeaves_r = this.nLeaves.get();
-		
+
 		if(nNodes_r != nNodes) {
 			s1 = ("Tree Size Expected = " + nNodes + " but Obtained = " + nNodes_r);
 		}
@@ -259,13 +263,13 @@ public class UTS {
 		if(nLeaves_r != nLeaves) {
 			s3 = (" Tree Num_Leaves Expected = " + nLeaves + " but Obtained = " + nLeaves_r);
 		}
-		
+
 		if(s1.length() == 0 && s2.length() == 0 && s3.length() == 0) {
 			return true;
 		}
 		else {
 			System.out.println(s1 + s2 + s3);
-			return false; 
+			return false;
 		}
 	}
 
@@ -273,27 +277,27 @@ public class UTS {
 	void showStats_short(){
 		boolean pass = status();
 		System.out.print("UTS ("+type+") : passed="+ pass);
-		System.out.print(". Performance = " + (int)((double)nNodes.get()/searchTimer) + " nodes/sec");
+		System.out.print(". Performance = " + (int)(nNodes.get()/searchTimer) + " nodes/sec");
 		System.out.println(". Time = "+fourdeci(searchTimer)+" secs");
 		if(!pass) {
 			System.out.println("TEST FAILED UNDER HARNESS... Exiting");
 			System.exit(-1);
 		}
 	}
-	
+
 	void showStats(){
 		System.out.println("UTS(" + type +") size = " + nNodes.get() + ", tree depth = " + maxUTSDepth.get() + ", num leaves = " + nLeaves.get() + " (" + (100.*fourdeci((double)nLeaves.get()/(double)nNodes.get())) + "%)    "
-				+ "Wallclock time = " + fourdeci(searchTimer) + " sec, performance = " + (int)((double)nNodes.get()/searchTimer) + " nodes/sec");
+				+ "Wallclock time = " + fourdeci(searchTimer) + " sec, performance = " + (int)(nNodes.get()/searchTimer) + " nodes/sec");
 	}
-	
-	double fourdeci(double val) {
+
+	double fourdeci(final double val) {
 		return  Math.floor(val*10000. + 0.5)/10000.0;
 	}
 	void startTimer(){
 		searchTimer = -(double)System.nanoTime();
 	}
 	void stopTimer(){
-		searchTimer += (double)System.nanoTime();
+		searchTimer += System.nanoTime();
 		searchTimer /= 1.0e+9;
 	}
 	void showParams(){
@@ -329,7 +333,7 @@ public class UTS {
 			break;
 		default:
 			break;
-		}	
+		}
 		System.out.println("Compute granularity: " + computeGran);
 		System.out.println("Execution strategy: " + getName());
 		System.out.println("");
@@ -354,7 +358,7 @@ public class UTS {
 		static final double TWO_PI = 2.0*Math.PI;
 		static final int MAXNUMCHILDREN = 100;   		// max number of children for BIN tree
 
-		Node(int rootID) {					// root constructor: count the nodes as they are created
+		Node(final int rootID) {					// root constructor: count the nodes as they are created
 			state     = new SHA1Generator(rootID);
 			type      = treetype;
 			height    = 0;
@@ -362,7 +366,7 @@ public class UTS {
 		}
 
 
-		Node(Node parent, int spawn) {				// child constructor: count the nodes as they are created
+		Node(final Node parent, final int spawn) {				// child constructor: count the nodes as they are created
 			for(int j=0; j<computeGran; j++) {
 				state     = new SHA1Generator(parent.state,spawn);
 			}
@@ -380,10 +384,11 @@ public class UTS {
 				nChildren = numChildren_geo();
 				break;
 			case HYBRID:
-				if (height < shiftDepth * gen_mx)
-					nChildren = numChildren_geo();
-				else
-					nChildren = numChildren_bin();
+				if (height < shiftDepth * gen_mx) {
+          nChildren = numChildren_geo();
+        } else {
+          nChildren = numChildren_bin();
+        }
 				break;
 			default:
 				error("Node:numChildren(): Unknown tree type");
@@ -406,12 +411,13 @@ public class UTS {
 		}
 		int numChildren_bin(){			// Binomial: distribution is identical below root
 			int nc;
-			if (height == 0)
-				nc = (int)Math.floor(b_0);
-			else if (rng_toProb(state.rand()) < nonLeafProb) 
-				nc = nonLeafBF;
-			else 
-				nc = 0;
+			if (height == 0) {
+        nc = (int)Math.floor(b_0);
+      } else if (rng_toProb(state.rand()) < nonLeafProb) {
+        nc = nonLeafBF;
+      } else {
+        nc = 0;
+      }
 			return nc;
 		}
 		int numChildren_geo(){			// Geometric: distribution controlled by shape and height
@@ -419,14 +425,14 @@ public class UTS {
 			if (height > 0){
 				switch (shape_fn) {	// use shape function to compute target b_i
 				case EXPDEC:		// expected size polynomial in height
-					b_i = b_0*Math.pow((double)height,-Math.log(b_0)/Math.log((double)gen_mx));
+					b_i = b_0*Math.pow(height,-Math.log(b_0)/Math.log(gen_mx));
 					break;
 				case CYCLIC:		// cyclic tree
 					if (height > 5 * gen_mx) {
 						b_i = 0.0;
 						break;
 					}
-					b_i = Math.pow(b_0,Math.sin(TWO_PI*(double)height/(double)gen_mx));
+					b_i = Math.pow(b_0,Math.sin(TWO_PI*height/gen_mx));
 					break;
 				case FIXED:		// identical distribution at all nodes up to max height
 					b_i = (height < gen_mx)? b_0 : 0;
@@ -448,18 +454,19 @@ public class UTS {
 			switch (type) {
 			case BIN:	return BIN;
 			case GEO:	return GEO;
-			case HYBRID:	if (height < shiftDepth * gen_mx)
-				return GEO;
-			else
-				return BIN;
+			case HYBRID:	if (height < shiftDepth * gen_mx) {
+        return GEO;
+      } else {
+        return BIN;
+      }
 			default:	error("uts_get_childtype(): Unknown tree type");
 			return -1;
 			}
 		}
-		double rng_toProb(int n){		 // convert a random number on [0,2^31) to one on [0.1)
-			return ((n<0)? 0.0 : ((double) n)/2147483648.0);
+		double rng_toProb(final int n){		 // convert a random number on [0,2^31) to one on [0.1)
+			return ((n<0)? 0.0 : (n)/2147483648.0);
 		}
-		void error(String data){				 // bailout with error message
+		void error(final String data){				 // bailout with error message
 			System.out.println(data);
 			System.exit(1);
 		}
@@ -476,9 +483,11 @@ final class SHA1Generator {
 	private byte[]  state = new byte[SHA1_DIGEST_SIZE];	// 160 bit output representation
 
 	// new rng from seed
-	public SHA1Generator(int seedarg) {
+	public SHA1Generator(final int seedarg) {
 		byte[] seedstate = new byte[20];
-		for (int i=0; i<16; i++) seedstate[i]=0;
+		for (int i=0; i<16; i++) {
+      seedstate[i]=0;
+    }
 		seedstate[16] = (byte)(LOWBYTE & (seedarg >>> 24));
 		seedstate[17] = (byte)(LOWBYTE & (seedarg >>> 16));
 		seedstate[18] = (byte)(LOWBYTE & (seedarg >>> 8));
@@ -489,7 +498,7 @@ final class SHA1Generator {
 	}
 
 	// New rng from existing rng
-	public SHA1Generator(SHA1Generator parent, int spawnnumber) {
+	public SHA1Generator(final SHA1Generator parent, final int spawnnumber) {
 		byte[]  seedstate = new byte[4];
 		seedstate[0] = (byte)(LOWBYTE & (spawnnumber >>> 24));
 		seedstate[1] = (byte)(LOWBYTE & (spawnnumber >>> 16));
@@ -507,15 +516,15 @@ final class SHA1Generator {
 		SHA1compiler sha1 = new SHA1compiler();
 		sha1.hash(state,20);
 		sha1.digest(state);
-		return POS_MASK & (((LOWBYTE & (int)state[16])<<24) | ((LOWBYTE & (int)state[17])<<16)
-				| ((LOWBYTE & (int)state[18])<< 8) | ((LOWBYTE & (int)state[19])));
+		return POS_MASK & (((LOWBYTE & state[16])<<24) | ((LOWBYTE & state[17])<<16)
+				| ((LOWBYTE & state[18])<< 8) | ((LOWBYTE & state[19])));
 	}
 
 	// return current random number (no advance)
 	public final int rand() {
 		int d;
-		return POS_MASK & (((LOWBYTE & (int)state[16])<<24) | ((LOWBYTE & (int)state[17])<<16)
-				| ((LOWBYTE & (int)state[18])<< 8) | ((LOWBYTE & (int)state[19])));
+		return POS_MASK & (((LOWBYTE & state[16])<<24) | ((LOWBYTE & state[17])<<16)
+				| ((LOWBYTE & state[18])<< 8) | ((LOWBYTE & state[19])));
 	}
 
 	// describe the state of the RNG
@@ -554,7 +563,7 @@ final class SHA1compiler {
 		digest[4] = (int)0xc3d2e1f0l;
 	}
 
-	public final void hash(byte[] data, int length) {
+	public final void hash(final byte[] data, final int length) {
 		int bp    = 0;				// byte position in data[]
 		int pos   = (int)(count & SHA1_MASK);	// byte position in msgblock
 		int wpos  = pos>>>2;			// word position in msgblock
@@ -563,7 +572,7 @@ final class SHA1compiler {
 		count     += len;			// total number of bytes processed since begin
 		while(len >= space) {
 			for(; wpos < (SHA1_BLOCK_SIZE>>>2); bp+=4) {	// "int" aligned (byte)memory to (int)memory copy
-				msgblock[wpos++] = (((int)data[bp  ]&0xFF)<<24) | (((int)data[bp+1]&0xFF)<<16) | (((int)data[bp+2]&0xFF)<< 8) | ((int)data[bp+3]&0xFF) ;
+				msgblock[wpos++] = ((data[bp  ]&0xFF)<<24) | ((data[bp+1]&0xFF)<<16) | ((data[bp+2]&0xFF)<< 8) | (data[bp+3]&0xFF) ;
 			}
 			compile();
 			len -= space;
@@ -571,27 +580,33 @@ final class SHA1compiler {
 			wpos = 0;
 		}
 		for(; bp < length; bp+=4) {		// this is the "int" aligned (byte)memory to (int)memory copy
-			msgblock[wpos++] = (((int)data[bp  ]&0xFF)<<24) | (((int)data[bp+1]&0xFF)<<16)
-					| (((int)data[bp+2]&0xFF)<< 8) | (((int)data[bp+3]&0xFF));
+			msgblock[wpos++] = ((data[bp  ]&0xFF)<<24) | ((data[bp+1]&0xFF)<<16)
+					| ((data[bp+2]&0xFF)<< 8) | ((data[bp+3]&0xFF));
 		}
 	}
 
-	public final void digest(byte[] output) {
+	public final void digest(final byte[] output) {
 		int    i = (int)(count & SHA1_MASK);	// how many bytes already in msgblock[]?
 		msgblock[i >> 2] &= (int)(0xffffff80l << 8 * (~i & 3));
 		msgblock[i >> 2] |= (int)(0x00000080l << 8 * (~i & 3));
 		if(i > SHA1_BLOCK_SIZE - 9) {
-			if(i < 60) msgblock[15] = 0;
+			if(i < 60) {
+        msgblock[15] = 0;
+      }
 			compile();
 			i = 0;
 		} else {
 			i = (i >> 2) + 1;
 		}
-		while(i < 14) msgblock[i++] = 0;
+		while(i < 14) {
+      msgblock[i++] = 0;
+    }
 		msgblock[14] = (int)((count >> 29));
 		msgblock[15] = (int)((count << 3));
 		compile(); // THIS call accounts for 50% of the program execution time...
-		for(i = 0; i < SHA1_DIGEST_SIZE; ++i) output[i] = (byte)(digest[i >> 2] >> (8 * (~i & 3)));
+		for(i = 0; i < SHA1_DIGEST_SIZE; ++i) {
+      output[i] = (byte)(digest[i >> 2] >> (8 * (~i & 3)));
+    }
 	}
 
 	private static final int rotl32(final int x, final int n) {
@@ -603,7 +618,7 @@ final class SHA1compiler {
 	}
 
 	private static final int bswap_32(final int x) {
-		return ((rotr32((x), 24) & (int)0x00ff00ff) | (rotr32((x), 8) & (int)0xff00ff00));
+		return ((rotr32((x), 24) & 0x00ff00ff) | (rotr32((x), 8) & 0xff00ff00));
 	}
 
 	private static final void bsw_32(final int[] p, final int n) {
@@ -636,7 +651,7 @@ final class SHA1compiler {
 		}
 	}
 
-	private static final void one_cycle(final int[] v, final int a, final int b, final int c, 
+	private static final void one_cycle(final int[] v, final int a, final int b, final int c,
 			final int d, final int e, final String f, final int k, final int h) {
 
 		if(f.equals("ch")) {
@@ -655,7 +670,7 @@ final class SHA1compiler {
 		v[b] = rotr32(v[b], 2);
 	}
 
-	private static final void five_cycle(final int[] w, final boolean hf_basic, final int[] v, 
+	private static final void five_cycle(final int[] w, final boolean hf_basic, final int[] v,
 			final String f, final int k, final int i) {
 		one_cycle(v, 0,1,2,3,4, f,k,hf(w, i, hf_basic));
 		one_cycle(v, 4,0,1,2,3, f,k,hf(w, i+1, hf_basic));
@@ -664,35 +679,35 @@ final class SHA1compiler {
 		one_cycle(v, 1,2,3,4,0, f,k,hf(w, i+4, hf_basic));
 	}
 
-	private final void compile() {  
+	private final void compile() {
 		int    v0, v1, v2, v3, v4;
 		int[] v = new int[5];
 		System.arraycopy(digest, 0, v, 0, 5);
 
-		five_cycle(msgblock, true, v, "ch", (int)0x5a827999,  0);
-		five_cycle(msgblock, true, v, "ch", (int)0x5a827999,  5);
-		five_cycle(msgblock, true, v, "ch", (int)0x5a827999, 10);
-		one_cycle(v,0,1,2,3,4, "ch", (int)0x5a827999, hf(msgblock, 15, true)); 
+		five_cycle(msgblock, true, v, "ch", 0x5a827999,  0);
+		five_cycle(msgblock, true, v, "ch", 0x5a827999,  5);
+		five_cycle(msgblock, true, v, "ch", 0x5a827999, 10);
+		one_cycle(v,0,1,2,3,4, "ch", 0x5a827999, hf(msgblock, 15, true));
 
-		one_cycle(v,4,0,1,2,3, "ch", (int)0x5a827999, hf(msgblock, 16, false));
-		one_cycle(v,3,4,0,1,2, "ch", (int)0x5a827999, hf(msgblock, 17, false));
-		one_cycle(v,2,3,4,0,1, "ch", (int)0x5a827999, hf(msgblock, 18, false));
-		one_cycle(v,1,2,3,4,0, "ch", (int)0x5a827999, hf(msgblock, 19, false));
+		one_cycle(v,4,0,1,2,3, "ch", 0x5a827999, hf(msgblock, 16, false));
+		one_cycle(v,3,4,0,1,2, "ch", 0x5a827999, hf(msgblock, 17, false));
+		one_cycle(v,2,3,4,0,1, "ch", 0x5a827999, hf(msgblock, 18, false));
+		one_cycle(v,1,2,3,4,0, "ch", 0x5a827999, hf(msgblock, 19, false));
 
-		five_cycle(msgblock, false, v, "parity", (int)0x6ed9eba1,  20);
-		five_cycle(msgblock, false, v, "parity", (int)0x6ed9eba1,  25);
-		five_cycle(msgblock, false, v, "parity", (int)0x6ed9eba1,  30);
-		five_cycle(msgblock, false, v, "parity", (int)0x6ed9eba1,  35);
+		five_cycle(msgblock, false, v, "parity", 0x6ed9eba1,  20);
+		five_cycle(msgblock, false, v, "parity", 0x6ed9eba1,  25);
+		five_cycle(msgblock, false, v, "parity", 0x6ed9eba1,  30);
+		five_cycle(msgblock, false, v, "parity", 0x6ed9eba1,  35);
 
-		five_cycle(msgblock, false, v, "maj", (int)0x8f1bbcdc,  40);
-		five_cycle(msgblock, false, v, "maj", (int)0x8f1bbcdc,  45);
-		five_cycle(msgblock, false, v, "maj", (int)0x8f1bbcdc,  50);
-		five_cycle(msgblock, false, v, "maj", (int)0x8f1bbcdc,  55);
+		five_cycle(msgblock, false, v, "maj", 0x8f1bbcdc,  40);
+		five_cycle(msgblock, false, v, "maj", 0x8f1bbcdc,  45);
+		five_cycle(msgblock, false, v, "maj", 0x8f1bbcdc,  50);
+		five_cycle(msgblock, false, v, "maj", 0x8f1bbcdc,  55);
 
-		five_cycle(msgblock, false, v, "parity", (int)0xca62c1d6,  60);
-		five_cycle(msgblock, false, v, "parity", (int)0xca62c1d6,  65);
-		five_cycle(msgblock, false, v, "parity", (int)0xca62c1d6,  70);
-		five_cycle(msgblock, false, v, "parity", (int)0xca62c1d6,  75);
+		five_cycle(msgblock, false, v, "parity", 0xca62c1d6,  60);
+		five_cycle(msgblock, false, v, "parity", 0xca62c1d6,  65);
+		five_cycle(msgblock, false, v, "parity", 0xca62c1d6,  70);
+		five_cycle(msgblock, false, v, "parity", 0xca62c1d6,  75);
 		digest[0] += v[0];
 		digest[1] += v[1];
 		digest[2] += v[2];
@@ -700,22 +715,30 @@ final class SHA1compiler {
 		digest[4] += v[4];
 	}
 
-	static String toHex(int data) {
+	static String toHex(final int data) {
 		String result = java.lang.Integer.toHexString(data);
-		for (int i = result.length(); i<8 ; i++) result ="0"+result;
+		for (int i = result.length(); i<8 ; i++) {
+      result ="0"+result;
+    }
 		return result;
 	}
-	static String toHex(long data) {
+	static String toHex(final long data) {
 		String result = java.lang.Long.toHexString(data);
-		for (int i = result.length(); i<16 ; i++) result ="0"+result;
+		for (int i = result.length(); i<16 ; i++) {
+      result ="0"+result;
+    }
 		return result;
 	}
 	private void showdigest() {
-		for (int i=0; i<5; i++) System.out.print(toHex(digest[i])+" ");
+		for (int i=0; i<5; i++) {
+      System.out.print(toHex(digest[i])+" ");
+    }
 		System.out.println(" ");
 	}
 	private void showmsgblock() {
-		for (int i=0; i<16; i++) System.out.print(toHex(msgblock[i])+" ");
+		for (int i=0; i<16; i++) {
+      System.out.print(toHex(msgblock[i])+" ");
+    }
 		System.out.println(" ");
 	}
 }

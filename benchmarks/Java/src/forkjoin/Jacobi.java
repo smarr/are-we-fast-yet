@@ -5,7 +5,7 @@
  */
 
 /*
- * Vivek Kumar: Ported to JavaTC work-asyncing.  
+ * Vivek Kumar: Ported to JavaTC work-asyncing.
  */
 
 public class Jacobi {
@@ -18,17 +18,23 @@ public class Jacobi {
 	};
 	static final int DEFAULT_GRANULARITY = 2;
 	static final double EPSILON = 0.0001D;
-	public static void main(String[] args) { 
+	public static void main(final String[] args) {
 		int n = 1024;
 		int steps = 10;
 		int granularity = DEFAULT_GRANULARITY;
-		
-		if(args.length > 0) n = Integer.parseInt(args[0]);
-		if(args.length > 1) steps = Integer.parseInt(args[1]);
-		if(args.length > 2) granularity = Integer.parseInt(args[2]);
-		
+
+		if(args.length > 0) {
+      n = Integer.parseInt(args[0]);
+    }
+		if(args.length > 1) {
+      steps = Integer.parseInt(args[1]);
+    }
+		if(args.length > 2) {
+      granularity = Integer.parseInt(args[2]);
+    }
+
 		System.out.println("Matrix Size = " + n + " Steps = " + steps+" granularity = "+granularity);
-				
+
 		int dim = n + 2;
 		int ncells = dim * dim;
 		double[][] a = new double[dim][dim];
@@ -55,9 +61,13 @@ public class Jacobi {
 		int l_start=3;
 		int inner = 5;
 		int outter = 3;
-		if(args.length > l_start) inner = Integer.parseInt(args[l_start]);
-		if(args.length > (l_start+1)) outter = Integer.parseInt(args[l_start+1]);
-		
+		if(args.length > l_start) {
+      inner = Integer.parseInt(args[l_start]);
+    }
+		if(args.length > (l_start+1)) {
+      outter = Integer.parseInt(args[l_start+1]);
+    }
+
 		boolean harnesStarted = false;
 		int iter = 0;
 		final long start = System.nanoTime();
@@ -84,22 +94,22 @@ public class Jacobi {
 				}
 				iter++;
 				final long time = System.currentTimeMillis() - startTime;
-				final double secs = ((double)time) / 1000.0D;
+				final double secs = (time) / 1000.0D;
 				System.out.println("Jacobi: max diff after " + steps + " steps = " + df + " Time: " + secs);
 				org.jikesrvm.scheduler.WS.dumpWSStatistics();
 			}
 		}
-		
+
 		System.out.println("Test Kernel under harness passed successfully....");
 
 		org.jikesrvm.scheduler.RVMThread.perfEventStop();
 		org.mmtk.plan.Plan.harnessEnd();
 
-		final double duration = (((double)(System.nanoTime() - start))/((double)(1.0E9))) * 1000;
+		final double duration = ((System.nanoTime() - start)/((1.0E9))) * 1000;
 		System.out.printf("===== Test PASSED in %d msec =====\n",(int)duration);
 	}
 
-	public static double buildNode(double[][] a, double[][] b, int lr, int hr, int lc, int hc, int leafs, int steps) {
+	public static double buildNode(final double[][] a, final double[][] b, final int lr, final int hr, final int lc, final int hc, int leafs, final int steps) {
 		int rows = (hr - lr + 1);
 		int cols = (hc - lc + 1);
 		int mr = (lr + hr) >>> 1;
@@ -145,7 +155,7 @@ public class Jacobi {
 		}
 	}
 
-	public static double processLeafNode(double[][] A, double[][] B, int loRow, int hiRow, int loCol, int hiCol, int steps) {
+	public static double processLeafNode(final double[][] A, final double[][] B, final int loRow, final int hiRow, final int loCol, final int hiCol, final int steps) {
 		boolean AtoB = (steps & 1) == 0;
 		double[][] a = AtoB ? A : B;
 		double[][] b = AtoB ? B : A;
@@ -155,10 +165,12 @@ public class Jacobi {
 				double v = 0.25D * (a[i - 1][j] + a[i][j - 1] + a[i + 1][j] + a[i][j + 1]);
 				b[i][j] = v;
 				double diff = v - a[i][j];
-				if(diff < 0) 
-					diff = -diff;
-				if(diff > md) 
-					md = diff;
+				if(diff < 0) {
+          diff = -diff;
+        }
+				if(diff > md) {
+          md = diff;
+        }
 			}
 		}
 		return md;
