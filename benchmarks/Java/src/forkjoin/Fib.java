@@ -30,7 +30,7 @@ public final class Fib extends Benchmark {
 
     private final int n;
 
-    public Fibonacci(final int n) {
+    Fibonacci(final int n) {
       this.n = n;
     }
 
