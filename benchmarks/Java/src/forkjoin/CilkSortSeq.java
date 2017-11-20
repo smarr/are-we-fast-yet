@@ -64,6 +64,8 @@ import som.Random;
  * Vivek Kumar: Ported to JavaTC work-asyncing.
  */
 
+// Fully sequential version, replacing all forks with compute.
+
 /**
  * Cilksort is a parallel sorting algorithm, donned "Multisort", which
  * is a variant of ordinary mergesort.  Multisort begins by dividing an
@@ -71,7 +73,7 @@ import som.Random;
  * two sorted halves back together, but in a divide-and-conquer approach
  * rather than the usual serial merge.
  */
-public final class CilkSort extends Benchmark {
+public final class CilkSortSeq extends Benchmark {
 	private static final int KILO = 1024;
 	private static final int MERGESIZE = (2 * KILO);
 	private static final int QUICKSIZE = (2 * KILO);
@@ -218,25 +220,17 @@ public final class CilkSort extends Benchmark {
       int D = C + quarter;
       int tmpD = tmpC + quarter;
 
-      Sort taskA = new Sort(array, tmp, A, tmpA, quarter); taskA.fork();
-      Sort taskB = new Sort(array, tmp, B, tmpB, quarter); taskB.fork();
-      Sort taskC = new Sort(array, tmp, C, tmpC, quarter); taskC.fork();
-      Sort taskD = new Sort(array, tmp, D, tmpD, size - 3 * quarter); taskD.fork();
-
-      taskA.join();
-      taskB.join();
-      taskC.join();
-      taskD.join();
+      Sort taskA = new Sort(array, tmp, A, tmpA, quarter); taskA.compute();
+      Sort taskB = new Sort(array, tmp, B, tmpB, quarter); taskB.compute();
+      Sort taskC = new Sort(array, tmp, C, tmpC, quarter); taskC.compute();
+      Sort taskD = new Sort(array, tmp, D, tmpD, size - 3 * quarter); taskD.compute();
 
       Merge mergeA = new Merge(A, A + quarter - 1, B, B + quarter - 1, tmpA,
           array, tmp);
-      mergeA.fork();
+      mergeA.compute();
       Merge mergeB = new Merge(C, C + quarter - 1, D, low + size - 1, tmpC,
           array, tmp);
-      mergeB.fork();
-
-      mergeA.join();
-      mergeB.join();
+      mergeB.compute();
 
       new Merge(tmpA, tmpC - 1, tmpC, tmpA + size - 1, A, tmp, array).compute();
     }
@@ -333,13 +327,10 @@ public final class CilkSort extends Benchmark {
       dest[(lowdest + lowsize + 1)] = src[split1];
 
       Merge mergeA = new Merge(low1, split1 - 1, low2, split2, lowdest, src, dest);
-      mergeA.fork();
+      mergeA.compute();
 
       Merge mergeB = new Merge(split1 + 1, high1, split2 + 1, high2, lowdest + lowsize + 2, src, dest);
-      mergeB.fork();
-
-      mergeA.join();
-      mergeB.join();
+      mergeB.compute();
     }
 	}
 }
