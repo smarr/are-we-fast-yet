@@ -1,6 +1,59 @@
-import java.util.Random;
+package forkjoin;
 
-public class QuickSort {
+import java.util.concurrent.RecursiveAction;
+
+import som.Benchmark;
+import som.Random;
+
+public class QuickSort extends Benchmark {
+
+  private int[] randomNumbers;
+
+  private void initRandomNumbers(final int size) {
+    randomNumbers = new int[size];
+    final Random r = new Random();
+    for (int i = 0; i < size; i++) {
+      randomNumbers[i] = r.next();
+    }
+  }
+
+  @Override
+  public boolean innerBenchmarkLoop(final int problemSize) {
+    int size = problemSize * 1000;
+
+    if (randomNumbers == null) {
+      initRandomNumbers(size);
+    }
+
+    final int[] data = new int[size];
+
+    // init data with random numbers
+    System.arraycopy(randomNumbers, 0, data, 0, size);
+
+    new QSort(data, 0, size - 1).compute();
+
+    int a = 0;
+    for (int k = 0; k < size; k++) {
+      int b = data[k];
+
+      if (a > b) {
+        return false;
+      }
+      a = b;
+    }
+
+    return true;
+  }
+
+  @Override
+  public Object benchmark() {
+    throw new RuntimeException("Should never be reached");
+  }
+
+  @Override
+  public boolean verifyResult(final Object result) {
+    throw new RuntimeException("Should never be reached");
+  }
 
 	private static int partition(final int[] data, final int left, final int right) {
 		int i = left;
@@ -12,9 +65,11 @@ public class QuickSort {
 			while (data[i] < pivot) {
         i++;
       }
+
 			while (data[j] > pivot) {
         j--;
       }
+
 			if (i <= j) {
 				tmp = data[i];
 				data[i] = data[j];
@@ -27,104 +82,46 @@ public class QuickSort {
 		return i;
 	}
 
-	private static void qsort(final int[] data, final int left, final int right) {
-		final int index = partition(data, left, right);
-		finish {
-			if (left < index - 1) {
-				async {
-					qsort(data, left, index - 1);
-				}
-			}
+	private static class QSort extends RecursiveAction {
+    private static final long serialVersionUID = -5614790014632850696L;
 
-			if (index < right) {
-				qsort(data, index, right);
-			}
-		}
-	}
+    private final int[] data;
+	  private final int left;
+	  private final int right;
 
-	public static void main(final String[] args) {
-		int N = 10000000; // 10 million
-		boolean check = true;
+	  QSort(final int[] data, final int left, final int right) {
+	    this.data = data;
+	    this.left = left;
+	    this.right = right;
+	  }
 
-		if (args.length > 0) {
-      N = Integer.parseInt(args[0]);
-    }
-		if(args.length > 1) {
-      check = Boolean.parseBoolean(args[1]);
-    }
+	  @Override
+    protected void compute() {
+	    final int index = partition(data, left, right);
 
-		System.out.println("Input: N = "+N+" check = "+check);
+	    QSort a;
+	    if (left < index - 1) {
+	      a = new QSort(data, left, index - 1);
+	      a.fork();
+	    } else {
+	      a = null;
+	    }
 
-		final int[] data = new int[N];
-		final int[] backup = new int[N];
+	    QSort b;
+	    if (index < right) {
+	      b = new QSort(data, index, right);
+	      b.fork();
+      } else {
+        b = null;
+      }
 
-		final Random r = new Random(0);
-		for(int i=0; i<N; i++) {
-			backup[i] = r.nextInt(9999);
-		}
+	    if (a != null) {
+        a.join();
+      }
 
-		boolean harnessStarted = false;
-
-		int l_start=2;
-		int inner = 5;
-		int outter = 3;
-		if(args.length > l_start) {
-      inner = Integer.parseInt(args[l_start]);
-    }
-		if(args.length > (l_start+1)) {
-      outter = Integer.parseInt(args[l_start+1]);
-    }
-
-		final long start = System.nanoTime();
-		for(int i=0;i <outter; i++) {
-			if(i+1 == outter) {
-				harnessStarted = true;
-				org.mmtk.plan.Plan.harnessBegin();
-				org.jikesrvm.scheduler.RVMThread.perfEventStart();
-			}
-			for(int j=0; j<inner; j++) {
-				System.out.println("========================== ITERATION ("+i+"."+j+") ==================================");
-				System.arraycopy(backup, 0, data, 0, N); // restore the old array
-				final long startTime = System.currentTimeMillis();
-				qsort(data, 0, N-1);
-				final long time = System.currentTimeMillis() - startTime;
-				final double secs = (time) / 1000.0;
-				//check the result
-				int a = 0;
-				int b;
-				if(harnessStarted) {
-					if(N == 10000000) {
-						if(org.jikesrvm.scheduler.WS.wsTotalPush() != 5822908) {
-							System.out.println("EXITING DUE TO FAILURE IN HARNESS ITERATIONS");
-							System.exit(-1);
-						}
-					}
-				}
-				if(check) {
-					boolean ok= true;
-					for (int k=0; k<N; k++) {
-						b = data[k];
-						ok &= (a <= b);
-						a = b;
-					}
-					if(ok){
-						System.out.println("QuickSort ("+ N +"): passed. Time = "+ secs+" secs");
-					}
-					else{
-						System.out.printf("QuickSort ("+ N +"): failed. Time = "+secs +" secs");
-					}
-				}
-				else {
-					System.out.println("Time = "+ secs+" secs");
-				}
-				org.jikesrvm.scheduler.WS.dumpWSStatistics();
-			}
-		}
-
-		org.jikesrvm.scheduler.RVMThread.perfEventStop();
-		org.mmtk.plan.Plan.harnessEnd();
-
-		final double duration = ((System.nanoTime() - start)/((1.0E9))) * 1000;
-		System.out.printf("===== Test PASSED in %d msec =====\n",(int)duration);
+	    if (b != null) {
+        b.join();
+      }
+	  }
 	}
 }
