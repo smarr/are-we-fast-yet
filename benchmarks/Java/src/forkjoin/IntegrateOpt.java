@@ -42,6 +42,9 @@ public final class IntegrateOpt extends Benchmark {
   private static boolean verifyResult(final double area, final int xMax) {
     if (xMax == 10000) { return area == 2.50000005E15; }
     if (xMax == 5000)  { return area == 1.562500125E14; }
+    if (xMax == 2500)  { return area == 9.765628125000004E12; }
+    if (xMax == 1000)  { return area == 2.50000500000001E11; }
+
     System.out.println("No expected result for area=" + area);
     return false;
   }
