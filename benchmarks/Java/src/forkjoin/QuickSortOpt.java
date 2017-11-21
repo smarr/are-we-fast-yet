@@ -5,7 +5,9 @@ import java.util.concurrent.RecursiveAction;
 import som.Benchmark;
 import som.Random;
 
-public class QuickSort extends Benchmark {
+// Parallelized, and one of the tasks is done locally.
+
+public class QuickSortOpt extends Benchmark {
 
   private int[] randomNumbers;
 
@@ -102,25 +104,22 @@ public class QuickSort extends Benchmark {
 	    QSort a;
 	    if (left < index - 1) {
 	      a = new QSort(data, left, index - 1);
-	      a.fork();
+
+	      if (index < right) {
+	        a.fork();
+	      } else {
+	        a.compute();
+	      }
 	    } else {
 	      a = null;
 	    }
 
-	    QSort b;
 	    if (index < right) {
-	      b = new QSort(data, index, right);
-	      b.fork();
+	      new QSort(data, index, right).compute();
       } else {
-        b = null;
-      }
-
-	    if (a != null) {
-        a.join();
-      }
-
-	    if (b != null) {
-        b.join();
+        if (a != null) {
+          a.join();
+        }
       }
 	  }
 	}

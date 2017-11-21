@@ -1,12 +1,13 @@
 package forkjoin;
 
-import java.util.concurrent.RecursiveAction;
 import java.util.concurrent.RecursiveTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import som.Benchmark;
 
-public final class UTS extends Benchmark {
+// Parallelized, and one of the tasks is done locally.
+
+public final class UTSOpt extends Benchmark {
 
   // TREE TYPE AND SHAPE CONSTANTS
   static final int BIN    = 0; // TYPE: binomial tree
@@ -130,8 +131,6 @@ public final class UTS extends Benchmark {
 
   public final void compute() {
     initRoot();
-//    Children children = search(root);
-//    children.join();
     Core[] tasks = search(root);
 
     joinAll(tasks);
@@ -145,18 +144,20 @@ public final class UTS extends Benchmark {
     }
   }
 
-  private /* Children */ Core[] search(final Node parent) {
+  private Core[] search(final Node parent) {
     nNodes.incrementAndGet();
     maxUTSDepth.set(Math.max(parent.height, maxUTSDepth.get()));
     int numChildren = parent.numChildren();
     if (numChildren > 0) {
-      Core[] children = new Core[numChildren];
+      Core[] children = new Core[numChildren - 1];
 
-      for (int i = 0; i < numChildren; i++) {
+      int i;
+      for (i = 0; i < numChildren - 1; i++) {
         children[i] = new Core(this, parent, i);
         children[i].fork();
       }
-//      Children children = new Children(this, numChildren, parent);
+      new Core(this, parent, i).compute();
+
       return children;
     } else {
       nLeaves.incrementAndGet();
@@ -164,42 +165,23 @@ public final class UTS extends Benchmark {
     }
   }
 
-  private static class Children extends RecursiveAction {
-    private final UTS uts;
-    private final int numChildren;
-    private final Node parent;
-
-    Children(final UTS uts, final int numChildren, final Node parent) {
-      this.uts = uts;
-      this.numChildren = numChildren;
-      this.parent = parent;
-    }
-
-    @Override
-    protected void compute() {
-      for (int i = 0; i < numChildren; i++) {
-        new Core(uts, parent, i).compute();
-      }
-    }
-  }
-
   private static class Core extends RecursiveTask<Core[]> {
 
     private static final long serialVersionUID = 2813249622277043197L;
 
-    private final UTS  uts;
+    private final UTSOpt  uTSNai;
     private final Node parent;
     private final int  i;
 
-    Core(final UTS uts, final Node parent, final int i) {
-      this.uts = uts;
+    Core(final UTSOpt uTSNai, final Node parent, final int i) {
+      this.uTSNai = uTSNai;
       this.parent = parent;
       this.i = i;
     }
 
     @Override
     protected Core[] compute() {
-      return uts.search(uts.new Node(parent, i));
+      return uTSNai.search(uTSNai.new Node(parent, i));
     }
   }
 
