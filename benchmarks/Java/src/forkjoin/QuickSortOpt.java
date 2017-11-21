@@ -109,6 +109,7 @@ public class QuickSortOpt extends Benchmark {
 	        a.fork();
 	      } else {
 	        a.compute();
+	        a = null;
 	      }
 	    } else {
 	      a = null;
@@ -116,8 +117,7 @@ public class QuickSortOpt extends Benchmark {
 
 	    if (index < right) {
 	      new QSort(data, index, right).compute();
-      } else {
-        if (a != null) {
+	      if (a != null) {
           a.join();
         }
       }
