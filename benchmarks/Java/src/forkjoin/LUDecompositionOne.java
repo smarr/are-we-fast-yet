@@ -29,7 +29,9 @@ import som.Random;
  * Vivek Kumar: Ported to JavaTC work-asyncing.
  */
 
-public final class LUDecomposition extends Benchmark {
+// Only one active task at any given time.
+
+public final class LUDecompositionOne extends Benchmark {
 
   private final static int BLOCK_SIZE = 16;
   private double[][]       LU         = null;
@@ -115,11 +117,11 @@ public final class LUDecomposition extends Benchmark {
     private final int posWR;
     private final int posWC;
     private final int numOfBlocks;
-    private final LUDecomposition lu;
+    private final LUDecompositionOne lu;
 
     Schur(final int posMR, final int posMC, final int posVR, final int posVC,
         final int posWR, final int posWC, final int numOfBlocks,
-        final LUDecomposition lu) {
+        final LUDecompositionOne lu) {
       this.posMR = posMR;
       this.posMC = posMC;
       this.posVR = posVR;
@@ -154,30 +156,34 @@ public final class LUDecomposition extends Benchmark {
 
       Schur a = new Schur(posMR, posMC, posVR, posVC, posWR, posWC, halfNb, lu);
       a.fork();
+      a.join();
+
       Schur b = new Schur(posMR, posM01C, posVR, posVC, posWR, posW01C, halfNb, lu);
       b.fork();
+      b.join();
+
       Schur c = new Schur(posM10R, posMC, posV10R, posVC, posWR, posWC, halfNb, lu);
       c.fork();
+      c.join();
+
       Schur d = new Schur(posM11R, posM11C, posV10R, posVC, posWR, posW01C, halfNb, lu);
       d.fork();
-
-      a.join();
-      b.join();
-      c.join();
       d.join();
 
       a = new Schur(posMR, posMC, posVR, posV01C, posW10R, posWC, halfNb, lu);
       a.fork();
+      a.join();
+
       b = new Schur(posMR, posM01C, posVR, posV01C, posW11R, posW11C, halfNb, lu);
       b.fork();
+      b.join();
+
       c = new Schur(posM10R, posMC, posV11R, posV11C, posW10R, posWC, halfNb, lu);
       c.fork();
+      c.join();
+
       d = new Schur(posM11R, posM11C, posV11R, posV11C, posW11R, posW11C, halfNb, lu);
       d.fork();
-
-      a.join();
-      b.join();
-      c.join();
       d.join();
     }
   }
@@ -190,10 +196,10 @@ public final class LUDecomposition extends Benchmark {
     private final int posLR;
     private final int posLC;
     private final int numOfBlocks;
-    private final LUDecomposition lu;
+    private final LUDecompositionOne lu;
 
     LowerSolve(final int posMR, final int posMC, final int posLR,
-        final int posLC, final int numOfBlocks, final LUDecomposition lu) {
+        final int posLC, final int numOfBlocks, final LUDecompositionOne lu) {
       this.posMR = posMR;
       this.posMC = posMC;
       this.posLR = posLR;
@@ -218,11 +224,11 @@ public final class LUDecomposition extends Benchmark {
       AuxLowerSolve a = new AuxLowerSolve(posMR, posMC, posM10R, posMC, posLR,
           posLC, halfNb, lu);
       a.fork();
+      a.join();
+
       AuxLowerSolve b = new AuxLowerSolve(posMR, posM01C, posM11R, posM11C,
           posLR, posLC, halfNb, lu);
       b.fork();
-
-      a.join();
       b.join();
     }
   }
@@ -237,11 +243,11 @@ public final class LUDecomposition extends Benchmark {
     private final int posLR;
     private final int posLC;
     private final int numOfBlocks;
-    private final LUDecomposition lu;
+    private final LUDecompositionOne lu;
 
     AuxLowerSolve(final int posMaR, final int posMaC, final int posMbR,
         final int posMbC, final int posLR, final int posLC,
-        final int numOfBlocks, final LUDecomposition lu) {
+        final int numOfBlocks, final LUDecompositionOne lu) {
       this.posMaR = posMaR;
       this.posMaC = posMaC;
       this.posMbR = posMbR;
@@ -274,10 +280,10 @@ public final class LUDecomposition extends Benchmark {
     private final int posUC;
     private final int numOfBlocks;
 
-    private final LUDecomposition lu;
+    private final LUDecompositionOne lu;
 
     UpperSolve(final int posMR, final int posMC, final int posUR,
-        final int posUC, final int numOfBlocks, final LUDecomposition lu) {
+        final int posUC, final int numOfBlocks, final LUDecompositionOne lu) {
       this.posMR = posMR;
       this.posMC = posMC;
       this.posUR = posUR;
@@ -306,11 +312,11 @@ public final class LUDecomposition extends Benchmark {
       AuxUpperSolve a = new AuxUpperSolve(posM00R, posM00C, posM01R, posM01C,
           posUR, posUC, halfNb, lu);
       a.fork();
+      a.join();
+
       AuxUpperSolve b = new AuxUpperSolve(posM10R, posM10C, posM11R, posM11C,
           posUR, posUC, halfNb, lu);
       b.fork();
-
-      a.join();
       b.join();
     }
   }
@@ -325,11 +331,11 @@ public final class LUDecomposition extends Benchmark {
     private final int posUR;
     private final int posUC;
     private final int numOfBlocks;
-    private final LUDecomposition lu;
+    private final LUDecompositionOne lu;
 
     AuxUpperSolve(final int posMaR, final int posMaC, final int posMbR,
         final int posMbC, final int posUR, final int posUC,
-        final int numOfBlocks, final LUDecomposition lu) {
+        final int numOfBlocks, final LUDecompositionOne lu) {
       this.posMaR = posMaR;
       this.posMaC = posMaC;
       this.posMbR = posMbR;
@@ -375,10 +381,10 @@ public final class LUDecomposition extends Benchmark {
 
     LowerSolve a = new LowerSolve(pos01R, pos01C, pos00R, pos00C, halfNb, this);
     a.fork();
+    a.join();
+
     UpperSolve b = new UpperSolve(pos10R, pos10C, pos00R, pos00C, halfNb, this);
     b.fork();
-
-    a.join();
     b.join();
 
     new Schur(pos11R, pos11C, pos10R, pos10C, pos01R, pos01C, halfNb, this).compute();

@@ -4,7 +4,9 @@ import java.util.concurrent.RecursiveAction;
 
 import som.Benchmark;
 
-public class NQueens extends Benchmark {
+// Parallelized, and one of the tasks is done locally.
+
+public class NQueensOpt extends Benchmark {
 	private static int[] solutions = {
 		1,
 		0,
@@ -45,8 +47,7 @@ public class NQueens extends Benchmark {
 
 	private void compute(final int size)  {
 		int[] a = new int[0];
-		NQueensTask task = nqueens(size, a, 0);
-		task.join();
+		nqueens(size, a, 0).compute();
 	}
 
 	private NQueensTask nqueens(final int size, final int[] a, final int depth) {
@@ -57,9 +58,7 @@ public class NQueens extends Benchmark {
 			return null;
 		}
 
-		NQueensTask task = new NQueensTask(this, size, a, depth);
-		task.fork();
-		return task;
+		return new NQueensTask(this, size, a, depth);
 	}
 
 	private NQueensTask kernel(final int size, final int[] a, final int depth,
@@ -103,12 +102,12 @@ public class NQueens extends Benchmark {
 	private static class NQueensTask extends RecursiveAction {
     private static final long serialVersionUID = -4319096760849183916L;
 
-    private final NQueens nqueens;
+    private final NQueensOpt nqueens;
 	  private final int size;
 	  private final int[] a;
 	  private final int depth;
 
-	  NQueensTask(final NQueens nqueens, final int size, final int[] a,
+	  NQueensTask(final NQueensOpt nqueens, final int size, final int[] a,
 	      final int depth) {
 	    this.nqueens = nqueens;
 	    this.size = size;
@@ -118,16 +117,25 @@ public class NQueens extends Benchmark {
 
 	  @Override
     protected void compute() {
-	    NQueensTask[] tasks = new NQueensTask[size];
+	    NQueensTask[] tasks = new NQueensTask[size - 1];
 
+	    int i;
 	    /* try each possible position for queen <depth> */
-	    for (int i = 0; i < size; i++) {
+	    for (i = 0; i < size - 1; i++) {
 	      NQueensTask taskOrNull = nqueens.kernel(size, a, depth, i);
+	      if (taskOrNull != null) {
+          taskOrNull.fork();
+        }
 	      tasks[i] = taskOrNull;
 	    }
 
-	    for (int i = 0; i < size; i++) {
-	      NQueensTask taskOrNull = tasks[i];
+	    NQueensTask taskOrNull = nqueens.kernel(size, a, depth, i);
+	    if (taskOrNull != null) {
+        taskOrNull.compute();
+      }
+
+	    for (i = 0; i < size - 1; i++) {
+	      taskOrNull = tasks[i];
 	      if (taskOrNull != null) {
 	        taskOrNull.join();
 	      }
