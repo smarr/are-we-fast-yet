@@ -28,13 +28,15 @@ import som.Benchmark;
  * Vivek Kumar: Ported to JavaTC work-asyncing.
  */
 
+// Parallelized, and one of the tasks is done locally
+
 /**
  * This program is a highly optimized version of the classical
  * Cooley-Tukey Fast Fourier Transform algorithm.  Some documentation can
  * be found in the source code. The program is optimized for an exact
  * power of 2.
  */
-public class FFT extends Benchmark {
+public class FFTOpt extends Benchmark {
   private static final double PI = 3.1415926535897932384626434d;
 
   private COMPLEX[] verifyOut;
@@ -158,11 +160,10 @@ public class FFT extends Benchmark {
         final int ab = (a + b) / 2;
         ComputeWCoefficients taskA = new ComputeWCoefficients(n, a, ab, W);
         taskA.fork();
-        ComputeWCoefficients taskB = new ComputeWCoefficients(n, ab + 1, b, W);
-        taskB.fork();
+
+        new ComputeWCoefficients(n, ab + 1, b, W).compute();
 
         taskA.join();
-        taskB.join();
       }
     }
   }
@@ -252,11 +253,10 @@ public class FFT extends Benchmark {
         final int ab = (a + b) / 2;
         Unshuffle unshuffleA = new Unshuffle(a, ab, startIndexInOut, in, out, r, m);
         unshuffleA.fork();
-        Unshuffle unshuffleB = new Unshuffle(ab, b, startIndexInOut, in, out, r, m);
-        unshuffleB.fork();
+
+        new Unshuffle(ab, b, startIndexInOut, in, out, r, m).compute();
 
         unshuffleA.join();
-        unshuffleB.join();
       }
     }
 	}
@@ -284,12 +284,10 @@ public class FFT extends Benchmark {
         FftTwiddleGen taskA = new FftTwiddleGen(a, i2, startIndexInOut, in,
             out, W, nW, nWdn, r, m);
         taskA.fork();
-        FftTwiddleGen taskB = new FftTwiddleGen(i2, b, startIndexInOut, in,
-            out, W, nW, nWdn, r, m);
-        taskB.fork();
+
+        new FftTwiddleGen(i2, b, startIndexInOut, in, out, W, nW, nWdn, r, m).compute();
 
         taskA.join();
-        taskB.join();
       }
     }
 
@@ -374,12 +372,10 @@ public class FFT extends Benchmark {
         FftTwiddle2 taskA = new FftTwiddle2(a, ab, startIndexInOut, in, out,
             W, nW, nWdn, m);
         taskA.fork();
-        FftTwiddle2 taskB = new FftTwiddle2(ab, b, startIndexInOut, in, out,
-            W, nW, nWdn, m);
-        taskB.fork();
+
+        new FftTwiddle2(ab, b, startIndexInOut, in, out, W, nW, nWdn, m).compute();
 
         taskA.join();
-        taskB.join();
       }
     }
 	}
@@ -406,11 +402,10 @@ public class FFT extends Benchmark {
         final int ab = (a + b) / 2;
         FftUnshuffle2 taskA = new FftUnshuffle2(a, ab, startIndexInOut, in, out, m);
         taskA.fork();
-        FftUnshuffle2 taskB = new FftUnshuffle2(ab, b, startIndexInOut, in, out, m);
-        taskB.fork();
+
+        new FftUnshuffle2(ab, b, startIndexInOut, in, out, m).compute();
 
         taskA.join();
-        taskB.join();
       }
     }
 	}
@@ -537,12 +532,10 @@ public class FFT extends Benchmark {
 	      FftTwiddle4 taskA = new FftTwiddle4(a, ab, startIndexInOut, in, out,
 	          W, nW, nWdn, m);
 	      taskA.fork();
-	      FftTwiddle4 taskB = new FftTwiddle4(ab, b, startIndexInOut, in, out,
-	          W, nW, nWdn, m);
-	      taskB.fork();
+
+	      new FftTwiddle4(ab, b, startIndexInOut, in, out, W, nW, nWdn, m).compute();
 
 	      taskA.join();
-	      taskB.join();
 	    }
 	  }
 	}
@@ -573,11 +566,10 @@ public class FFT extends Benchmark {
 	      final int ab = (a + b) / 2;
 	      FftUnshuffle4 taskA = new FftUnshuffle4(a, ab, startIndexInOut, in, out, m);
 	      taskA.fork();
-	      FftUnshuffle4 taskB = new FftUnshuffle4(ab, b, startIndexInOut, in, out, m);
-	      taskB.fork();
+
+	      new FftUnshuffle4(ab, b, startIndexInOut, in, out, m).compute();
 
 	      taskA.join();
-	      taskB.join();
 	    }
 	  }
 	}
@@ -874,11 +866,10 @@ public class FFT extends Benchmark {
 	      final int ab = (a + b) / 2;
 	      FftTwiddle8 taskA = new FftTwiddle8(a, ab, startIndexInOut, in, out, W, nW, nWdn, m);
 	      taskA.fork();
-	      FftTwiddle8 taskB = new FftTwiddle8(ab, b, startIndexInOut, in, out, W, nW, nWdn, m);
-	      taskB.fork();
+
+	      new FftTwiddle8(ab, b, startIndexInOut, in, out, W, nW, nWdn, m).compute();
 
 	      taskA.join();
-	      taskB.join();
 	    }
 	  }
 	}
@@ -918,12 +909,10 @@ public class FFT extends Benchmark {
         FftUnshuffle8 taskA = new FftUnshuffle8(
             a, ab, startIndexInOut, in, out, m);
         taskA.fork();
-        FftUnshuffle8 taskB = new FftUnshuffle8(
-            ab, b, startIndexInOut, in, out, m);
-        taskB.fork();
+
+        new FftUnshuffle8(ab, b, startIndexInOut, in, out, m).compute();
 
         taskA.join();
-        taskB.join();
       }
     }
   }
@@ -1636,11 +1625,10 @@ public class FFT extends Benchmark {
         final int ab = (a + b) / 2;
         FftTwiddle16 taskA = new FftTwiddle16(a, ab, startIndexInOut, in, out, W, nW, nWdn, m);
         taskA.fork();
-        FftTwiddle16 taskB = new FftTwiddle16(ab, b, startIndexInOut, in, out, W, nW, nWdn, m);
-        taskB.fork();
+
+        new FftTwiddle16(ab, b, startIndexInOut, in, out, W, nW, nWdn, m).compute();
 
         taskA.join();
-        taskB.join();
       }
     }
 	}
@@ -1695,11 +1683,10 @@ public class FFT extends Benchmark {
 	      final int ab = (a + b) / 2;
 	      FftUnshuffle16 taskA = new FftUnshuffle16(a, ab, startIndexInOut, in, out, m);
 	      taskA.fork();
-	      FftUnshuffle16 taskB = new FftUnshuffle16(ab, b, startIndexInOut, in, out, m);
-	      taskB.fork();
+
+	      new FftUnshuffle16(ab, b, startIndexInOut, in, out, m).compute();
 
 	      taskA.join();
-	      taskB.join();
 	    }
 	  }
 	}
@@ -3466,11 +3453,10 @@ public class FFT extends Benchmark {
   			final int ab = (a + b) / 2;
   			FftTwiddle32 taskA = new FftTwiddle32(a, ab, startIndexInOut, in, out, W, nW, nWdn, m);
   			taskA.fork();
-  			FftTwiddle32 taskB = new FftTwiddle32(ab, b, startIndexInOut, in, out, W, nW, nWdn, m);
-  			taskB.fork();
+
+  			new FftTwiddle32(ab, b, startIndexInOut, in, out, W, nW, nWdn, m).compute();
 
   			taskA.join();
-  			taskB.join();
   		}
   	}
   }
@@ -3557,11 +3543,10 @@ public class FFT extends Benchmark {
   			final int ab = (a + b) / 2;
   			FftUnshuffle32 taskA = new FftUnshuffle32(a, ab, startIndexInOut, in, out, m);
   			taskA.fork();
-  			FftUnshuffle32 taskB = new FftUnshuffle32(ab, b, startIndexInOut, in, out, m);
-  			taskB.fork();
+
+  			new FftUnshuffle32(ab, b, startIndexInOut, in, out, m).compute();
 
   			taskA.join();
-  			taskB.join();
   		}
   	}
 	}
@@ -3631,14 +3616,17 @@ public class FFT extends Benchmark {
           new Unshuffle(0, m, startIndexInOut, in, out, r, m).compute();
         }
 
-        FftAux[] tasks = new FftAux[r];
+        FftAux[] tasks = new FftAux[r - 1];
 
-        for (int k = 0, i = 0; k < n; k += m, i++) {
+        int k = 0;
+        for (int i = 0; k < n - m; k += m, i++) {
           tasks[i] = new FftAux(m, startIndexInOut + k, out, in, posFactors + 1, factors, W, nW);
           tasks[i].fork();
         }
 
-        for (int i = 0; i < r; i++) {
+        new FftAux(m, startIndexInOut + k, out, in, posFactors + 1, factors, W, nW).compute();
+
+        for (int i = 0; i < r - 1; i++) {
           tasks[i].join();
         }
       }
