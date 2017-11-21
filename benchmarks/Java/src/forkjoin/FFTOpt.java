@@ -28,7 +28,7 @@ import som.Benchmark;
  * Vivek Kumar: Ported to JavaTC work-asyncing.
  */
 
-// Parallelized, and one of the tasks is done locally
+// Parallelized, and one of the tasks is done locally.
 
 /**
  * This program is a highly optimized version of the classical

@@ -4,7 +4,9 @@ import java.util.concurrent.RecursiveTask;
 
 import som.Benchmark;
 
-public final class Fib extends Benchmark {
+// Parallelized, but no local work.
+
+public final class FibNai extends Benchmark {
   private static final int N = 40;
 
 	private static final int[] RESULTS = {
