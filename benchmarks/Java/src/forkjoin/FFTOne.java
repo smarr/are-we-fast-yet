@@ -28,7 +28,7 @@ import som.Benchmark;
  * Vivek Kumar: Ported to JavaTC work-asyncing.
  */
 
-// Only one active task at any given time
+// Only one active task at any given time.
 
 /**
  * This program is a highly optimized version of the classical

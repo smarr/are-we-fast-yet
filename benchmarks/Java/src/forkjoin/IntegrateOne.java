@@ -4,6 +4,8 @@ import java.util.concurrent.RecursiveTask;
 
 import som.Benchmark;
 
+// Only one active task at any given time.
+
 /**
  * Source: From X10 distribution
  *
@@ -18,7 +20,7 @@ import som.Benchmark;
  *
  * (C) Copyright IBM Corporation 2006-2016.
  */
-public final class Integrate extends Benchmark {
+public final class IntegrateOne extends Benchmark {
 
   private final static double EPSILON = 1.0e-9;
 
@@ -82,9 +84,9 @@ public final class Integrate extends Benchmark {
       }
 
       ComputeArea task1 = new ComputeArea(c, fc, r, fr, ar); task1.fork();
-      ComputeArea task2 = new ComputeArea(l, fl, c, fc, al); task2.fork();
-
       double expr1 = task1.join();
+
+      ComputeArea task2 = new ComputeArea(l, fl, c, fc, al); task2.fork();
       double expr2 = task2.join();
 
       return expr1 + expr2;

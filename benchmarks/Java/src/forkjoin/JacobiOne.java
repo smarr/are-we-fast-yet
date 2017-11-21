@@ -10,10 +10,12 @@ import som.Benchmark;
  * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
+// Only one active task at any given time.
+
 /*
  * Vivek Kumar: Ported to JavaTC work-asyncing.
  */
-public final class Jacobi extends Benchmark {
+public final class JacobiOne extends Benchmark {
 
   // Assuming STEPS==10 and DEFAULT_GRANULARITY==2
   private final static double[] result_1024_10_2    = { 0.03532437858581544D,
@@ -117,17 +119,19 @@ public final class Jacobi extends Benchmark {
       } else if (hrows * hcols >= leafs) {
         BuildNode task1 = new BuildNode(a, b, lr, mr, lc, mc, leafs, steps);
         task1.fork();
+        double df1 = task1.join();
+
         BuildNode task2 = new BuildNode(a, b, lr, mr, mc + 1, hc, leafs, steps);
         task2.fork();
+        double df2 = task2.join();
+
         BuildNode task3 = new BuildNode(a, b, mr + 1, hr, lc, mc, leafs, steps);
         task3.fork();
+        double df3 = task3.join();
+
         BuildNode task4 = new BuildNode(a, b, mr + 1, hr, mc + 1, hc, leafs,
             steps);
         task4.fork();
-
-        double df1 = task1.join();
-        double df2 = task2.join();
-        double df3 = task3.join();
         double df4 = task4.join();
 
         return ((((df1 > df2) ? df1 : df2) > df3 ? ((df1 > df2) ? df1 : df2)
@@ -138,20 +142,20 @@ public final class Jacobi extends Benchmark {
       } else if (cols >= rows) {
         BuildNode task1 = new BuildNode(a, b, lr, hr, lc, mc, leafs, steps);
         task1.fork();
+        double df1 = task1.join();
+
         BuildNode task2 = new BuildNode(a, b, lr, hr, mc + 1, hc, leafs, steps);
         task2.fork();
-
-        double df1 = task1.join();
         double df2 = task2.join();
 
         return ((df1 > df2) ? df1 : df2);
       } else {
         BuildNode task1 = new BuildNode(a, b, lr, mr, lc, hc, leafs, steps);
         task1.fork();
+        double df1 = task1.join();
+
         BuildNode task2 = new BuildNode(a, b, mr + 1, hr, lc, hc, leafs, steps);
         task2.fork();
-
-        double df1 = task1.join();
         double df2 = task2.join();
 
         return ((df1 > df2) ? df1 : df2);
