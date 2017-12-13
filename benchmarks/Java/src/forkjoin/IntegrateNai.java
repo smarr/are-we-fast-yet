@@ -44,6 +44,7 @@ public final class IntegrateNai extends Benchmark {
     if (xMax == 5000)  { return area == 1.562500125E14; }
     if (xMax == 2500)  { return area == 9.765628125000004E12; }
     if (xMax == 1000)  { return area == 2.50000500000001E11; }
+    if (xMax == 60)    { return area == 3241800.000019885; }
 
     System.out.println("No expected result for area=" + area);
     return false;
@@ -86,13 +87,13 @@ public final class IntegrateNai extends Benchmark {
         return alr;
       }
 
-      ComputeArea task1 = new ComputeArea(c, fc, r, fr, ar); task1.fork();
-      ComputeArea task2 = new ComputeArea(l, fl, c, fc, al); task2.fork();
+      ComputeArea taskR = new ComputeArea(c, fc, r, fr, ar); taskR.fork();
+      ComputeArea taskL = new ComputeArea(l, fl, c, fc, al); taskL.fork();
 
-      double expr1 = task1.join();
-      double expr2 = task2.join();
+      double right = taskR.join();
+      double left = taskL.join();
 
-      return expr1 + expr2;
+      return right + left;
     }
   }
 }

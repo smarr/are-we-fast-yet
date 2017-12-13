@@ -44,6 +44,7 @@ public final class IntegrateSeq extends Benchmark {
     if (xMax == 5000)  { return area == 1.562500125E14; }
     if (xMax == 2500)  { return area == 9.765628125000004E12; }
     if (xMax == 1000)  { return area == 2.50000500000001E11; }
+    if (xMax == 60)    { return area == 3241800.000019885; }
 
     System.out.println("No expected result for area=" + area);
     return false;
@@ -86,10 +87,10 @@ public final class IntegrateSeq extends Benchmark {
         return alr;
       }
 
-      double expr1 = new ComputeArea(c, fc, r, fr, ar).compute();
-      double expr2 = new ComputeArea(l, fl, c, fc, al).compute();
+      double right = new ComputeArea(c, fc, r, fr, ar).compute();
+      double left = new ComputeArea(l, fl, c, fc, al).compute();
 
-      return expr1 + expr2;
+      return right + left;
     }
   }
 }
