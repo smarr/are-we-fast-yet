@@ -51,7 +51,7 @@ public final class JacobiOpt extends Benchmark {
       b[n + 1][k] = 1.0d;
     }
 
-    double df = 0.0D;
+    double df = 0.0d;
     for (int x = 0; x < STEPS; ++x) {
       df = new BuildNode(a, b, 1, n, 1, n, DEFAULT_GRANULARITY, x).compute();
     }
@@ -130,19 +130,16 @@ public final class JacobiOpt extends Benchmark {
         double df2 = task2.join();
         double df3 = task3.join();
 
-        return ((((df1 > df2) ? df1 : df2) > df3 ? ((df1 > df2) ? df1 : df2)
-            : df3) > df4)
-                ? (((df1 > df2) ? df1 : df2) > df3 ? ((df1 > df2) ? df1 : df2)
-                    : df3)
-                : df4;
+        double max12 = df1 > df2 ? df1 : df2;
+        double max123 = max12 > df3 ? max12 : df3;
+        return max123 > df4 ? max123 : df4;
       } else if (cols >= rows) {
         BuildNode task1 = new BuildNode(a, b, lr, hr, lc, mc, leafs, steps);
         task1.fork();
-
         double df2 = new BuildNode(a, b, lr, hr, mc + 1, hc, leafs, steps).compute();
         double df1 = task1.join();
 
-        return ((df1 > df2) ? df1 : df2);
+        return df1 > df2 ? df1 : df2;
       } else {
         BuildNode task1 = new BuildNode(a, b, lr, mr, lc, hc, leafs, steps);
         task1.fork();
@@ -150,7 +147,7 @@ public final class JacobiOpt extends Benchmark {
         double df2 = new BuildNode(a, b, mr + 1, hr, lc, hc, leafs, steps).compute();
         double df1 = task1.join();
 
-        return ((df1 > df2) ? df1 : df2);
+        return df1 > df2 ? df1 : df2;
       }
     }
   }
@@ -167,7 +164,8 @@ public final class JacobiOpt extends Benchmark {
     for (int i = loRow; i <= hiRow; ++i) {
       for (int j = loCol; j <= hiCol; ++j) {
         double v = 0.25d
-            * (a[i - 1][j] + a[i][j - 1] + a[i + 1][j] + a[i][j + 1]);
+            * (a[i - 1][j] + a[i][j - 1] +
+               a[i + 1][j] + a[i][j + 1]);
         b[i][j] = v;
 
         double diff = v - a[i][j];
