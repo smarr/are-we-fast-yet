@@ -234,11 +234,11 @@ public final class UTSSeq extends Benchmark {
   public class Node {
 
     // Node State
-    SHA1Generator state;
+    private final SHA1Generator state;
 
-    int type;
-    int height;
-    int nChildren;
+    private final int type;
+    private final int height;
+    private int nChildren;
 
     // misc constants
     static final double TWO_PI         = 2.0 * Math.PI;
@@ -255,9 +255,11 @@ public final class UTSSeq extends Benchmark {
 
     /** child constructor: count the nodes as they are created. */
     Node(final Node parent, final int spawn) {
+      SHA1Generator s = null;
       for (int j = 0; j < computeGran; j++) {
-        state = new SHA1Generator(parent.state, spawn);
+        s = new SHA1Generator(parent.state, spawn);
       }
+      state = s;
 
       type = parent.childType();
       height = parent.height + 1;
@@ -284,7 +286,7 @@ public final class UTSSeq extends Benchmark {
       }
       if (height == 0 && type == BIN) { // only BIN root can have more than
                                         // MAXNUMCHILDREN
-        int rootBF = (int) Math.ceil(b0);
+        int rootBF = (int) b0;
         if (nChildren > rootBF) {
           System.out.println("*** Number of children of root truncated from "
               + nChildren + " to " + rootBF);
@@ -304,7 +306,7 @@ public final class UTSSeq extends Benchmark {
     int numChildren_bin() {
       int nc;
       if (height == 0) {
-        nc = (int) Math.floor(b0);
+        nc = (int) b0;
       } else if (rng_toProb(state.rand()) < nonLeafProb) {
         nc = nonLeafBF;
       } else {
@@ -341,7 +343,7 @@ public final class UTSSeq extends Benchmark {
       double p = 1.0 / (1.0 + b_i); // probability corresponding to target b_i
       int h = state.rand();
       double u = rng_toProb(h); // get uniform random number on [0,1)
-      int nChildren = (int) Math.floor(Math.log(1.0 - u) / Math.log(1.0 - p));
+      int nChildren = (int) (Math.log(1.0 - u) / Math.log(1.0 - p));
       // return max number of children at this cumulative probability
       return nChildren;
     }
@@ -383,20 +385,17 @@ public final class UTSSeq extends Benchmark {
     private final static int SHA1_DIGEST_SIZE = 20;
 
     // internal rng state
-    private byte[] state = new byte[SHA1_DIGEST_SIZE]; // 160 bit output
+    private final byte[] state = new byte[SHA1_DIGEST_SIZE]; // 160 bit output
                                                        // representation
 
     // new rng from seed
     public SHA1Generator(final int seedarg) {
       byte[] seedstate = new byte[20];
-      for (int i = 0; i < 16; i++) {
-        seedstate[i] = 0;
-      }
       seedstate[16] = (byte) (LOWBYTE & (seedarg >>> 24));
       seedstate[17] = (byte) (LOWBYTE & (seedarg >>> 16));
       seedstate[18] = (byte) (LOWBYTE & (seedarg >>> 8));
       seedstate[19] = (byte) (LOWBYTE & (seedarg));
-      SHA1compiler sha1 = new SHA1compiler();
+      SHA1Compiler sha1 = new SHA1Compiler();
       sha1.hash(seedstate, 20);
       sha1.digest(state);
     }
@@ -408,7 +407,7 @@ public final class UTSSeq extends Benchmark {
       seedstate[1] = (byte) (LOWBYTE & (spawnnumber >>> 16));
       seedstate[2] = (byte) (LOWBYTE & (spawnnumber >>> 8));
       seedstate[3] = (byte) (LOWBYTE & (spawnnumber));
-      SHA1compiler sha1 = new SHA1compiler();
+      SHA1Compiler sha1 = new SHA1Compiler();
       sha1.hash(parent.state, 20);
       sha1.hash(seedstate, 4);
       sha1.digest(state);
@@ -426,7 +425,7 @@ public final class UTSSeq extends Benchmark {
     CH, MAJ, PARITY
   }
 
-  private static final class SHA1compiler {
+  private static final class SHA1Compiler {
 
     // internal constants
     private final static int SHA1_DIGEST_SIZE = 20;
@@ -434,19 +433,19 @@ public final class UTSSeq extends Benchmark {
     private final static int SHA1_MASK        = SHA1_BLOCK_SIZE - 1;
 
     // internal rng state
-    private int[] digest   = new int[SHA1_DIGEST_SIZE / 4]; // 160 bit internal
+    private final int[] digest   = new int[SHA1_DIGEST_SIZE / 4]; // 160 bit internal
                                                             // representation
-    private int[] msgblock = new int[SHA1_BLOCK_SIZE / 4];  // 64 byte internal
+    private final int[] msgblock = new int[SHA1_BLOCK_SIZE / 4];  // 64 byte internal
                                                             // working buffer
     private long  count    = 0;                             // 64 bit counter of
                                                             // bytes processed
 
-    SHA1compiler() {
-      digest[0] = (int) 0x67452301l;
-      digest[1] = (int) 0xefcdab89l;
-      digest[2] = (int) 0x98badcfel;
-      digest[3] = (int) 0x10325476l;
-      digest[4] = (int) 0xc3d2e1f0l;
+    SHA1Compiler() {
+      digest[0] = 0x67452301;
+      digest[1] = 0xefcdab89;
+      digest[2] = 0x98badcfe;
+      digest[3] = 0x10325476;
+      digest[4] = 0xc3d2e1f0;
     }
 
     public final void hash(final byte[] data, final int length) {
@@ -482,8 +481,8 @@ public final class UTSSeq extends Benchmark {
       // how many bytes already in msgblock[]?
       int i = (int) (count & SHA1_MASK);
 
-      msgblock[i >> 2] &= (int) (0xffffff80l << 8 * (~i & 3));
-      msgblock[i >> 2] |= (int) (0x00000080l << 8 * (~i & 3));
+      msgblock[i >> 2] &= 0xffffff80 << 8 * (~i & 3);
+      msgblock[i >> 2] |= 0x00000080 << 8 * (~i & 3);
 
       if (i > SHA1_BLOCK_SIZE - 9) {
         if (i < 60) {
