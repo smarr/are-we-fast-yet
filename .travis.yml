@@ -37,6 +37,7 @@ matrix:
           packages:
             - python-scipy
             - python-yaml
+            - pypy
             - libsdl2-2.0-0
             - libffi6
     - env: PLANG=ruby
