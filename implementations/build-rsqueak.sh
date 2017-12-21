@@ -21,9 +21,9 @@ popd
 INFO Build RSqueak
 
 export SDL_VIDEODRIVER=dummy
-pushd $SCRIPT_PATH/RSqueak/.build
-python ./download_dependencies.py
-pypy   ./build.py --batch
+pushd $SCRIPT_PATH/RSqueak
+python .build/download_dependencies.py
+pypy   .build/build.py --batch
 popd
 
 if [ ! -e "$SCRIPT_PATH/../benchmarks/Smalltalk/RSqueak.image" ]; then
