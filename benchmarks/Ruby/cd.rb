@@ -292,7 +292,7 @@ class RedBlackTree
     node.value
   end
 
-  def for_each ## &block
+  def for_each
     return unless @root
 
     current = tree_minimum(@root)

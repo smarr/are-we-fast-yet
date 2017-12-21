@@ -140,7 +140,7 @@ class Planner
     edit_constraint.destroy_constraint(self)
   end
 
-  def constraints_consuming(v) # &block
+  def constraints_consuming(v)
     determining_c = v.determined_by
     v.constraints.each do |c|
       yield c if c != determining_c && c.is_satisfied
@@ -447,7 +447,7 @@ class BinaryConstraint < AbstractConstraint
     end
   end
 
-  def inputs_do # &block
+  def inputs_do
     if @direction == :forward
       yield @v1
     else
@@ -455,7 +455,7 @@ class BinaryConstraint < AbstractConstraint
     end
   end
 
-  def inputs_has_one # &block
+  def inputs_has_one
     if @direction == :forward
       yield @v1
     else
@@ -599,7 +599,7 @@ class ScaleConstraint < BinaryConstraint
     end
   end
 
-  def inputs_do # &block
+  def inputs_do
     if @direction == :forward
       yield @v1
       yield @scale
