@@ -35,6 +35,7 @@ matrix:
       addons:
         apt:
           packages:
+            - pypy
             - python-scipy
             - python-yaml
             - libsdl2-2.0-0
