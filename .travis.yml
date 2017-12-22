@@ -8,6 +8,7 @@ git:
   submodules: false
 
 matrix:
+  fast_finish: true
   include:
     - env: PLANG=crystal
       language: crystal
@@ -51,6 +52,8 @@ matrix:
             - lua5.1
             - lua5.2
             - luarocks
+  allow_failures:
+    - env: PLANG=rsqueak
 
 install:
   - pip install --user ReBench
