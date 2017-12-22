@@ -87,7 +87,7 @@ class Vector
     @last_idx == @first_idx
   end
 
-  def each # &block
+  def each
     (@first_idx..(@last_idx - 1)).each do |i|
       yield @storage[i]
     end
@@ -156,7 +156,7 @@ class Vector
     sort_range(@first_idx, @last_idx - 1, &block) if size > 0
   end
 
-  def sort_range(i, j) # &block
+  def sort_range(i, j)
     # Sort elements i through j of self to be non-descending
     # according to sortBlock.
     default_sort(i, j) unless block_given?
@@ -245,7 +245,7 @@ class Set
     @items.append(obj) unless contains(obj)
   end
 
-  def collect # &block
+  def collect
     coll = Vector.new
     each { |e| coll.append(yield e) }
     coll

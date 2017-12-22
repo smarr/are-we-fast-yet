@@ -15,7 +15,7 @@
 	url = https://github.com/topazproject/topaz
 [submodule "implementations/RSqueak"]
 	path = implementations/RSqueak
-	url = https://github.com/HPI-SWA-Lab/RSqueak.git
+	url = https://github.com/smarr/RSqueak.git
 [submodule "implementations/SOM"]
 	path = implementations/SOM
 	url = https://github.com/SOM-st/som-java.git

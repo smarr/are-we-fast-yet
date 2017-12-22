@@ -12,7 +12,7 @@ Style/UnlessElse:
 Style/Next:
   Enabled: false
 
-Style/PredicateName:
+Naming/PredicateName:
   Enabled: false
 
 Style/IfInsideElse:
@@ -62,20 +62,17 @@ Style/YodaCondition:
 Style/ZeroLengthPredicate:
   Enabled: false
 
-Style/AccessorMethodName:
+Naming/AccessorMethodName:
   Enabled: false
 
-Style/SpaceInsideBrackets:
+Layout/SpaceInsideParens:
   Enabled: false
 
-Style/SpaceInsideParens:
-  Enabled: false
-
-Style/AlignParameters:
+Layout/AlignParameters:
   Exclude:
     - 'nbody.rb'
 
-Style/MultilineOperationIndentation:
+Layout/MultilineOperationIndentation:
   Exclude:
     - 'nbody.rb'
 
@@ -100,7 +97,7 @@ Lint/Loop:
   Exclude:
     - 'json.rb'
 
-Style/ExtraSpacing:
+Layout/ExtraSpacing:
   Exclude:
     - 'havlak.rb'
     - 'deltablue.rb'
@@ -108,7 +105,7 @@ Style/ExtraSpacing:
     - 'mandelbrot.rb'
     - 'nbody.rb'
 
-Style/SpaceAroundOperators:
+Layout/SpaceAroundOperators:
   Exclude:
     - 'havlak.rb'
     - 'cd.rb'
@@ -120,7 +117,7 @@ Style/PerlBackrefs:
     - 'harness.rb'
     - 'harness-rbx.rb'
 
-Style/FileName:
+Naming/FileName:
   Exclude:
     - 'harness-rbx.rb'
 
@@ -136,3 +133,12 @@ Style/NestedTernaryOperator:
 Lint/UselessComparison:
   Exclude:
     - 'cd.rb'
+
+Layout/SpaceInsideReferenceBrackets:
+  Enabled: false
+
+Style/OrAssignment:
+  Enabled: false
+
+Performance/HashEachMethods:
+  Enabled: false

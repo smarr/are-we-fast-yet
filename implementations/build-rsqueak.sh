@@ -21,9 +21,17 @@ popd
 INFO Build RSqueak
 
 export SDL_VIDEODRIVER=dummy
-pushd $SCRIPT_PATH/RSqueak/.build
-python ./download_dependencies.py
-pypy   ./build.py --batch
+pushd $SCRIPT_PATH/RSqueak
+
+if [ ! -e "$SCRIPT_PATH/pypy2-v5.9.0-linux64.tar.bz2" ]; then
+  INFO Get PyPy
+  get_web_getter
+  $GET https://bitbucket.org/pypy/pypy/downloads/pypy2-v5.9.0-linux64.tar.bz2
+  tar xf pypy2-v5.9.0-linux64.tar.bz2
+fi
+
+python .build/download_dependencies.py
+pypy2-v5.9.0-linux64/bin/pypy   .build/build.py --batch
 popd
 
 if [ ! -e "$SCRIPT_PATH/../benchmarks/Smalltalk/RSqueak.image" ]; then
