@@ -71,6 +71,7 @@ class CDSuite usingPlatform: platform andHarness: harness = (
       numAircrafts = 1000 ifTrue: [ ^ actualCollisions = 14484 ].
       numAircrafts =  500 ifTrue: [ ^ actualCollisions = 14484 ].
       numAircrafts =  250 ifTrue: [ ^ actualCollisions = 10830 ].
+      numAircrafts =  200 ifTrue: [ ^ actualCollisions =  8655 ].
       numAircrafts =  100 ifTrue: [ ^ actualCollisions =  4305 ].
       numAircrafts =   10 ifTrue: [ ^ actualCollisions =   390 ].
       
