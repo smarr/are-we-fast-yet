@@ -66,41 +66,49 @@ import som.Random;
 // Parallelized, and one of the tasks is done locally
 
 /**
- * Cilksort is a parallel sorting algorithm, donned "Multisort", which
- * is a variant of ordinary mergesort.  Multisort begins by dividing an
- * array of elements in half and sorting each half.  It then merges the
- * two sorted halves back together, but in a divide-and-conquer approach
- * rather than the usual serial merge.
+ * Cilksort is a parallel sorting algorithm, donned "Multisort", which is a
+ * variant of ordinary mergesort. Multisort begins by dividing an array of
+ * elements in half and sorting each half. It then merges the two sorted halves
+ * back together, but in a divide-and-conquer approach rather than the usual
+ * serial merge.
  */
 public final class CilkSortOpt extends Benchmark {
-	private static final int KILO = 1024;
-	private static final int MERGESIZE = (2 * KILO);
-	private static final int QUICKSIZE = (2 * KILO);
 
-	private static final int SIZE = 10_000_000;
+  private static final int KILO      = 1024;
+  private static final int MERGESIZE = (2 * KILO);
+  private static final int QUICKSIZE = (2 * KILO);
 
-	@Override
+  @Override
   public Object benchmark() {
-    int[] array = new int[SIZE];
-    int[] tmp = new int[SIZE];
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean innerBenchmarkLoop(final int n) {
+    int size = n * 10_000;
+    int[] array = new int[size];
+    int[] tmp = new int[size];
 
     Random r = new Random();
-    for (int i = 0; i < SIZE; i++) {
+    for (int i = 0; i < size; i++) {
       array[i] = r.next();
     }
 
-    new Sort(array, tmp, 0, 0, SIZE).compute();
-    return array;
-	}
+    new Sort(array, tmp, 0, 0, size).compute();
+    return verifyResult(array);
+  }
 
   @Override
-  public boolean verifyResult(final Object result) {
-    int[] array = (int[]) result;
+  public boolean verifyResult(final Object r) {
+    throw new UnsupportedOperationException();
+  }
+
+  private boolean verifyResult(final int[] array) {
     int a = 0;
     int b;
     boolean ok = true;
 
-    for (int k = 0; k < SIZE; k++) {
+    for (int k = 0; k < array.length; k++) {
       b = array[k];
       ok &= a <= b;
       a = b;
@@ -109,80 +117,82 @@ public final class CilkSortOpt extends Benchmark {
     return ok;
   }
 
-	private static void seqmerge(int low1, final int high1, int low2, final int high2, int lowdest, final int[] src, final int[] dest) {
-		int a1;
-		int a2;
-		if (low1 < high1 && low2 < high2) {
-			a1 = src[low1];
-			a2 = src[low2];
+  private static void seqmerge(int low1, final int high1, int low2,
+      final int high2, int lowdest, final int[] src, final int[] dest) {
+    int a1;
+    int a2;
+    if (low1 < high1 && low2 < high2) {
+      a1 = src[low1];
+      a2 = src[low2];
 
-			for (;;) {
-				if (a1 < a2) {
-					dest[lowdest++] = a1;
-					a1 = src[++low1];
-					if (low1 >= high1) {
+      for (;;) {
+        if (a1 < a2) {
+          dest[lowdest++] = a1;
+          a1 = src[++low1];
+          if (low1 >= high1) {
             break;
           }
-				}
-				else {
-					dest[lowdest++] = a2;
-					a2 = dest[++low2];
-					if (low2 >= high2) {
+        } else {
+          dest[lowdest++] = a2;
+          a2 = dest[++low2];
+          if (low2 >= high2) {
             break;
           }
-				}
-			}
-		}
+        }
+      }
+    }
 
-		if (low1 <= high1 && low2 <= high2) {
-			a1 = src[low1];
-			a2 = src[low2];
+    if (low1 <= high1 && low2 <= high2) {
+      a1 = src[low1];
+      a2 = src[low2];
 
-			for (;;) {
-				if (a1 < a2) {
-					dest[lowdest++] = a1;
-					++low1;
-					if (low1 > high1) {
+      for (;;) {
+        if (a1 < a2) {
+          dest[lowdest++] = a1;
+          ++low1;
+          if (low1 > high1) {
             break;
           }
-					a1 = src[low1];
-				} else {
-					dest[lowdest++] = a2;
-					++low2;
-					if (low2 > high2) {
+          a1 = src[low1];
+        } else {
+          dest[lowdest++] = a2;
+          ++low2;
+          if (low2 > high2) {
             break;
           }
-					a2 = src[low2];
-				}
-			}
-		}
+          a2 = src[low2];
+        }
+      }
+    }
 
-		if (low1 > high1) {
-			System.arraycopy(src, low2, dest, lowdest, (high2 - low2 + 1));
-		} else {
-			System.arraycopy(src, low1, dest, lowdest, (high1 - low1 + 1));
-		}
-	}
+    if (low1 > high1) {
+      System.arraycopy(src, low2, dest, lowdest, (high2 - low2 + 1));
+    } else {
+      System.arraycopy(src, low1, dest, lowdest, (high1 - low1 + 1));
+    }
+  }
 
-	private static int binsplit(final int val, int low, int high, final int[] src) {
-		int mid;
-		while (low != high){
-			mid = low + ((high - low + 1) >> 1);
-			if (val <= src[mid]) {
+  private static int binsplit(final int val, int low, int high,
+      final int[] src) {
+    int mid;
+    while (low != high) {
+      mid = low + ((high - low + 1) >> 1);
+      if (val <= src[mid]) {
         high = mid - 1;
       } else {
         low = mid;
       }
-		}
+    }
 
-		if (src[low] > val) {
+    if (src[low] > val) {
       return low - 1;
     } else {
       return low;
     }
-	}
+  }
 
-	private static class Sort extends RecursiveAction {
+  private static class Sort extends RecursiveAction {
+
     private static final long serialVersionUID = 4210346684339668520L;
 
     private final int low;
@@ -192,7 +202,8 @@ public final class CilkSortOpt extends Benchmark {
     private final int[] array;
     private final int[] tmp;
 
-    Sort(final int[] array, final int[] tmp, final int low, final int tmpx, final int size) {
+    Sort(final int[] array, final int[] tmp, final int low, final int tmpx,
+        final int size) {
       this.low = low;
       this.tmpx = tmpx;
       this.size = size;
@@ -219,9 +230,12 @@ public final class CilkSortOpt extends Benchmark {
       int D = C + quarter;
       int tmpD = tmpC + quarter;
 
-      Sort taskA = new Sort(array, tmp, A, tmpA, quarter); taskA.fork();
-      Sort taskB = new Sort(array, tmp, B, tmpB, quarter); taskB.fork();
-      Sort taskC = new Sort(array, tmp, C, tmpC, quarter); taskC.fork();
+      Sort taskA = new Sort(array, tmp, A, tmpA, quarter);
+      taskA.fork();
+      Sort taskB = new Sort(array, tmp, B, tmpB, quarter);
+      taskB.fork();
+      Sort taskC = new Sort(array, tmp, C, tmpC, quarter);
+      taskC.fork();
       new Sort(array, tmp, D, tmpD, size - 3 * quarter).compute();
 
       taskA.join();
@@ -232,7 +246,8 @@ public final class CilkSortOpt extends Benchmark {
           array, tmp);
       mergeA.fork();
 
-      new Merge(C, C + quarter - 1, D, low + size - 1, tmpC, array, tmp).compute();
+      new Merge(C, C + quarter - 1, D, low + size - 1, tmpC, array, tmp)
+          .compute();
 
       mergeA.join();
 
@@ -244,7 +259,7 @@ public final class CilkSortOpt extends Benchmark {
       int j = right;
       int tmpx;
       int pivot = array[(left + right) / 2];
-      while (i <= j){
+      while (i <= j) {
         while (array[i] < pivot) {
           i++;
         }
@@ -272,29 +287,30 @@ public final class CilkSortOpt extends Benchmark {
         quicksort(index, right);
       }
     }
-	}
+  }
 
-	private static class Merge extends RecursiveAction {
+  private static class Merge extends RecursiveAction {
+
     private static final long serialVersionUID = -6933250566167176280L;
 
-    private int low1;
-	  private int high1;
-	  private int low2;
-	  private int high2;
-	  private final int lowdest;
-	  private final int[] src;
-	  private final int[] dest;
+    private int         low1;
+    private int         high1;
+    private int         low2;
+    private int         high2;
+    private final int   lowdest;
+    private final int[] src;
+    private final int[] dest;
 
-	  Merge(final int low1, final int high1, final int low2, final int high2,
-	      final int lowdest, final int[] src, final int[] dest) {
-	    this.low1    = low1;
-	    this.high1   = high1;
-	    this.low2    = low2;
-	    this.high2   = high2;
-	    this.lowdest = lowdest;
-	    this.src  = src;
-	    this.dest = dest;
-	  }
+    Merge(final int low1, final int high1, final int low2, final int high2,
+        final int lowdest, final int[] src, final int[] dest) {
+      this.low1 = low1;
+      this.high1 = high1;
+      this.low2 = low2;
+      this.high2 = high2;
+      this.lowdest = lowdest;
+      this.src = src;
+      this.dest = dest;
+    }
 
     @Override
     protected void compute() {
@@ -322,7 +338,7 @@ public final class CilkSortOpt extends Benchmark {
 
       if (high2 - low2 < MERGESIZE) {
         seqmerge(low1, high1, low2, high2, lowdest, dest, src);
-        return ;
+        return;
       }
 
       split1 = ((high1 - low1 + 1) / 2) + low1;
@@ -330,12 +346,14 @@ public final class CilkSortOpt extends Benchmark {
       lowsize = split1 - low1 + split2 - low2;
       dest[(lowdest + lowsize + 1)] = src[split1];
 
-      Merge mergeA = new Merge(low1, split1 - 1, low2, split2, lowdest, src, dest);
+      Merge mergeA = new Merge(low1, split1 - 1, low2, split2, lowdest, src,
+          dest);
       mergeA.fork();
 
-      new Merge(split1 + 1, high1, split2 + 1, high2, lowdest + lowsize + 2, src, dest).compute();
+      new Merge(split1 + 1, high1, split2 + 1, high2, lowdest + lowsize + 2,
+          src, dest).compute();
 
       mergeA.join();
     }
-	}
+  }
 }

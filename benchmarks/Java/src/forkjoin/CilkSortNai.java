@@ -77,30 +77,37 @@ public final class CilkSortNai extends Benchmark {
 	private static final int MERGESIZE = (2 * KILO);
 	private static final int QUICKSIZE = (2 * KILO);
 
-	private static final int SIZE = 10_000_000;
-
 	@Override
   public Object benchmark() {
-    int[] array = new int[SIZE];
-    int[] tmp = new int[SIZE];
+	  throw new UnsupportedOperationException();
+	}
+
+	@Override
+  public boolean innerBenchmarkLoop(final int n) {
+	  int size = n * 10_000;
+    int[] array = new int[size];
+    int[] tmp = new int[size];
 
     Random r = new Random();
-    for (int i = 0; i < SIZE; i++) {
+    for (int i = 0; i < size; i++) {
       array[i] = r.next();
     }
 
-    new Sort(array, tmp, 0, 0, SIZE).compute();
-    return array;
+    new Sort(array, tmp, 0, 0, size).compute();
+    return verifyResult(array);
 	}
 
   @Override
-  public boolean verifyResult(final Object result) {
-    int[] array = (int[]) result;
+  public boolean verifyResult(final Object r) {
+    throw new UnsupportedOperationException();
+  }
+
+  private boolean verifyResult(final int[] array) {
     int a = 0;
     int b;
     boolean ok = true;
 
-    for (int k = 0; k < SIZE; k++) {
+    for (int k = 0; k < array.length; k++) {
       b = array[k];
       ok &= a <= b;
       a = b;
