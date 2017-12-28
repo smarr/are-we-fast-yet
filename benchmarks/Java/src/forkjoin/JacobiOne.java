@@ -17,13 +17,6 @@ import som.Benchmark;
  */
 public final class JacobiOne extends Benchmark {
 
-  // Assuming STEPS==10 and DEFAULT_GRANULARITY==2
-  private final static double[] result_1024_10_2    = { 0.03532437858581544D,
-      0.017849813902944933D, 0.01192949360929535D, 0.008988350379449561D,
-      0.007195258835605234D, 0.005983223755848366D, 0.005145446751888216D,
-      0.004491799673319474D, 0.0040017586597708155D, 0.0035942981873005597D,
-      0.0032725732667924223D, 0.0029970514366798318D, 0.0027653688264400733D,
-      0.0025724189553933963D, 0.002397642724590421D };
   private static final int      DEFAULT_GRANULARITY = 2;
   private static final int      STEPS               = 10;
   private static final double   EPSILON             = 0.0001d;
@@ -72,12 +65,7 @@ public final class JacobiOne extends Benchmark {
   private static boolean verifyResult(final double df, final int n) {
     // original benchmark does repeated iterations on the same data
     // we don't do that to have more predictable behavior
-    int iter = 0;
-    if (n == 1024) {
-      return df == result_1024_10_2[iter];
-    }
-    System.out.println("No expected result for n=" + n);
-    return false;
+    return df == 0.03532437858581544d;
   }
 
   private static class BuildNode extends RecursiveTask<Double> {
