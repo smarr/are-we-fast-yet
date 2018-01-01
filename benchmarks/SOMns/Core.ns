@@ -44,37 +44,37 @@ class Core with: kernel = (
     public at: index put: val = (
       index > storage size ifTrue: [
         | newLength newStorage |
-        newLength := storage size.
+        newLength:: storage size.
         [ newLength < index ] whileTrue: [
-          newLength := newLength * 2 ].
-        newStorage := Array new: newLength.
+          newLength:: newLength * 2 ].
+        newStorage:: Array new: newLength.
         storage doIndexes: [:i | newStorage at: i put: (storage at: i) ].
-        storage := newStorage ].
+        storage:: newStorage ].
 
       storage at: index put: val.
       lastIdx < (index + 1) ifTrue: [
-        lastIdx := index + 1 ]
+        lastIdx:: index + 1 ]
     )
 
     public append: element = (
       (lastIdx > storage size) ifTrue: [
         (* Need to expand capacity first *)
         | newStorage |
-        newStorage := Array new: 2 * storage size.
+        newStorage:: Array new: 2 * storage size.
         storage doIndexes: [ :i | newStorage at: i put: (storage at: i) ].
-        storage := newStorage. ].
-      
+        storage:: newStorage. ].
+
       storage at: lastIdx put: element.
-      lastIdx := lastIdx + 1.
+      lastIdx:: lastIdx + 1.
       ^ self
     )
-    
+
     public isEmpty  = ( ^ lastIdx = firstIdx )
-    
+
     public forEach: block = (
       firstIdx to: lastIdx - 1 do: [ :i | block value: (storage at: i) ]
     )
-    
+
     public hasSome: block = (
       firstIdx to: lastIdx - 1 do: [ :i |
         (block value: (storage at: i))
@@ -85,47 +85,47 @@ class Core with: kernel = (
     public getOne: block = (
       firstIdx to: lastIdx - 1 do: [ :i |
         | e |
-        e := storage at: i.
+        e:: storage at: i.
         (block value: e)
           ifTrue: [ ^ e ] ].
       ^ nil
     )
-    
+
     public removeFirst = (
       isEmpty ifTrue:  [ ^ nil ].
 
-      firstIdx := firstIdx + 1.
+      firstIdx:: firstIdx + 1.
       ^ storage at: firstIdx - 1
     )
-    
+
     public removeAll = (
-      firstIdx := 1.
-      lastIdx  := 1.
-      storage  := Array new: storage size
+      firstIdx:: 1.
+      lastIdx::  1.
+      storage::  Array new: storage size
     )
 
     public remove: object = (
       | newArray newLast found |
-      newArray := Array new: self capacity.
-      newLast := 1.
-      found := false.
-     
+      newArray:: Array new: self capacity.
+      newLast:: 1.
+      found:: false.
+
       self forEach: [ :it |
         it == object
-          ifTrue:  [ found := true ]
+          ifTrue:  [ found:: true ]
           ifFalse: [
             newArray at: newLast put: it.
-            newLast := newLast + 1. ] ].
-     
-      storage := newArray.
-      lastIdx := newLast.
-      firstIdx := 1.
+            newLast:: newLast + 1. ] ].
+
+      storage:: newArray.
+      lastIdx:: newLast.
+      firstIdx:: 1.
       ^ found
     )
-    
+
     public size     = ( ^ lastIdx - firstIdx   )
     public capacity = ( ^ storage size )
-    
+
     public sort: aBlock = (
       (* Make the argument, aBlock, be the criterion for ordering elements of
          the receiver.
@@ -135,48 +135,48 @@ class Core with: kernel = (
                to: lastIdx - 1
              with: aBlock ]
     )
-    
+
     private sort: i to: j with: sortBlock = (
       (* Sort elements i through j of self to be non-descending according to
          sortBlock. *)
       | di dij dj tt ij k l n |
       sortBlock isNil ifTrue: [ ^ self defaultSort: i to: j ].
-      
+
       (* The prefix d means the data at that index. *)
-      (n := j + 1  - i) <= 1 ifTrue: [ ^ self ]. (* Nothing to sort. *)
+      (n:: j + 1  - i) <= 1 ifTrue: [ ^ self ]. (* Nothing to sort. *)
       (* Sort di,dj. *)
-      di := storage at: i.
-      dj := storage at: j.
-      
+      di:: storage at: i.
+      dj:: storage at: j.
+
       (* i.e., should di precede dj? *)
       (sortBlock value: di with: dj) ifFalse: [
         storage swap: i with: j.
-        tt := di.
-        di := dj.
-        dj := tt
+        tt:: di.
+        di:: dj.
+        dj:: tt
       ].
 
       n > 2 ifTrue: [ (* More than two elements. *)
-        ij := (i + j) / 2.  (* ij is the midpoint of i and j. *)
-        dij := storage at: ij.  (* Sort di,dij,dj.  Make dij be their median. *)
+        ij:: (i + j) / 2.  (* ij is the midpoint of i and j. *)
+        dij:: storage at: ij.  (* Sort di,dij,dj.  Make dij be their median. *)
         (sortBlock value: di with: dij)
           ifTrue: [ (* i.e. should di precede dij? *)
             (sortBlock value: dij with: dj) ifFalse: [ (* i.e., should dij precede dj? *)
               storage swap: j with: ij.
-              dij := dj]]
+              dij:: dj]]
           ifFalse: [ (* i.e. di should come after dij *)
             storage swap: i with: ij.
-            dij := di].
-        
+            dij:: di].
+
         n > 3 ifTrue: [
           (* More than three elements.
              Find k>i and l<j such that dk,dij,dl are in reverse order.
              Swap k and l.  Repeat this procedure until k and l pass each other. *)
-          k := i.
-          l := j.
-          [ [l := l - 1.  k <= l and: [sortBlock value: dij with: (storage at: l)]]
+          k:: i.
+          l:: j.
+          [ [l:: l - 1.  k <= l and: [sortBlock value: dij with: (storage at: l)]]
               whileTrue.  (* i.e. while dl succeeds dij *)
-            [k := k + 1.  k <= l and: [sortBlock value: (storage at: k) with: dij]]
+            [k:: k + 1.  k <= l and: [sortBlock value: (storage at: k) with: dij]]
               whileTrue.  (* i.e. while dij succeeds dk *)
             k <= l]
               whileTrue:
@@ -191,45 +191,45 @@ class Core with: kernel = (
     )
   ) : (
     public new = ( ^ self new: 50 )
-  
+
     public with: elem = (
       | newVector |
-      newVector := self new: 1.
+      newVector:: self new: 1.
       newVector append: elem.
       ^ newVector
     )
   )
-  
+
   public class Set new: size = (
   | private items ::= Vector new: size. |
   )(
     public forEach: block = ( items forEach: block )
-    
+
     public hasSome: block = ( ^ items hasSome: block )
-    
+
     public getOne: block = ( ^ items getOne: block )
-    
+
     public add: anObject = (
       (self contains: anObject)
         ifFalse: [ items append: anObject ]
     )
-    
+
     public collect: block = ( | coll |
-      coll := Vector new.
+      coll:: Vector new.
       self forEach: [ :e | coll append: (block value: e) ].
       ^ coll
     )
-    
+
     public contains: anObject = (
       ^ self hasSome: [ :it | it = anObject ]
     )
-    
+
     public size = ( ^ items size )
     public removeAll = ( ^ items removeAll )
   ) : (
     public new = ( ^ self new: initialSize )
   )
-  
+
   public class IdentitySet new: size = Set new: size ()(
     public contains: anObject = (
       ^ self hasSome: [ :it | it == anObject ]
@@ -256,52 +256,52 @@ class Core with: kernel = (
     private hash: key = (
       | hash |
       key isNil ifTrue: [ ^ 0 ].
-      hash := key customHash.
+      hash:: key customHash.
       ^ hash bitXor: (hash >>> 16)
     )
-    
+
     private bucketIdx: hash = (
       ^ 1 + ((buckets size - 1) & hash)
     )
-    
+
     private bucket: hash = (
       ^ buckets at: (bucketIdx: hash)
     )
 
     public at: aKey = (
       | hash e |
-      hash := hash: aKey.
-      e := bucket: hash.
-    
+      hash:: hash: aKey.
+      e:: bucket: hash.
+
       [ e notNil ] whileTrue: [
         (e match: hash key: aKey)
           ifTrue: [ ^ e value ].
-        e := e next ].
+        e:: e next ].
       ^ nil
     )
 
     public containsKey: aKey = (
       | hash e |
-      hash := hash: aKey.
-      e := bucket: hash.
-    
+      hash:: hash: aKey.
+      e:: bucket: hash.
+
       [ e notNil ] whileTrue: [
         (e match: hash key: aKey)
           ifTrue: [ ^ true ].
-        e := e next ].
+        e:: e next ].
       ^ false
     )
-    
+
     public at: aKey put: aVal = (
       | hash i current |
-      hash := hash: aKey.
-      i := bucketIdx: hash.
-      current := buckets at: i.
-      
+      hash:: hash: aKey.
+      i:: bucketIdx: hash.
+      current:: buckets at: i.
+
       current isNil
         ifTrue: [
           buckets at: i put: (newEntry: aKey value: aVal hash: hash).
-          size_ := size_ + 1 ]
+          size_:: size_ + 1 ]
         ifFalse: [
           insertBucketEntry: aKey value: aVal hash: hash head: current ].
 
@@ -314,30 +314,30 @@ class Core with: kernel = (
 
     private insertBucketEntry: key value: value hash: hash head: head = (
       | current |
-      current := head.
-      
+      current:: head.
+
       [true] whileTrue: [
         (current match: hash key: key) ifTrue: [
           current value: value.
           ^ self ].
         current next isNil ifTrue: [
-          size_ := size_ + 1.
+          size_:: size_ + 1.
           current next: (newEntry: key value: value hash: hash).
           ^ self ].
-        current := current next ]
+        current:: current next ]
     )
 
     private resize = (
       | oldStorage |
-      oldStorage := buckets.
-      buckets := Array new: oldStorage size * 2.
+      oldStorage:: buckets.
+      buckets:: Array new: oldStorage size * 2.
       transferEntries: oldStorage
     )
 
     private transferEntries: oldStorage = (
       1 to: oldStorage size do: [:i |
         | current |
-        current := oldStorage at: i.
+        current:: oldStorage at: i.
         current notNil ifTrue: [
           oldStorage at: i put: nil.
           current next isNil
@@ -349,24 +349,24 @@ class Core with: kernel = (
 
     private splitBucket: oldStorage bucket: i head: head = (
       | loHead loTail hiHead hiTail current |
-      loHead := nil. loTail := nil.
-      hiHead := nil. hiTail := nil.
-      current := head.
-      
+      loHead:: nil. loTail:: nil.
+      hiHead:: nil. hiTail:: nil.
+      current:: head.
+
       [current notNil] whileTrue: [
         (current hash & oldStorage size) = 0
           ifTrue: [
             loTail isNil
-              ifTrue:  [ loHead := current ]
+              ifTrue:  [ loHead:: current ]
               ifFalse: [ loTail next: current ].
-            loTail := current ]
+            loTail:: current ]
           ifFalse: [
             hiTail isNil
-              ifTrue:  [ hiHead := current ]
+              ifTrue:  [ hiHead:: current ]
               ifFalse: [ hiTail next: current ].
-            hiTail := current ].
-        current := current next ].
-    
+            hiTail:: current ].
+        current:: current next ].
+
       loTail notNil ifTrue: [
         loTail next: nil.
         buckets at: i put: loHead ].
@@ -378,37 +378,37 @@ class Core with: kernel = (
     public size      = ( ^ size_ )
     public isEmpty   = ( ^ size_ = 0 )
     public removeAll = (
-      buckets := Array new: buckets size.
-      size_ := 0.
+      buckets:: Array new: buckets size.
+      size_:: 0.
     )
-    
+
     public keys = (
       | keys |
-      keys := Vector new: size_.
+      keys:: Vector new: size_.
       buckets do: [:b |
         | current |
-        current := b.
+        current:: b.
         [ current notNil ] whileTrue: [
           keys append: current key.
-          current := current next ] ].
+          current:: current next ] ].
       ^ keys
     )
 
     public values = (
       | values |
-      values := Vector new: size_.
+      values:: Vector new: size_.
       buckets do: [:b |
         | current |
-        current := b.
+        current:: b.
         [ current notNil ] whileTrue: [
           values append: current value.
-          current := current next ] ].
+          current:: current next ] ].
       ^ values
     )
   ) : (
     public new = ( ^ self new: initialCapacity )
   )
-  
+
   public class IdentityDictionary new: size = Dictionary new: size ()(
     protected class IdEntry new: hash key: key value: val next: next = Entry new: hash key: key value: val next: next (
     )(
@@ -416,7 +416,7 @@ class Core with: kernel = (
         ^ hash = aHash and: [key == aKey]
       )
     )
-    
+
     protected newEntry: aKey value: value hash: hash = (
       ^ IdEntry new: hash key: aKey value: value next: nil
     )

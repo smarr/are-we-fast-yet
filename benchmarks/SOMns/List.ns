@@ -24,40 +24,40 @@ class ListSuite usingPlatform: platform andHarness: harness = (
   class List = Benchmark ()(
 
     benchmark = ( | result |
-      result := self
+      result:: self
                   talkWithX: (self makeList: 15)
                   withY:     (self makeList: 10)
                   withZ:     (self makeList: 6).
       ^ result length
     )
-    
+
     verifyResult: result = (
       ^ 10 = result
     )
-    
+
     makeList: length = (
       (length = 0)
         ifTrue: [ ^ nil ]
         ifFalse: [
           | e |
-          e := ListElement new: length.
+          e:: ListElement new: length.
           e next: (self makeList: (length - 1)).
           ^ e ]
     )
-    
+
     isShorter: x than: y = (
       | xTail yTail |
-      
-      xTail := x. yTail := y.
+
+      xTail:: x. yTail:: y.
       [ yTail isNil ]
         whileFalse: [
           xTail isNil ifTrue: [ ^ true ].
-          xTail := xTail next.
-          yTail := yTail next ].
-      
+          xTail:: xTail next.
+          yTail:: yTail next ].
+
       ^ false
     )
-    
+
     talkWithX: x withY: y withZ: z = (
       (self isShorter: y than: x)
         ifTrue: [
@@ -76,6 +76,6 @@ class ListSuite usingPlatform: platform andHarness: harness = (
   ) (
     public length = ( next isNil ifTrue: [ ^ 1 ] ifFalse: [ ^ (1 + next length) ] )
   )
-  
+
   public newInstance = ( ^ List new )
 )

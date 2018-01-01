@@ -11,8 +11,8 @@ Original comment.
 	AUTHOR		John Maloney, heavily modified by Mario Wolczko	(Mario.Wolczko@sun.com)
 	FUNCTION	Language implementation benchmark
 	ST-VERSION	4.1
-	PREREQUISITES	
-	CONFLICTS	
+	PREREQUISITES
+	CONFLICTS
 	DISTRIBUTION	world
 	VERSION		1
 	DATE	 	2 Oct 1996
@@ -26,7 +26,7 @@ Washington TR 89-08-06)
 class DeltaBlue usingPlatform: platform andHarness: harness = (
   | private Benchmark         = harness Benchmark.
     private Array             = platform kernel Array.
-    private Core              = (platform system loadModule: 'Core.som' nextTo: self) with: platform kernel.
+    private Core              = (platform system loadModule: 'Core.ns' nextTo: self) with: platform kernel.
     private Vector            = Core Vector.
     private IdentityDictionary = Core IdentityDictionary.
 
@@ -54,7 +54,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       ^ true
     )
   )
-  
+
   class Plan = Vector new: 15 (
     (* A Plan is an ordered list of constraints to be executed in sequence to
     resatisfy all currently satisfiable constraints in the face of one or more
@@ -91,10 +91,10 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
          avoid getting into an infinite loop even if the constraint graph has
          an inadvertent cycle. *)
       | mark overridden |
-      mark := self newMark.
-      overridden := c satisfy: mark propagate: self.
+      mark:: self newMark.
+      overridden:: c satisfy: mark propagate: self.
       [overridden == nil] whileFalse:
-          [overridden := overridden satisfy: mark propagate: self]
+          [overridden:: overridden satisfy: mark propagate: self]
     )
 
     public incrementalRemove: c = (
@@ -109,10 +109,10 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
          strongest first, as a heuristic for avoiding unnecessarily adding
          and then overriding weak constraints. *)
       | out unsatisfied |
-      out := c output.
+      out:: c output.
       c markUnsatisfied.
       c removeFromGraph.
-      unsatisfied := self removePropagateFrom: out.
+      unsatisfied:: self removePropagateFrom: out.
       unsatisfied forEach: [: u | self incrementalAdd: u]
     )
 
@@ -120,7 +120,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       (* Extract a plan for resatisfaction starting from the outputs of the
          given constraints, usually a set of input constraints. *)
       | sources |
-      sources := Vector new.
+      sources:: Vector new.
       constraints forEach: [:c |
         (c isInput and: [c isSatisfied]) ifTrue: [sources append: c]].
       ^ self makePlan: sources
@@ -144,11 +144,11 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
          states of history variables, which are not stay but which are also
          not computed by any constraint. *)
       | mark plan todo c |
-      mark := self newMark.
-      plan := Plan new.
-      todo := sources.
+      mark:: self newMark.
+      plan:: Plan new.
+      todo:: sources.
       [todo isEmpty] whileFalse:
-        [c := todo removeFirst.
+        [c:: todo removeFirst.
           (c output mark <> mark and: [     (* not in plan already and... *)
             c inputsKnown: mark]) ifTrue: [ (* eligible for inclusion *)
               plan append: c.
@@ -160,17 +160,17 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
     propagateFrom: v = (
       (* The given variable has changed. Propagate new values downstream. *)
       | todo c |
-      todo := Vector new.
+      todo:: Vector new.
       self addConstraintsConsuming: v to: todo.
       [todo isEmpty] whileFalse: [
-        c := todo removeFirst.
+        c:: todo removeFirst.
         c execute.
         self addConstraintsConsuming: c output to: todo].
     )
 
     private addConstraintsConsuming: v to: aCollection = (
       | determiningC |
-      determiningC := v determinedBy.
+      determiningC:: v determinedBy.
       v constraints forEach: [:c |
         (c == determiningC or: [c isSatisfied not]) ifFalse:
           [aCollection append: c]].
@@ -189,9 +189,9 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
          that there is a path from the constraint's output to one of its
          inputs. *)
       | todo d |
-      todo := Vector with: c.
+      todo:: Vector with: c.
       [todo isEmpty] whileFalse: [
-        d := todo removeFirst.
+        d:: todo removeFirst.
         d output mark = mark ifTrue: [
           self incrementalRemove: c.
           ^ false ].
@@ -202,8 +202,8 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
 
     public changeVar: aVariable newValue: newValue = (
       | editConstraint plan |
-      editConstraint := EditConstraint var: aVariable strength: SymPreferred addTo: self.
-      plan := self extractPlanFromConstraints: (Vector with: editConstraint).
+      editConstraint:: EditConstraint var: aVariable strength: SymPreferred addTo: self.
+      plan:: self extractPlanFromConstraints: (Vector with: editConstraint).
       10 timesRepeat: [
         aVariable value: newValue.
         plan execute ].
@@ -212,7 +212,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
 
     constraintsConsuming: v do: aBlock = (
       | determiningC |
-      determiningC := v determinedBy.
+      determiningC:: v determinedBy.
       v constraints forEach: [:c |
         (c == determiningC or: [c isSatisfied not]) ifFalse:
           [aBlock value: c]].
@@ -226,7 +226,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
          slower to compute the next mark but the algorithms will all behave
          correctly. We reserve the value '0' to mean 'unmarked'. Thus, this
          generator starts at '1' and will never produce '0' as a mark value. *)
-      ^ currentMark := currentMark + 1
+      ^ currentMark:: currentMark + 1
     )
 
     removePropagateFrom: out = (
@@ -234,14 +234,14 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
          downstream of the given constraint. Answer a collection of unsatisfied
          constraints sorted in order of decreasing strength. *)
       | unsatisfied todo v nextC u2 |
-      unsatisfied := Vector new.
+      unsatisfied:: Vector new.
 
       out determinedBy: nil.
       out walkStrength: AbsoluteWeakest.
       out stay: true.
-      todo := Vector with: out.
+      todo:: Vector with: out.
       [todo isEmpty] whileFalse: [
-        v := todo removeFirst.
+        v:: todo removeFirst.
         v constraints forEach: [:c |
           c isSatisfied ifFalse: [unsatisfied append: c]].
         self constraintsConsuming: v do: [:c |
@@ -255,23 +255,23 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
     public chainTest: n = (
       (* Do chain-of-equality-constraints performance tests. *)
       | vars editConstraint plan planner |
-    
-      planner := Planner new.
-      vars := Array new: n+1 withAll: [ Variable new ].
+
+      planner:: Planner new.
+      vars:: Array new: n+1 withAll: [ Variable new ].
 
       (* thread a chain of equality constraints through the variables *)
       1 to: n do: [ :i |
         | v1 v2 |
-        v1 := vars at: i.
-        v2 := vars at: i + 1.
+        v1:: vars at: i.
+        v2:: vars at: i + 1.
         EqualityConstraint var: v1 var: v2 strength: SymRequired addTo: planner
       ].
 
       StayConstraint var: vars last strength: SymStrongDefault addTo: planner.
-      editConstraint := EditConstraint var: vars first strength: SymPreferred addTo: planner.
-      plan := planner extractPlanFromConstraints: (Vector with: editConstraint).
+      editConstraint:: EditConstraint var: vars first strength: SymPreferred addTo: planner.
+      plan:: planner extractPlanFromConstraints: (Vector with: editConstraint).
 
-      1 to: 100 do: [:v | 
+      1 to: 100 do: [:v |
         vars first value: v.
         plan execute.
         vars last value <> v ifTrue: [self error: 'Chain test failed!!']
@@ -284,14 +284,14 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       (* This test constructs a two sets of variables related to each other by
          a simple linear transformation (scale and offset). *)
       | scale offset src dst planner dests |
-      planner := Planner new.
-      dests   := Vector new.
-      scale   := Variable value: 10.
-      offset  := Variable value: 1000.
+      planner:: Planner new.
+      dests::   Vector new.
+      scale::   Variable value: 10.
+      offset::  Variable value: 1000.
 
       1 to: n do: [:i |
-        src := Variable value: i.
-        dst := Variable value: i.
+        src:: Variable value: i.
+        dst:: Variable value: i.
         dests append: dst.
         StayConstraint var: src strength: SymDefault addTo: planner.
         ScaleConstraint src: src scale: scale offset: offset dst: dst strength: SymRequired addTo: planner
@@ -364,7 +364,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
     public createStrengthTable = (
       | table |
       (* Initialize the symbolic strength table. *)
-      table := IdentityDictionary new.
+      table:: IdentityDictionary new.
       table at: SymAbsoluteStrongest put: -10000.
       table at: SymRequired put: -800.
       table at: SymStrongPreferred put: -600.
@@ -375,10 +375,10 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       table at: SymAbsoluteWeakest put: 10000.
       ^ table
     )
-    
+
     public createStrengthConstants = (
       | constants |
-      constants := IdentityDictionary new.
+      constants:: IdentityDictionary new.
       strengthTable keys forEach: [:strengthSymbol |
         constants
           at: strengthSymbol
@@ -391,7 +391,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       ^ strengthConstants at: aSymbol
     )
   )
-  
+
   class AbstractConstraint new: strengthSymbol = (
     (* I am an abstract class representing a system-maintainable relationship
        (or 'constraint') between a set of variables. I supply a strength instance
@@ -461,7 +461,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
          constant at plan execution time), b) it has the given mark (indicating
          that it has been computed by a constraint appearing earlier in the
          plan), or c) it is not determined by any constraint. *)
-      ^ (self inputsHasOne: [:v | 
+      ^ (self inputsHasOne: [:v |
           (v mark = mark or: [v stay or: [v determinedBy == nil]]) not ]) not
     )
 
@@ -496,8 +496,8 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
           (* constraint can be satisfied
              mark inputs to allow cycle detection in addPropagate *)
           self inputsDo: [: in | in mark: mark].
-          out := self output.
-          overridden := out determinedBy.
+          out:: self output.
+          overridden:: out determinedBy.
           overridden == nil ifFalse: [overridden markUnsatisfied].
           out determinedBy: self.
           (planner addPropagate: self mark: mark) ifFalse:
@@ -505,13 +505,13 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
             ^ nil].
           out mark: mark]
         ifFalse: [ (* constraint cannot be satisfied *)
-          overridden := nil.
+          overridden:: nil.
           (strength sameAs: Required) ifTrue:
             [self error: 'Failed to satisfy a required constraint']].
       ^ overridden
     )
   )
-  
+
   class BinaryConstraint var: var1 var: var2 strength: strengthSymbol addTo: planner = AbstractConstraint new: strengthSymbol (
     (* I am an abstract superclass for constraints having two possible output
        variables.
@@ -535,14 +535,14 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       (* Add myself to the constraint graph. *)
       v1 addConstraint: self.
       v2 addConstraint: self.
-      direction := nil
+      direction:: nil
     )
 
     public removeFromGraph = (
       (* Remove myself from the constraint graph. *)
       v1 == nil ifFalse: [ v1 removeConstraint: self ].
       v2 == nil ifFalse: [ v2 removeConstraint: self ].
-      direction := nil.
+      direction:: nil.
     )
 
     chooseMethod: mark = (
@@ -552,24 +552,24 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
 
       v1 mark = mark ifTrue: [ (* forward or nothing *)
         ((v2 mark <> mark) and: [ strength stronger: v2 walkStrength ])
-          ifTrue:  [ ^ direction := #forward ]
-          ifFalse: [ ^ direction := nil ]].
+          ifTrue:  [ ^ direction:: #forward ]
+          ifFalse: [ ^ direction:: nil ]].
 
       v2 mark = mark ifTrue: [ (* backward or nothing *)
         ((v1 mark <> mark) and: [ strength stronger: v1 walkStrength ])
-            ifTrue:  [ ^ direction := #backward ]
-            ifFalse: [ ^ direction := nil ]].
+            ifTrue:  [ ^ direction:: #backward ]
+            ifFalse: [ ^ direction:: nil ]].
 
       (* if we get here, neither variable is marked, so we have choice *)
       (v1 walkStrength weaker: v2 walkStrength)
         ifTrue:
           [(strength stronger: v1 walkStrength)
-            ifTrue:  [ ^ direction := #backward ]
-            ifFalse: [ ^ direction := nil ]]
+            ifTrue:  [ ^ direction:: #backward ]
+            ifFalse: [ ^ direction:: nil ]]
         ifFalse:
           [(strength stronger: v2 walkStrength)
-            ifTrue:  [ ^ direction := #forward ]
-            ifFalse: [ ^ direction := nil ]].
+            ifTrue:  [ ^ direction:: #forward ]
+            ifFalse: [ ^ direction:: nil ]].
     )
 
     public execute = (
@@ -583,7 +583,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
         ifTrue:  [ aBlock value: v1 ]
         ifFalse: [ aBlock value: v2 ]
     )
-    
+
     public inputsHasOne: aBlock = (
       ^ direction = #forward
           ifTrue:  [ aBlock value: v1 ]
@@ -592,7 +592,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
 
     public markUnsatisfied = (
       (* Record the fact that I am unsatisfied. *)
-      direction := nil
+      direction:: nil
     )
 
     public output = (
@@ -608,14 +608,14 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
          constraint is satisfied. *)
       | in out |
       direction = #forward
-        ifTrue:  [ in := v1. out := v2 ]
-        ifFalse: [ in := v2. out := v1 ].
+        ifTrue:  [ in:: v1. out:: v2 ]
+        ifFalse: [ in:: v2. out:: v1 ].
       out walkStrength: (strength weakest: in walkStrength).
       out stay: in stay.
       out stay ifTrue: [self execute].      (* stay optimization *)
     )
   )
-  
+
   class UnaryConstraint var: aVariable strength: strengthSymbol addTo: planner = AbstractConstraint new: strengthSymbol (
     (* I am an abstract superclass for constraints having a single possible
        output variable.
@@ -635,18 +635,18 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
     addToGraph = (
       (* Add myself to the constraint graph. *)
       output addConstraint: self.
-      satisfied := false.
+      satisfied:: false.
     )
 
     public removeFromGraph = (
       (* Remove myself from the constraint graph. *)
       output == nil ifFalse: [output removeConstraint: self].
-      satisfied := false.
+      satisfied:: false.
     )
 
     chooseMethod: mark = (
       (* Decide if I can be satisfied and record that decision. *)
-      satisfied :=
+      satisfied::
         output mark <> mark and: [
           strength stronger: output walkStrength].
       ^ nil
@@ -660,14 +660,14 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
     public inputsDo: aBlock = (
       (* I have no input variables. *)
     )
-    
+
     public inputsHasOne: aBlock = (
       ^ false
-    ) 
+    )
 
     public markUnsatisfied = (
       (* Record the fact that I am unsatisfied. *)
-      satisfied := false.
+      satisfied:: false.
     )
 
     public recalculate = (
@@ -724,7 +724,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       v2 addConstraint: self.
       scale  addConstraint: self.
       offset addConstraint: self.
-      direction := nil.
+      direction:: nil.
     )
 
     public removeFromGraph = (
@@ -733,7 +733,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       v2 == nil ifFalse: [ v2 removeConstraint: self ].
       scale  == nil ifFalse: [ scale removeConstraint: self ].
       offset == nil ifFalse: [ offset removeConstraint: self ].
-      direction := nil.
+      direction:: nil.
     )
 
     public execute = (
@@ -760,8 +760,8 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
          constraint is satisfied. *)
       | in out |
       direction = #forward
-        ifTrue:  [ in  := v1. out := v2 ]
-        ifFalse: [ out := v1. in  := v2 ].
+        ifTrue:  [ in::  v1. out:: v2 ]
+        ifFalse: [ out:: v1. in::  v2 ].
       out walkStrength: (strength weakest: in walkStrength).
       out stay: (in stay and: [scale stay and: [offset stay]]).
       out stay ifTrue: [self execute].      (* stay optimization *)
@@ -779,7 +779,7 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
       (* Stay constraints do nothing. *)
     )
   )
-  
+
   class Variable = (
     (* I represent a constrained variable. In addition to my value, I maintain the
        structure of the constraint graph, the current dataflow graph, and various
@@ -809,16 +809,16 @@ class DeltaBlue usingPlatform: platform andHarness: harness = (
     public removeConstraint: c = (
       (* Remove all traces of c from this variable. *)
       constraints remove: c.
-      determinedBy == c ifTrue: [ determinedBy := nil ].
+      determinedBy == c ifTrue: [ determinedBy:: nil ].
     )
   ) : (
     public value: aValue = (
       | o |
-      o := self new.
+      o:: self new.
       o value: aValue.
       ^ o
     )
   )
-  
+
   public newInstance = ( ^ DeltaBlue new )
 )

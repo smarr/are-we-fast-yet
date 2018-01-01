@@ -22,31 +22,30 @@ class BounceSuite usingPlatform: platform andHarness: harness = (
 | private Benchmark = harness Benchmark.
   private Random    = harness Random.
   private Array     = platform kernel Array.
-|
-) (
+|)(
   class Bounce = Benchmark ()(
 
     benchmark = (
       | ballCount balls bounces random |
-      
-      random := Random new.
-      
-      ballCount := 100.
-      bounces   := 0.
-      balls     := Array new: ballCount withAll: [ Ball new: random ].
-      
+
+      random:: Random new.
+
+      ballCount:: 100.
+      bounces::   0.
+      balls::     Array new: ballCount withAll: [ Ball new: random ].
+
       1 to: 50 do: [ :i |
         balls do: [ :ball |
-          ball bounce ifTrue: [ bounces := bounces + 1 ] ] ].
+          ball bounce ifTrue: [ bounces:: bounces + 1 ] ] ].
 
       ^ bounces
     )
-    
+
     verifyResult: result = (
       ^ 1331 = result
     )
   )
-  
+
   class Ball new: random = (
     | x    ::= random next % 500.
       y    ::= random next % 500.
@@ -56,22 +55,22 @@ class BounceSuite usingPlatform: platform andHarness: harness = (
   ) (
     public bounce = (
       | xLimit yLimit bounced |
-      xLimit  := yLimit := 500.
-      bounced := false.
-    
-      x := x + xVel.
-      y := y + yVel.
+      xLimit::  yLimit:: 500.
+      bounced:: false.
+
+      x:: x + xVel.
+      y:: y + yVel.
       x > xLimit ifTrue: [
-        x := xLimit. xVel := 0 - xVel abs. bounced := true ].
+        x:: xLimit. xVel:: 0 - xVel abs. bounced:: true ].
       x < 0 ifTrue: [
-        x := 0.      xVel := xVel abs.     bounced := true ].
+        x:: 0.      xVel:: xVel abs.     bounced:: true ].
       y > yLimit ifTrue: [
-        y := yLimit. yVel := 0 - yVel abs. bounced := true ].
+        y:: yLimit. yVel:: 0 - yVel abs. bounced:: true ].
       y < 0 ifTrue: [
-        y := 0.      yVel := yVel abs.     bounced := true ].
+        y:: 0.      yVel:: yVel abs.     bounced:: true ].
       ^ bounced
     )
   )
-  
+
   public newInstance = ( ^ Bounce new )
 )

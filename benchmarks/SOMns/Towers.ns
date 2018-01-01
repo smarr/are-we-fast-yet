@@ -31,65 +31,65 @@ class TowersSuite usingPlatform: platform andHarness: harness = (
   )(
     private pushDisk: disk onPile: pile = (
       | top |
-      
-      top := piles at: pile.
+
+      top:: piles at: pile.
       top notNil && [ disk size >= top size ]
         ifTrue: [ self error: 'Cannot put a big disk on a smaller one' ].
-      
+
       disk next: top.
       piles at: pile put: disk.
     )
-    
+
     private popDiskFrom: pile = (
       | top |
-      
-      top := piles at: pile.
+
+      top:: piles at: pile.
       top isNil
         ifTrue: [
           self error: 'Attempting to remove a disk from an empty pile' ].
-      
+
       piles at: pile put: top next.
       top next: nil.
       ^ top
     )
-    
+
     private moveTopDiskFrom: fromPile to: toPile = (
       self pushDisk: (self popDiskFrom: fromPile) onPile: toPile.
-      movesdone := movesdone + 1.
+      movesdone:: movesdone + 1.
     )
-    
+
     private buildTowerAt: pile disks: disks = (
       disks downTo: 0 do: [ :i |
         self pushDisk: (TowersDisk new: i) onPile: pile ]
     )
-    
+
     private move: disks disksFrom: fromPile to: toPile = (
       disks = 1
         ifTrue: [ self moveTopDiskFrom: fromPile to: toPile ]
         ifFalse: [ | otherPile |
-          otherPile := 6 - fromPile - toPile.
+          otherPile:: 6 - fromPile - toPile.
           self move: disks - 1 disksFrom: fromPile to: otherPile.
           self moveTopDiskFrom: fromPile to: toPile.
           self move: disks - 1 disksFrom: otherPile to: toPile. ]
     )
-    
+
     public benchmark = (
-      piles := Array new: 3.
+      piles:: Array new: 3.
       self buildTowerAt: 1 disks: 13.
-      movesdone := 0.
+      movesdone:: 0.
       self move: 13 disksFrom: 1 to: 2.
       ^ movesdone
     )
-    
+
     public verifyResult: result = (
       ^ 8191 = result
     )
   )
-  
+
   private class TowersDisk new: size = (
   | public size = size.
     public next ::= nil.
   |)()
-  
+
   public newInstance = ( ^ Towers new. )
 )

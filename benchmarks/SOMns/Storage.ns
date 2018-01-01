@@ -18,41 +18,35 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 *)
-class SieveSuite usingPlatform: platform andHarness: harness = (
-| private Benchmark = harness Benchmark.
+class StorageSuite usingPlatform: platform andHarness: harness = (
+| private Random    = harness Random.
   private Array     = platform kernel Array.
+  private Benchmark = harness Benchmark.
 |
 ) (
-
-  class Sieve = Benchmark ()(
-
+  class Storage = Benchmark (
+  | private count ::= 0. |
+  ) (
     public benchmark = (
-      | flags |
-      flags := Array new: 5000 withAll: true.
-      ^ self sieve: flags size: 5000.
+      | random |
+      random:: Random new.
+      count:: 0.
+      self buildTreeDepth: 7 with: random.
+      ^ count
     )
 
     public verifyResult: result = (
-      ^ 669 = result
+      ^ 5461 = result
     )
 
-    private sieve: flags size: size = (
-      | primeCount |
-      primeCount := 0.
-
-      2 to: size do: [ :i |
-        (flags at: i - 1)
-          ifTrue: [
-            | k |
-            primeCount := primeCount + 1.
-            k := i + i.
-            [ k <= size ]
-              whileTrue: [
-                flags at: k - 1 put: false.
-                k := k + i ]. ] ].
-      ^ primeCount
+    private buildTreeDepth: depth with: random = (
+      count:: count + 1.
+      ^(depth = 1)
+          ifTrue:  [ Array new: random next % 10 + 1 ]
+          ifFalse: [
+              Array new: 4 withAll: [ self buildTreeDepth: depth - 1 with: random ] ]
     )
   )
 
-  public newInstance = ( ^ Sieve new )
+  public newInstance = ( ^ Storage new )
 )

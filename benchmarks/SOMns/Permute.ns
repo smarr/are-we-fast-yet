@@ -19,7 +19,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 *)
 class PermuteSuite usingPlatform: platform andHarness: harness = (
-| private Array     = platform kernel Array. 
+| private Array     = platform kernel Array.
   private Benchmark = harness Benchmark.
 |
 ) (
@@ -29,18 +29,18 @@ class PermuteSuite usingPlatform: platform andHarness: harness = (
   |)(
 
     public benchmark = (
-      count := 0.
-      v     := Array new: 6 withAll: 0.
+      count:: 0.
+      v::     Array new: 6 withAll: 0.
       self permute: 6.
       ^ count
     )
-    
+
     public verifyResult: result = (
       ^ 8660 = result
     )
-    
+
     private permute: n = (
-      count := count + 1.
+      count:: count + 1.
       (n <> 0)
         ifTrue: [
           self permute: n - 1.
@@ -49,10 +49,10 @@ class PermuteSuite usingPlatform: platform andHarness: harness = (
             self permute: n - 1.
             self swap: n with: i ] ]
     )
-    
+
     private swap: i with: j = (
       | tmp |
-      tmp := v at: i.
+      tmp:: v at: i.
       v at: i put: (v at: j).
       v at: j put: tmp
     )

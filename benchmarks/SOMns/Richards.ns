@@ -38,10 +38,10 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
       | mouse link |
       packet link: NoWork.
       NoWork == queueHead ifTrue: [ ^ packet ].
-      mouse := queueHead.
+      mouse:: queueHead.
 
-      [NoWork == (link := mouse link)]
-        whileFalse: [ mouse := link ].
+      [NoWork == (link:: mouse link)]
+        whileFalse: [ mouse:: link ].
 
       mouse link: packet.
       ^ queueHead
@@ -59,18 +59,18 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
   |)(
     createDevice: identity priority: priority work: work state: state = (
       | data |
-      data := DeviceTaskDataRecord create.
+      data:: DeviceTaskDataRecord create.
       self
         createTask: identity
         priority: priority
         work: work
         state: state
         function: [:work :word |
-          | data functionWork | 
-          data := word.
-          functionWork := work.
+          | data functionWork |
+          data:: word.
+          functionWork:: work.
           NoWork == functionWork ifTrue: [
-            NoWork == (functionWork := data pending)
+            NoWork == (functionWork:: data pending)
               ifTrue:  [ self wait ]
               ifFalse: [
                 data pending: NoWork.
@@ -85,31 +85,31 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
 
     createHandler: identity priority: priority work: work state: state = (
       | data |
-      data := HandlerTaskDataRecord create.
+      data:: HandlerTaskDataRecord create.
       self createTask: identity
            priority:   priority
            work:       work
            state:      state
-           function:   [:work :word | 
+           function:   [:work :word |
              | data workPacket |
-             data := word.
+             data:: word.
              NoWork == work ifFalse: [
-               WorkPacketKind = work kind 
+               WorkPacketKind = work kind
                  ifTrue:  [ data workInAdd: work ]
                  ifFalse: [ data deviceInAdd: work ]].
-            
-             NoWork == (workPacket := data workIn)
+
+             NoWork == (workPacket:: data workIn)
                ifTrue:  [ self wait ]
                ifFalse: [
                  |count|
-                 count := workPacket datum.
+                 count:: workPacket datum.
                  count > 4
                    ifTrue: [
                      data workIn: workPacket link.
                      self queuePacket: workPacket ]
                    ifFalse: [
                      | devicePacket |
-                     NoWork == (devicePacket := data deviceIn)
+                     NoWork == (devicePacket:: data deviceIn)
                        ifTrue:  [ self wait ]
                        ifFalse: [
                          data deviceIn: devicePacket link.
@@ -121,14 +121,14 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
 
     createIdler: identity priority: priority work: work state: state = (
       | data |
-      data := IdleTaskDataRecord create.
+      data:: IdleTaskDataRecord create.
       self createTask: identity
            priority:   priority
            work:       work
            state:      state
-           function:   [:work :word | 
+           function:   [:work :word |
              | data |
-             data := word.
+             data:: word.
              data count: data count - 1.
              0 = data count
                ifTrue:  [ self holdSelf ]
@@ -151,27 +151,27 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
 
     createTask: identity priority: priority work: work state: state function: aBlock data: data = (
       | t |
-      t := TaskControlBlock link:             taskList
+      t:: TaskControlBlock link:             taskList
                             create:           identity
                             priority:         priority
                             initialWorkQueue: work
                             initialState:     state
                             function:         aBlock
                             privateData:      data.
-      taskList := t.
+      taskList:: t.
       taskTable at: identity put: t
     )
 
     createWorker: identity priority: priority work: work state: state = (
       | data |
-      data := WorkerTaskDataRecord create.
+      data:: WorkerTaskDataRecord create.
       self createTask: identity
            priority:   priority
            work:       work
            state:      state
            function:   [:work :word |
-             | data | 
-             data := word.
+             | data |
+             data:: word.
              NoWork == work
                ifTrue:  [ self wait ]
                ifFalse: [
@@ -190,15 +190,15 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
     )
 
     public start = (
-      | workQ |      
+      | workQ |
       self createIdler: Idler
            priority:    0
            work:        NoWork
            state:       TaskState running.
-      workQ := self createPacket: NoWork
+      workQ:: self createPacket: NoWork
                     identity:     Worker
                     kind:         WorkPacketKind.
-      workQ := self createPacket: workQ
+      workQ:: self createPacket: workQ
                     identity:     Worker
                     kind:         WorkPacketKind.
       self createWorker: Worker
@@ -206,13 +206,13 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
            work:         workQ
            state:        TaskState waitingWithPacket.
 
-      workQ := self createPacket: NoWork
+      workQ:: self createPacket: NoWork
                     identity:     DeviceA
                     kind:         DevicePacketKind.
-      workQ := self createPacket: workQ
+      workQ:: self createPacket: workQ
                     identity:     DeviceA
                     kind:         DevicePacketKind.
-      workQ := self createPacket: workQ
+      workQ:: self createPacket: workQ
                     identity:     DeviceA
                     kind:         DevicePacketKind.
 
@@ -220,13 +220,13 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
            priority:      2000
            work:          workQ
            state:         TaskState waitingWithPacket.
-      workQ := self createPacket: NoWork
+      workQ:: self createPacket: NoWork
                     identity:     DeviceB
                     kind:         DevicePacketKind.
-      workQ := self createPacket: workQ
+      workQ:: self createPacket: workQ
                     identity:     DeviceB
                     kind:         DevicePacketKind.
-      workQ := self createPacket: workQ
+      workQ:: self createPacket: workQ
                     identity:     DeviceB
                     kind:         DevicePacketKind.
       self createHandler: HandlerB
@@ -249,22 +249,22 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
 
     findTask: identity = (
       | t |
-      t := taskTable at: identity.
+      t:: taskTable at: identity.
       NoTask == t ifTrue: [self error: 'findTask failed'].
       ^ t
     )
 
     holdSelf = (
-      holdCount := holdCount + 1.
+      holdCount:: holdCount + 1.
       currentTask taskHolding: true.
       ^ currentTask link
     )
 
     queuePacket: packet = (
       | t |
-      t := self findTask: packet identity.
+      t:: self findTask: packet identity.
       NoTask == t ifTrue: [ ^ NoTask ].
-      queuePacketCount := queuePacketCount + 1.
+      queuePacketCount:: queuePacketCount + 1.
       packet link: NoWork.
       packet identity: currentTaskIdentity.
       ^ t addInput: packet checkPriority: currentTask
@@ -272,7 +272,7 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
 
     release: identity = (
       | t |
-      t := self findTask: identity.
+      t:: self findTask: identity.
       NoTask == t ifTrue: [ ^ NoTask ].
       t taskHolding: false.
       t priority > currentTask priority
@@ -281,10 +281,10 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
     )
 
     trace: id = (
-      layout := layout - 1.
+      layout:: layout - 1.
       0 >= layout ifTrue: [
         '' println.
-        layout := 50
+        layout:: 50
       ].
       id print
     )
@@ -295,17 +295,17 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
     )
 
     schedule = (
-      currentTask := taskList. 
+      currentTask:: taskList.
       [ NoTask == currentTask ] whileFalse: [
         currentTask isTaskHoldingOrWaiting
-          ifTrue:  [ currentTask := currentTask link ]
+          ifTrue:  [ currentTask:: currentTask link ]
           ifFalse: [
-            currentTaskIdentity := currentTask identity.
+            currentTaskIdentity:: currentTask identity.
             tracing ifTrue: [ self trace: currentTaskIdentity ].
-            currentTask := currentTask runTask ]]
+            currentTask:: currentTask runTask ]]
     )
   )
-    
+
   class DeviceTaskDataRecord create = RBObject (
     | public pending ::= NoWork. |
   )()
@@ -315,23 +315,23 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
       public deviceIn ::= NoWork. |
   )(
     public deviceInAdd: packet = (
-      deviceIn := self append: packet head: deviceIn
+      deviceIn:: self append: packet head: deviceIn
     )
 
     public workInAdd: packet = (
-      workIn := self append: packet head: workIn
+      workIn:: self append: packet head: workIn
     )
 
     public asString = (
       ^ 'HandlerTaskDataRecord(' + workIn asString + ', ' + deviceIn asString + ')'
     )
   )
-  
+
   class IdleTaskDataRecord create = RBObject (
     | public control ::= 1.
       public count   ::= 10000. |
   )()
-  
+
   class Packet create: link identity: identity kind: kind = RBObject (
     | public link      ::= link.
       public kind      ::= kind.
@@ -341,7 +341,7 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
     |
   )(
     public asString = (
-      ^ 'Packet(' + 
+      ^ 'Packet(' +
           link asString + ', ' +
           identity asString + ', ' +
           kind asString + ', ' +
@@ -350,7 +350,7 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
         ')'
     )
   )
-  
+
   class TaskState = RBObject (
   | private packetPending_ ::= false.
     private taskWaiting_   ::= false.
@@ -360,28 +360,28 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
     public isTaskHolding   = ( ^ taskHolding_ )
     public isTaskWaiting   = ( ^ taskWaiting_ )
 
-    public taskHolding: aBoolean   = ( taskHolding_   := aBoolean)
-    public taskWaiting: aBoolean   = ( taskWaiting_   := aBoolean)
-    public packetPending: aBoolean = ( packetPending_ := aBoolean)
+    public taskHolding: aBoolean   = ( taskHolding_::   aBoolean)
+    public taskWaiting: aBoolean   = ( taskWaiting_::   aBoolean)
+    public packetPending: aBoolean = ( packetPending_:: aBoolean)
 
     public packetPending = (
-      packetPending_ := true.
-      taskWaiting_   := false.
-      taskHolding_   := false
+      packetPending_:: true.
+      taskWaiting_::   false.
+      taskHolding_::   false
     )
 
     public running = (
-      packetPending_ := taskWaiting_ := taskHolding_ := false
+      packetPending_:: taskWaiting_:: taskHolding_:: false
     )
 
     public waiting = (
-      packetPending_ := taskHolding_ := false.
-      taskWaiting_   := true
+      packetPending_:: taskHolding_:: false.
+      taskWaiting_::   true
     )
 
     public waitingWithPacket = (
-      taskHolding_ := false.
-      taskWaiting_ := packetPending_ := true
+      taskHolding_:: false.
+      taskWaiting_:: packetPending_:: true
     )
 
     public isRunning = ( ^ packetPending_ not and: [taskWaiting_ not and: [taskHolding_ not]])
@@ -398,7 +398,7 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
   public class TaskControlBlock link: link create: identity priority: priority initialWorkQueue: initialWorkQueue initialState: initialState function: aBlock privateData: privateData = TaskState (
   | public link     = link.
     public identity = identity.
-    
+
     public function = aBlock.
     public priority = priority.
 
@@ -412,11 +412,11 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
     public addInput: packet checkPriority: oldTask = (
       NoWork == input
         ifTrue: [
-          input := packet.
+          input:: packet.
           self packetPending: true.
           priority > oldTask priority ifTrue: [^self]]
         ifFalse: [
-          input := self append: packet head: input].
+          input:: self append: packet head: input].
       ^ oldTask
     )
 
@@ -424,18 +424,18 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
       | message |
       self isWaitingWithPacket
         ifTrue: [
-          message := input.
-          input := message link.
+          message:: input.
+          input:: message link.
           NoWork == input
             ifTrue:  [ self running ]
             ifFalse: [ self packetPending ]]
         ifFalse: [
-          message := NoWork ].
+          message:: NoWork ].
 
       ^ function value: message with: handle
     )
   )
-  
+
   class WorkerTaskDataRecord create = RBObject (
   | public destination ::= HandlerA.
     public count       ::= 0. |
