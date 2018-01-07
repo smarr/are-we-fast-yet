@@ -5,13 +5,22 @@
 if (Sys.getenv("RSTUDIO") == "1") { setwd("/Users/smarr/Projects/PostDoc/FASTXX/are-we-fast-yet/report") }
 
 source("scripts/libraries.R", chdir=TRUE)
-data <- load_data_file("data/benchmark.data")
-data <- subset(data, select = c(Value, Unit, Benchmark, VM, Iteration))
-data <- prepare_vm_names(data)
+
+load_and_install_if_necessary("yaml")
+
+conf <- read_yaml("../../awfy-runs/codespeed.conf")
+
+# REM: display_name is not mandatory in ReBench configs, and new/not standard, should have a fallback
+vm_names <- sapply(conf$virtual_machines, function (vm) return(vm$display_name))
+
+
+data <- load_data_file("data/all/121-450e6527/benchmark.data")
+data <- subset(data, select = c(Value, Unit, Benchmark, VM, Cores, Iteration))
+data <- prepare_vm_names(data,vm_names)
 
 summary(data)
 
-warmup_plot <- function (data_b, b) {
+warmup_plot <- function (data_b, b, t = "") {
   ## First take the medians over the values for each VM separated
   medians <- ddply(data_b, ~ VM, summarise,
              median = median(Value))
@@ -22,7 +31,7 @@ warmup_plot <- function (data_b, b) {
 
   plot <- ggplot(data_b, aes(x=Iteration, y=ValCut))
   plot <- plot + geom_line(aes(colour = VM))
-  plot <- plot + ggtitle(b)
+  plot <- plot + ggtitle(paste0(b, t))
   plot <- plot + scale_x_continuous(breaks = seq(0, max(data_b$Iteration), 100))
   plot <- plot + geom_vline(xintercept = c(100, 200, 300), linetype = "longdash", colour = "#cccccc")
   plot <- plot + theme_simple()
@@ -41,14 +50,17 @@ for (b in levels(data$Benchmark)) {
 }
 ```
 
-# Plots JRuby with Indy
+# Plots separate by Benchmark type
 
 ```{r warmup-plots-jruby, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
 b <- "Mandelbrot"
-d <- droplevels(subset(data, VM %in% c("JRubyGraal", "JRubyC2")))
 
-for (b in levels(d$Benchmark)) {
-  data_b <- droplevels(subset(d, Benchmark == b))
-  warmup_plot(data_b, b)
+for (b in levels(data$Benchmark)) {
+  data_b <- droplevels(subset(data, Benchmark == b))
+  
+  for (t in levels(data_b$Cores)) {
+    data_t <- droplevels(subset(data_b, Cores == t))
+    warmup_plot(data_t, b, paste0(" ", t))
+  }
 }
 ```

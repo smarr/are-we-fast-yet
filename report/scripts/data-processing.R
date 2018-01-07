@@ -35,22 +35,25 @@ load_data_file <- function (file, row_names, version = 0, sha = "") {
   bench
 }
 
-prepare_vm_names <- function(data) {
-  name_map <-     list("Java8U66"              = "Java, 1.8.0_66",
-                       "JRubyJ8"               = "Ruby, JRuby 9.0.4.0 + indy", #invokedynamic
-                       "MRI22"                 = "Ruby, MRI 2.2",
-                       "MRI23"                 = "Ruby, MRI 2.3",
-                       "RBX314"                = "Ruby, Rubinius 3.14",
-                       "GraalJS"               = "JavaScript, GraalJS",
-                       "Node"                  = "JavaScript, Node.js 5.4.0",
-                       "SOMns"                 = "SOMns, Newspeak, master",
-                       "SOMns-Enterprise"      = "SOMns, Newspeak",
-                       "JRubyTruffle"          = "Ruby, JRuby+Truffle, truffle head (basic)",
-                       "JRubyTruffleEnterprise" = "Ruby, JRuby+Truffle", # , truffle head
-                       
-                       "TruffleSOM-graal"      = "TruffleSOM",
-                       "TruffleSOM-graal-no-split" = "TruffleSOM.ns",
-                       "SOMpp"                 = "SOM++")
+prepare_vm_names <- function(data, name_map) {
+  if (missing(name_map)) {
+    name_map <-     list("Java8U66"              = "Java, 1.8.0_66",
+                         "JRubyJ8"               = "Ruby, JRuby 9.0.4.0 + indy", #invokedynamic
+                         "MRI22"                 = "Ruby, MRI 2.2",
+                         "MRI23"                 = "Ruby, MRI 2.3",
+                         "RBX314"                = "Ruby, Rubinius 3.14",
+                         "GraalJS"               = "JavaScript, GraalJS",
+                         "Node"                  = "JavaScript, Node.js 5.4.0",
+                         "SOMns"                 = "SOMns, Newspeak, master",
+                         "SOMns-Enterprise"      = "SOMns, Newspeak",
+                         "JRubyTruffle"          = "Ruby, JRuby+Truffle, truffle head (basic)",
+                         "JRubyTruffleEnterprise" = "Ruby, JRuby+Truffle", # , truffle head
+                         
+                         "TruffleSOM-graal"      = "TruffleSOM",
+                         "TruffleSOM-graal-no-split" = "TruffleSOM.ns",
+                         "SOMpp"                 = "SOM++")
+  }
+  
   # Rename
   levels(data$VM)  <- map_names(
     levels(data$VM),
