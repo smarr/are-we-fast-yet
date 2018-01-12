@@ -12,5 +12,10 @@ else
   load_submodule $SCRIPT_PATH/SOMns
   pushd $SCRIPT_PATH/SOMns
   ant clobber; ant compile
+  popd
+  
+  load_submodule $SCRIPT_PATH/SOMns-vinni
+  pushd $SCRIPT_PATH/SOMns-vinni
+  ant clobber; ant compile
 fi
 OK SOMns Build Completed.

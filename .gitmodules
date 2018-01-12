@@ -31,3 +31,6 @@
 [submodule "implementations/RTruffleSOM"]
 	path = implementations/RTruffleSOM
 	url = http://github.com/SOM-st/RTruffleSOM.git
+[submodule "implementations/SOMns-vinni"]
+	path = implementations/SOMns-vinni
+	url = https://github.com/smarr/SOMns.git
