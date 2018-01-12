@@ -8,8 +8,9 @@ popd > /dev/null
 export JVMCI_VERSION_CHECK=ignore
 GRAAL_CORE_CMD=$SCRIPT_PATH/graal-core/bin/java
 
-GRAAL_HOSTED_FLAGS="-server -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCI -d64 "
-GRAAL_JIT_FLAGS="-server -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCI -XX:+UseJVMCICompiler -d64 "
+BASIC_JVMCI_FLAGS="-server -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCI -d64 -Dgraal.CompilationFailureAction=ExitVM "
+GRAAL_HOSTED_FLAGS="$BASIC_JVMCI_FLAGS"
+GRAAL_JIT_FLAGS="$BASIC_JVMCI_FLAGS -XX:+UseJVMCICompiler "
 
 ## GraalVM Binary
 export GRAAL_VM_CMD=$SCRIPT_PATH/graalvm/bin/java
