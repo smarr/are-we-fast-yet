@@ -77,6 +77,7 @@ names(vm_colors) <- vm_names
 # data <- load_all_data("data/all", "benchmark.data")
 data <- load_data_file("data/all/121-450e6527/benchmark.data")
 data <- rbind(data, load_data_file("data/all/123-1f03c713/benchmark.data"))
+data <- rbind(data, load_data_file("data/all/125-a38dc89d/benchmark.data"))
 data <- droplevels(subset(data,
                           select = c(Value, Unit, Benchmark, VM, Cores, Suite, Extra, Iteration))) # , version, sha
 
@@ -199,7 +200,7 @@ stats_for_base_vs_opt <- function (data_for_stats, base_t, opt_t) {
   opt_s
 }
 
-stats_table <- function (opt_s, benchmark_type, runtime_factor_title = "Speedup over Sequential\n(lower is better)") {
+stats_table <- function (opt_s, benchmark_type, runtime_factor_title = "Runtime Factor over Sequential\n(lower is better)") {
   filtered_s <- filter(opt_s, Cores == benchmark_type)
   
   show_plain <- mean ## this is silly, but works better than the identity for missing values
@@ -302,7 +303,7 @@ plot_benchmarks_speedup_for_vms_faceted(opt_s, vms_all, "Opt", "Runtime Factor o
 ```
 
 ```{r opt-vs-seq-table, results='asis', echo=FALSE}
-stats_table(opt_s, "Opt", "Speedup over Sequential\n(lower is better)")
+stats_table(opt_s, "Opt", "Runtime Factor over Sequential\n(lower is better)")
 ```
 
 # Parallel Speedup: Naive vs Seq
