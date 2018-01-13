@@ -1,6 +1,6 @@
 # Analysis of Fork/Join Experiments
 
-Status: 2018-01-07
+Status: 2018-01-13
 
 - available implementations
   - SOMns-naive (naive implementation, direct mapping to f/j pool)
@@ -16,6 +16,7 @@ Status: 2018-01-07
   - One: only one parallel task by forking and immediately joining
   - Opt: fork, but do one task locally
   - Seq: all fork() are compute()
+ - most run with smaller and bigger problem sizes to see whether we get parallel speedups
 
 Based on these benchmarks, we want to know the following things:
 
@@ -49,7 +50,7 @@ source("scripts/libraries.R", chdir=TRUE)
 
 load_and_install_if_necessary("knitr")
 
-opts_chunk$set(dev = 'png',
+opts_chunk$set(dev = 'svg', #dev = 'png', 
                dev.args=list(pointsize=10),
                echo = FALSE,
                fig.keep='all',
@@ -75,6 +76,7 @@ names(vm_colors) <- vm_names
 
 # data <- load_all_data("data/all", "benchmark.data")
 data <- load_data_file("data/all/121-450e6527/benchmark.data")
+data <- rbind(data, load_data_file("data/all/123-1f03c713/benchmark.data"))
 data <- droplevels(subset(data,
                           select = c(Value, Unit, Benchmark, VM, Cores, Suite, Extra, Iteration))) # , version, sha
 
@@ -93,19 +95,23 @@ vm_names <- vm_names[vms_all]
 #norm <- ddply(data, ~ Benchmark, transform,
 #              RuntimeRatio = Value / mean(Value[VM == "Java8U66"]))
 
+baseline_vm <- "GraalC2"
+
 norm <- data %>%
-  group_by(Benchmark, Cores) %>%
-  mutate(RuntimeRatio = Value / mean(Value[VM == "GraalC2"]))
+  group_by(Benchmark, Cores, Extra) %>%
+  mutate(RuntimeRatio = Value / mean(Value[VM == baseline_vm]),
+         Base = mean(Value[VM == baseline_vm]))
 # View(subset(norm, Benchmark == "CilkSort" & Iteration > 990 & Cores == "Seq"))
 
 stats <- norm %>%
-  group_by(VM, Benchmark, Cores) %>%  # , version, sha
+  group_by(VM, Benchmark, Cores, Extra) %>%  # , version, sha
   summarise(
     Time.ms = mean(Value),
     sd      = sd(Value),
     RuntimeFactor = mean(RuntimeRatio),
     RR.sd         = sd(RuntimeRatio),
-    RR.median     = median(RuntimeRatio))
+    RR.median     = median(RuntimeRatio),
+    Base = mean(Base))
 
 # stats_vm <- stats %>%
 #   group_by(VM, Benchmark, Cores) %>%   # , version, sha
@@ -116,9 +122,12 @@ stats <- norm %>%
 
 plot_benchmarks_speedup_for_vms_faceted <- function(
   stats, vms, benchmark_type, ylab = "Runtime Factor, normalized to C2\n(lower is better)") {
+  # benchmark_type <- "Nai"
+  # vms <- c("GraalBasic", "GraalC2")
   # vms <- vms_all
   vm_stats <- subset(stats, VM %in% vms & Cores == benchmark_type)
   vm_stats$VM <- revalue(vm_stats$VM, vm_names)
+  vm_stats <- droplevels(vm_stats)
   #vm_stats$VM <- reorder(vm_stats$VM, X=vm_stats$VMMean)
 
   breaks <- levels(droplevels(vm_stats)$VM)
@@ -127,7 +136,7 @@ plot_benchmarks_speedup_for_vms_faceted <- function(
   p <- ggplot(vm_stats, aes(x = VM, y = RuntimeFactor, fill = VM)) +
       geom_bar(stat = "identity") +
       geom_errorbar(aes(ymax = RuntimeFactor + RR.sd, ymin = RuntimeFactor - RR.sd), width=0.25) +
-      facet_wrap(~ Benchmark, ncol = 1, scales="free_y") +
+      facet_wrap(~ Benchmark + Extra, ncol = 1, scales="free_y") +
        theme_bw() + theme_simple(font_size = 8) + # scale_fill_manual(values=col) + coord_flip() +
       theme(legend.position="none", axis.text.x=element_text(angle=90, hjust = 1, vjust = 0.5)) +
     scale_fill_manual(values = col_values) +
@@ -136,9 +145,7 @@ plot_benchmarks_speedup_for_vms_faceted <- function(
 }
 
 overview_box_plot <- function(stats, vms, prepare_data = NULL, pre_plot = NULL, new_colors = FALSE) {
-  # stats <- stats_latest
-  # vms <- c("Node", "Pharo", "JavaInt", 
-  #          "Lua53", "LuaJIT2", "SOMns-Enterprise")
+  # vms <- c("GraalBasic", "GraalC2")
 
   vm_stats <- stats %>%
     filter(VM %in% vms)
@@ -152,7 +159,7 @@ overview_box_plot <- function(stats, vms, prepare_data = NULL, pre_plot = NULL, 
   vm_stats <- droplevels(vm_stats)
 
   breaks <- levels(vm_stats$VM)
-  cat(breaks)
+  
   if (new_colors) {
     col_values <- brewer.pal(length(breaks), "Paired")
   } else {
@@ -172,6 +179,41 @@ overview_box_plot <- function(stats, vms, prepare_data = NULL, pre_plot = NULL, 
     scale_fill_manual(values = col_values)
   plot
 }
+
+stats_for_base_vs_opt <- function (data_for_stats, base_t, opt_t) {
+  opt <- subset(data_for_stats, Cores == base_t | Cores == opt_t)
+  opt_n <- opt %>%
+    group_by(VM, Benchmark, Extra) %>%
+    mutate(RuntimeRatio = Value / mean(Value[Cores == base_t]),
+           Base         = mean(Value[Cores == base_t]))
+
+  opt_s <- opt_n %>%
+    group_by(VM, Benchmark, Cores, Extra) %>%  # , version, sha
+    summarise(
+      Time.ms = mean(Value),
+      sd      = sd(Value),
+      RuntimeFactor = mean(RuntimeRatio),
+      RR.sd         = sd(RuntimeRatio),
+      RR.median     = median(RuntimeRatio),
+      Base          = mean(Base))
+  opt_s
+}
+
+stats_table <- function (opt_s, benchmark_type, runtime_factor_title = "Speedup over Sequential\n(lower is better)") {
+  filtered_s <- filter(opt_s, Cores == benchmark_type)
+  
+  show_plain <- mean ## this is silly, but works better than the identity for missing values
+  
+  t <- tabular(Justify("l")*Heading()*Benchmark*VM*Heading("Size")*Extra ~
+               Heading(runtime_factor_title, character.only=TRUE)*Justify("r")*Format(sprintf("%.2f"))*((
+                   Heading("mean")*RuntimeFactor
+                 + Heading("sd")*RR.sd
+                 + Heading("median")*RR.median
+                 + Heading("time (ms)")*Time.ms
+                 + Heading("base (ms)")*Base
+                 )*Heading()*show_plain), data=filtered_s)
+  html(t[!is.na(t[,2])])
+}
 ```
 
 # Performance Overview
@@ -188,7 +230,7 @@ implementations/types.
 </style>
 
 <span id="perf-overview">
-```{r vm-perf-overview, fig.width=2, fig.height=10}
+```{r vm-perf-overview, fig.width=2, fig.height=15}
 for (t in c("Seq", "One", "Nai", "Opt")) {
   # t <- "Seq"
   plot_benchmarks_speedup_for_vms_faceted(stats, vms_all, t)
@@ -197,6 +239,17 @@ for (t in c("Seq", "One", "Nai", "Opt")) {
 ```
 </span>
 
+```{r vm-perf-overview-table, results='asis', echo=FALSE}
+for (benchmark_type in c("Seq", "One", "Nai", "Opt")) {
+  t_stats <-  subset(stats, Cores == benchmark_type)
+  t_stats$VM <- revalue(t_stats$VM, vm_names)
+  #t_stats$VM <- reorder(t_stats$VM, X=t_stats$VMMean)
+  
+  cat(paste0("<h3>", benchmark_type, "</h3>"))
+  
+  stats_table(t_stats, benchmark_type, paste0('Runtime Factor over ', vm_names[baseline_vm]))
+}
+```
 
 
 # Task Creation Overhead
@@ -215,21 +268,12 @@ and then immediately joins/waits for it.
 
 
 ```{r task-creation-overhead, fig.width=2, fig.height=10}
-seq <- subset(data, Cores == "Seq" | Cores == "One")
-seq_n <- seq %>%
-  group_by(VM, Benchmark) %>%
-  mutate(SlowdownFactor = Value / mean(Value[Cores == "Seq"]))
-
-seq_s <- seq_n %>%
-  group_by(VM, Benchmark, Cores) %>%  # , version, sha
-  summarise(
-    Time.ms = mean(Value),
-    sd      = sd(Value),
-    RuntimeFactor = mean(SlowdownFactor),
-    RR.sd         = sd(SlowdownFactor),
-    RR.median     = median(SlowdownFactor))
-
+seq_s <- stats_for_base_vs_opt(data, "Seq", "One")
 plot_benchmarks_speedup_for_vms_faceted(seq_s, vms_all, "One", "Runtime Factor over Sequential\n(lower is better)")
+```
+
+```{r task-creation-overhead-table, results='asis', echo=FALSE}
+stats_table(seq_s, "One", "Runtime Factor over Sequential\n(lower is better)")
 ```
 
 # Speedup for Task Optimization
@@ -241,54 +285,55 @@ waiting for the completion of other tasks.
 The benefit of this optimization is calculated based on the difference between
 the naive and the optimized version.
 
-```{r}
-stats_for_experiments <- function (data, slow, fast) {
-  opt <- subset(data, Cores == slow | Cores == fast)
-  opt_n <- opt %>%
-    group_by(VM, Benchmark) %>%
-    mutate(Speedup = mean(Value[Cores == fast]) / Value)
-
-  opt_s <- opt_n %>%
-    group_by(VM, Benchmark, Cores) %>%  # , version, sha
-    summarise(
-      Time.ms = mean(Value),
-      sd      = sd(Value),
-      RuntimeFactor = mean(Speedup),
-      RR.sd         = sd(Speedup),
-      RR.median     = median(Speedup))
-  opt_s
-}
+```{r task-optimization, fig.width=2, fig.height=10}
+task_opt_s <- stats_for_base_vs_opt(data, "Nai", "Opt")
+plot_benchmarks_speedup_for_vms_faceted(task_opt_s, vms_all, "Opt", "Runtime Factor over Naive\n(lower is better)")
 ```
 
-```{r task-optimization, fig.width=2, fig.height=10}
-task_opt_s <- stats_for_experiments(data, "Nai", "Opt")
-plot_benchmarks_speedup_for_vms_faceted(task_opt_s, vms_all, "Nai", "Speedup over Naive\n(lower is better)")
+```{r task-optimization-table, results='asis', echo=FALSE}
+stats_table(task_opt_s, "Opt", "Runtime Factor over Naive\n(lower is better)")
 ```
 
 # Parallel Speedup: Opt vs Seq (on 8 cores, 16 hyperthreads, for fix problem size)
 
 ```{r opt-vs-seq, fig.width=2, fig.height=10}
-opt_s <- stats_for_experiments(data, "Seq", "Opt")
-plot_benchmarks_speedup_for_vms_faceted(opt_s, vms_all, "Seq", "Speedup over Sequential\n(lower is better)")
+opt_s <- stats_for_base_vs_opt(data, "Seq", "Opt")
+plot_benchmarks_speedup_for_vms_faceted(opt_s, vms_all, "Opt", "Runtime Factor over Sequential\n(lower is better)")
+```
+
+```{r opt-vs-seq-table, results='asis', echo=FALSE}
+stats_table(opt_s, "Opt", "Speedup over Sequential\n(lower is better)")
 ```
 
 # Parallel Speedup: Naive vs Seq
 
 ```{r nai-vs-seq, fig.width=2, fig.height=10}
-opt_s <- stats_for_experiments(data, "Seq", "Nai")
-plot_benchmarks_speedup_for_vms_faceted(opt_s, vms_all, "Seq", "Speedup over Sequential\n(lower is better)")
+opt_s <- stats_for_base_vs_opt(data, "Seq", "Nai")
+plot_benchmarks_speedup_for_vms_faceted(opt_s, vms_all, "Nai", "Runtime Factor over Sequential\n(lower is better)")
+```
+
+```{r nai-vs-seq-table, results='asis', echo=FALSE}
+stats_table(opt_s, "Nai", "Runtime Factor over Sequential\n(lower is better)")
 ```
 
 # Parallel Speedup: Opt vs One
 
 ```{r opt-vs-one, fig.width=2, fig.height=10}
-opt_s <- stats_for_experiments(data, "One", "Opt")
-plot_benchmarks_speedup_for_vms_faceted(opt_s, vms_all, "One", "Speedup over Single Task\n(lower is better)")
+opt_s <- stats_for_base_vs_opt(data, "One", "Opt")
+plot_benchmarks_speedup_for_vms_faceted(opt_s, vms_all, "Opt", "Runtime Factor over Single Task\n(lower is better)")
+```
+
+```{r opt-vs-one-table, results='asis', echo=FALSE}
+stats_table(opt_s, "Opt", "Runtime Factor over Single Task\n(lower is better)")
 ```
 
 # Parallel Speedup: Naive vs One
 
 ```{r nai-vs-one, fig.width=2, fig.height=10}
-opt_s <- stats_for_experiments(data, "One", "Nai")
-plot_benchmarks_speedup_for_vms_faceted(opt_s, vms_all, "One", "Speedup over Single Task\n(lower is better)")
+opt_s <- stats_for_base_vs_opt(data, "One", "Nai")
+plot_benchmarks_speedup_for_vms_faceted(opt_s, vms_all, "Nai", "Runtime Factor over Single Task\n(lower is better)")
+```
+
+```{r nai-vs-one-table, results='asis', echo=FALSE}
+stats_table(opt_s, "Nai", "Runtime Factor over Sequential\n(lower is better)")
 ```
