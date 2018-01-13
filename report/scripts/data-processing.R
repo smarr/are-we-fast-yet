@@ -32,6 +32,7 @@ load_data_file <- function (file, row_names, version = 0, sha = "") {
                  Iteration = rid - min(rid),
                  version = version,
                  sha = sha)
+  bench$Extra <- as.factor(bench$Extra)
   bench
 }
 
