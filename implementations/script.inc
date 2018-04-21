@@ -106,10 +106,10 @@ function check_for_node() {
 }
 
 function check_for_graalvm() {
-  if [ ! -x "$SCRIPT_PATH/graalvm/jre/bin/javao" ]
+  if [ ! -x "$GRAALVM_HOME/bin/java" ]
   then
     ERR "GraalVM not found."
-    ERR "To run benchmarks on the GraalVM, please see 'implementations/graalvm/README.md'"
+    ERR "To run benchmarks on the GraalVM, please set GRAALVM_HOME"
   fi
 }
 
