@@ -52,14 +52,18 @@ prepare_vm_names <- function(data) {
                        "RBX314"                = "Ruby, Rubinius 3.14",
                        "GraalJS"               = "JavaScript, GraalJS",
                        "Node"                  = "JavaScript, Node.js 5.4.0",
-                       "SOMns"                 = "SOMns, Newspeak, master",
-                       "SOMns-Enterprise"      = "SOMns, Newspeak",
+                       "SOMns"                 = "SOMns",
+                       "SOMns-Enterprise"      = "SOMns GraalVM",
                        "JRubyTruffle"          = "Ruby, JRuby+Truffle, truffle head (basic)",
                        "JRubyTruffleEnterprise" = "Ruby, JRuby+Truffle", # , truffle head
                        
                        "TruffleSOM-graal"      = "TruffleSOM",
                        "TruffleSOM-graal-no-split" = "TruffleSOM.ns",
-                       "SOMpp"                 = "SOM++")
+                       "SOMpp"                 = "SOM++",
+                       
+                       "AkkaActor"    = "Akka",
+                       "JetlangActor" = "Jetlang",
+                       "ScalazActor"  = "Scalaz")
   # Rename
   levels(data$VM)  <- map_names(
     levels(data$VM),

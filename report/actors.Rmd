@@ -1,4 +1,4 @@
-# Performance Results
+# Analysis of the Actor Performance
 
 The last complete run of this benchmark setup yielded the results presented
 below. This report was generated on `r Sys.time()`.
@@ -17,96 +17,51 @@ opts_chunk$set(dev = 'png',
 #    cache=TRUE,
 
 vm_names <- c(
-  "Crystal"               = "Crystal",
-  "GraalBasic"            = "Graal Core",
-  "GraalC2"               = "HotSpot C2, jvmi",
-  "GraalEnterprise"       = "Graal VM",
-  "GraalJS"               = "Graal.js",
-  
-  "JRubyC2"               = "JRuby (C2, jvmci)",
-  "JRubyGraal"            = "JRuby (Graal Core)",
-  "JRubyJ8"               = "JRuby (C2, Java)",
-  
-  "Topaz"                 = "Topaz",
-  
-  "JRubyTruffle"           = "TruffleRuby (core)",
-  "JRubyTruffleEnterprise" = "TruffleRuby (GraalVM)",
-  
-  "Java8U66"              = "HotSpot C2",
-  "JavaInt"               = "HotSpot Int",
-  
-  "Lua53"                 = "Lua 5.3",
-  "LuaJIT2"               = "LuaJIT 2",
-  "MRI23"                 = "Ruby MRI 2.3",
-  "Node"                  = "Node.js",
-  "NodeTurboFan"          = "Node.js, TurboFan",
-  "Pharo"                 = "Pharo",
-  "RBX314"                = "Rubinius",
   "SOMns"                 = "SOMns core",
   "SOMns-Enterprise"      = "SOMns GraalVM",
-  "SOMnsInt"              = "SOMns int",
-  "TruffleSOM"            = "TruffleSOM core",
-  "TruffleSOM-Enterprise" = "TruffleSOM GraalVM",
-  "TruffleSOM-TOM"        = "TruffleSOM core, Truffle OM",
-  "TruffleSOM-TOM-Enterprise" = "TruffleSOM GraalVM, Truffle OM",
   
   "AkkaActor"    = "Akka",
   "JetlangActor" = "Jetlang",
   "ScalazActor"  = "Scalaz")
 
-vms_all  <- names(vm_names)
-vms_slow <- c("JRubyC2", "JRubyGraal", "JRubyJ8",
-              "JavaInt",
-              "Lua53", "LuaJIT2",
-              "MRI23", "RBX314",
-              "Pharo", "SOMnsInt", "Topaz")
-vms_fast <- c("Crystal",
-              "GraalBasic", "GraalC2", "GraalEnterprise",
-              "GraalJS",
-              "JRubyTruffle", "JRubyTruffleEnterprise",
-              "Java8U66",
-              "Node", "NodeTurboFan",
-              "SOMns", "SOMns-Enterprise",
-              "AkkaActor", "JetlangActor", "ScalazActor",
-              "TruffleSOM", "TruffleSOM-TOM", "TruffleSOM-Enterprise", "TruffleSOM-TOM-Enterprise")
-vms_truffle <- c("GraalJS",
-                 "JRubyTruffle", "JRubyTruffleEnterprise",
-                 "TruffleSOM", "TruffleSOM-Enterprise", "TruffleSOM-TOM", "TruffleSOM-TOM-Enterprise",
-                 "SOMns", "SOMns-Enterprise")
-
-assert_that(all(sort(c(vms_slow, vms_fast)) == sort(vms_all))) ## sanity check
+vms <- names(vm_names)
 
 # vm_colors <- brewer.pal(length(vms_all), "Paired")  # to replace scale_fill_brewer(type = "qual", palette = "Paired")
-vm_colors <- rainbow(length(vms_all))
+vm_colors <- rainbow(length(vms))
 
 names(vm_colors) <- vm_names
 
 data <- load_data_file("data/all/136-savina-8c3f6ec5/benchmark.data")
 # data <- load_all_data("data/all", "benchmark.data")
 
+## Currently there is a bug in Graal, which causes NQueens not to compile properly
+## Graal inlines to aggressively, resulting in a compilation result
+## that does not fit into the code cache.
+## Setting -Dgraal.TruffleMaximumRecursiveInlining=1 helps, but well, that's problematic)
+data <- subset(data, Benchmark != "NQueens")
+
 ## For Savina benchmarks use Var for VM, makes subsequent handling easier
 data <- transform(data, VM = ifelse(VM == "Scala", as.character(Var), as.character(VM)))
 data$VM <- as.factor(data$VM)
 data$Cores <- as.factor(data$Cores)
 
-data <- droplevels(subset(data,
-                          select = c(Value, Unit, Benchmark, VM, Suite, Cores, Extra, Iteration, version, sha)))
+data <- subset(data, select = c(Value, Unit, Benchmark, VM, Cores, Iteration, version, sha))
+data <- droplevels(subset(data, Iteration >= 100 & Iteration <= 990))
 
-data_fast_vms      <- droplevels(subset(data, Iteration >= 500 & Iteration <= 1000 & VM %in% vms_fast))
-data_very_slow_vms <- droplevels(subset(data, VM %in% vms_slow & VM != "JRubyJ8"))
-data_slow_vms      <- droplevels(subset(data, Iteration >= 100 & (VM == "JRubyJ8" | VM == "Pharo")))
-data <- rbind(data_fast_vms, data_slow_vms, data_very_slow_vms)
-
-#norm <- ddply(data, ~ Benchmark, transform,
-#              RuntimeRatio = Value / mean(Value[VM == "Java8U66"]))
+## Calculate mean for SOMns
+somns <- data %>%
+  filter(VM == "SOMns") %>%
+  group_by(Benchmark, Cores, version, sha) %>%
+  summarise(RuntimeMean = mean(Value))
 
 norm <- data %>%
-  group_by(Benchmark, Suite, Cores, version, sha) %>%
-  transform(RuntimeRatio = Value / mean(Value[VM == "SOMns"]))
+  left_join(somns) %>%
+  group_by(Benchmark, Cores, version, sha) %>%
+  transform(RuntimeRatio = Value / RuntimeMean)
   
 # norm <- transform(data, RuntimeRatio = Value / mean(Value[VM == "Java8U66"]))
 stats <- norm %>%
-  group_by(VM, Benchmark, Suite, Cores, version, sha) %>%
+  group_by(VM, Benchmark, Cores, version, sha) %>%
   summarise(
     Time.ms = mean(Value),
     sd      = sd(Value),
@@ -115,28 +70,28 @@ stats <- norm %>%
     RR.median     = median(RuntimeRatio))
 
 stats_cores_vm <- stats %>%
-  group_by(VM, Suite, Cores, version, sha) %>%
+  group_by(VM, Cores, version, sha) %>%
   transform(
     VMMean = geometric.mean(RuntimeFactor),
     min = min(RuntimeFactor),
     max = max(RuntimeFactor))
 
 stats_cores_vm_s <- stats %>%
-  group_by(VM, Suite, Cores, version, sha) %>%
+  group_by(VM, Cores, version, sha) %>%
   summarise(
     VMMean = geometric.mean(RuntimeFactor),
     min = min(RuntimeFactor),
     max = max(RuntimeFactor))
 
 stats_vm <- stats %>%
-  group_by(VM, Suite, version, sha) %>%
+  group_by(VM, version, sha) %>%
   transform(
     VMMean = geometric.mean(RuntimeFactor),
     min = min(RuntimeFactor),
     max = max(RuntimeFactor))
 
 stats_vm_s <- stats %>%
-  group_by(VM, Suite, version, sha) %>%
+  group_by(VM, version, sha) %>%
   summarise(
     VMMean = geometric.mean(RuntimeFactor),
     min = min(RuntimeFactor),
@@ -163,8 +118,8 @@ plot_benchmarks_speedup_for_vms <- function(stats, vms) {
 }
 
 plot_benchmarks_speedup_for_vms_faceted <- function(
-  stats, vms, ylab = "Runtime Factor, normalized to Java\n(lower is better)") {
-  vm_stats <- subset(stats, VM %in% vms)
+  stats_vm, vms, ylab = "Runtime Factor, normalized to Java\n(lower is better)") {
+  vm_stats <- subset(stats_vm, VM %in% vms)
   vm_stats$VM <- revalue(vm_stats$VM, vm_names)
   vm_stats$VM <- reorder(vm_stats$VM, X=vm_stats$VMMean)
   breaks <- levels(droplevels(vm_stats)$VM)
@@ -219,6 +174,57 @@ overview_box_plot <- function(stats, vms, prepare_data = NULL, pre_plot = NULL, 
 }
 ```
 
+## Actor Performance of SOMns
+
+**Goal**
+
+- want to be able to claim that the SOMns actor system is on par with state-of-the-art JVM actor frameworks
+
+
+- normalize a configuration to the peak performance of SOMns
+- peak performance:
+  - discard first 100 iterations
+  - 100 as cut of determined per inspection of [warmup-plot.Rmd]
+  - most configurations are stabilized at that point
+  - only very few have issues afterwards, overall this should be a good
+    compromise
+
+
+```{r actor-overview}
+# p <- ggplot(stats, aes(VM, RuntimeFactor))
+# p <- p + geom_violin() + facet_wrap(~Cores, nrow=1)
+# p <- p + theme_bw() + theme_simple(font_size = 8) +
+#     theme(axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1), legend.position="none")
+# p
+
+p <- ggplot(stats, aes(VM, RuntimeFactor))
+p <- p + geom_boxplot(outlier.size = 0.5) + geom_violin(colour = "#cccccc") + facet_wrap(~Cores, nrow=1)
+p <- p + theme_bw() + theme_simple(font_size = 8) +
+    theme(axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1), legend.position="none")
+p + coord_cartesian(ylim = c(0, 5))
+```
+
+
+Goal:
+
+
+ - compare SOMns with SOMns-enterprise
+   - is enterprise faster, if not, why?
+
+ - want to show that benchmarks benefit from parallel execution
+   - for parallel benchmarks
+      - RadixSort
+      - UnbalancedCobwebbedTree
+      - TrapezoidalApproximation
+      - NQueens
+ 
+ - identify broken benchmarks
+   - incomplete runs
+   - broken compilation
+   - much slower than the others
+
+
+
 All results are normalized to Java 1.8.0_91. Furthermore, we report peak
 performance. This means, the reported measurements are taken after warmup and
 compilation of the benchmark code is completed.
@@ -235,30 +241,15 @@ ones from the following plot.
 ```{r fast-langs-overview, fig.width=15, fig.height=6}
 # overview_box_plot(stats_latest,
 #                   c("Node", "Pharo", "JavaInt", "Java8U66", "MRI23", "Lua53", "LuaJIT2", "SOMns-Enterprise"), new_colors = TRUE)
-p <- overview_box_plot(stats_latest, vms_fast, pre_plot = function (p) {
+p <- overview_box_plot(stats_latest, vms, pre_plot = function (p) {
   p + geom_hline(aes(yintercept=1), colour="#cccccc", linetype="dashed") +
       geom_hline(aes(yintercept=2), colour="#cccccc", linetype="dashed") +
       geom_hline(aes(yintercept=3), colour="#cccccc", linetype="dashed") })
 p + scale_y_continuous(limit=c(0,13), breaks = c(1, 2, 3, 4, 6, 8, 10, 12))
 ```
 
-##### All Language Implementations
 
-Other language implementations are not necessarily reaching performance similar
-to Java on our benchmarks. The following plot include all of the
-implementations.
 
-```{r all-langs-overview, fig.width=8, fig.height=10}
-p <- overview_box_plot(stats_latest, vms_all)
-p + scale_y_continuous(breaks = c(0, 5, seq(from=10, by=10, to=100)))
-```
-
-###### Ruby Performance
-
-```{r ruby-overview, fig.width=8, fig.height=6}
-p <- overview_box_plot(stats_latest, c("Crystal", "Java8U66", "RBX314", "Topaz", "MRU23", "JRubyC2", "JRubyTruffleEnterprise", "Pharo"))
-p + scale_y_continuous(breaks = c(0, 5, seq(from=10, by=10, to=100)))
-```
 
 ##### Performance Overview Data
 <a id="data-table"></a>
@@ -288,12 +279,37 @@ html(t)
 
 The following plots show results for each of the benchmarks.
 
-##### Fast Language Implementations
+##### All Benchmark Details
 
-```{r fast-langs-benchmarks, fig.width=4, fig.height=16}
-plot_benchmarks_speedup_for_vms_faceted(stats_latest, vms_fast)
+###### 1 Core
+
+```{r benchmarks-c1, fig.width=4, fig.height=16}
+plot_benchmarks_speedup_for_vms_faceted(subset(stats_cores_vm, Cores == 1), vms)
 ```
 
+###### 2 Core
+
+```{r benchmarks-c2, fig.width=4, fig.height=16}
+plot_benchmarks_speedup_for_vms_faceted(subset(stats_cores_vm, Cores == 2), vms)
+```
+
+###### 4 Core
+
+```{r benchmarks-c1, fig.width=4, fig.height=16}
+plot_benchmarks_speedup_for_vms_faceted(subset(stats_cores_vm, Cores == 4), vms)
+```
+
+###### 6 Core
+
+```{r benchmarks-c1, fig.width=4, fig.height=16}
+plot_benchmarks_speedup_for_vms_faceted(subset(stats_cores_vm, Cores == 6), vms)
+```
+
+###### 8 Core
+
+```{r benchmarks-c1, fig.width=4, fig.height=16}
+plot_benchmarks_speedup_for_vms_faceted(subset(stats_cores_vm, Cores == 8), vms)
+```
 ##### Slow Language Implementations
 
 ```{r slow-langs-benchmarks, fig.width=4, fig.height=16}

@@ -4,3 +4,6 @@
 [submodule "implementations/graal"]
 	path = implementations/graal
 	url = https://github.com/smarr/GraalBasic.git
+[submodule "implementations/savina"]
+	path = implementations/savina
+	url = https://github.com/smarr/savina.git
