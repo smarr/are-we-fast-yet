@@ -9,6 +9,9 @@ cd $SCRIPT_PATH
 load_submodule graal
 cd $SCRIPT_PATH/graal
 
+## We got issues with the version check when building from git, so, disable it
+export JVMCI_VERSION_CHECK=ignore
+
 cd graal-jvmci-8
 ../mx/mx --java-home ${JAVA8_HOME} clean
 ../mx/mx --java-home ${JAVA8_HOME} build
