@@ -3,12 +3,6 @@ set -e # make script fail on first error
 SCRIPT_PATH=`dirname $0`
 source $SCRIPT_PATH/script.inc
 
-rm $SCRIPT_PATH/graalvm
-if [ -x "$GRAALVM_HOME/bin/java" ]
-then
-  ln -s "$GRAALVM_HOME" $SCRIPT_PATH/graalvm
-fi
-
 ## Check for requirements
 check_for_tools git ant make mv uname cc c++
 check_for_crystal "non-fatal"
