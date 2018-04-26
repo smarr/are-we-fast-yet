@@ -7,3 +7,9 @@
 [submodule "implementations/savina"]
 	path = implementations/savina
 	url = https://github.com/smarr/savina.git
+[submodule "implementations/SOMns-trace-sm"]
+	path = implementations/SOMns-trace-sm
+	url = https://github.com/smarr/SOMns.git
+[submodule "implementations/SOMns-acme"]
+	path = implementations/SOMns-acme
+	url = https://github.com/smarr/SOMns.git

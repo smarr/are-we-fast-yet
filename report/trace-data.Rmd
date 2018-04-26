@@ -1,0 +1,174 @@
+# Analyising the Trace Data Output
+
+```{r prepare-data, echo=TRUE, message=TRUE, warning=TRUE, dev='svg'}
+# load libraries, the data, and prepare it
+if (Sys.getenv("RSTUDIO") == "1") { setwd("/Users/smarr/Projects/PostDoc/FASTXX/are-we-fast-yet/report") }
+
+source("scripts/libraries.R", chdir=TRUE)
+
+
+vm_names <- c(
+  "SOMns"                 = "SOMns core",
+  "SOMns-Enterprise"      = "SOMns GraalVM",
+  "SOMns-t-da"            = "Trace, pre-opt",
+  # "SOMns-t-sm2"           = "Trace, 2nd-opt",
+  # "SOMns-t-sm3"           = "Trace, 3rd-opt",
+  "SOMns-no-tracing"      = "SOMns, no trace",
+  "SOMns-t-sm4"           = "Trace, 4th-opt",
+  "SOMns-t-sid1"          = "Trace SID",
+  "SOMns-t-sid-stats"     = "Trace SID stats",
+  "SOMns-t-sid"           = "Trace, Small Ids",
+  "SOMns-full-ids"        = "Trace, Full Ids",
+  "SOMns-t-no3-sid"       = "Trace, Small Ids w/o 3b",
+  
+  "AkkaActor"    = "Akka",
+  "JetlangActor" = "Jetlang",
+  "ScalazActor"  = "Scalaz")
+
+som_vms <- c("SOMns", "SOMns-t-sm3", "SOMns-t-sm4", "SOMns-t-sid1", "SOMns-t-sid-stats")
+# "SOMns-t-da",  "SOMns-t-sm", "SOMns-t-sm2",
+
+vms <- names(vm_names)
+
+# vm_colors <- brewer.pal(length(vms_all), "Paired")  # to replace scale_fill_brewer(type = "qual", palette = "Paired")
+vm_colors <- rainbow(length(vms))
+
+names(vm_colors) <- vm_names
+
+#data <- rbind(
+data <-  load_data_file("data/all/160-savina-fbe9bc5e/benchmark.data")
+  # load_data_file("data/all/150-savina-7ba33abd/benchmark.data")
+#  )
+
+#d9 <- load_data_file("data/all/154-savina-38b06824/benchmark.data")
+#d9$VM <- "Full Ids, probabilistic"
+  
+#data <- rbind(data, d9)
+
+
+## For Savina benchmarks use Var for VM, makes subsequent handling easier
+data$VM <- as.factor(data$VM)
+data$Cores <- as.factor(data$Cores)
+
+data <- droplevels(subset(data, select = c(Value, Unit, Criterion, Benchmark, VM, Cores, Iteration)))
+
+run_plot <- function (data_c, b, c, ylab) {
+  plot_names <- vm_names[levels(data_c$VM)]
+  data_c$VM <- revalue(data_c$VM, plot_names)
+  plot <- ggplot(data_c, aes(x=Iteration, y=Value))
+  plot <- plot + geom_line(aes(colour = VM))
+  plot <- plot + ggtitle(paste0(b, " Cores: ", c))
+  plot <- plot + scale_x_continuous(breaks = seq(0, max(data_c$Iteration), 100))
+  plot <- plot + geom_vline(xintercept = c(100, 200, 300), linetype = "longdash", colour = "#cccccc")
+  plot <- plot + theme_simple() + ylab(ylab)
+  print(plot)
+}
+```
+
+
+# Trace Data
+
+```{r trace-data-plots, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
+
+# b <- "BankTransaction"
+# c <- 1
+
+trace <- data %>%
+  filter(Unit == "byte") %>%
+  droplevels() %>%
+  group_by(Benchmark, VM, Cores, Iteration) %>%
+  summarise(Value = sum(Value))
+
+for (b in levels(trace$Benchmark)) {
+  data_b <- droplevels(subset(trace, Benchmark == b))
+  
+  for (c in levels(data_b$Cores)) {
+    data_c <- droplevels(subset(data_b, Cores == c))
+    run_plot(data_c, b, c, "Data per Iteration (bytes)")
+  }
+}
+```
+
+# Data Rate
+
+```{r data-rate, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
+
+time <- data %>%
+  filter(Criterion == "total")
+
+rate <- left_join(time, trace, by = c("Benchmark", "VM", "Cores", "Iteration")) %>%
+  droplevels() %>%
+  mutate(ValueBMS = Value.y / Value.x,
+         UnitBMS = "byte/ms",
+         ValueBS = Value.y / (Value.x / 1000),
+         UnitBS = "byte/s",
+         Value = (Value.y / (1024 * 1024)) / (Value.x / 1000),
+         Unit = "MB/s")
+
+for (b in levels(trace$Benchmark)) {
+  data_b <- droplevels(subset(rate, Benchmark == b))
+  
+  for (c in levels(data_b$Cores)) {
+    data_c <- droplevels(subset(data_b, Cores == c))
+    run_plot(data_c, b, c, "Data MB/s")
+  }
+}
+```
+
+```{r rate-stats, results='asis', echo=TRUE}
+rate_stats <- rate %>%
+  filter(Value != 0) %>%  # need to filter out 0 values (can be at the beginning, otherwise hmean is 0)
+  group_by(Benchmark, VM, Cores) %>%
+  summarise(hmean  = harmonic.mean(Value),
+            unit   = "MB/s",
+            max    = max(Value),
+            min    = min(Value),
+            sd     = sd(Value),
+            median = median(Value))
+
+table_names <- vm_names[levels(rate_stats$VM)]
+rate_stats$VM <- revalue(rate_stats$VM, table_names)
+rate_stats$VM <- reorder(rate_stats$VM, X=rate_stats$hmean)
+
+
+t <- tabular(Justify("l")*Heading()*Benchmark*VM*Cores ~
+             Heading('HMean MB/s')*Justify("r")*Format(sprintf("%.2f"))*((hmean + sd + min + max + median)*Heading()*identity), data=rate_stats)
+table_options(justification="c ")
+html(t)
+```
+
+
+```{r rate-stats_vm, results='asis', echo=TRUE}
+all_trace <- trace %>%
+  group_by(Benchmark, VM, Cores) %>%
+  summarise(DataB = sum(Value),
+            DataMB = sum(Value) / (1024 * 1024))
+
+full_ids <- all_trace %>%
+  filter(VM == "SOMns-full-ids") %>%
+  ungroup() %>%
+  mutate(FullIdsMB = DataMB) %>%
+  select(-c(VM, DataB, DataMB))
+
+norm <- left_join(all_trace, full_ids) %>%
+  mutate(DataRatio = DataMB / FullIdsMB)
+
+vm_stats <- norm %>%
+  group_by(VM, Cores) %>%
+  summarise(
+    Ratio = geometric.mean(DataRatio),
+    sd = sd(DataRatio),
+    min = min(DataRatio),
+    max = max(DataRatio),
+    median = median(DataRatio))
+
+table_names <- vm_names[levels(vm_stats$VM)]
+vm_stats$VM <- revalue(vm_stats$VM, table_names)
+vm_stats$VM <- reorder(vm_stats$VM, X=vm_stats$Ratio)
+
+
+t <- tabular(Justify("l")*Heading()*VM*Cores ~
+             Heading('Data produced')*Justify("r")*Format(sprintf("%.2f"))*((Ratio + sd + min + max + median)*Heading()*identity), data=vm_stats)
+table_options(justification="c ")
+html(t)
+```

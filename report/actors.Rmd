@@ -5,7 +5,7 @@ below. This report was generated on `r Sys.time()`.
 
 ```{r load-scripts, echo=FALSE, include=FALSE}
 # load libraries, the data, and prepare it
-if (Sys.getenv("RSTUDIO") == "1") { setwd("/Users/smarr/Projects/PostDoc/FASTXX/are-we-fast-yet/report") }
+if (Sys.getenv("RSTUDIO") == "1") { setwd("/Users/smarr/Projects/are-we-fast-yet/report") }
 source("scripts/libraries.R", chdir=TRUE)
 opts_chunk$set(dev = 'png',
                dev.args=list(pointsize=10),
@@ -19,10 +19,26 @@ opts_chunk$set(dev = 'png',
 vm_names <- c(
   "SOMns"                 = "SOMns core",
   "SOMns-Enterprise"      = "SOMns GraalVM",
+  "SOMns-t-da"            = "Trace, pre-opt",
+  # "SOMns-t-sm"            = "Trace, 1st-opt",
+  # "SOMns-t-sm2"           = "Trace, 2nd-opt",
+  # "SOMns-t-sm3"           = "Trace, 3rd-opt",
+  "SOMns-no-tracing"      = "SOMns, no trace",
+  "SOMns-t-sm4"           = "Trace, 4th-opt",
+  "SOMns-t-sid1"          = "Trace SID",
+  "SOMns-t-sid-stats"     = "Trace SID stats",
+  "SOMns-t-sid"           = "Trace, Small Ids",
+  "SOMns-full-ids"        = "Trace, Full Ids",
+  "SOMns-t-no3-sid"       = "Trace, Small Ids w/o 3b",
   
   "AkkaActor"    = "Akka",
   "JetlangActor" = "Jetlang",
   "ScalazActor"  = "Scalaz")
+
+som_vms <- c("SOMns-full-ids",
+             "SOMns-no-tracing",
+             "SOMns-t-no3-sid",
+             "SOMns-t-sid")
 
 vms <- names(vm_names)
 
@@ -31,7 +47,51 @@ vm_colors <- rainbow(length(vms))
 
 names(vm_colors) <- vm_names
 
-data <- load_data_file("data/all/136-savina-8c3f6ec5/benchmark.data")
+# data <-
+#   rbind(load_data_file("data/all/136-savina-8c3f6ec5/benchmark.data"),
+#         load_data_file("data/all/141-savina-3866adfc/benchmark.data"))
+
+# d2 <- load_data_file("data/all/142-savina-0890cf41/benchmark.data")
+# d2$VM <- "SOMns-t-sm2"
+# 
+# d3 <- load_data_file("data/all/143-savina-26ce00a8/benchmark.data")
+# d3$VM <- "SOMns-t-sm3"
+
+# d4 <- load_data_file("data/all/144-savina-463d27a8/benchmark.data")
+# d4$VM <- "SOMns-t-sm4"
+# 
+# d5 <- load_data_file("data/all/146-savina-b9635af9/benchmark.data")
+# d5$VM <- "SOMns-t-sid1"
+# 
+# d6 <- load_data_file("data/all/149-savina-493d113e/benchmark.data")
+# d6$VM <- "SOMns-t-sid"
+# 
+# d7 <- load_data_file("data/all/150-savina-7ba33abd/benchmark.data")
+# 
+# d8 <- load_data_file("data/all/152-savina-7fe863b7/benchmark.data")
+# d8$VM <- revalue(d8$VM, c("SOMns" = "SOMns truf-loop", "SOMns-t" = "Trace truf-loop"))
+# 
+# d9 <- load_data_file("data/all/154-savina-38b06824/benchmark.data")
+# d9$VM <- "Trace, Full Ids probabilistic"
+# 
+# d10 <- load_data_file("data/all/158-savina-365f7ebf/benchmark.data")
+# d10$VM <- "Trace, Full Ids no-stats"
+## Ignore old experiments
+#data <- subset(data, VM != "SOMns-t-sm" & VM != "SOMns-t-dm")
+
+#data <- rbind(data, d4, d5, d6, d7, d8, d9, d10) # d2, d3,
+#data <- load_data_file("data/all/160-savina-fbe9bc5e/benchmark.data")
+#data <- load_data_file("data/all/161-savina-fbe9bc5e/benchmark.data")
+#data <- load_data_file("data/all/162-savina-6f17944d/benchmark.data")
+
+data <- load_data_file("data/all/163-savina-be867eb6/benchmark.data")
+#data <- load_data_file("data/all/164-savina-f320b4f7/benchmark.data")
+d2 <- load_data_file("data/all/165-savina-0517ac49/benchmark.data")
+
+d2$VM <- revalue(d2$VM, c("SOMns-full-ids" = "SOMns-full-ids-fileout",
+                          "SOMns-t-sid" = "SOMns-t-sid-fileout"))
+data <- rbind(data, d2)
+
 # data <- load_all_data("data/all", "benchmark.data")
 
 ## Currently there is a bug in Graal, which causes NQueens not to compile properly
@@ -45,12 +105,14 @@ data <- transform(data, VM = ifelse(VM == "Scala", as.character(Var), as.charact
 data$VM <- as.factor(data$VM)
 data$Cores <- as.factor(data$Cores)
 
-data <- subset(data, select = c(Value, Unit, Benchmark, VM, Cores, Iteration, version, sha))
-data <- droplevels(subset(data, Iteration >= 100 & Iteration <= 990))
+data <- subset(data, select = c(Value, Unit, Criterion, Benchmark, VM, Cores, Iteration, version, sha))
+trace_data <- droplevels(subset(data, Unit == "byte"))
+
+data <- droplevels(subset(data, Unit != "byte" & Iteration >= 600 & Iteration <= 990))
 
 ## Calculate mean for SOMns
 somns <- data %>%
-  filter(VM == "SOMns") %>%
+  filter(VM == "SOMns-full-ids") %>%
   group_by(Benchmark, Cores, version, sha) %>%
   summarise(RuntimeMean = mean(Value))
 
@@ -258,7 +320,7 @@ The following table contains the numerical representation of the results
 depicted above.
 
 ```{r truffle-lang-table, results='asis', echo=FALSE}
-vm_stats <- ddply(stats_latest, ~ VM, summarise,
+vm_stats <- ddply(stats_latest, ~ VM + Cores, summarise,
                      geomean = geometric.mean(RuntimeFactor),
                      sd      = sd(RuntimeFactor),
                      min     = min(RuntimeFactor),
@@ -268,8 +330,27 @@ vm_stats$VM <- revalue(vm_stats$VM, vm_names)
 vm_stats$VM <- reorder(vm_stats$VM, X=vm_stats$geomean)
 
 
-t <- tabular(Justify("l")*Heading()*VM ~
-             Heading('Runtime Factor over Java')*Justify("r")*Format(sprintf("%.2f"))*((geomean + sd + min + max + median)*Heading()*identity), data=vm_stats)
+t <- tabular(Justify("l")*Heading()*VM*Cores ~
+             Heading('Runtime Factor over SOMns')*Justify("r")*Format(sprintf("%.2f"))*((geomean + sd + min + max + median)*Heading()*identity), data=vm_stats)
+table_options(justification="c ")
+html(t)
+```
+
+```{r tracing-table, results='asis', echo=FALSE}
+vm_stats <- droplevels(subset(stats_latest, VM %in% som_vms & Cores %in% c(1, 8)))
+vm_stats <- ddply(vm_stats, ~ VM + Cores, summarise,
+                     geomean = geometric.mean(RuntimeFactor),
+                     sd      = sd(RuntimeFactor),
+                     min     = min(RuntimeFactor),
+                     max     = max(RuntimeFactor),
+                     median  = median(RuntimeFactor))
+vm_stats$VM <- revalue(vm_stats$VM, vm_names)
+vm_stats$VM <- reorder(vm_stats$VM, X=vm_stats$geomean)
+
+
+
+t <- tabular(Justify("l")*Heading()*VM*Cores ~
+             Heading('Runtime Factor over SOMns')*Justify("r")*Format(sprintf("%.2f"))*((geomean + sd + min + max + median)*Heading()*identity), data=vm_stats)
 table_options(justification="c ")
 html(t)
 ```
@@ -295,31 +376,77 @@ plot_benchmarks_speedup_for_vms_faceted(subset(stats_cores_vm, Cores == 2), vms)
 
 ###### 4 Core
 
-```{r benchmarks-c1, fig.width=4, fig.height=16}
+```{r benchmarks-c4, fig.width=4, fig.height=16}
 plot_benchmarks_speedup_for_vms_faceted(subset(stats_cores_vm, Cores == 4), vms)
 ```
 
 ###### 6 Core
 
-```{r benchmarks-c1, fig.width=4, fig.height=16}
+```{r benchmarks-c6, fig.width=4, fig.height=16}
 plot_benchmarks_speedup_for_vms_faceted(subset(stats_cores_vm, Cores == 6), vms)
 ```
 
 ###### 8 Core
 
-```{r benchmarks-c1, fig.width=4, fig.height=16}
+```{r benchmarks-c8, fig.width=4, fig.height=16}
 plot_benchmarks_speedup_for_vms_faceted(subset(stats_cores_vm, Cores == 8), vms)
 ```
-##### Slow Language Implementations
+##### SOMns Implementations
 
-```{r slow-langs-benchmarks, fig.width=4, fig.height=16}
-plot_benchmarks_speedup_for_vms_faceted(stats_latest, vms_slow)
+###### 1 Core
+
+```{r benchmarks-c1s, fig.width=4, fig.height=16}
+plot_benchmarks_speedup_for_vms_faceted(subset(stats_cores_vm, VM %in% som_vms & Cores == 1), vms)
+```
+
+###### 2 Core
+
+```{r benchmarks-c2s, fig.width=4, fig.height=16}
+plot_benchmarks_speedup_for_vms_faceted(subset(stats_cores_vm, VM %in% som_vms & Cores == 2), vms)
+```
+
+###### 4 Core
+
+```{r benchmarks-c4s, fig.width=4, fig.height=16}
+plot_benchmarks_speedup_for_vms_faceted(subset(stats_cores_vm, VM %in% som_vms & Cores == 4), vms)
+```
+
+###### 6 Core
+
+```{r benchmarks-c6s, fig.width=4, fig.height=16}
+plot_benchmarks_speedup_for_vms_faceted(subset(stats_cores_vm, VM %in% som_vms & Cores == 6), vms)
+```
+
+###### 8 Core
+
+```{r benchmarks-c8s, fig.width=4, fig.height=16}
+plot_benchmarks_speedup_for_vms_faceted(subset(stats_cores_vm, VM %in% som_vms & Cores == 8), vms)
 ```
 
 ##### Benchmark Results
 <a id="benchmark-table"></a>
 
 The following table contains the numerical results for all benchmarks.
+
+###### 1 Core
+
+```{r benchmark-table-c1, results='asis', echo=FALSE}
+t_stats <- stats_latest[stats_latest$Cores == 1,]
+t_stats$VM <- revalue(t_stats$VM, vm_names)
+t_stats$VM <- reorder(t_stats$VM, X=t_stats$VMMean)
+
+show_plain <- mean ## this is silly, but works better than the identity for missing values
+
+t <- tabular(Justify("l")*Heading()*Benchmark*VM ~
+             Heading('Runtime Factor over Java')*Justify("r")*Format(sprintf("%.2f"))*((
+                 Heading("mean")*RuntimeFactor
+               + Heading("sd")*RR.sd
+               # + Heading("median")*RR.median
+               )*Heading()*show_plain), data=t_stats)
+html(t)
+```
+
+###### All Data
 
 ```{r benchmark-table, results='asis', echo=FALSE}
 t_stats <- stats_latest

@@ -4,7 +4,7 @@ SCRIPT_PATH=`dirname $0`
 source $SCRIPT_PATH/script.inc
 source $SCRIPT_PATH/config.inc
 
-REPO="$SCRIPT_PATH/SOMns-acme"
+REPO="$SCRIPT_PATH/SOMns-trace-da"
 
 if [ "$1" = "style" ]
 then
