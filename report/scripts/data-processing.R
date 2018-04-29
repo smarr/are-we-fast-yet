@@ -26,7 +26,12 @@ load_data_file <- function (file, row_names, version = 0, sha = "") {
   }
   
   bench <- read.table(file, sep="\t", header=FALSE, col.names=row_names, fill=TRUE)
-  bench$rid = seq_len(nrow(bench))
+
+  # Give Run Ids to the rows, but need to consider different criterions
+  num_criterions <- length(levels(bench$Criterion))
+  run_nums <- seq_len(nrow(bench) / num_criterions)
+  bench$rid <- rep(run_nums, each = num_criterions)
+
   bench <- ddply(bench, ~ Benchmark + VM + Var + Extra + Cores + Suite,
                  here(transform),
                  Iteration = rid - min(rid),
