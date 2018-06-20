@@ -31,3 +31,6 @@
 [submodule "implementations/RTruffleSOM"]
 	path = implementations/RTruffleSOM
 	url = http://github.com/SOM-st/RTruffleSOM.git
+[submodule "implementations/moth"]
+	path = implementations/moth
+	url = https://github.com/richard-roberts/Moth.git
