@@ -5,17 +5,6 @@
 if (Sys.getenv("RSTUDIO") == "1") { setwd("/Users/smarr/Projects/PostDoc/FASTXX/are-we-fast-yet/report") }
 
 source("scripts/libraries.R", chdir=TRUE)
-data <- load_data_file("data/all/136-savina-8c3f6ec5/benchmark.data")
-
-## For Savina benchmarks use Var for VM, makes subsequent handling easier
-data <- transform(data, VM = ifelse(VM == "Scala", as.character(Var), as.character(VM)))
-data$VM <- as.factor(data$VM)
-data$Cores <- as.factor(data$Cores)
-
-data <- subset(data, select = c(Value, Unit, Benchmark, VM, Cores, Iteration))
-data <- prepare_vm_names(data)
-
-summary(data)
 
 warmup_plot <- function (data_c, b, c) {
   ## First take the medians over the values for each VM separated
@@ -36,10 +25,17 @@ warmup_plot <- function (data_c, b, c) {
 }
 ```
 
-# Plots
+# Plots, Sequential Perf
 
-```{r warmup-plots, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
-b <- "Mandelbrot"
+```{r awfy-warmup-plots, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
+
+data <- load_data_file("data/all/160-savina-fbe9bc5e/benchmark.data")
+data <- droplevels(subset(data, Criterion == "total", select = c(Value, Unit, Benchmark, VM, Cores, Iteration)))
+data <- prepare_vm_names(data)
+data$Cores <- as.factor(data$Cores)
+
+# b <- "BankTransaction"
+# c <- 1
 
 for (b in levels(data$Benchmark)) {
   data_b <- droplevels(subset(data, Benchmark == b))
@@ -51,3 +47,29 @@ for (b in levels(data$Benchmark)) {
 }
 ```
 
+# Plots, Actor Perf
+
+```{r savina-warmup-plots, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
+
+data <- load_data_file("data/all/136-savina-8c3f6ec5/benchmark.data")
+
+## For Savina benchmarks use Var for VM, makes subsequent handling easier
+data <- transform(data, VM = ifelse(VM == "Scala", as.character(Var), as.character(VM)))
+data$VM <- as.factor(data$VM)
+data$Cores <- as.factor(data$Cores)
+
+data <- subset(data, select = c(Value, Unit, Benchmark, VM, Cores, Iteration))
+data <- prepare_vm_names(data)
+
+
+b <- "Mandelbrot"
+
+for (b in levels(data$Benchmark)) {
+  data_b <- droplevels(subset(data, Benchmark == b))
+  
+  for (c in levels(data_b$Cores)) {
+    data_c <- droplevels(subset(data_b, Cores == c))
+    warmup_plot(data_c, b, c)
+  }
+}
+```

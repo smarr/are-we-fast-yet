@@ -17,42 +17,43 @@ opts_chunk$set(dev = 'png',
 #    cache=TRUE,
 
 vm_names <- c(
-  "Crystal"               = "Crystal",
+  # "Crystal"               = "Crystal",
   "GraalBasic"            = "Graal Core",
   "GraalC2"               = "HotSpot C2, jvmi",
   "GraalEnterprise"       = "Graal VM",
-  "GraalJS"               = "Graal.js",
+  # "GraalJS"               = "Graal.js",
   
-  "JRubyC2"               = "JRuby (C2, jvmci)",
-  "JRubyGraal"            = "JRuby (Graal Core)",
-  "JRubyJ8"               = "JRuby (C2, Java)",
+  # "JRubyC2"               = "JRuby (C2, jvmci)",
+  # "JRubyGraal"            = "JRuby (Graal Core)",
+  # "JRubyJ8"               = "JRuby (C2, Java)",
   
-  "Topaz"                 = "Topaz",
+  # "Topaz"                 = "Topaz",
   
-  "JRubyTruffle"           = "TruffleRuby (core)",
-  "JRubyTruffleEnterprise" = "TruffleRuby (GraalVM)",
+  # "JRubyTruffle"           = "TruffleRuby (core)",
+  # "JRubyTruffleEnterprise" = "TruffleRuby (GraalVM)",
   
   "Java8U66"              = "HotSpot C2",
-  "JavaInt"               = "HotSpot Int",
+  # "JavaInt"               = "HotSpot Int",
   
-  "Lua53"                 = "Lua 5.3",
-  "LuaJIT2"               = "LuaJIT 2",
-  "MRI23"                 = "Ruby MRI 2.3",
+  # "Lua53"                 = "Lua 5.3",
+  # "LuaJIT2"               = "LuaJIT 2",
+  # "MRI23"                 = "Ruby MRI 2.3",
   "Node"                  = "Node.js",
-  "NodeTurboFan"          = "Node.js, TurboFan",
-  "Pharo"                 = "Pharo",
-  "RBX314"                = "Rubinius",
-  "SOMns"                 = "SOMns core",
-  "SOMns-Enterprise"      = "SOMns GraalVM",
-  "SOMnsInt"              = "SOMns int",
-  "TruffleSOM"            = "TruffleSOM core",
-  "TruffleSOM-Enterprise" = "TruffleSOM GraalVM",
-  "TruffleSOM-TOM"        = "TruffleSOM core, Truffle OM",
-  "TruffleSOM-TOM-Enterprise" = "TruffleSOM GraalVM, Truffle OM",
+  # "NodeTurboFan"          = "Node.js, TurboFan",
+  # "Pharo"                 = "Pharo",
+  # "RBX314"                = "Rubinius",
+  "SOMns"                 = "SOMns",
+  "SOMns-Enterprise"      = "SOMns GraalVM"
+  # "SOMnsInt"              = "SOMns int",
+  # "TruffleSOM"            = "TruffleSOM core",
+  # "TruffleSOM-Enterprise" = "TruffleSOM GraalVM",
+  # "TruffleSOM-TOM"        = "TruffleSOM core, Truffle OM",
+  # "TruffleSOM-TOM-Enterprise" = "TruffleSOM GraalVM, Truffle OM",
   
-  "AkkaActor"    = "Akka",
-  "JetlangActor" = "Jetlang",
-  "ScalazActor"  = "Scalaz")
+  # "AkkaActor"    = "Akka",
+  # "JetlangActor" = "Jetlang",
+  # "ScalazActor"  = "Scalaz"
+)
 
 vms_all  <- names(vm_names)
 vms_slow <- c("JRubyC2", "JRubyGraal", "JRubyJ8",
@@ -74,39 +75,36 @@ vms_truffle <- c("GraalJS",
                  "TruffleSOM", "TruffleSOM-Enterprise", "TruffleSOM-TOM", "TruffleSOM-TOM-Enterprise",
                  "SOMns", "SOMns-Enterprise")
 
-assert_that(all(sort(c(vms_slow, vms_fast)) == sort(vms_all))) ## sanity check
+# assert_that(all(sort(c(vms_slow, vms_fast)) == sort(vms_all))) ## sanity check
 
-# vm_colors <- brewer.pal(length(vms_all), "Paired")  # to replace scale_fill_brewer(type = "qual", palette = "Paired")
-vm_colors <- rainbow(length(vms_all))
+vm_colors <- brewer.pal(length(vms_all), "Paired")  # to replace scale_fill_brewer(type = "qual", palette = "Paired")
+# vm_colors <- rainbow(length(vms_all))
 
 names(vm_colors) <- vm_names
 
-data <- load_data_file("data/all/136-savina-8c3f6ec5/benchmark.data")
+data <- load_data_file("data/all/138-savina-9da9feb6/benchmark.data")
 # data <- load_all_data("data/all", "benchmark.data")
 
-## For Savina benchmarks use Var for VM, makes subsequent handling easier
-data <- transform(data, VM = ifelse(VM == "Scala", as.character(Var), as.character(VM)))
-data$VM <- as.factor(data$VM)
-data$Cores <- as.factor(data$Cores)
-
 data <- droplevels(subset(data,
-                          select = c(Value, Unit, Benchmark, VM, Suite, Cores, Extra, Iteration, version, sha)))
+                          select = c(Value, Unit, Benchmark, VM, Iteration, version, sha)))
 
 data_fast_vms      <- droplevels(subset(data, Iteration >= 500 & Iteration <= 1000 & VM %in% vms_fast))
 data_very_slow_vms <- droplevels(subset(data, VM %in% vms_slow & VM != "JRubyJ8"))
 data_slow_vms      <- droplevels(subset(data, Iteration >= 100 & (VM == "JRubyJ8" | VM == "Pharo")))
 data <- rbind(data_fast_vms, data_slow_vms, data_very_slow_vms)
 
-#norm <- ddply(data, ~ Benchmark, transform,
-#              RuntimeRatio = Value / mean(Value[VM == "Java8U66"]))
+java <- data %>%
+  filter(VM == "Java8U66") %>%
+  group_by(Benchmark, version, sha) %>%
+  summarise(RuntimeMean = mean(Value))
 
 norm <- data %>%
-  group_by(Benchmark, Suite, Cores, version, sha) %>%
-  transform(RuntimeRatio = Value / mean(Value[VM == "SOMns"]))
+  left_join(java) %>%
+  group_by(Benchmark, version, sha) %>%
+  transform(RuntimeRatio = Value / RuntimeMean)
   
-# norm <- transform(data, RuntimeRatio = Value / mean(Value[VM == "Java8U66"]))
 stats <- norm %>%
-  group_by(VM, Benchmark, Suite, Cores, version, sha) %>%
+  group_by(VM, Benchmark, version, sha) %>%
   summarise(
     Time.ms = mean(Value),
     sd      = sd(Value),
@@ -114,29 +112,15 @@ stats <- norm %>%
     RR.sd         = sd(RuntimeRatio),
     RR.median     = median(RuntimeRatio))
 
-stats_cores_vm <- stats %>%
-  group_by(VM, Suite, Cores, version, sha) %>%
-  transform(
-    VMMean = geometric.mean(RuntimeFactor),
-    min = min(RuntimeFactor),
-    max = max(RuntimeFactor))
-
-stats_cores_vm_s <- stats %>%
-  group_by(VM, Suite, Cores, version, sha) %>%
-  summarise(
-    VMMean = geometric.mean(RuntimeFactor),
-    min = min(RuntimeFactor),
-    max = max(RuntimeFactor))
-
 stats_vm <- stats %>%
-  group_by(VM, Suite, version, sha) %>%
+  group_by(VM, version, sha) %>%
   transform(
     VMMean = geometric.mean(RuntimeFactor),
     min = min(RuntimeFactor),
     max = max(RuntimeFactor))
 
 stats_vm_s <- stats %>%
-  group_by(VM, Suite, version, sha) %>%
+  group_by(VM, version, sha) %>%
   summarise(
     VMMean = geometric.mean(RuntimeFactor),
     min = min(RuntimeFactor),
