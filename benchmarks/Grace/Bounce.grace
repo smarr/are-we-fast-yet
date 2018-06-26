@@ -24,18 +24,22 @@
 
 import "harness" as harness
 
-class Bounce {
-  inherit harness.Benchmark
+type Ball = interface {
+  bounce
+}
 
-  method benchmark {
-    def random = harness.Random()
+class newBounce -> Benchmark {
+  inherit harness.newBenchmark
 
-    def ballCount = 100.asInteger
-    var bounces := 0.asInteger
-    def balls = platform.kernel.Array.new (ballCount) withAll { Ball(random) }
+  method benchmark -> Number {
+    def random: Random = harness.newRandom
 
-    1.asInteger.to(50.asInteger) do { i ->
-      balls.do { ball ->
+    def ballCount: Number = 100.asInteger
+    var bounces: Number := 0.asInteger
+    def balls: List = platform.kernel.Array.new (ballCount) withAll { newBall(random) }
+
+    1.asInteger.to(50.asInteger) do { i: Number ->
+      balls.do { ball: Ball ->
         ball.bounce.ifTrue {
           bounces := bounces + 1.asInteger
         }
@@ -45,21 +49,21 @@ class Bounce {
     bounces
   }
 
-  method verifyResult(result) {
+  method verifyResult(result: Number) -> Boolean {
     result == 1331.asInteger
   }
 }
 
-class Ball(random) {
-  var x := random.next % 500.asInteger
-  var y := random.next % 500.asInteger
-  var xVel := (random.next % 300.asInteger) - 150.asInteger
-  var yVel := (random.next % 300.asInteger) - 150.asInteger
+class newBall(random: Random) -> Ball {
+  var x: Number := random.next % 500.asInteger
+  var y: Number := random.next % 500.asInteger
+  var xVel: Number := (random.next % 300.asInteger) - 150.asInteger
+  var yVel: Number := (random.next % 300.asInteger) - 150.asInteger
 
-  method bounce {
-    def xLimit = 500.asInteger
-    def yLimit = 500.asInteger
-    var bounced := false
+  method bounce -> Boolean {
+    def xLimit: Number = 500.asInteger
+    def yLimit: Number = 500.asInteger
+    var bounced: Boolean := false
 
     x := x + xVel
     y := y + yVel
@@ -92,4 +96,4 @@ class Ball(random) {
   }
 }
 
-method newInstance { Bounce }
+method newInstance -> Benchmark { newBounce }
