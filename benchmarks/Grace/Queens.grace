@@ -5,10 +5,10 @@
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,57 +22,62 @@
 //   2018, June
 //
 
-var freeMaxs: List
-var freeRows: List
-var freeMins: List
-var queenRows: List
+import "harness" as harness
 
-method queens -> Boolean {
-  freeRows  := platform.kernel.Array.new( 8.asInteger)withAll(true)
-  freeMaxs  := platform.kernel.Array.new(16.asInteger)withAll(true)
-  freeMins  := platform.kernel.Array.new(16.asInteger)withAll(true)
-  queenRows := platform.kernel.Array.new( 8.asInteger)withAll(-1)
-  placeQueen(1.asInteger)
-}
+class newQueens -> Benchmark {
+  inherit harness.newBenchmark
 
-method placeQueen (c: Number) -> Boolean {
-  1.asInteger.to(8.asInteger) do { r ->
-    row (r) column (c) .ifTrue {
-      queenRows.at (r) put (c)
-      row (r) column (c) put (false)
-      
-      (c == 8).ifTrue { return true }
-      placeQueen(c + 1.asInteger).ifTrue { return true }
-      row (r) column (c) put (true)
-    }
-  }
+  var freeMaxs: List := Done
+  var freeRows: List := Done
+  var freeMins: List := Done
+  var queenRows: List := Done
 
-  false
-}
+  method benchmark -> Boolean {
+    var result: Boolean := true
 
-method row (r: Number) column (c: Number) -> Boolean {
-  freeRows.at(r) && freeMaxs.at(c + r) && freeMins.at(c - r + 8.asInteger)
-}
-
-method row (r: Number) column (c: Number) put (v: Boolean) -> Done {
-  freeRows.at( r                   ) put (v)
-  freeMaxs.at( c + r               ) put (v)
-  freeMins.at( c - r + 8.asInteger ) put (v)
-  Done
-}
-
-method asString { "Queens.grace" }
-
-method benchmark(innerIterations: Number) {
-  var result: Boolean := true
-
-  1.asInteger.to(innerIterations) do { i ->  
-    1.asInteger.to(10.asInteger) do { j ->
+    1.asInteger.to(10.asInteger) do { j: Number ->
       result := result.and(queens)
     }
+    result
+  }
 
-    result.ifFalse {
-      error("{self} failed, {result} != true")
+  method verifyResult(result: Boolean) -> Boolean {
+    return result
+  }
+
+  method queens -> Boolean {
+    freeRows  := platform.kernel.Array.new( 8.asInteger)withAll(true)
+    freeMaxs  := platform.kernel.Array.new(16.asInteger)withAll(true)
+    freeMins  := platform.kernel.Array.new(16.asInteger)withAll(true)
+    queenRows := platform.kernel.Array.new( 8.asInteger)withAll(-1)
+    placeQueen(1.asInteger)
+  }
+
+  method placeQueen (c: Number) -> Boolean {
+    1.asInteger.to(8.asInteger) do { r: Number ->
+      row (r) column (c) .ifTrue {
+        queenRows.at (r) put (c)
+        row (r) column (c) put (false)
+
+        (c == 8).ifTrue { return true }
+        placeQueen(c + 1.asInteger).ifTrue { return true }
+        row (r) column (c) put (true)
+      }
     }
+
+    false
+  }
+
+  method row (r: Number) column (c: Number) -> Boolean {
+    freeRows.at(r) && freeMaxs.at(c + r) && freeMins.at(c - r + 8.asInteger)
+  }
+
+  method row (r: Number) column (c: Number) put (v: Boolean) -> Done {
+    freeRows.at( r                   ) put (v)
+    freeMaxs.at( c + r               ) put (v)
+    freeMins.at( c - r + 8.asInteger ) put (v)
+    Done
   }
 }
+
+method newInstance -> Benchmark { newQueens }
