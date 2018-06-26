@@ -27,14 +27,19 @@
 
 import "harness" as harness
 
-class Towers {
-  inherit harness.Benchmark
+type TowerDisk = interface {
+  next
+  size
+}
 
-  var piles := Done
-  var movesDone := 0.asInteger
+class newTowers -> Benchmark {
+  inherit harness.newBenchmark
 
-  method pushDisk (disk) onPile (pile) {
-    var top := piles.at(pile)
+  var piles: List := Done
+  var movesDone: Number := 0.asInteger
+
+  method pushDisk (disk: TowerDisk) onPile (pile: Number) -> Done {
+    var top: TowerDisk := piles.at(pile)
 
     (!top.isNil).ifTrue {
       (disk.size >= top.size).ifTrue {
@@ -46,8 +51,8 @@ class Towers {
     piles.at(pile)put(disk)
   }
 
-  method popDiskFrom(pile) {
-    var top := piles.at(pile)
+  method popDiskFrom(pile: Number) -> TowerDisk {
+    var top: TowerDisk := piles.at(pile)
     top.isNil.ifTrue {
       error("Attempting to remove a disk from an empty pile")
     }
@@ -57,29 +62,29 @@ class Towers {
     top
   }
 
-  method moveTopDiskFrom (fromPile) to (toPile) {
+  method moveTopDiskFrom (fromPile: Number) to (toPile: Number) -> Done {
     pushDisk (popDiskFrom (fromPile)) onPile (toPile)
     movesDone := movesDone + 1.asInteger
   }
 
-  method buildTowerAt(pile) disks(disks) {
-    disks.downTo(0.asInteger)do{ i ->
-      pushDisk(TowerDisk(i))onPile(pile)
+  method buildTowerAt(pile: Number) disks(disks: Number) -> Done {
+    disks.downTo(0.asInteger)do{ i: Number ->
+      pushDisk(newTowerDisk(i))onPile(pile)
     }
   }
 
-  method move (disks) disksFrom (fromPile) to (toPile) {
+  method move (disks: Number) disksFrom (fromPile: Number) to (toPile: Number) -> Done {
     (disks == 1.asInteger).ifTrue {
       moveTopDiskFrom (fromPile) to (toPile)
     } ifFalse {
-      var otherPile := 6.asInteger - fromPile - toPile
+      var otherPile: Number := 6.asInteger - fromPile - toPile
       move (disks - 1.asInteger) disksFrom (fromPile) to (otherPile)
       moveTopDiskFrom (fromPile) to (toPile)
       move (disks - 1.asInteger) disksFrom (otherPile) to (toPile)
     }
   }
 
-  method benchmark {
+  method benchmark -> Number {
     piles := platform.kernel.Array.new(3.asInteger)
     buildTowerAt(1.asInteger)disks(13.asInteger)
     movesDone := 0.asInteger
@@ -87,14 +92,14 @@ class Towers {
     movesDone
   }
 
-  method verifyResult(result) {
+  method verifyResult(result: Number) -> Boolean {
     8191.asInteger == result
   }
 }
 
-class TowerDisk(size') {
-    var next
-    method size { size' }
+class newTowerDisk(size': Number) -> TowerDisk {
+    var next: TowerDisk
+    method size -> Number { size' }
 }
 
-method newInstance { Towers }
+method newInstance -> Benchmark { newTowers }

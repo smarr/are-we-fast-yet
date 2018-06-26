@@ -1,9 +1,26 @@
 import "io" as io
 import "mirrors" as mirrors
 
-class Benchmark {
-  method innerBenchmarkLoop(innerIterations) {
-    1.asInteger.to(innerIterations)do { i ->
+type Benchmark = interface {
+  innerBenchmarkLoop(innerIterations)
+  benchmark
+  verifyResult(result)
+}
+
+type Random = interface {
+  next
+}
+
+type Run = interface {
+  runBenchmark
+  printTotal
+  numIterations(_)
+  innerIterations(_)
+}
+
+class newBenchmark -> Benchmark {
+  method innerBenchmarkLoop(innerIterations: Number) -> Boolean {
+    1.asInteger.to(innerIterations)do { i: Number ->
       verifyResult(benchmark).ifFalse {
         return false
       }
@@ -11,24 +28,24 @@ class Benchmark {
     return true
   }
 
-  method benchmark { error("sub class responsibility") } // is required.
-  method verifyResult(result) { error("sub class responsibility") } // is required.
+  method benchmark -> Done { error("sub class responsibility") } // is required.
+  method verifyResult(result: Done) -> Boolean { error("sub class responsibility") } // is required.
 }
 
-class Random {
-  var seed := 74755.asInteger
+class newRandom -> Random {
+  var seed: Number := 74755.asInteger
 
-  method next {
+  method next -> Number {
     seed := ((seed * 1309.asInteger) + 13849.asInteger) & 65535.asInteger
     seed
   }
 }
 
 // Robert Jenkins 32 bit integer hash function.
-class Jenkins(seed') {
+class newJenkins(seed': Number) -> Random {
 
   // Original version, with complete set of conversions.
-  method next {
+  method next -> Number {
     seed := ((seed      + 2127912214.asInteger)       + (seed.as32BitUnsignedValue.bitLeftShift (12.asInteger)).as32BitSignedValue).as32BitSignedValue
     seed := ((seed.bitXor(3345072700.asInteger)).bitXor((seed.as32BitUnsignedValue.bitRightShift(19.asInteger))).as32BitSignedValue)
     seed := ((seed      +  374761393.asInteger)       + (seed.as32BitUnsignedValue.bitLeftShift  (5.asInteger)).as32BitSignedValue).as32BitSignedValue
@@ -39,14 +56,14 @@ class Jenkins(seed') {
   }
 }
 
-class Run(name) {
-  def benchmarkSuite = io.importModuleByName(name)
+class newRun(name: String) -> Run {
+  def benchmarkSuite: Done = io.importModuleByName(name)
 
-  var total := 0.asInteger
-  var numIterations   := 1.asInteger
-  var innerIterations := 1.asInteger
+  var total: Number := 0.asInteger
+  var numIterations: Number := 1.asInteger
+  var innerIterations: Number := 1.asInteger
 
-  method runBenchmark {
+  method runBenchmark -> Done {
     print("Start {name} benchmark ... ")
 
     doRuns(benchmarkSuite.newInstance)
@@ -55,40 +72,40 @@ class Run(name) {
     print("")
   }
 
-  method measure(bench) {
-    def startTime = platform.system.ticks
+  method measure(bench: Benchmark) -> Done {
+    def startTime: Number = platform.system.ticks
     bench.innerBenchmarkLoop(innerIterations).ifFalse {
       error("Benchmark failed with incorrect result")
     }
-    def endTime = platform.system.ticks
+    def endTime: Number = platform.system.ticks
 
-    def runTime = endTime - startTime
+    def runTime: Number = endTime - startTime
     printResult(runTime)
 
     total := total + runTime
   }
 
-  method doRuns(bench) {
-    1.asInteger.to(numIterations) do { i ->
+  method doRuns(bench: Benchmark) -> Done {
+    1.asInteger.to(numIterations) do { i: Number ->
       measure(bench)
     }
   }
 
-  method reportBenchmark {
+  method reportBenchmark -> Done {
     print("{name}: iterations={numIterations} average: {total / numIterations}us total: {total}us")
   }
 
-  method printResult(runTime) {
+  method printResult(runTime: Number) -> Done {
     print("{name}: iterations=1 runtime: {runTime}us")
   }
 
-  method printTotal {
+  method printTotal -> Done {
     print("\n\nTotal Runtime:{total}us")
   }
 }
 
-method processArguments(args) {
-  def run = Run(args.at(2.asInteger))
+method processArguments(args: Done) -> Run {
+  def run: Run = newRun(args.at(2.asInteger))
 
   (args.size > 2).ifTrue {
     run.numIterations(args.at(3.asInteger).asInteger)
@@ -99,7 +116,7 @@ method processArguments(args) {
   run
 }
 
-method printUsage {
+method printUsage -> Done {
   print("./moth harness.grace benchmark [num-iterations [inner-iter]]")
   print("")
   print("  benchmark      - benchmark class name")
@@ -113,7 +130,7 @@ method printUsage {
   return 1.asInteger
 }
 
-def run = processArguments(args)
+def run: Run = processArguments(args)
 
 run.runBenchmark
 run.printTotal
