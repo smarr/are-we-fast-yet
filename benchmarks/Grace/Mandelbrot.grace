@@ -2,7 +2,7 @@
 // found with JRuby
 // https://raw.githubusercontent.com/jruby/jruby/3e43676ee6dc3c13e70fe4a52cce685128c23b8e/bench/truffle/mandelbrot.rb
 //   The original copyright statement reads as follows:
-//   Copyright © 2004-2013 Brent Fulgham
+//   Copyright (C) 2004-2013 Brent Fulgham
 //
 // All rights reserved.
 //
@@ -48,86 +48,87 @@
 //   2018, June
 //
 
-var firstResult
+import "harness" as harness
 
-method mandelbrot (size) {
-  var sum := 0.asInteger
-  var byteAcc := 0.asInteger
-  var bitNum := 0.asInteger
+class newMandelbrot -> Benchmark {
+  inherit harness.newBenchmark
 
-  var y := 0.asInteger
-  { y < size }.whileTrue {
-    var ci := (2 * y / (size + 0)) - 1
-    var x := 0.asInteger
+  method innerBenchmarkLoop(innerIterations: Number) -> Boolean {
+    return verify(mandelbrot(innerIterations))inner(innerIterations)
+  }
 
-    { x < size }.whileTrue {
-      var zr
-      var zrzr
-      var zi
-      var zizi
-      var cr
-      var escape
-      var z
-      var notDone
+  method verify(result: Number)inner(innerIterations: Number) -> Boolean {
+    (innerIterations == 500.asInteger).ifTrue { return result == 191.asInteger }
+    (innerIterations == 750.asInteger).ifTrue { return result ==  50.asInteger }
+    (innerIterations ==   1.asInteger).ifTrue { return result == 128.asInteger }
 
-      zrzr := 0
-      zr   := 0
-      zizi := 0
-      zi   := 0
-      cr   := (2 * x / (size + 0)) - 1.5
+    print("No verification result for {innerIterations} found")
+    print("Result is: {result}")
+    return false
+  }
 
-      z := 0.asInteger
-      notDone := true
-      escape := 0.asInteger
-      { notDone.and {z < 50.asInteger} }.whileTrue {
-        zr := zrzr - zizi + cr
-        zi := 2 * zr * zi + ci
+  method mandelbrot (size: Number) -> Number {
+    var sum: Number     := 0.asInteger
+    var byteAcc: Number := 0.asInteger
+    var bitNum: Number  := 0.asInteger
 
-        // preserve recalculation
-        zrzr := zr * zr
-        zizi := zi * zi
+    var y: Number := 0.asInteger
+    { y < size }.whileTrue {
+      var ci: Number := (2.0 * y / (size + 0)) - 1
+      var x: Number := 0.asInteger
 
-        ((zrzr + zizi) > 4).ifTrue {
-          notDone := false
-          escape := 1.asInteger
+      { x < size }.whileTrue {
+        var zr: Number := 0.0
+        var zrzr: Number := 0.0
+        var zi: Number := 0.0
+        var zizi: Number := 0.0
+        var cr: Number := (2.0 * x / (size + 0)) - 1.5
+        var escape: Number := 0.asInteger
+        var z: Number := 0.asInteger
+        var notDone: Boolean := true
+
+        { notDone.and {z < 50.asInteger} }.whileTrue {
+          zr := zrzr - zizi + cr
+          zi := 2.0 * zr * zi + ci
+
+          // preserve recalculation
+          zrzr := zr * zr
+          zizi := zi * zi
+
+          ((zrzr + zizi) > 4).ifTrue {
+            notDone := false
+            escape := 1.asInteger
+          }
+          z := z + 1.asInteger
         }
-        z := z + 1.asInteger
+
+        byteAcc := (byteAcc.bitLeftShift(1.asInteger)) + escape
+        bitNum := bitNum + 1.asInteger
+
+        // Code is very similar for these cases, but using separate
+        // blocks ensures we skip the shifting when it is unnecessary,
+        // which is in most cases.
+        (bitNum == 8.asInteger).ifTrue {
+          sum       := sum.bitXor(byteAcc)
+          byteAcc   := 0.asInteger
+          bitNum    := 0.asInteger
+        } ifFalse {
+          (x == (size - 1.asInteger)).ifTrue {
+            byteAcc := byteAcc << (8.asInteger - bitNum)
+            sum     := sum.bitXor(byteAcc)
+            byteAcc := 0.asInteger
+            bitNum  := 0.asInteger
+          }
+        }
+
+        x := x + 1.asInteger
       }
 
-      byteAcc := (byteAcc.bitLeftShift(1.asInteger)) + escape
-      bitNum := bitNum + 1.asInteger
-
-      // Code is very similar for these cases, but using separate
-      // blocks ensures we skip the shifting when it is unnecessary,
-      // which is in most cases.
-      (bitNum == 8.asInteger).ifTrue {
-        sum       := sum.bitXor(byteAcc)
-        byteAcc   := 0.asInteger
-        bitNum    := 0.asInteger
-      } ifFalse {
-        (x == (size - 1.asInteger)).ifTrue {
-          byteAcc := byteAcc << (8.asInteger - bitNum)
-          sum     := sum.bitXor(byteAcc)
-          byteAcc := 0.asInteger
-          bitNum  := 0.asInteger
-        }
-      }
-
-      x := x + 1.asInteger
+      y := y + 1.asInteger
     }
 
-    y := y + 1.asInteger
+    sum
   }
-
-  sum
 }
 
-method asString {"Mandelbrot.grace"}
-
-method benchmark(innerIterations) {
-  def result = mandelbrot(innerIterations)
-  firstResult.isNil.ifTrue {
-    firstResult := result
-  }
-  result == firstResult
-}
+method newInstance -> Benchmark { newMandelbrot }
