@@ -28,8 +28,8 @@ class newBenchmark -> Benchmark {
     return true
   }
 
-  method benchmark -> Done { error("sub class responsibility") } // is required.
-  method verifyResult(result: Done) -> Boolean { error("sub class responsibility") } // is required.
+  method benchmark -> Done { error("benchmark() sub class responsibility") } // is required.
+  method verifyResult(result: Done) -> Boolean { error("verifyResult(result) sub class responsibility") } // is required.
 }
 
 class newRandom -> Random {
