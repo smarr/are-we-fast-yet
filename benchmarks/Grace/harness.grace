@@ -43,6 +43,7 @@ class newRandom -> Random {
 
 // Robert Jenkins 32 bit integer hash function.
 class newJenkins(seed': Number) -> Random {
+  var seed: Number := seed'
 
   // Original version, with complete set of conversions.
   method next -> Number {
