@@ -80,10 +80,12 @@ function get_jdk9ea() {
 }
 
 function load_submodule() {
-  INFO Load "$1"
-  git submodule init $1
-  git submodule sync $1
-  git submodule update $1
+  if git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+    INFO Load "$1"
+    git submodule init $1
+    git submodule sync $1
+    git submodule update $1
+  fi
 }
 
 function check_for() {
