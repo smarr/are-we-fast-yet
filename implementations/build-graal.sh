@@ -27,22 +27,13 @@ cd truffle/compiler
 ../../mx/mx --java-home ${JVMCI_HOME} clean
 ../../mx/mx --java-home ${JVMCI_HOME} build
 
-echo ""
-echo %% Deploy Graal Into JVMCI Built
-cp mxbuild/dists/graal.jar ${JVMCI_HOME}/jre/lib/jvmci/
-
-cd ../sdk
-../../mx/mx --java-home ${JVMCI_HOME} clean
-../../mx/mx --java-home ${JVMCI_HOME} build
 
 echo ""
-echo %% Deploy Graal SDK Into JVMCI Built
-cp mxbuild/dists/graal-sdk.jar ${JVMCI_HOME}/jre/lib/jvmci/
-
+echo %% Deploy Graal JDK
 
 if [ -d $SCRIPT_PATH/graal-core ]; then
   rm -Rf $SCRIPT_PATH/graal-core
 fi
-mv $JVMCI_HOME $SCRIPT_PATH/graal-core
+../../mx/mx --java-home ${JVMCI_HOME} makegraaljdk $SCRIPT_PATH/graal-core
 
 OK Graal Build Completed.
