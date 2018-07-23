@@ -84,13 +84,15 @@ names(vm_colors) <- vm_names
 #data <- load_data_file("data/all/161-savina-fbe9bc5e/benchmark.data")
 #data <- load_data_file("data/all/162-savina-6f17944d/benchmark.data")
 
-data <- load_data_file("data/all/163-savina-be867eb6/benchmark.data")
+#data <- load_data_file("data/all/163-savina-be867eb6/benchmark.data")
 #data <- load_data_file("data/all/164-savina-f320b4f7/benchmark.data")
-d2 <- load_data_file("data/all/165-savina-0517ac49/benchmark.data")
+#d2 <- load_data_file("data/all/165-savina-0517ac49/benchmark.data")
+d2 <- load_data_file("data/006-savina-82874aee.data.bz2")
 
 d2$VM <- revalue(d2$VM, c("SOMns-full-ids" = "SOMns-full-ids-fileout",
                           "SOMns-t-sid" = "SOMns-t-sid-fileout"))
 data <- rbind(data, d2)
+# data <- d2
 
 # data <- load_all_data("data/all", "benchmark.data")
 
@@ -105,14 +107,14 @@ data <- transform(data, VM = ifelse(VM == "Scala", as.character(Var), as.charact
 data$VM <- as.factor(data$VM)
 data$Cores <- as.factor(data$Cores)
 
-data <- subset(data, select = c(Value, Unit, Criterion, Benchmark, VM, Cores, Iteration, version, sha))
+data <- subset(data, select = c(Value, Unit, Criterion, Benchmark, Suite, VM, Cores, Iteration, version, sha))
 trace_data <- droplevels(subset(data, Unit == "byte"))
 
 data <- droplevels(subset(data, Unit != "byte" & Iteration >= 600 & Iteration <= 990))
 
 ## Calculate mean for SOMns
 somns <- data %>%
-  filter(VM == "SOMns-full-ids") %>%
+  filter(VM == "SOMns-no-tracing") %>%
   group_by(Benchmark, Cores, version, sha) %>%
   summarise(RuntimeMean = mean(Value))
 
@@ -123,7 +125,7 @@ norm <- data %>%
   
 # norm <- transform(data, RuntimeRatio = Value / mean(Value[VM == "Java8U66"]))
 stats <- norm %>%
-  group_by(VM, Benchmark, Cores, version, sha) %>%
+  group_by(VM, Benchmark, Suite, Cores, version, sha) %>%
   summarise(
     Time.ms = mean(Value),
     sd      = sd(Value),
@@ -259,7 +261,7 @@ overview_box_plot <- function(stats, vms, prepare_data = NULL, pre_plot = NULL, 
 #     theme(axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1), legend.position="none")
 # p
 
-p <- ggplot(stats, aes(VM, RuntimeFactor))
+p <- ggplot(stats %>% filter(Suite == "savina-scala" | Suite == "savina-som"), aes(VM, RuntimeFactor))
 p <- p + geom_boxplot(outlier.size = 0.5) + geom_violin(colour = "#cccccc") + facet_wrap(~Cores, nrow=1)
 p <- p + theme_bw() + theme_simple(font_size = 8) +
     theme(axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1), legend.position="none")
