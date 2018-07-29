@@ -35,5 +35,6 @@ if [ -d $SCRIPT_PATH/graal-core ]; then
   rm -Rf $SCRIPT_PATH/graal-core
 fi
 ../../mx/mx --java-home ${JVMCI_HOME} makegraaljdk $SCRIPT_PATH/graal-core
+rm $SCRIPT_PATH/graal-core/jre/lib/jvmci/compiler-name
 
 OK Graal Build Completed.
