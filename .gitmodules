@@ -1,6 +1,3 @@
-[submodule "implementations/SOMns"]
-	path = implementations/SOMns
-	url = https://github.com/smarr/SOMns.git
 [submodule "implementations/graal"]
 	path = implementations/graal
 	url = https://github.com/smarr/GraalBasic.git
