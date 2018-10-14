@@ -232,5 +232,5 @@ benchmarks.
  [Json]:      https://github.com/ralfstx/minimal-json
  [Richards]:  http://www.cl.cam.ac.uk/~mr10/Bench.html
  [SOM]:       http://som-st.github.io/
- [CLBG]:      http://benchmarksgame.alioth.debian.org
+ [CLBG]:      https://benchmarksgame-team.pages.debian.net/benchmarksgame/
  [Crystal]:   http://crystal-lang.org/
