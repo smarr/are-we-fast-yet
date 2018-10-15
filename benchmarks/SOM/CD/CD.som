@@ -57,6 +57,7 @@ CD = Benchmark (
     numAircrafts =  200 ifTrue: [ ^ actualCollisions =  8655 ].
     numAircrafts =  100 ifTrue: [ ^ actualCollisions =  4305 ].
     numAircrafts =   10 ifTrue: [ ^ actualCollisions =   390 ].
+    numAircrafts =    2 ifTrue: [ ^ actualCollisions =    42 ].
     
     ('No verification result for ' + numAircrafts + ' found.') println.
     ('Result is: ' + actualCollisions) println.

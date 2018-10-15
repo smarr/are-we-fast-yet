@@ -827,6 +827,7 @@ function CD() {
     if (numAircrafts ==  200) { return actualCollisions ==  8655; }
     if (numAircrafts ==  100) { return actualCollisions ==  4305; }
     if (numAircrafts ==   10) { return actualCollisions ==   390; }
+    if (numAircrafts ==    2) { return actualCollisions ==    42; }
 
     process.stdout.write("No verification result for " + numAircrafts + " found");
     process.stdout.write("Result is: " + actualCollisions);

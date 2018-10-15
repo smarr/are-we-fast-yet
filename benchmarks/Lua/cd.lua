@@ -919,6 +919,8 @@ function cd:verify_result (actual_collisions, num_aircrafts)
         return actual_collisions ==  4305
     elseif num_aircrafts ==   10 then
         return actual_collisions ==   390
+    elseif num_aircrafts ==    2 then
+        return actual_collisions ==    42
     else
         print(('No verification result for %d found'):format(num_aircrafts))
         print(('Result is: %d'):format(actual_collisions))

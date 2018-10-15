@@ -831,6 +831,7 @@ class CD < Benchmark
     return actual_collisions ==  8_655 if num_aircrafts ==  200
     return actual_collisions ==  4_305 if num_aircrafts ==  100
     return actual_collisions ==    390 if num_aircrafts ==   10
+    return actual_collisions ==     42 if num_aircrafts ==    2
 
     puts('No verification result for ' + num_aircrafts.to_s + ' found')
     puts('Result is: ' + actual_collisions.to_s)
