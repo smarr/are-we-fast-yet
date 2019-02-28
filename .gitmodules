@@ -31,3 +31,21 @@
 [submodule "implementations/RTruffleSOM"]
 	path = implementations/RTruffleSOM
 	url = http://github.com/SOM-st/RTruffleSOM.git
+[submodule "implementations/CSOM"]
+	path = implementations/CSOM
+	url = https://github.com/SOM-st/CSOM.git
+[submodule "implementations/JsSOM"]
+	path = implementations/JsSOM
+	url = https://github.com/SOM-st/JsSOM.git
+[submodule "implementations/AweSOM"]
+	path = implementations/AweSOM
+	url = https://github.com/SOM-st/AweSOM.git
+[submodule "implementations/PySOM"]
+	path = implementations/PySOM
+	url = https://github.com/SOM-st/PySOM.git
+[submodule "implementations/RPySOM"]
+	path = implementations/RPySOM
+	url = https://github.com/SOM-st/RPySOM.git
+[submodule "implementations/CSOM-emscripten"]
+	path = implementations/CSOM-emscripten
+	url = https://github.com/SOM-st/CSOM.git
