@@ -10,11 +10,5 @@ We tested with
 and
   http://download.oracle.com/otn/utilities_drivers/oracle-labs/graalvm-0.24-macosx-x86_64-dk.tar.gz
 
-To extract the GraalVM into this folder, you can use a command like this:
-
-```bash
-tar xvf graalvm-0.24-linux-x86_64-dk.tar.gz --strip-components 1
-```
-
-Afterwards, the Java binary is expected to be in
-`implementations/graalvm/bin/java`.
+To extract the GraalVM into a folder, and set the `GRAALVM_HOME` environment.
+`GRAALVM_HOME` should point to the folder that contains `bin/java`
