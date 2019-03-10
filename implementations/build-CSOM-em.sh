@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 SCRIPT_PATH=`dirname $0`
 . /home/gitlab-runner/.local/emsdk/emsdk_set_env.sh
 
