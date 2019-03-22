@@ -213,17 +213,60 @@ here to avoid requiring root rights.
 benchmarks to execute. It also defines the arguments to be passed to the
 benchmarks.
 
-## Papers using this benchmark suite
+## Academic Work using this benchmark suite
 
-  > Benoit Daloze, Stefan Marr, Daniele Bonetta, Hanspeter Mössenböck. 2016.
-  > [Efficient and Thread-Safe Objects for Dynamically-Typed Languages][5]
-  > In Proceedings of the 2016 ACM SIGPLAN International Conference on Object-Oriented Programming, Systems, Languages, and Applications (OOPSLA '16). ACM.
+- [Self-Contained Development Environments][14]  
+  G. Chari, J. Pimás, J. Vitek, O. Flückiger. Proceedings of the 14th ACM SIGPLAN International Symposium on Dynamic Languages. 2018.
+  
+- [Interflow: Interprocedural Flow-Sensitive TypeInference and Method Duplication][13]  
+  D. Shabalin, M. Odersky. Proceedings of the 9th ACM SIGPLAN International Symposium on Scala 2018.
+
+- [Specializing a Meta-Interpreter: JIT Compilation of DynSem Specifications on the Graal VM][12]  
+  V. Vergu, E. Visser. Proceedings of the 15th International Conference on Managed Languages and Runtimes, ManLang 2018.
+
+- [Newspeak and Truffle: A Platform for Grace?][11]  
+  S. Marr, R. Roberts, J. Noble, Grace'18, p. 3, 2018. Presentation.
+
+- [Parallelization of Dynamic Languages: Synchronizing Built-in Collections][10]  
+  B. Daloze, A. Tal, S. Marr, H. Mössenböck, E. Petrank 
+  Proceedings of the ACM on Programming Languages, OOPSLA'18, p. 27, 2018
+
+- [Efficient and Deterministic Record & Replay for Actor Languages][9]  
+  D. Aumayr, S. Marr, C. Béra, E. Gonzalez Boix, H. Mössenböck 
+  Proceedings of the 15th International Conference on Managed Languages and Runtimes, ManLang'18, ACM, 2018. 
+
+- [Fully Reflective Execution Environments: Virtual Machines for More Flexible Software][8]  
+  G. Chari, D. Garbervetsky, S. Marr, S. Ducasse 
+  IEEE Transactions on Software Engineering, IEEE TSE, p. 1–20, 2018.
+
+- [Garbage Collection and Efficiency in Dynamic Metacircular Runtimes][7]  
+  J. Pimás, J. Burroni, J., B. Arnaud, S. Marr 
+  Proceedings of the 13th ACM SIGPLAN International Symposium on Dynamic Languages, DLS'17, ACM, 2017.
+
+- [Applying Optimizations for Dynamically-typed Languages to Java][6]  
+  M. Grimmer, S. Marr, M. Kahlhofer, C. Wimmer, T. Würthinger, H. Mössenböck 
+  Proceedings of the 14th International Conference on Managed Languages and Runtimes, ManLang'17, ACM, 2017.
+
+- [Efficient and Thread-Safe Objects for Dynamically-Typed Languages][5]  
+  B. Daloze, S. Marr, D. Bonetta, Hanspeter Mössenböck
+  In Proceedings of the 2016 ACM SIGPLAN International Conference on Object-Oriented Programming, Systems, Languages, and Applications (OOPSLA '16). ACM.
+
+
 
  [1]: https://github.com/smarr/SOMns
  [2]: http://www.newspeaklanguage.org/
- [3]: http://stefan-marr.de/papers/dls-marr-et-al-cross-language-compiler-benchmarking-are-we-fast-yet/
- [4]: http://stefan-marr.de/downloads/dls16-marr-et-al-cross-language-compiler-benchmarking-are-we-fast-yet.pdf
- [5]: http://2016.splashcon.org/event/splash-2016-oopsla-efficient-and-thread-safe-objects-for-dynamically-typed-languages
+ [3]: https://stefan-marr.de/papers/dls-marr-et-al-cross-language-compiler-benchmarking-are-we-fast-yet/
+ [4]: https://stefan-marr.de/downloads/dls16-marr-et-al-cross-language-compiler-benchmarking-are-we-fast-yet.pdf
+ [5]: https://2016.splashcon.org/event/splash-2016-oopsla-efficient-and-thread-safe-objects-for-dynamically-typed-languages
+ [6]: https://stefan-marr.de/downloads/manlang17-grimmer-et-al-applying-optimizations-for-dynamically-typed-languages-to-java.pdf
+ [7]: https://stefan-marr.de/downloads/dls17-pimas-et-al-garbage-collection-and-efficiency-in-dynamic-metacircular-runtimes.pdf
+ [8]: http://stefan-marr.de/downloads/tse18-chari-et-al-fully-reflective-execution-environments.pdf
+ [9]: http://stefan-marr.de/downloads/manlang18-aumayr-et-al-efficient-and-deterministic-record-and-replay-for-actor-languages.pdf
+ [10]: http://stefan-marr.de/downloads/oopsla18-daloze-et-al-parallelization-of-dynamic-languages-synchronizing-built-in-collections.pdf
+ [11]: http://stefan-marr.de/downloads/grace18-marr-et-al-newspeak-and-truffle-a-platform-for-grace.pdf 
+ [12]: https://pure.tudelft.nl/portal/en/publications/specializing-a-metainterpreter(bc672ab9-d2bb-42d9-b67f-3f051868e3d7).html
+ [13]: https://github.com/densh/talks/blob/master/2018-06-16-interflow-preprint-v1.pdf
+ [14]: http://janvitek.org/pubs/dls18.pdf
 
  [CD]:        https://www.cs.purdue.edu/sss/projects/cdx/
  [CDjs]:      https://github.com/WebKit/webkit/tree/master/PerformanceTests/JetStream/cdjs
