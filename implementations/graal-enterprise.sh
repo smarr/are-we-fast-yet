@@ -1,4 +1,6 @@
 #!/bin/bash
 SCRIPT_PATH=`dirname $0`
 source $SCRIPT_PATH/config.inc
-exec $GRAAL_VM_CMD $GRAAL_JIT_FLAGS "$@"
+export JVMCI_BIN=${GRAALVM_HOME}/bin/java
+
+exec ${JVMCI_BIN} $GRAAL_JIT_FLAGS "$@"
