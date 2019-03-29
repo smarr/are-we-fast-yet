@@ -19,6 +19,9 @@ load_and_install_if_necessary("scales")
 load_and_install_if_necessary("memoise")
 load_and_install_if_necessary("RColorBrewer")
 load_and_install_if_necessary("ggrepel")   # make sure labels don't overlap
+load_and_install_if_necessary("tidyr")
+load_and_install_if_necessary("knitr")
+load_and_install_if_necessary("gghighlight")
 
 source("data-processing.R")
 source("plots.R")
