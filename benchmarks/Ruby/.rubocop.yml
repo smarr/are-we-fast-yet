@@ -112,6 +112,9 @@ Layout/SpaceAroundOperators:
     - 'mandelbrot.rb'
     - 'nbody.rb'
 
+Layout/EmptyLineAfterGuardClause:
+  Enabled: false
+
 Style/PerlBackrefs:
   Exclude:
     - 'harness.rb'
@@ -120,6 +123,9 @@ Style/PerlBackrefs:
 Naming/FileName:
   Exclude:
     - 'harness-rbx.rb'
+
+Naming/UncommunicativeMethodParamName:
+  Enabled: false
 
 Style/SymbolProc:
   Enabled: false
@@ -138,7 +144,4 @@ Layout/SpaceInsideReferenceBrackets:
   Enabled: false
 
 Style/OrAssignment:
-  Enabled: false
-
-Performance/HashEachMethods:
   Enabled: false

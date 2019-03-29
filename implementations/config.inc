@@ -11,10 +11,6 @@ GRAAL_CORE_CMD=$SCRIPT_PATH/graal-core/bin/java
 GRAAL_HOSTED_FLAGS="-server -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCI -d64 "
 GRAAL_JIT_FLAGS="-server -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCI -XX:+UseJVMCICompiler -d64 "
 
-## GraalVM Binary
-export GRAAL_VM_CMD=$SCRIPT_PATH/graalvm/bin/java
-export GRAAL_JS=$SCRIPT_PATH/graalvm/bin/node
-
 export RBX_314_CMD=$RUBINIUS_BIN
 
 

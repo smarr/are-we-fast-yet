@@ -12,8 +12,8 @@ if [ ! -d "$SCRIPT_PATH/pharo-vm" ]; then
   INFO Get Pharo VM
   pushd $SCRIPT_PATH
   get_web_getter
-  $GET get.pharo.org/vm50 || $GET get.pharo.org/vm50
-  bash vm50
+  $GET get.pharo.org/vm70 || $GET get.pharo.org/vm70
+  bash vm70
   popd
 
   INFO Get Pharo Image
