@@ -1,7 +1,6 @@
 addons:
   apt:
     packages:
-      - python-scipy
       - python-yaml
 
 git:
@@ -26,7 +25,7 @@ matrix:
       jdk: oraclejdk8
     - env: PLANG=pharo
       language: smalltalk
-      smalltalk: Pharo-5.0
+      smalltalk: Pharo-7.0
     - env: PLANG=squeak
       language: smalltalk
       smalltalk: Squeak-5.1
