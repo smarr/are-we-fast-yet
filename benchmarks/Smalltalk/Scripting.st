@@ -371,7 +371,7 @@ print: somethingAsString withLineEnding: lineEnd
 
 !ScriptConsole class methodsFor: 'printing' stamp: ''!
 println: somethingAsString
-	self print: somethingAsString withLineEnding: String crlf.! !
+	self print: somethingAsString withLineEnding: ''.! !
 
 !ScriptConsole class methodsFor: 'printing' stamp: 'StefanMarr 12/31/2011 01:22'!
 space
