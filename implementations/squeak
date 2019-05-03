@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-exec `dirname $0`/sqcogspurlinux/squeak -nodisplay -nosound $@
+exec `dirname $0`/sqcogspur64linuxht/squeak -nodisplay -nosound $@

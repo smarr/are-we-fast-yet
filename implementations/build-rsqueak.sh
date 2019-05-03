@@ -50,7 +50,7 @@ if [ ! -e "$SCRIPT_PATH/../benchmarks/Smalltalk/RSqueak.image" ]; then
 fi
 
 INFO Using Squeak to build Benchmarking Image
-$SCRIPT_PATH/build-squeak.sh
+$SCRIPT_PATH/build-squeak32.sh
 
 INFO Building Benchmarking Image from RSqueak.image
 cd $SCRIPT_PATH/../benchmarks/Smalltalk
