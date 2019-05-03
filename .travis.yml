@@ -11,7 +11,7 @@ matrix:
   include:
     - env: PLANG=graalsqueak
       language: smalltalk
-      smalltalk: Squeak-5.1
+      smalltalk: Squeak64-5.1
   #   - env: PLANG=crystal
   #     language: crystal
   #   - env: PLANG=js
@@ -31,10 +31,10 @@ matrix:
   #     smalltalk: Pharo-7.0
   #   - env: PLANG=squeak
   #     language: smalltalk
-  #     smalltalk: Squeak-5.1
+  #     smalltalk: Squeak64-5.1
   #   - env: PLANG=rsqueak
   #     language: smalltalk
-  #     smalltalk: Squeak-5.1
+  #     smalltalk: Squeak64-5.1
   #     addons:
   #       apt:
   #         packages:

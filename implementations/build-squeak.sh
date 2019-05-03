@@ -8,17 +8,17 @@ set -e # make script fail on first error
 SCRIPT_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source $SCRIPT_PATH/script.inc
 
-if [ ! -e "$SCRIPT_PATH/sqcogspurlinux" ]; then
+if [ ! -e "$SCRIPT_PATH/sqcogspur64linuxht" ]; then
   INFO Get Squeak VM
   pushd $SCRIPT_PATH
   get_web_getter
-  $GET http://ftp.squeak.org/5.1/Squeak5.1-16549-32bit/Squeak5.1-16549-32bit-All-in-One.zip
-  $GET https://github.com/OpenSmalltalk/opensmalltalk-vm/releases/download/201701281910/cog_linux32x86_squeak.cog.spur_201701281910_itimer.tar.gz
-  unzip -q Squeak5.1-16549-32bit-All-in-One.zip
-  mv Squeak5.1*.app/Contents/Resources/Squeak5.1*.image   ../benchmarks/Smalltalk/Squeak.image
-  mv Squeak5.1*.app/Contents/Resources/Squeak5.1*.changes ../benchmarks/Smalltalk/Squeak.changes
-  mv Squeak5.1*.app/Contents/Resources/Squeak*.sources    ../benchmarks/Smalltalk/
-  tar xf cog_linux32x86_squeak.cog.spur_201701281910_itimer.tar.gz
+  $GET http://files.squeak.org/5.2/Squeak5.2-18229-64bit/Squeak5.2-18229-64bit-All-in-One.zip
+  $GET https://github.com/OpenSmalltalk/opensmalltalk-vm/releases/download/201810190412/squeak.cog.spur_linux64x64_201810190412.tar.gz
+  unzip -q Squeak5.2-18229-64bit-All-in-One.zip
+  mv Squeak5.2*.app/Contents/Resources/Squeak5.2*.image   ../benchmarks/Smalltalk/Squeak.image
+  mv Squeak5.2*.app/Contents/Resources/Squeak5.2*.changes ../benchmarks/Smalltalk/Squeak.changes
+  mv Squeak5.2*.app/Contents/Resources/Squeak*.sources    ../benchmarks/Smalltalk/
+  tar xf squeak.cog.spur_linux64x64_201810190412.tar.gz
   popd
 fi
 
