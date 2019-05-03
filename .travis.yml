@@ -10,52 +10,51 @@ matrix:
   fast_finish: true
   include:
     - env: PLANG=graalsqueak
-      language: smalltalk
-      smalltalk: Squeak-5.1
-    - env: PLANG=crystal
-      language: crystal
-    - env: PLANG=js
-      language: node_js
-      node_js: "6"
-    - env: PLANG=java  JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
       language: java
-      jdk: oraclejdk8
-    - env: PLANG=som   JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
-      language: java
-      jdk: oraclejdk8
-    - env: PLANG=somns JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
-      language: java
-      jdk: oraclejdk8
-    - env: PLANG=pharo
-      language: smalltalk
-      smalltalk: Pharo-7.0
-    - env: PLANG=squeak
-      language: smalltalk
-      smalltalk: Squeak-5.1
-    - env: PLANG=rsqueak
-      language: smalltalk
-      smalltalk: Squeak-5.1
-      addons:
-        apt:
-          packages:
-            - python-scipy
-            - python-yaml
-            - libsdl2-2.0-0
-            - libffi6
-    - env: PLANG=ruby
-      language: ruby
-      rvm: 2.3.1
-    - env: PLANG=lua52
-      dist: trusty
-      sudo: false
-      addons:
-        apt:
-          packages:
-            - lua5.1
-            - lua5.2
-            - luarocks
-  allow_failures:
-    - env: PLANG=rsqueak
+  #   - env: PLANG=crystal
+  #     language: crystal
+  #   - env: PLANG=js
+  #     language: node_js
+  #     node_js: "6"
+  #   - env: PLANG=java  JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
+  #     language: java
+  #     jdk: oraclejdk8
+  #   - env: PLANG=som   JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
+  #     language: java
+  #     jdk: oraclejdk8
+  #   - env: PLANG=somns JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
+  #     language: java
+  #     jdk: oraclejdk8
+  #   - env: PLANG=pharo
+  #     language: smalltalk
+  #     smalltalk: Pharo-7.0
+  #   - env: PLANG=squeak
+  #     language: smalltalk
+  #     smalltalk: Squeak-5.1
+  #   - env: PLANG=rsqueak
+  #     language: smalltalk
+  #     smalltalk: Squeak-5.1
+  #     addons:
+  #       apt:
+  #         packages:
+  #           - python-scipy
+  #           - python-yaml
+  #           - libsdl2-2.0-0
+  #           - libffi6
+  #   - env: PLANG=ruby
+  #     language: ruby
+  #     rvm: 2.3.1
+  #   - env: PLANG=lua52
+  #     dist: trusty
+  #     sudo: false
+  #     addons:
+  #       apt:
+  #         packages:
+  #           - lua5.1
+  #           - lua5.2
+  #           - luarocks
+  # allow_failures:
+  #   - env: PLANG=rsqueak
 
 install:
   - pip install --user ReBench
