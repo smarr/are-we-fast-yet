@@ -9,6 +9,9 @@ git:
 matrix:
   fast_finish: true
   include:
+    - env: PLANG=graalsqueak
+      language: smalltalk
+      smalltalk: Squeak-5.1
     - env: PLANG=crystal
       language: crystal
     - env: PLANG=js
