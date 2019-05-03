@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
 readonly GRAALVM_VERSION=1.0.0-rc16
 readonly GRAALVM_HOME=`dirname $0`/GraalSqueak/graalvm-ce-${GRAALVM_VERSION}
-exec "${GRAALVM_HOME}/bin/graalsqueak" -d --squeaksmalltalk.Headless=false $@
+exec "${GRAALVM_HOME}/bin/graalsqueak" \
+	--squeaksmalltalk.DisableInterruptHandler \
+	--squeaksmalltalk.Headless=false \
+	$@
