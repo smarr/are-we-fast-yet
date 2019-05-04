@@ -54,6 +54,6 @@ $SCRIPT_PATH/build-squeak32.sh
 
 INFO Building Benchmarking Image from RSqueak.image
 cd $SCRIPT_PATH/../benchmarks/Smalltalk
-$SCRIPT_PATH/squeak RSqueak.image build-image-squeak.st
+$SCRIPT_PATH/squeak32 RSqueak.image build-image-squeak.st
 mv AWFY.image AWFY_RSqueak.image
 mv AWFY.changes AWFY_RSqueak.changes
