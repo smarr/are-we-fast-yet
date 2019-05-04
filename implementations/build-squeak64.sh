@@ -24,6 +24,6 @@ fi
 
 INFO Build 64bit Benchmarking Image
 cd $SCRIPT_PATH/../benchmarks/Smalltalk
-$SCRIPT_PATH/squeak Squeak.image build-image-squeak.st
+$SCRIPT_PATH/squeak64 Squeak.image build-image-squeak.st
 mv AWFY.image AWFY_Squeak64.image
 mv AWFY.changes AWFY_Squeak64.changes
