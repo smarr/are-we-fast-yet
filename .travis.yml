@@ -25,13 +25,16 @@ matrix:
       jdk: oraclejdk8
     - env: PLANG=pharo
       language: smalltalk
-      smalltalk: Pharo-7.0
-    - env: PLANG=squeak
+      smalltalk: Pharo32-7.0
+    - env: PLANG=squeak64
       language: smalltalk
-      smalltalk: Squeak-5.1
+      smalltalk: Squeak64-5.2
+    - env: PLANG=squeak32
+      language: smalltalk
+      smalltalk: Squeak32-5.2
     - env: PLANG=rsqueak
       language: smalltalk
-      smalltalk: Squeak-5.1
+      smalltalk: Squeak32-5.2
       addons:
         apt:
           packages:
