@@ -72,6 +72,10 @@ Layout/AlignParameters:
   Exclude:
     - 'nbody.rb'
 
+Layout/AlignArguments:
+  Exclude:
+    - 'nbody.rb'
+
 Layout/MultilineOperationIndentation:
   Exclude:
     - 'nbody.rb'
@@ -83,6 +87,12 @@ Style/NilComparison:
   Enabled: false
 
 Style/NonNilCheck:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/SafeNavigation:
   Enabled: false
 
 Style/StringLiterals:
