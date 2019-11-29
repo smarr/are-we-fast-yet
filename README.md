@@ -215,6 +215,9 @@ benchmarks.
 
 ## Academic Work using this benchmark suite
 
+- [GraalSqueak: Toward a Smalltalk-based Tooling Platform for Polyglot Programming][15]  
+  F. Niephaus, T. Felgentreff, R. Hirschfeld. Proceedings of 16th International Conference on Managed Programming Languages & Runtimes, MPLR'19. 2019.
+
 - [Self-Contained Development Environments][14]  
   G. Chari, J. Pimás, J. Vitek, O. Flückiger. Proceedings of the 14th ACM SIGPLAN International Symposium on Dynamic Languages. 2018.
   
@@ -267,6 +270,7 @@ benchmarks.
  [12]: https://pure.tudelft.nl/portal/en/publications/specializing-a-metainterpreter(bc672ab9-d2bb-42d9-b67f-3f051868e3d7).html
  [13]: https://github.com/densh/talks/blob/master/2018-06-16-interflow-preprint-v1.pdf
  [14]: http://janvitek.org/pubs/dls18.pdf
+ [15]: https://fniephaus.com/2019/mplr19-graalsqueak.pdf
 
  [CD]:        https://www.cs.purdue.edu/sss/projects/cdx/
  [CDjs]:      https://github.com/WebKit/webkit/tree/master/PerformanceTests/JetStream/cdjs
