@@ -207,8 +207,8 @@ class Vector(T)
 
     # NOTE: For DeltaBlue, this is never reached.
     if n > 2  # More than two elements.
-      ij  = ((i + j) / 2).floor  # ij is the midpoint of i and j.
-      dij = @storage[ij]         # Sort di,dij,dj.  Make dij be their median.
+      ij  = ((i + j) / 2).floor.to_i32 # ij is the midpoint of i and j.
+      dij = @storage[ij]               # Sort di,dij,dj.  Make dij be their median.
 
       if block.call(di, dij)           # i.e. should di precede dij?
         unless block.call(dij, dj)     # i.e., should dij precede dj?

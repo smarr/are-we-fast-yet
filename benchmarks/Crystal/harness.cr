@@ -92,11 +92,11 @@ class Run
   end
 
   def measure(bench)
-    start_time = Time.now # Process.clock_gettime(Process::CLOCK_MONOTONIC, :nanosecond)
+    start_time = Time.utc # Process.clock_gettime(Process::CLOCK_MONOTONIC, :nanosecond)
     unless bench.inner_benchmark_loop(@inner_iterations)
       raise "Benchmark failed with incorrect result"
     end
-    end_time = Time.now # Process.clock_gettime(Process::CLOCK_MONOTONIC, :nanosecond)
+    end_time = Time.utc # Process.clock_gettime(Process::CLOCK_MONOTONIC, :nanosecond)
 
     run_time = ((end_time - start_time).total_milliseconds * 1000).to_i
     print_result(run_time)

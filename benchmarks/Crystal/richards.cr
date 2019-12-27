@@ -147,10 +147,10 @@ class RichardsScheduler < RBObject
         hold_self
       else
         if 0 == (data_record.control & 1)
-          data_record.control /= 2
+          data_record.control = (data_record.control / 2).to_i32
           release(DEVICE_A)
         else
-          data_record.control = (data_record.control / 2) ^ 53256
+          data_record.control = (data_record.control / 2).to_i32 ^ 53256
           release(DEVICE_B)
         end
       end
@@ -325,7 +325,8 @@ class HandlerTaskDataRecord < RBObject
 end
 
 class IdleTaskDataRecord < RBObject
-  property :control, :count
+  property control : Int32
+  property count : Int32
 
   def initialize
     @control = 1
