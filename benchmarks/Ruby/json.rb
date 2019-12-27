@@ -42,11 +42,11 @@ end
 
 class Parser
   def initialize(string)
-    @input   = string
-    @index   = -1
-    @line    = 1
+    @input = string
+    @index = -1
+    @line = 1
     @capture_start = -1
-    @column  = 0
+    @column = 0
     @current = nil
     @capture_buffer = ''
   end
@@ -434,8 +434,8 @@ class JsonLiteral < JsonValue
 
   def initialize(value)
     @value = value
-    @is_null  = 'null'  == value
-    @is_true  = 'true'  == value
+    @is_null = 'null'  == value
+    @is_true = 'true'  == value
     @is_false = 'false' == value
   end
 
