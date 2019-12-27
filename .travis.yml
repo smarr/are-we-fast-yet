@@ -1,3 +1,7 @@
+os: linux
+dist: bionic
+language: python
+
 addons:
   apt:
     packages:
@@ -6,7 +10,7 @@ addons:
 git:
   submodules: false
 
-matrix:
+jobs:
   fast_finish: true
   include:
     - env: PLANG=crystal
@@ -48,7 +52,6 @@ matrix:
     - env: PLANG=lua52 LUA="lua=5.2"
       language: python
       python: 2.7
-      sudo: false
       before_install:
         - pip install hererocks
         - hererocks here --$LUA -r latest
