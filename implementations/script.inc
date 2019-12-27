@@ -88,7 +88,7 @@ function load_submodule() {
   INFO Load "$1"
   git submodule init $1
   git submodule sync $1
-  git submodule update $1
+  git submodule update --init --recursive $1
 }
 
 function check_for() {
