@@ -71,7 +71,9 @@ jobs:
       language: python
       python: 2.7
       before_install:
+        # We use here before_install since we are in a virtualenv
         - pip install hererocks
+        - pip install ReBench
         - hererocks here --$LUA -r latest
         - source here/bin/activate
         - luarocks install luacheck
