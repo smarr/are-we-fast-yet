@@ -26,14 +26,17 @@ jobs:
       env: PLANG=java  JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
       language: java
       jdk: oraclejdk8
+      dist: trusty
     - name: SOM
       env: PLANG=som   JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
       language: java
       jdk: oraclejdk8
+      dist: trusty
     - name: SOMns
       env: PLANG=somns JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
       language: java
       jdk: oraclejdk8
+      dist: trusty
     - name: Pharo
       env: PLANG=pharo
       language: smalltalk
