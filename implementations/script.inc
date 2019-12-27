@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# make SCRIPT_PATH absolute
+pushd `dirname $0` > /dev/null
+SCRIPT_PATH=`pwd`
+popd > /dev/null
+
 # set up color commands
 if [ -t 1 -a -t 2 -a \( `type -t tput` = "file" \) ]; then
   _colors=`tput colors`

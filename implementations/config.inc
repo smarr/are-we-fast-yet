@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# make SCRIPT_PATH absolute
-pushd `dirname $0` > /dev/null
-SCRIPT_PATH=`pwd`
-popd > /dev/null
-
 export JVMCI_VERSION_CHECK=ignore
 GRAAL_CORE_CMD=$SCRIPT_PATH/graal-core/bin/java
 
