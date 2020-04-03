@@ -1,3 +1,7 @@
+os: linux
+dist: bionic
+language: python
+
 addons:
   apt:
     packages:
@@ -6,33 +10,47 @@ addons:
 git:
   submodules: false
 
-matrix:
+jobs:
   fast_finish: true
   include:
-    - env: PLANG=crystal
+    - name: Crystal
+      env: PLANG=crystal
       language: crystal
-    - env: PLANG=js
+    - name: JavaScript
+      env: PLANG=js
       language: node_js
-      node_js: "6"
-    - env: PLANG=java  JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
+      node_js: "13"
+      install:
+        - npm install -g jshint
+    - name: Java
+      env: PLANG=java  JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
       language: java
       jdk: oraclejdk8
-    - env: PLANG=som   JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
+      dist: trusty
+    - name: SOM
+      env: PLANG=som   JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
       language: java
       jdk: oraclejdk8
-    - env: PLANG=somns JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
+      dist: trusty
+    - name: SOMns
+      env: PLANG=somns JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
       language: java
       jdk: oraclejdk8
-    - env: PLANG=pharo
+      dist: trusty
+    - name: Pharo
+      env: PLANG=pharo
       language: smalltalk
       smalltalk: Pharo32-7.0
-    - env: PLANG=squeak64
+    - name: Squeak 64-bit
+      env: PLANG=squeak64
       language: smalltalk
       smalltalk: Squeak64-5.2
-    - env: PLANG=squeak32
+    - name: Squeak 32-bit
+      env: PLANG=squeak32
       language: smalltalk
       smalltalk: Squeak32-5.2
-    - env: PLANG=rsqueak
+    - name: RSqueak
+      env: PLANG=rsqueak
       language: smalltalk
       smalltalk: Squeak32-5.2
       addons:
@@ -42,28 +60,29 @@ matrix:
             - python-yaml
             - libsdl2-2.0-0
             - libffi6
-    - env: PLANG=ruby
+    - name: Ruby
+      env: PLANG=ruby
       language: ruby
-      rvm: 2.3.1
-    - env: PLANG=lua52 LUA="lua=5.2"
+      rvm: 2.6
+      install:
+        - gem install rubocop
+    - name: Lua 5.2
+      env: PLANG=lua52 LUA="lua=5.2"
       language: python
       python: 2.7
-      sudo: false
       before_install:
+        # We use here before_install since we are in a virtualenv
         - pip install hererocks
+        - pip install ReBench
         - hererocks here --$LUA -r latest
         - source here/bin/activate
         - luarocks install luacheck
         - ln -s "`which lua`" "`which lua`5.2"
-      install:
-        - pip install ReBench
   allow_failures:
     - env: PLANG=rsqueak
 
-install:
+before_install:
   - pip install --user ReBench
-  - if [ "$PLANG" = "ruby" ]; then gem install rubocop;   fi
-  - if [ "$PLANG" = "js" ];   then npm install -g jshint; fi
 
 script:
   - implementations/build-$PLANG.sh && rebench test.conf test-$PLANG

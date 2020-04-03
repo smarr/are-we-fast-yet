@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# make SCRIPT_PATH absolute
+pushd `dirname $0` > /dev/null
+SCRIPT_PATH=`pwd`
+popd > /dev/null
+
 # set up color commands
 if [ -t 1 -a -t 2 -a \( `type -t tput` = "file" \) ]; then
   _colors=`tput colors`
@@ -83,7 +88,7 @@ function load_submodule() {
   INFO Load "$1"
   git submodule init $1
   git submodule sync $1
-  git submodule update $1
+  git submodule update --init --recursive $1
 }
 
 function check_for() {

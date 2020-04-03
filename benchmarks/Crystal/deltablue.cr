@@ -648,9 +648,9 @@ class ScaleConstraint < BinaryConstraint
 
   def execute
     if @direction == :forward
-      @v2.value = @v1.value * @scale.value + @offset.value
+      @v2.value = (@v1.value * @scale.value + @offset.value).to_i32
     else
-      @v1.value = (@v2.value - @offset.value) / @scale.value
+      @v1.value = ((@v2.value - @offset.value) / @scale.value).to_i32
     end
   end
 
@@ -690,7 +690,7 @@ class StayConstraint < UnaryConstraint
 end
 
 class Variable
-  property :value
+  property value : Int32
   property :constraints
   property :determined_by
   property :walk_strength

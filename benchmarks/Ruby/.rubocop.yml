@@ -21,6 +21,11 @@ Style/IfInsideElse:
 Style/NumericPredicate:
   Enabled: false
 
+Style/IfUnlessModifier:
+  Exclude:
+    - 'harness.rb'
+    - 'havlak.rb'
+
 Lint/ShadowingOuterLocalVariable:
   Enabled: false
 
@@ -33,7 +38,7 @@ Metrics/ClassLength:
 Metrics/MethodLength:
   Enabled: false
 
-Metrics/LineLength:
+Layout/LineLength:
   Exclude:
     - 'cd.rb'
     - 'json.rb'
@@ -68,11 +73,11 @@ Naming/AccessorMethodName:
 Layout/SpaceInsideParens:
   Enabled: false
 
-Layout/AlignParameters:
+Layout/ParameterAlignment:
   Exclude:
     - 'nbody.rb'
 
-Layout/AlignArguments:
+Layout/ArgumentAlignment:
   Exclude:
     - 'nbody.rb'
 
@@ -134,7 +139,7 @@ Naming/FileName:
   Exclude:
     - 'harness-rbx.rb'
 
-Naming/UncommunicativeMethodParamName:
+Naming/MethodParameterName:
   Enabled: false
 
 Style/SymbolProc:
