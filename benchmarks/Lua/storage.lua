@@ -39,14 +39,14 @@ end
 function storage:build_tree_depth (depth, random)
     self.count = self.count + 1
     if depth == 1 then
-        -- With Lua, an array can be preallocated with dummy values or with table.new in LuaJIT
+        -- With Lua, an array can be preallocated with dummy values
         return {n = random:next() % 10 + 1}
     else
-        return {n = 4,
-        self:build_tree_depth(depth - 1, random),
-        self:build_tree_depth(depth - 1, random),
-        self:build_tree_depth(depth - 1, random),
-        self:build_tree_depth(depth - 1, random)}
+        local arr = {n = 4, true, true, true, true}
+        for i = 1, 4 do
+            arr[i] = self:build_tree_depth(depth - 1, random)
+        end
+        return arr
     end
 end
 
