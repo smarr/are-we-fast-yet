@@ -39,8 +39,7 @@ end
 function storage:build_tree_depth (depth, random)
     self.count = self.count + 1
     if depth == 1 then
-        -- With Lua, an array cannot be pre-allocated. (actually yes, you can)
-        -- We just compute the size like in others languages.
+        -- With Lua, an array can be preallocated with dummy values or with table.new in LuaJIT
         return {n = random:next() % 10 + 1}
     else
         return {n = 4,
