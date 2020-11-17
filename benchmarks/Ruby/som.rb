@@ -24,8 +24,7 @@ INITIAL_SIZE = 10
 INITIAL_CAPACITY = 16
 
 class Pair
-  attr_accessor :key
-  attr_accessor :value
+  attr_accessor :key, :value
 
   def initialize(key, value)
     @key   = key

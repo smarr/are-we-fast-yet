@@ -633,12 +633,7 @@ class StayConstraint < UnaryConstraint
 end
 
 class Variable
-  attr_accessor :value
-  attr_accessor :constraints
-  attr_accessor :determined_by
-  attr_accessor :walk_strength
-  attr_accessor :stay
-  attr_accessor :mark
+  attr_accessor :value, :constraints, :determined_by, :walk_strength, :stay, :mark
 
   def initialize
     @value         = 0
