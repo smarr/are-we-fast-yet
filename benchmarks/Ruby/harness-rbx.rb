@@ -36,10 +36,7 @@ class Benchmark
 end
 
 class Run
-  attr_accessor :name
-  attr_accessor :benchmark_suite
-  attr_accessor :num_iterations
-  attr_accessor :inner_iterations
+  attr_accessor :name, :benchmark_suite, :num_iterations, :inner_iterations
 
   def initialize(name)
     @name             = name

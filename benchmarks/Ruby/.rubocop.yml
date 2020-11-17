@@ -25,6 +25,12 @@ Style/IfUnlessModifier:
   Exclude:
     - 'harness.rb'
     - 'havlak.rb'
+  
+Style/HashEachMethods:
+  Enabled: false
+
+Style/SoleNestedConditional:
+  Enabled: false
 
 Lint/ShadowingOuterLocalVariable:
   Enabled: false
@@ -107,10 +113,25 @@ Style/StringLiterals:
 Style/MutableConstant:
   Exclude:
     - 'json.rb'
+  
+Style/CommentAnnotation:
+  Enabled: false
+
+Style/StringConcatenation:
+  Enabled: false
+
+Style/IfUnlessModifier:
+  Enabled: false
 
 Lint/Loop:
   Exclude:
     - 'json.rb'
+
+Lint/FloatComparison:
+  Enabled: false
+
+Lint/MissingSuper:
+  Enabled: false
 
 Layout/ExtraSpacing:
   Exclude:
@@ -151,9 +172,8 @@ Style/IdenticalConditionalBranches:
 Style/NestedTernaryOperator:
   Enabled: false
 
-Lint/UselessComparison:
-  Exclude:
-    - 'cd.rb'
+Lint/BinaryOperatorWithIdenticalOperands:
+  Enabled: false
 
 Layout/SpaceInsideReferenceBrackets:
   Enabled: false

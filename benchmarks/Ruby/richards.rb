@@ -267,6 +267,7 @@ end
 
 class DeviceTaskDataRecord < RBObject
   attr_accessor :pending
+
   def initialize
     @pending = NO_WORK
   end
@@ -274,6 +275,7 @@ end
 
 class HandlerTaskDataRecord < RBObject
   attr_accessor :work_in, :device_in
+
   def initialize
     @work_in   = NO_WORK
     @device_in = NO_WORK
@@ -299,6 +301,7 @@ end
 
 class Packet < RBObject
   attr_accessor :link, :kind, :identity, :datum, :data
+
   def initialize(link, identity, kind)
     @link     = link
     @kind     = kind
