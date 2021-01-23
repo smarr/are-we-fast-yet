@@ -266,10 +266,9 @@ function HavlakLoopFinder.new (cfg, lsg)
     local obj = {
         cfg = cfg,
         lsg = lsg,
-        non_back_preds = Vector.new(),
-        back_preds     = Vector.new(),
-        number         = IdentityDictionary.new(),
-        max_size = 0,
+        non_back_preds = nil,
+        back_preds     = nil,
+        number         = nil,
         header = nil,
         type   = nil,
         last   = nil,
@@ -369,17 +368,13 @@ function HavlakLoopFinder:find_loops ()
     end
 
     local size = self.cfg:num_nodes()
-    self.non_back_preds:remove_all()
-    self.back_preds:remove_all()
-    self.number:remove_all()
-
-    if size > self.max_size then
-        self.header   = {}
-        self.type     = {}
-        self.last     = {}
-        self.nodes    = {}
-        self.max_size = size
-    end
+    self.non_back_preds = Vector.new()
+    self.back_preds     = Vector.new()
+    self.number         = IdentityDictionary.new()
+    self.header         = {}
+    self.type           = {}
+    self.last           = {}
+    self.nodes          = {}
 
     for i = 1, size do
         self.non_back_preds:append(Set.new())

@@ -328,10 +328,9 @@ class HavlakLoopFinder
   def initialize(cfg, lsg)
     @cfg = cfg
     @lsg = lsg
-    @non_back_preds = Vector.new
-    @back_preds     = Vector.new
-    @number         = IdentityDictionary.new
-    @max_size = 0
+    @non_back_preds = nil
+    @back_preds     = nil
+    @number         = nil
     @header = nil
     @type   = nil
     @last   = nil
@@ -396,17 +395,13 @@ class HavlakLoopFinder
     return unless @cfg.get_start_basic_block
 
     size = @cfg.num_nodes
-    @non_back_preds.remove_all
-    @back_preds.remove_all
-    @number.remove_all
-
-    if size > @max_size
-      @header   = Array.new(size)
-      @type     = Array.new(size)
-      @last     = Array.new(size)
-      @nodes    = Array.new(size)
-      @max_size = size
-    end
+    @non_back_preds = Vector.new
+    @back_preds     = Vector.new
+    @number         = IdentityDictionary.new
+    @header         = Array.new(size)
+    @type           = Array.new(size)
+    @last           = Array.new(size)
+    @nodes          = Array.new(size)
 
     (0...size).each do |i|
       @non_back_preds.append(Set.new)
