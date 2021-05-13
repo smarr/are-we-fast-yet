@@ -1,0 +1,106 @@
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  test_awfy:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Java
+            id:   java
+            
+          - name: SOM
+            id:   som
+          
+          - name: Crystal
+            id:   crystal
+
+          - name: JavaScript
+            id:   js
+
+          - name: SOMns
+            id:   somns
+
+          - name: Pharo
+            id:   pharo
+
+          - name: Squeak 64-bit
+            id:   squeak64
+
+          - name: Ruby
+            id:   ruby
+
+          - name: Lua 5.2
+            id:   lua52
+          
+    name: ${{ matrix.name }}
+    steps:
+      - name: Checkout AWFY Repository
+        uses: actions/checkout@v2
+      
+      - name: Install ReBench
+        run: |
+          python -m pip install ReBench
+      
+      - name: Install Crystal
+        if: matrix.id == 'crystal'
+        uses: oprypin/install-crystal@v1
+      
+      - name: Install JS
+        if: matrix.id == 'js'
+        run: |
+          npm install jshint
+
+      - name: Install Pharo
+        if: matrix.id == 'pharo'
+        uses: hpi-swa/setup-smalltalkCI@v1
+        with:
+          smalltalk-image: Pharo64-8.0
+
+      - name: Install Squeak64
+        if: matrix.id == 'squeak64'
+        uses: hpi-swa/setup-smalltalkCI@v1
+        with:
+          smalltalk-image: Squeak64-5.2
+
+      - name: Install Squeak32
+        if: matrix.id == 'squeak32'
+        uses: hpi-swa/setup-smalltalkCI@v1
+        with:
+          smalltalk-image: Squeak32-5.2
+
+      - name: Install Ruby
+        if: matrix.id == 'ruby'
+        run: |
+          sudo gem install rubocop
+      
+      - name: Install Lua
+        uses: leafo/gh-actions-lua@v8
+        with:
+            luaVersion: 5.2
+        if: matrix.id == 'lua52'
+
+      - name: Install LuaRocks
+        uses: leafo/gh-actions-luarocks@v4
+        if: matrix.id == 'lua52'
+
+      - name: Install LuaCheck and lua5.2 symlink
+        run: |
+          luarocks install luacheck
+          sudo ln -s "`which lua`" "`which lua`5.2"
+        if: matrix.id == 'lua52'
+
+      - name: Build
+        run: |
+          implementations/build-${{ matrix.id }}.sh
+      
+      - name: ReBench Test Run
+        run: |
+          rebench test.conf test-${{ matrix.id }}
+      
+      - name: Style Check
+        run: |
+          implementations/build-${{ matrix.id }}.sh style

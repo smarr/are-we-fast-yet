@@ -14,7 +14,7 @@ then
   then
     $SCRIPT_PATH/../node_modules/jshint/bin/jshint *.js
   else
-    jshint *.js
+    npx jshint *.js
   fi
 else
   exit 0
