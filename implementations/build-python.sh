@@ -8,7 +8,7 @@ then
   INFO Check style of Python benchmarks
   pushd $SCRIPT_PATH/../benchmarks/Python
   python -m black --check --diff .
-  python -m pylint *.py
+  python -m pylint *.py som
 else
   exit 0
 fi

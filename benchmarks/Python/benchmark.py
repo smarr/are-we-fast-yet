@@ -19,27 +19,20 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-from benchmark import Benchmark
+from abc import abstractmethod
 
 
-class Sieve(Benchmark):
+class Benchmark:
+    @abstractmethod
     def benchmark(self):
-        flags = [True] * 5000
-        return self._sieve(flags, 5000)
+        pass
 
-    @staticmethod
-    def _sieve(flags, size):
-        prime_count = 0
-
-        for i in range(2, size + 1):
-            if flags[i - 1]:
-                prime_count += 1
-                k = i + i
-                while k <= size:
-                    flags[k - 1] = False
-                    k += i
-
-        return prime_count
-
+    @abstractmethod
     def verify_result(self, result):
-        return result == 669
+        pass
+
+    def inner_benchmark_loop(self, inner_iterations):
+        for _ in range(inner_iterations):
+            if not self.verify_result(self.benchmark()):
+                return False
+        return True

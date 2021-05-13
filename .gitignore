@@ -34,7 +34,8 @@ implementations/pypy.tar.bz2
 *.dmp
 /benchmarks/Smalltalk/*-cache
 /benchmarks/Smalltalk/stable
-/benchmarks/Python/__pycache__
+__pycache__
+*.pyc
 /benchmarks/Ruby/.rubocop_todo.yml
 /benchmarks/Java/.checkstyle
 /benchmarks/Java/.classpath
