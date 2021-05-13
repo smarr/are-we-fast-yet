@@ -139,12 +139,15 @@ disable=print-statement,
         deprecated-sys-function,
         exception-escape,
         comprehension-escape,
-        
+
         ## Disabled for AWFY
         missing-module-docstring,
         missing-class-docstring,
         missing-function-docstring,
-        too-few-public-methods
+        too-few-public-methods,
+        too-many-return-statements,
+        too-many-boolean-expressions,
+        chained-comparison
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
