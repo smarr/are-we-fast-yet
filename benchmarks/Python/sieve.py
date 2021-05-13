@@ -1,15 +1,15 @@
 def sieve(flags, size):
-    primeCount = 0
+    prime_count = 0
 
     for i in range(2, size + 1):
         if flags[i - 1]:
-            primeCount += 1
+            prime_count += 1
             k = i + i
             while k <= size:
                 flags[k - 1] = False
                 k += i
 
-    return primeCount
+    return prime_count
 
 
 flags = []

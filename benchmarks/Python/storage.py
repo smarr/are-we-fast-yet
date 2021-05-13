@@ -10,7 +10,7 @@ class Random:
 class Storage:
     count = 0
 
-    def buildTreeDepth(self, depth, random):
+    def build_tree_depth(self, depth, random):
         self.count += 1
         if depth == 1:
             s = random.next() % 10 + 1
@@ -18,15 +18,15 @@ class Storage:
             for i in range(0, s):
                 a.append(True)
             return a
-        else:
-            arr = []
-            for i in range(0, 4):
-                arr.append(self.buildTreeDepth(depth - 1, random))
-            return arr
+
+        arr = []
+        for i in range(0, 4):
+            arr.append(self.build_tree_depth(depth - 1, random))
+        return arr
 
 
 r = Random()
 s = Storage()
-s.buildTreeDepth(7, r)
+s.build_tree_depth(7, r)
 
 print(s.count)
