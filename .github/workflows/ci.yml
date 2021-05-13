@@ -36,6 +36,9 @@ jobs:
           - name: Lua 5.2
             id:   lua52
           
+          - name: Python
+            id:   python
+          
     name: ${{ matrix.name }}
     steps:
       - name: Checkout AWFY Repository
@@ -92,6 +95,11 @@ jobs:
           luarocks install luacheck
           sudo ln -s "`which lua`" "`which lua`5.2"
         if: matrix.id == 'lua52'
+      
+      - name: Install Python
+        run: |
+          python -m pip install black pylint
+        if: matrix.id == 'python'
 
       - name: Build
         run: |
