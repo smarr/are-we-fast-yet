@@ -1,45 +1,85 @@
-class Element:
-    val = 0
-    next = None
+# This code is based on the SOM class library.
+#
+# Copyright (c) 2001-2021 see AUTHORS.md file
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the 'Software'), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+from benchmark import Benchmark
 
+
+class Element:
     def __init__(self, v):
-        self.val = v
+        self._val = v
+        self._next = None
 
     def length(self):
-        if self.next is None:
+        if self._next is None:
             return 1
-        return 1 + self.next.length()
+        return 1 + self._next.length()
+
+    def get_val(self):
+        return self._val
+
+    def set_val(self, v):
+        self._val = v
+
+    def get_next(self):
+        return self._next
+
+    def set_next(self, e):
+        self._next = e
 
 
-def is_shorter_than(x, y):
-    x_tail = x
-    y_tail = y
+class List(Benchmark):
+    def benchmark(self):
+        result = self.tail(self.make_list(15), self.make_list(10), self.make_list(6))
+        return result.length()
 
-    while y_tail is not None:
-        if x_tail is None:
-            return True
+    def make_list(self, length):
+        if length == 0:
+            return None
 
-        x_tail = x_tail.next
-        y_tail = y_tail.next
+        e = Element(length)
+        e.set_next(self.make_list(length - 1))
+        return e
 
-    return False
+    @staticmethod
+    def is_shorter_than(x, y):
+        x_tail = x
+        y_tail = y
 
+        while y_tail is not None:
+            if x_tail is None:
+                return True
 
-def tail(x, y, z):
-    if is_shorter_than(y, x):
-        return tail(tail(x.next, y, z), tail(y.next, z, x), tail(z.next, x, y))
-    return z
+            x_tail = x_tail.get_next()
+            y_tail = y_tail.get_next()
 
+        return False
 
-def make_list(length):
-    if length == 0:
-        return None
+    def tail(self, x, y, z):
+        if self.is_shorter_than(y, x):  # pylint: disable=arguments-out-of-order
+            return self.tail(
+                self.tail(x.get_next(), y, z),
+                self.tail(y.get_next(), z, x),
+                self.tail(z.get_next(), x, y),
+            )
+        return z
 
-    e = Element(length)
-    e.next = make_list(length - 1)
-
-    return e
-
-
-result = tail(make_list(15), make_list(10), make_list(6))
-print(result.length())
+    def verify_result(self, result):
+        return result == 10
