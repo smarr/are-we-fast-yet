@@ -24,14 +24,14 @@ from benchmark import Benchmark
 
 class Queens(Benchmark):
     def __init__(self):
-        self._free_maxs  = None
-        self._free_rows  = None
-        self._free_mins  = None
+        self._free_maxs = None
+        self._free_rows = None
+        self._free_mins = None
         self._queen_rows = None
-    
+
     def benchmark(self):
         result = True
-        for i in range(0, 10):
+        for _ in range(10):
             result = result and self.queens()
         return result
 
@@ -39,15 +39,15 @@ class Queens(Benchmark):
         return result
 
     def queens(self):
-        self._free_rows  = [True] * 8
-        self._free_maxs  = [True] * 16
-        self._free_mins  = [True] * 16
+        self._free_rows = [True] * 8
+        self._free_maxs = [True] * 16
+        self._free_mins = [True] * 16
         self._queen_rows = [-1] * 8
 
         return self.place_queen(0)
 
     def place_queen(self, c):
-        for r in range(0, 8):
+        for r in range(8):
             if self.get_row_column(r, c):
                 self._queen_rows[r] = c
                 self.set_row_column(r, c, False)
@@ -60,11 +60,12 @@ class Queens(Benchmark):
                 self.set_row_column(r, c, True)
         return False
 
-
     def get_row_column(self, r, c):
-        return self._free_rows[r] and self._free_maxs[c + r] and self._free_mins[c - r + 7]
+        return (
+            self._free_rows[r] and self._free_maxs[c + r] and self._free_mins[c - r + 7]
+        )
 
     def set_row_column(self, r, c, v):
-        self._free_rows[r        ] = v
-        self._free_maxs[c + r    ] = v
+        self._free_rows[r] = v
+        self._free_maxs[c + r] = v
         self._free_mins[c - r + 7] = v
