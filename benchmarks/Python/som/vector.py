@@ -57,7 +57,7 @@ class Vector:
             self._last_idx = idx + 1
 
     def append(self, elem):
-        if self._last_idx <= len(self._storage):
+        if self._last_idx >= len(self._storage):
             # Need to expand capacity first
             new_storage = [None] * (2 * len(self._storage))
             for i in range(len(self._storage)):
@@ -182,7 +182,7 @@ class Vector:
             self._sort(k, j, c)
 
     def _swap(self, storage, i, j):
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def _default_sort(self, i, j):
-        raise NotImplemented()
+        raise NotImplementedError()
