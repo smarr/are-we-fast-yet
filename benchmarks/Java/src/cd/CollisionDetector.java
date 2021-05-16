@@ -76,10 +76,8 @@ public final class CollisionDetector {
     double y0 = init.y;
     double yv = fin.y - init.y;
 
-    double low_x;
-    double high_x;
-    low_x = (v_x - r - x0) / xv;
-    high_x = (v_x + v_s + r - x0) / xv;
+    double low_x = (v_x - r - x0) / xv;
+    double high_x = (v_x + v_s + r - x0) / xv;
 
     if (xv < 0.0) {
       double tmp = low_x;
@@ -87,10 +85,8 @@ public final class CollisionDetector {
       high_x = tmp;
     }
 
-    double low_y;
-    double high_y;
-    low_y  = (v_y - r - y0) / yv;
-    high_y = (v_y + v_s + r - y0) / yv;
+    double low_y  = (v_y - r - y0) / yv;
+    double high_y = (v_y + v_s + r - y0) / yv;
 
     if (yv < 0.0) {
       double tmp = low_y;
