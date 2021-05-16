@@ -643,8 +643,8 @@ class CollisionDetector
     x = GOOD_VOXEL_SIZE * x_div
     y = GOOD_VOXEL_SIZE * y_div
 
-    x -= GOOD_VOXEL_SIZE if position.x < 0
-    y -= GOOD_VOXEL_SIZE if position.y < 0
+    x -= GOOD_VOXEL_SIZE if position.x < 0.0
+    y -= GOOD_VOXEL_SIZE if position.y < 0.0
 
     Vector2D.new(x, y)
   end
@@ -794,10 +794,10 @@ class Simulator
     (0...@aircraft.size).step(2) do |i|
       frame.append(Aircraft.new(@aircraft.at(i),
                                 Vector3D.new(time,
-                                             Math.cos(time) * 2 + i * 3, 10.0)))
+                                             Math.cos(time) * 2.0 + i * 3.0, 10.0)))
       frame.append(Aircraft.new(@aircraft.at(i + 1),
                                 Vector3D.new(time,
-                                             Math.sin(time) * 2 + i * 3, 10.0)))
+                                             Math.sin(time) * 2.0 + i * 3.0, 10.0)))
     end
     frame
   end
