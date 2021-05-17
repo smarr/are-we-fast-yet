@@ -71,21 +71,6 @@ abstract class AbstractConstraint {
   // Enforce this constraint. Assume that it is satisfied.
   public abstract void execute();
 
-  @FunctionalInterface
-  public interface BlockFunction {
-    class Return extends Exception {
-      private static final long serialVersionUID = 5527046579317358033L;
-      private final Object value;
-      Return(final Object value) {
-        this.value = value;
-      }
-      public Object getValue() {
-        return value;
-      }
-    }
-    void apply(Variable var) throws BlockFunction.Return;
-  }
-
   public abstract void inputsDo(ForEachInterface<Variable> fn);
   public abstract boolean inputsHasOne(TestInterface<Variable> fn);
 
