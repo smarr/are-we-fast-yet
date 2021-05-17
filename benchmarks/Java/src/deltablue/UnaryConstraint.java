@@ -67,7 +67,7 @@ abstract class UnaryConstraint extends AbstractConstraint {
   @Override
   public boolean inputsHasOne(final som.TestInterface<Variable> fn) {
     return false;
-  };
+  }
 
   // Record the fact that I am unsatisfied.
   @Override
