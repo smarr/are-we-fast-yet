@@ -100,22 +100,24 @@ class Vector:
 
     def remove(self, obj):
         new_array = [None] * self.capacity()
-        new_last = [0]
-        found = [False]
+        new_last = 0
+        found = False
 
         def each(it):
+            nonlocal new_last
+            nonlocal found
             if it is obj:
-                found[0] = True
+                found = True
             else:
-                new_array[new_last[0]] = it
-                new_last[0] += 1
+                new_array[new_last] = it
+                new_last += 1
 
         self.for_each(each)
 
         self._storage = new_array
-        self._last_idx = new_last[0]
+        self._last_idx = new_last
         self._first_idx = 0
-        return found[0]
+        return found
 
     def remove_all(self):
         self._first_idx = 0
@@ -145,9 +147,7 @@ class Vector:
 
         if c.compare(di, dj) > 0:
             self._swap(self._storage, i, j)
-            tt = di
-            di = dj
-            dj = tt
+            di, dj = dj, di
 
         if n > 2:
             ij = (i + j) // 2
