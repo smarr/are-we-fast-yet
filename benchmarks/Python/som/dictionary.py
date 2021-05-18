@@ -25,22 +25,14 @@ _INITIAL_CAPACITY = 16
 
 
 class Entry:
-    def __init__(self, hash, key, value, next):
-        self.hash = hash
+    def __init__(self, hash_, key, value, next_):
+        self.hash = hash_
         self.key = key
         self.value = value
-        self.next = next
+        self.next = next_
 
     def match(self, hash_, key):
         return self.hash == hash_ and key == self.key
-
-
-# TODO: see whether we need to replace the >> in _hash with rshift
-def rshift(val, n):
-    if val >= 0:
-        return val >> n
-    else:
-        return (val + 0x100000000) >> n
 
 
 def _hash(key):
@@ -69,36 +61,36 @@ class Dictionary:
         return self._buckets[self._get_bucket_idx(hash_)]
 
     def at(self, key):
-        hash = _hash(key)
-        e = self._get_bucket(hash)
+        hash_ = _hash(key)
+        e = self._get_bucket(hash_)
 
         while e is not None:
-            if e.match(hash, key):
+            if e.match(hash_, key):
                 return e.value
             e = e.next
         return None
 
     def contains_key(self, key):
-        hash = _hash(key)
-        e = self._get_bucket(hash)
+        hash_ = _hash(key)
+        e = self._get_bucket(hash_)
 
         while e is not None:
-            if e.match(hash, key):
+            if e.match(hash_, key):
                 return True
             e = e.next
         return False
 
     def at_put(self, key, value):
-        hash = _hash(key)
-        i = self._get_bucket_idx(hash)
+        hash_ = _hash(key)
+        i = self._get_bucket_idx(hash_)
 
         current = self._buckets[i]
 
         if current is None:
-            self._buckets[i] = self._new_entry(key, value, hash)
+            self._buckets[i] = self._new_entry(key, value, hash_)
             self._size += 1
         else:
-            self._insert_bucket_entry(key, value, hash, current)
+            self._insert_bucket_entry(key, value, hash_, current)
 
         if self._size > len(self._buckets):
             self._resize()
@@ -129,7 +121,7 @@ class Dictionary:
         self._transfer_entries(old_storage)
 
     def _transfer_entries(self, old_storage):
-        for i in range(len(old_storage)):
+        for i in range(len(old_storage)):  # pylint: disable=consider-using-enumerate
             current = old_storage[i]
             if current is not None:
                 old_storage[i] = None
@@ -166,7 +158,7 @@ class Dictionary:
             self._buckets[i] = lo_head
         if hi_tail is not None:
             hi_tail.next = None
-            self._buckets[i + old_storage.length] = hi_head
+            self._buckets[i + len(old_storage)] = hi_head
 
     def remove_all(self):
         self._buckets = [None] * len(self._buckets)
