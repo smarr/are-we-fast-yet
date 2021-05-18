@@ -147,6 +147,8 @@ disable=print-statement,
         too-few-public-methods,
         too-many-return-statements,
         too-many-boolean-expressions,
+        too-many-instance-attributes,
+        too-many-arguments,
         chained-comparison
 
 # Enable the message, report, category or checker with the given id(s). You can
@@ -427,8 +429,8 @@ function-naming-style=snake_case
 
 # Good variable names which should always be accepted, separated by a comma.
 good-names=i, j, k, ex, Run, _,
-           a,at,b,c,c1,c2,ci,cr,d,di,di,dj,dt,dx,dy,dz,e,fn,ij,it,l,n,n1,
-           px,py,pz,r,tt,v,v1,v2,w,x,x0,xv,y,y0,yv,z,zi,zr,
+           a,at,b,bb,c,c1,c2,ci,cr,d,di,di,dj,dt,dx,dy,dz,e,fn,ij,it,l,n,n1,
+           px,py,pz,r,to,tt,v,v1,v2,w,x,x0,xv,y,y0,yv,z,zi,zr,
            s,of
 
 # Good variable names regexes, separated by a comma. If names match any regex,
