@@ -14,11 +14,16 @@
 #         limitations under the License.
 from enum import Enum
 
+import sys
+
 from benchmark import Benchmark
 from som.identity_dictionary import IdentityDictionary
 from som.identity_set import IdentitySet
 from som.set import Set
 from som.vector import Vector
+
+# Havlak needs more stack space in CPython
+sys.setrecursionlimit(1500)
 
 
 class Havlak(Benchmark):
