@@ -61,9 +61,9 @@ class Body:
         self._vz = val
 
     def offset_momentum(self, px, py, pz):
-        self._vx = 0.0 - (px / SOLAR_MASS)
-        self._vy = 0.0 - (py / SOLAR_MASS)
-        self._vz = 0.0 - (pz / SOLAR_MASS)
+        self._vx = -(px / SOLAR_MASS)
+        self._vy = -(py / SOLAR_MASS)
+        self._vz = -(pz / SOLAR_MASS)
 
 
 def jupiter():

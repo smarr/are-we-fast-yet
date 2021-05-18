@@ -40,7 +40,7 @@ class Ball:
 
         if self._x > x_limit:
             self._x = x_limit
-            self._x_vel = 0 - abs(self._x_vel)
+            self._x_vel = -abs(self._x_vel)
             bounced = True
 
         if self._x < 0:
@@ -50,7 +50,7 @@ class Ball:
 
         if self._y > y_limit:
             self._y = y_limit
-            self._y_vel = 0 - abs(self._y_vel)
+            self._y_vel = -abs(self._y_vel)
             bounced = True
 
         if self._y < 0:
