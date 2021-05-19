@@ -182,7 +182,7 @@ class RedBlackTree
           x.parent.parent.color = :red
           x = x.parent.parent
         else
-          if x == x.parent.right
+          if x.equal? x.parent.right
             # Case 2
             x = x.parent
             left_rotate(x)
@@ -203,7 +203,7 @@ class RedBlackTree
           x.parent.parent.color = :red
           x = x.parent.parent
         else
-          if x == x.parent.left
+          if x.equal? x.parent.left
             # Case 2
             x = x.parent
             right_rotate(x)
@@ -259,7 +259,7 @@ class RedBlackTree
       end
     end
 
-    if y != z
+    if !y.equal?(z)
       remove_fixup(x, x_parent) if y.color == :black
 
       y.parent = z.parent
@@ -363,7 +363,7 @@ class RedBlackTree
     unless x.parent
       @root = y
     else
-      if x == x.parent.left
+      if x.equal? x.parent.left
         x.parent.left = y
       else
         x.parent.right = y
@@ -403,8 +403,8 @@ class RedBlackTree
   end
 
   def remove_fixup(x, x_parent)
-    while x != @root && (!x || x.color == :black)
-      if x == x_parent.left
+    while !x.equal?(@root) && (!x || x.color == :black)
+      if x.equal? x_parent.left
         # Note: the text points out that w cannot be null.
         # The reason is not obvious from simply looking at the code;
         # it comes about from the properties of the red-black tree.
@@ -643,8 +643,8 @@ class CollisionDetector
     x = GOOD_VOXEL_SIZE * x_div
     y = GOOD_VOXEL_SIZE * y_div
 
-    x -= GOOD_VOXEL_SIZE if position.x < 0
-    y -= GOOD_VOXEL_SIZE if position.y < 0
+    x -= GOOD_VOXEL_SIZE if position.x < 0.0
+    y -= GOOD_VOXEL_SIZE if position.y < 0.0
 
     Vector2D.new(x, y)
   end
@@ -794,10 +794,10 @@ class Simulator
     (0...@aircraft.size).step(2) do |i|
       frame.append(Aircraft.new(@aircraft.at(i),
                                 Vector3D.new(time,
-                                             Math.cos(time) * 2 + i * 3, 10.0)))
+                                             Math.cos(time) * 2.0 + i * 3.0, 10.0)))
       frame.append(Aircraft.new(@aircraft.at(i + 1),
                                 Vector3D.new(time,
-                                             Math.sin(time) * 2 + i * 3, 10.0)))
+                                             Math.sin(time) * 2.0 + i * 3.0, 10.0)))
     end
     frame
   end
