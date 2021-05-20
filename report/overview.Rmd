@@ -87,8 +87,11 @@ names(vm_colors_light) <- vm_names
 
 data <- load_all_data("data", "AWFY-")
 
+warmup_slow <- 100
+warmup_fast <- 500
+
 data_fast_vms <- data %>%
-  filter(iteration >= 500 & iteration <= 1000 & exe %in% vms_fast) %>%
+  filter(iteration >= warmup_fast & iteration <= 1000 & exe %in% vms_fast) %>%
   droplevels()
 
 data_very_slow_vms <- data %>%
@@ -96,7 +99,7 @@ data_very_slow_vms <- data %>%
   droplevels()
   
 data_slow_vms <- data %>%
-  filter(iteration >= 100 & (exe == "JRubyJ8" | exe == "Pharo")) %>%
+  filter(iteration >= warmup_slow & (exe == "JRubyJ8" | exe == "Pharo")) %>%
   droplevels()
 data <- rbind(data_fast_vms, data_slow_vms, data_very_slow_vms) %>%
   select(-c(runid, trialid, commitid, suite, cmdline))
@@ -247,9 +250,8 @@ overview_box_plot <- function(stats, vms, prepare_data = NULL, pre_plot = NULL, 
 }
 ```
 
-All results are normalized to Java 1.8.0_292. Furthermore, we report peak
-performance. This means, the reported measurements are taken after warmup and
-compilation of the benchmark code is completed.
+All results are normalized to Java 1.8.0_292. Furthermore, we report afer 
+some warmup. This means, the reported measurements are taken after `r warmup_slow` or `r warmup_fast` warmup iterations.
 
 ## Overview
 
@@ -313,13 +315,13 @@ The following plots show results for each of the benchmarks.
 
 ##### Fast Language Implementations
 
-```{r fast-langs-benchmarks, fig.width=6, fig.height=4}
+```{r fast-langs-benchmarks, fig.width=6, fig.height=3}
 plot_benchmarks_speedup_for_vms(norm_latest, vms_fast)
 ```
 
 ##### Slow Language Implementations
 
-```{r slow-langs-benchmarks, fig.width=6, fig.height=6}
+```{r slow-langs-benchmarks, fig.width=6, fig.height=4}
 plot_benchmarks_speedup_for_vms(norm_latest, vms_slow)
 ```
 
