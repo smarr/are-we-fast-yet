@@ -43,19 +43,19 @@ class Richards(Benchmark):
 class _RBObject:
     @staticmethod
     def append(packet, queue_head):
-        packet.set_link(_NO_WORK)
+        packet.link = _NO_WORK
         if _NO_WORK == queue_head:
             return packet
 
         mouse = queue_head
 
         while True:
-            link = mouse.get_link()
+            link = mouse.link
             if link == _NO_WORK:
                 break
             mouse = link
 
-        mouse.set_link(packet)
+        mouse.link = packet
         return queue_head
 
 
@@ -79,14 +79,14 @@ class _Scheduler(_RBObject):
 
         def fn(function_work, data_record):
             if _NO_WORK == function_work:
-                function_work = data_record.get_pending()
+                function_work = data_record.pending
                 if _NO_WORK == function_work:
                     return self.mark_waiting()
 
-                data_record.set_pending(_NO_WORK)
+                data_record.pending = _NO_WORK
                 return self.queue_packet(function_work)
 
-            data_record.set_pending(function_work)
+            data_record.pending = function_work
             if _TRACING:
                 self._trace(function_work.datum)
             return self._hold_self()
@@ -98,27 +98,27 @@ class _Scheduler(_RBObject):
 
         def fn(work_arg, data_record):
             if _NO_WORK != work_arg:
-                if _WORK_PACKET_KIND == work_arg.get_kind():
+                if _WORK_PACKET_KIND == work_arg.kind:
                     data_record.work_in_add(work_arg)
                 else:
                     data_record.device_in_add(work_arg)
 
-            work_packet = data_record.get_work_in()
+            work_packet = data_record.work_in
             if _NO_WORK == work_packet:
                 return self.mark_waiting()
 
-            count = work_packet.get_datum()
+            count = work_packet.datum
             if count >= _DATA_SIZE:
-                data_record.set_work_in(work_packet.get_link())
+                data_record.work_in = work_packet.link
                 return self.queue_packet(work_packet)
 
-            device_packet = data_record.get_device_in()
+            device_packet = data_record.device_in
             if _NO_WORK == device_packet:
                 return self.mark_waiting()
 
-            data_record.set_device_in(device_packet.get_link())
-            device_packet.set_datum(work_packet.get_data()[count])
-            work_packet.set_datum(count + 1)
+            data_record.device_in = device_packet.link
+            device_packet.datum = work_packet.data[count]
+            work_packet.datum = count + 1
             return self.queue_packet(device_packet)
 
         self.create_task(identity, priority, work, state, data, fn)
@@ -127,15 +127,15 @@ class _Scheduler(_RBObject):
         data = _IdleTaskDataRecord()
 
         def fn(_work, data_record):
-            data_record.set_count(data_record.get_count() - 1)
-            if 0 == data_record.get_count():
+            data_record.count = data_record.count - 1
+            if 0 == data_record.count:
                 return self._hold_self()
 
-            if 0 == (data_record.get_control() & 1):
-                data_record.set_control(data_record.get_control() // 2)
+            if 0 == (data_record.control & 1):
+                data_record.control = data_record.control // 2
                 return self.release(_DEVICE_A)
 
-            data_record.set_control((data_record.get_control() // 2) ^ 53_256)
+            data_record.control = (data_record.control // 2) ^ 53_256
             return self.release(_DEVICE_B)
 
         self.create_task(identity, priority, work, state, data, fn)
@@ -157,18 +157,17 @@ class _Scheduler(_RBObject):
             if _NO_WORK == work:
                 return self.mark_waiting()
 
-            data_record.set_destination(
-                _HANDLER_B
-                if _HANDLER_A == data_record.get_destination()
-                else _HANDLER_A
+            data_record.destination = (
+                _HANDLER_B if _HANDLER_A == data_record.destination else _HANDLER_A
             )
-            work.set_identity(data_record.get_destination())
-            work.set_datum(0)
+
+            work.identity = data_record.destination
+            work.datum = 0
             for i in range(_DATA_SIZE):
-                data_record.set_count(data_record.get_count() + 1)
-                if data_record.get_count() > 26:
-                    data_record.set_count(1)
-                work.get_data()[i] = 65 + data_record.get_count() - 1
+                data_record.count = data_record.count + 1
+                if data_record.count > 26:
+                    data_record.count = 1
+                work.data[i] = 65 + data_record.count - 1
 
             return self.queue_packet(work)
 
@@ -210,17 +209,17 @@ class _Scheduler(_RBObject):
     def _hold_self(self):
         self._hold_count += 1
         self._current_task.set_task_holding(True)
-        return self._current_task.get_link()
+        return self._current_task.link
 
     def queue_packet(self, packet):
-        task = self.find_task(packet.get_identity())
+        task = self.find_task(packet.identity)
         if _NO_TASK == task:
             return _NO_TASK
 
         self._queue_count += 1
 
-        packet.set_link(_NO_WORK)
-        packet.set_identity(self._current_task_identity)
+        packet.link = _NO_WORK
+        packet.identity = self._current_task_identity
         return task.add_input_and_check_priority(packet, self._current_task)
 
     def release(self, identity):
@@ -230,7 +229,7 @@ class _Scheduler(_RBObject):
 
         task.set_task_holding(False)
 
-        if task.get_priority() > self._current_task.get_priority():
+        if task.priority > self._current_task.priority:
             return task
         return self._current_task
 
@@ -250,9 +249,9 @@ class _Scheduler(_RBObject):
         self._current_task = self._task_list
         while _NO_TASK is not self._current_task:
             if self._current_task.is_task_holding_or_waiting():
-                self._current_task = self._current_task.get_link()
+                self._current_task = self._current_task.link
             else:
-                self._current_task_identity = self._current_task.get_identity()
+                self._current_task_identity = self._current_task.identity
                 if _TRACING:
                     self._trace(self._current_task_identity)
                 self._current_task = self._current_task.run_task()
@@ -260,94 +259,34 @@ class _Scheduler(_RBObject):
 
 class _DeviceTaskDataRecord(_RBObject):
     def __init__(self):
-        self._pending = _NO_WORK
-
-    def get_pending(self):
-        return self._pending
-
-    def set_pending(self, packet):
-        self._pending = packet
+        self.pending = _NO_WORK
 
 
 class _HandlerTaskDataRecord(_RBObject):
     def __init__(self):
-        self._work_in = _NO_WORK
-        self._device_in = _NO_WORK
-
-    def get_work_in(self):
-        return self._work_in
-
-    def set_work_in(self, a_work_queue):
-        self._work_in = a_work_queue
-
-    def get_device_in(self):
-        return self._device_in
-
-    def set_device_in(self, a_packet):
-        self._device_in = a_packet
+        self.work_in = _NO_WORK
+        self.device_in = _NO_WORK
 
     def device_in_add(self, packet):
-        self._device_in = self.append(packet, self._device_in)
+        self.device_in = self.append(packet, self.device_in)
 
     def work_in_add(self, packet):
-        self._work_in = self.append(packet, self._work_in)
+        self.work_in = self.append(packet, self.work_in)
 
 
 class _IdleTaskDataRecord(_RBObject):
     def __init__(self):
-        self._control = 1
-        self._count = 10_000
-
-    def get_control(self):
-        return self._control
-
-    def set_control(self, a_number):
-        self._control = a_number
-
-    def get_count(self):
-        return self._count
-
-    def set_count(self, a_count):
-        self._count = a_count
+        self.control = 1
+        self.count = 10_000
 
 
 class _Packet(_RBObject):
     def __init__(self, link, identity, kind):
-        self._link = link
-        self._kind = kind
-        self._identity = identity
-        self._datum = 0
-        self._data = [0] * _DATA_SIZE
-
-    def get_link(self):
-        return self._link
-
-    def set_link(self, link):
-        self._link = link
-
-    def get_kind(self):
-        return self._kind
-
-    def set_kind(self, kind):
-        self._kind = kind
-
-    def get_identity(self):
-        return self._identity
-
-    def set_identity(self, identity):
-        self._identity = identity
-
-    def get_datum(self):
-        return self._datum
-
-    def set_datum(self, datum):
-        self._datum = datum
-
-    def get_data(self):
-        return self._data
-
-    def set_data(self, data):
-        self._data = data
+        self.link = link
+        self.kind = kind
+        self.identity = identity
+        self.datum = 0
+        self.data = [0] * _DATA_SIZE
 
 
 class _TaskState(_RBObject):
@@ -370,9 +309,6 @@ class _TaskState(_RBObject):
 
     def set_task_waiting(self, task):
         self._task_waiting = task
-
-    def set_packet_pending(self, pending):
-        self._packet_pending = pending
 
     def packet_pending(self):
         self._packet_pending = True
@@ -441,34 +377,22 @@ class _TaskControlBlock(_TaskState):
         fn,
     ):
         super().__init__()
-        self._link = link
-        self._identity = identity
-        self._function = fn
-        self._priority = priority
+        self.link = link
+        self.identity = identity
+        self.function = fn
+        self.priority = priority
         self._input = initial_work_queue
         self._handle = private_data
 
-        self.set_packet_pending(initial_state.is_packet_pending())
-        self.set_task_waiting(initial_state.is_task_waiting())
-        self.set_task_holding(initial_state.is_task_holding())
-
-    def get_link(self):
-        return self._link
-
-    def get_identity(self):
-        return self._identity
-
-    def get_function(self):
-        return self._function
-
-    def get_priority(self):
-        return self._priority
+        self._packet_pending = initial_state.is_packet_pending()
+        self._task_waiting = initial_state.is_task_waiting()
+        self._task_holding = initial_state.is_task_holding()
 
     def add_input_and_check_priority(self, packet, old_task):
         if _NO_WORK == self._input:
             self._input = packet
-            self.set_packet_pending(True)
-            if self._priority > old_task.get_priority():
+            self._packet_pending = True
+            if self.priority > old_task.priority:
                 return self
         else:
             self._input = self.append(packet, self._input)
@@ -478,7 +402,7 @@ class _TaskControlBlock(_TaskState):
     def run_task(self):
         if self.is_waiting_with_packet():
             message = self._input
-            self._input = message.get_link()
+            self._input = message.link
             if _NO_WORK == self._input:
                 self.running()
             else:
@@ -486,22 +410,10 @@ class _TaskControlBlock(_TaskState):
         else:
             message = _NO_WORK
 
-        return self._function(message, self._handle)
+        return self.function(message, self._handle)
 
 
 class _WorkerTaskDataRecord(_RBObject):
     def __init__(self):
-        self._destination = _HANDLER_A
-        self._count = 0
-
-    def get_count(self):
-        return self._count
-
-    def set_count(self, a_counter):
-        self._count = a_counter
-
-    def get_destination(self):
-        return self._destination
-
-    def set_destination(self, a_handler):
-        self._destination = a_handler
+        self.destination = _HANDLER_A
+        self.count = 0

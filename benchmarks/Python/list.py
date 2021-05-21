@@ -25,24 +25,12 @@ from benchmark import Benchmark
 class Element:
     def __init__(self, v):
         self._val = v
-        self._next = None
+        self.next = None
 
     def length(self):
-        if self._next is None:
+        if self.next is None:
             return 1
-        return 1 + self._next.length()
-
-    def get_val(self):
-        return self._val
-
-    def set_val(self, v):
-        self._val = v
-
-    def get_next(self):
-        return self._next
-
-    def set_next(self, e):
-        self._next = e
+        return 1 + self.next.length()
 
 
 class List(Benchmark):
@@ -55,7 +43,7 @@ class List(Benchmark):
             return None
 
         e = Element(length)
-        e.set_next(self.make_list(length - 1))
+        e.next = self.make_list(length - 1)
         return e
 
     @staticmethod
@@ -67,17 +55,17 @@ class List(Benchmark):
             if x_tail is None:
                 return True
 
-            x_tail = x_tail.get_next()
-            y_tail = y_tail.get_next()
+            x_tail = x_tail.next
+            y_tail = y_tail.next
 
         return False
 
     def tail(self, x, y, z):
         if self.is_shorter_than(y, x):  # pylint: disable=arguments-out-of-order
             return self.tail(
-                self.tail(x.get_next(), y, z),
-                self.tail(y.get_next(), z, x),
-                self.tail(z.get_next(), x, y),
+                self.tail(x.next, y, z),
+                self.tail(y.next, z, x),
+                self.tail(z.next, x, y),
             )
         return z
 

@@ -113,10 +113,10 @@ class _Planner:
         while not todo.is_empty():
             c = todo.remove_first()
 
-            if c.get_output().get_mark() != mark and c.inputs_known(mark):
+            if c.get_output().mark != mark and c.inputs_known(mark):
                 # not in plan already and eligible for inclusion
                 plan.append(c)
-                c.get_output().set_mark(mark)
+                c.get_output().mark = mark
                 self._add_constraints_consuming_to(c.get_output(), todo)
         return plan
 
@@ -132,13 +132,13 @@ class _Planner:
 
     @staticmethod
     def _add_constraints_consuming_to(v, coll):
-        determining_c = v.get_determined_by()
+        determining_c = v.determined_by
 
         def each(c):
             if c is not determining_c and c.is_satisfied():
                 coll.append(c)
 
-        v.get_constraints().for_each(each)
+        v.constraints.for_each(each)
 
     # Recompute the walkabout strengths and stay flags of all variables
     # downstream of the given constraint and recompute the actual
@@ -157,7 +157,7 @@ class _Planner:
         while not todo.is_empty():
             d = todo.remove_first()
 
-            if d.get_output().get_mark() == mark:
+            if d.get_output().mark == mark:
                 self.incremental_remove(c)
                 return False
 
@@ -172,20 +172,20 @@ class _Planner:
         edit_v = vector_with(edit_c)
         plan = self.extract_plan_from_constraints(edit_v)
         for _ in range(10):
-            var.set_value(new_value)
+            var.value = new_value
             plan.execute()
 
         edit_c.destroy_constraint(self)
 
     @staticmethod
     def _constraints_consuming(v, fn):
-        determining_c = v.get_determined_by()
+        determining_c = v.determined_by
 
         def each(c):
             if c is not determining_c and c.is_satisfied():
                 fn(c)
 
-        v.get_constraints().for_each(each)
+        v.constraints.for_each(each)
 
     # Select a previously unused mark value.
     def _new_mark(self):
@@ -198,9 +198,9 @@ class _Planner:
     def _remove_propagate_from(self, out):
         unsatisfied = Vector()
 
-        out.set_determined_by(None)
-        out.set_walk_strength(_absolute_weakest)
-        out.set_stay(True)
+        out.determined_by = None
+        out.walk_strength = _absolute_weakest
+        out.stay = True
 
         todo = vector_with(out)
 
@@ -211,7 +211,7 @@ class _Planner:
                 if not c.is_satisfied():
                     unsatisfied.append(c)
 
-            v.get_constraints().for_each(each)
+            v.constraints.for_each(each)
 
             def recalc(c):
                 c.recalculate()
@@ -220,7 +220,7 @@ class _Planner:
             self._constraints_consuming(v, recalc)
 
         def comp(c1, c2):
-            return -1 if c1.get_strength().stronger(c2.get_strength()) else 1
+            return -1 if c1.strength.stronger(c2.strength) else 1
 
         unsatisfied.sort(comp)
         return unsatisfied
@@ -256,9 +256,9 @@ class _Planner:
         edit_v = vector_with(edit_c)
         plan = planner.extract_plan_from_constraints(edit_v)
         for i in range(100):
-            variables[0].set_value(i)
+            variables[0].value = i
             plan.execute()
-            if variables[n].get_value() != i:
+            if variables[n].value != i:
                 raise Exception("Chain test failed!")
 
         edit_c.destroy_constraint(planner)
@@ -273,34 +273,34 @@ class _Planner:
 
         dests = Vector()
 
-        scale = _variable_value(10)
-        offset = _variable_value(1000)
+        scale = _Variable(10)
+        offset = _Variable(1000)
 
         src = None
         dst = None
         for i in range(1, n + 1):
-            src = _variable_value(i)
-            dst = _variable_value(i)
+            src = _Variable(i)
+            dst = _Variable(i)
             dests.append(dst)
             _StayConstraint(src, _DEFAULT, planner)
             _ScaleConstraint(src, scale, offset, dst, _REQUIRED, planner)
 
         planner.change(src, 17)
-        if dst.get_value() != 1170:
+        if dst.value != 1170:
             raise Exception("Projection test 1 failed!")
 
         planner.change(dst, 1050)
-        if src.get_value() != 5:
+        if src.value != 5:
             raise Exception("Projection test 2 failed!")
 
         planner.change(scale, 5)
         for i in range(n - 1):
-            if dests.at(i).get_value() != (i + 1) * 5 + 1000:
+            if dests.at(i).value != (i + 1) * 5 + 1000:
                 raise Exception("Projection test 3 failed!")
 
         planner.change(offset, 2000)
         for i in range(n - 1):
-            if dests.at(i).get_value() != (i + 1) * 5 + 2000:
+            if dests.at(i).value != (i + 1) * 5 + 2000:
                 raise Exception("Projection test 4 failed!")
 
 
@@ -325,25 +325,22 @@ _ABSOLUTE_WEAKEST = _Sym(7)
 class _Strength:
     def __init__(self, strength_sym):
         self._symbolic_value = strength_sym
-        self._arithmetic_value = _strength_table.at(strength_sym)
+        self.arithmetic_value = _strength_table.at(strength_sym)
 
     def same_as(self, s):
-        return self._arithmetic_value == s.get_arithmetic_value()
+        return self.arithmetic_value == s.arithmetic_value
 
     def stronger(self, s):
-        return self._arithmetic_value < s.get_arithmetic_value()
+        return self.arithmetic_value < s.arithmetic_value
 
     def weaker(self, s):
-        return self._arithmetic_value > s.get_arithmetic_value()
+        return self.arithmetic_value > s.arithmetic_value
 
     def strongest(self, s):
         return s if s.stronger(self) else self
 
     def weakest(self, s):
         return s if s.weaker(self) else self
-
-    def get_arithmetic_value(self):
-        return self._arithmetic_value
 
     @staticmethod
     def of(strength):
@@ -392,10 +389,7 @@ class _Direction(Enum):
 # to represent a constraint.
 class _AbstractConstraint:
     def __init__(self, strength):
-        self._strength = _Strength.of(strength)
-
-    def get_strength(self):
-        return self._strength
+        self.strength = _Strength.of(strength)
 
     # Normal constraints are not input constraints. An input constraint
     # is one that depends on external state, such as the mouse, the
@@ -459,9 +453,7 @@ class _AbstractConstraint:
     # constraint.
     def inputs_known(self, mark):
         return not self.inputs_has_one(
-            lambda v: not (
-                v.get_mark() == mark or v.get_stay() or v.get_determined_by() is None
-            )
+            lambda v: not (v.mark == mark or v.stay or v.determined_by is None)
         )
 
     # Record the fact that I am unsatisfied.
@@ -493,21 +485,24 @@ class _AbstractConstraint:
         if self.is_satisfied():
             # constraint can be satisfied
             # mark inputs to allow cycle detection in addPropagate
-            self.inputs_do(lambda input: input.set_mark(mark))
+            def each(input_):
+                input_.mark = mark
+
+            self.inputs_do(each)
 
             out = self.get_output()
-            overridden = out.get_determined_by()
+            overridden = out.determined_by
             if overridden is not None:
                 overridden.mark_unsatisfied()
 
-            out.set_determined_by(self)
+            out.determined_by = self
             if not planner.add_propagate(self, mark):
                 raise Exception("Cycle encountered")
 
-            out.set_mark(mark)
+            out.mark = mark
         else:
             overridden = None
-            if self._strength.same_as(_required):
+            if self.strength.same_as(_required):
                 raise Exception("Could not satisfy a required constraint")
 
         return overridden
@@ -544,20 +539,16 @@ class _BinaryConstraint(_AbstractConstraint):
     # the relative strength of the variables I relate, and record that
     # decision.
     def choose_method(self, mark):
-        if self._v1.get_mark() == mark:
-            if self._v2.get_mark() != mark and self._strength.stronger(
-                self._v2.get_walk_strength()
-            ):
+        if self._v1.mark == mark:
+            if self._v2.mark != mark and self.strength.stronger(self._v2.walk_strength):
                 self._direction = _Direction.FORWARD
                 return self._direction
 
             self._direction = None
             return self._direction
 
-        if self._v2.get_mark() == mark:
-            if self._v1.get_mark() != mark and self._strength.stronger(
-                self._v1.get_walk_strength()
-            ):
+        if self._v2.mark == mark:
+            if self._v1.mark != mark and self.strength.stronger(self._v1.walk_strength):
                 self._direction = _Direction.BACKWARD
                 return self._direction
 
@@ -565,15 +556,15 @@ class _BinaryConstraint(_AbstractConstraint):
             return self._direction
 
         # If we get here, neither variable is marked, so we have a choice.
-        if self._v1.get_walk_strength().weaker(self._v2.get_walk_strength()):
-            if self._strength.stronger(self._v1.get_walk_strength()):
+        if self._v1.walk_strength.weaker(self._v2.walk_strength):
+            if self.strength.stronger(self._v1.walk_strength):
                 self._direction = _Direction.BACKWARD
                 return self._direction
 
             self._direction = None
             return self._direction
 
-        if self._strength.stronger(self._v2.get_walk_strength()):
+        if self.strength.stronger(self._v2.walk_strength):
             self._direction = _Direction.FORWARD
             return self._direction
 
@@ -611,9 +602,9 @@ class _BinaryConstraint(_AbstractConstraint):
             input_ = self._v2
             output = self._v1
 
-        output.set_walk_strength(self._strength.weakest(input_.get_walk_strength()))
-        output.set_stay(input_.get_stay())
-        if output.get_stay():
+        output.walk_strength = self.strength.weakest(input_.walk_strength)
+        output.stay = input_.stay
+        if output.stay:
             self.execute()
 
 
@@ -643,8 +634,8 @@ class _UnaryConstraint(_AbstractConstraint):
 
     # Decide if I can be satisfied and record that decision.
     def choose_method(self, mark):
-        self._satisfied = self._output.get_mark() != mark and self._strength.stronger(
-            self._output.get_walk_strength()
+        self._satisfied = self._output.mark != mark and self.strength.stronger(
+            self._output.walk_strength
         )
 
     @abstractmethod
@@ -670,9 +661,9 @@ class _UnaryConstraint(_AbstractConstraint):
     # 'stay', the value for the current output of this
     # constraint. Assume this constraint is satisfied."
     def recalculate(self):
-        self._output.set_walk_strength(self._strength)
-        self._output.set_stay(not self.is_input())
-        if self._output.get_stay():
+        self._output.walk_strength = self.strength
+        self._output.stay = not self.is_input()
+        if self._output.stay:
             self.execute()  # stay optimization
 
 
@@ -700,9 +691,9 @@ class _EqualityConstraint(_BinaryConstraint):
     # Enforce this constraint. Assume that it is satisfied.
     def execute(self):
         if self._direction is _Direction.FORWARD:
-            self._v2.set_value(self._v1.get_value())
+            self._v2.value = self._v1.value
         else:
-            self._v1.set_value(self._v2.get_value())
+            self._v1.value = self._v2.value
 
 
 # I relate two variables by the linear scaling relationship: "v2 =
@@ -739,15 +730,9 @@ class _ScaleConstraint(_BinaryConstraint):
     # Enforce this constraint. Assume that it is satisfied.
     def execute(self):
         if self._direction is _Direction.FORWARD:
-            self._v2.set_value(
-                self._v1.get_value() * self._scale.get_value()
-                + self._offset.get_value()
-            )
+            self._v2.value = self._v1.value * self._scale.value + self._offset.value
         else:
-            self._v1.set_value(
-                (self._v2.get_value() - self._offset.get_value())
-                / self._scale.get_value()
-            )
+            self._v1.value = (self._v2.value - self._offset.value) / self._scale.value
 
     def inputs_do(self, fn):
         if self._direction is _Direction.FORWARD:
@@ -770,11 +755,9 @@ class _ScaleConstraint(_BinaryConstraint):
             output = self._v1
             input_ = self._v2
 
-        output.set_walk_strength(self._strength.weakest(input_.get_walk_strength()))
-        output.set_stay(
-            input_.get_stay() and self._scale.get_stay() and self._offset.get_stay()
-        )
-        if output.get_stay():
+        output.walk_strength = self.strength.weakest(input_.walk_strength)
+        output.stay = input_.stay and self._scale.stay and self._offset.stay
+        if output.stay:
             self.execute()  # stay optimization
 
 
@@ -790,66 +773,26 @@ class _StayConstraint(_UnaryConstraint):
 
 # ------------------------------ variables ------------------------------
 
-
-def _variable_value(value):
-    v = _Variable()
-    v.set_value(value)
-    return v
-
-
 # I represent a constrained variable. In addition to my value, I
 # maintain the structure of the constraint graph, the current
 # dataflow graph, and various parameters of interest to the DeltaBlue
 # incremental constraint solver.
 class _Variable:
-    def __init__(self):
-        self._value = 0  # my value; changed by constraints
-        self._constraints = Vector(2)  # normal constraints that reference me
-        self._determined_by = None  # the constraint that currently determines
+    def __init__(self, value=0):
+        self.value = value  # my value; changed by constraints
+        self.constraints = Vector(2)  # normal constraints that reference me
+        self.determined_by = None  # the constraint that currently determines
         # my value (or null if there isn't one)
-        self._mark = 0  # used by the planner to mark constraints
-        self._walk_strength = _absolute_weakest  # my walkabout strength
-        self._stay = True  # true if I am a planning-time constant
+        self.mark = 0  # used by the planner to mark constraints
+        self.walk_strength = _absolute_weakest  # my walkabout strength
+        self.stay = True  # true if I am a planning-time constant
 
     # Add the given constraint to the set of all constraints that refer to me.
     def add_constraint(self, c):
-        self._constraints.append(c)
-
-    def get_constraints(self):
-        return self._constraints
-
-    def get_determined_by(self):
-        return self._determined_by
-
-    def set_determined_by(self, c):
-        self._determined_by = c
-
-    def get_mark(self):
-        return self._mark
-
-    def set_mark(self, mark_value):
-        self._mark = mark_value
+        self.constraints.append(c)
 
     # Remove all traces of c from this variable.
     def remove_constraint(self, c):
-        self._constraints.remove(c)
-        if self._determined_by is c:
-            self._determined_by = None
-
-    def get_stay(self):
-        return self._stay
-
-    def set_stay(self, v):
-        self._stay = v
-
-    def get_value(self):
-        return self._value
-
-    def set_value(self, value):
-        self._value = value
-
-    def get_walk_strength(self):
-        return self._walk_strength
-
-    def set_walk_strength(self, strength):
-        self._walk_strength = strength
+        self.constraints.remove(c)
+        if self.determined_by is c:
+            self.determined_by = None

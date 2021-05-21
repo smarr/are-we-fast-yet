@@ -11,63 +11,24 @@ SOLAR_MASS = 4 * PI * PI
 DAYS_PER_YER = 365.24
 
 
-class Body:
+class _Body:
     def __init__(self, x, y, z, vx, vy, vz, mass):
-        self._x = x
-        self._y = y
-        self._z = z
-        self._vx = vx * DAYS_PER_YER
-        self._vy = vy * DAYS_PER_YER
-        self._vz = vz * DAYS_PER_YER
-        self._mass = mass * SOLAR_MASS
-
-    def get_x(self):
-        return self._x
-
-    def get_y(self):
-        return self._y
-
-    def get_z(self):
-        return self._z
-
-    def get_vx(self):
-        return self._vx
-
-    def get_vy(self):
-        return self._vy
-
-    def get_vz(self):
-        return self._vz
-
-    def get_mass(self):
-        return self._mass
-
-    def set_x(self, val):
-        self._x = val
-
-    def set_y(self, val):
-        self._y = val
-
-    def set_z(self, val):
-        self._z = val
-
-    def set_vx(self, val):
-        self._vx = val
-
-    def set_vy(self, val):
-        self._vy = val
-
-    def set_vz(self, val):
-        self._vz = val
+        self.x = x
+        self.y = y
+        self.z = z
+        self.vx = vx * DAYS_PER_YER
+        self.vy = vy * DAYS_PER_YER
+        self.vz = vz * DAYS_PER_YER
+        self.mass = mass * SOLAR_MASS
 
     def offset_momentum(self, px, py, pz):
-        self._vx = -(px / SOLAR_MASS)
-        self._vy = -(py / SOLAR_MASS)
-        self._vz = -(pz / SOLAR_MASS)
+        self.vx = -(px / SOLAR_MASS)
+        self.vy = -(py / SOLAR_MASS)
+        self.vz = -(pz / SOLAR_MASS)
 
 
 def jupiter():
-    return Body(
+    return _Body(
         4.84143144246472090e00,
         -1.16032004402742839e00,
         -1.03622044471123109e-01,
@@ -79,7 +40,7 @@ def jupiter():
 
 
 def saturn():
-    return Body(
+    return _Body(
         8.34336671824457987e00,
         4.12479856412430479e00,
         -4.03523417114321381e-01,
@@ -91,7 +52,7 @@ def saturn():
 
 
 def uranus():
-    return Body(
+    return _Body(
         1.28943695621391310e01,
         -1.51111514016986312e01,
         -2.23307578892655734e-01,
@@ -103,7 +64,7 @@ def uranus():
 
 
 def neptune():
-    return Body(
+    return _Body(
         1.53796971148509165e01,
         -2.59193146099879641e01,
         1.79258772950371181e-01,
@@ -115,7 +76,7 @@ def neptune():
 
 
 def sun():
-    return Body(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0)
+    return _Body(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0)
 
 
 class NBodySystem:
@@ -131,9 +92,9 @@ class NBodySystem:
         pz = 0.0
 
         for b in bodies:
-            px += b.get_vx() * b.get_mass()
-            py += b.get_vy() * b.get_mass()
-            pz += b.get_vz() * b.get_mass()
+            px += b.vx * b.mass
+            py += b.vy * b.mass
+            pz += b.vz * b.mass
 
         bodies[0].offset_momentum(px, py, pz)
         return bodies
@@ -145,26 +106,26 @@ class NBodySystem:
             for j in range(i + 1, len(self._bodies)):
                 j_body = self._bodies[j]
 
-                dx = i_body.get_x() - j_body.get_x()
-                dy = i_body.get_y() - j_body.get_y()
-                dz = i_body.get_z() - j_body.get_z()
+                dx = i_body.x - j_body.x
+                dy = i_body.y - j_body.y
+                dz = i_body.z - j_body.z
 
                 d_squared = dx * dx + dy * dy + dz * dz
                 distance = sqrt(d_squared)
                 mag = dt / (d_squared * distance)
 
-                i_body.set_vx(i_body.get_vx() - (dx * j_body.get_mass() * mag))
-                i_body.set_vy(i_body.get_vy() - (dy * j_body.get_mass() * mag))
-                i_body.set_vz(i_body.get_vz() - (dz * j_body.get_mass() * mag))
+                i_body.vx = i_body.vx - (dx * j_body.mass * mag)
+                i_body.vy = i_body.vy - (dy * j_body.mass * mag)
+                i_body.vz = i_body.vz - (dz * j_body.mass * mag)
 
-                j_body.set_vx(j_body.get_vx() + (dx * i_body.get_mass() * mag))
-                j_body.set_vy(j_body.get_vy() + (dy * i_body.get_mass() * mag))
-                j_body.set_vz(j_body.get_vz() + (dz * i_body.get_mass() * mag))
+                j_body.vx = j_body.vx + (dx * i_body.mass * mag)
+                j_body.vy = j_body.vy + (dy * i_body.mass * mag)
+                j_body.vz = j_body.vz + (dz * i_body.mass * mag)
 
         for body in self._bodies:
-            body.set_x(body.get_x() + dt * body.get_vx())
-            body.set_y(body.get_y() + dt * body.get_vy())
-            body.set_z(body.get_z() + dt * body.get_vz())
+            body.x = body.x + dt * body.vx
+            body.y = body.y + dt * body.vy
+            body.z = body.z + dt * body.vz
 
     def energy(self):
         e = 0.0
@@ -173,22 +134,22 @@ class NBodySystem:
             i_body = self._bodies[i]
             e += (
                 0.5
-                * i_body.get_mass()
+                * i_body.mass
                 * (
-                    i_body.get_vx() * i_body.get_vx()
-                    + i_body.get_vy() * i_body.get_vy()
-                    + i_body.get_vz() * i_body.get_vz()
+                    i_body.vx * i_body.vx
+                    + i_body.vy * i_body.vy
+                    + i_body.vz * i_body.vz
                 )
             )
 
             for j in range(i + 1, len(self._bodies)):
                 j_body = self._bodies[j]
-                dx = i_body.get_x() - j_body.get_x()
-                dy = i_body.get_y() - j_body.get_y()
-                dz = i_body.get_z() - j_body.get_z()
+                dx = i_body.x - j_body.x
+                dy = i_body.y - j_body.y
+                dz = i_body.z - j_body.z
 
                 distance = sqrt(dx * dx + dy * dy + dz * dz)
-                e -= (i_body.get_mass() * j_body.get_mass()) / distance
+                e -= (i_body.mass * j_body.mass) / distance
         return e
 
 
