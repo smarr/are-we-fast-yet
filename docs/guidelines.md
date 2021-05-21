@@ -140,6 +140,10 @@ languages.
  - Bitwise operators with various Lua versions is a nightmare.
  - We use luacheck as a linter.
 
+### Python
+
+ - Use plain fields instead of getter/setter when they would be trivial
+
 ## Repository Structure
 
  - `[benchmarks](../benchmarks)` contains for each language one folder with the

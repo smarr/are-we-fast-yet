@@ -1,5 +1,4 @@
 class Random:
-
     def __init__(self):
         self._seed = 74755
 

@@ -22,19 +22,10 @@
 from benchmark import Benchmark
 
 
-class TowersDisk:
+class _TowersDisk:
     def __init__(self, size):
-        self._size = size
-        self._next = None
-
-    def size(self):
-        return self._size
-
-    def get_next(self):
-        return self._next
-
-    def set_next(self, value):
-        self._next = value
+        self.size = size
+        self.next = None
 
 
 class Towers(Benchmark):
@@ -45,10 +36,10 @@ class Towers(Benchmark):
     def _push_disk(self, disk, pile):
         top = self._piles[pile]
 
-        if top is not None and disk.size() >= top.size():
+        if top is not None and disk.size >= top.size:
             raise Exception("Cannot put a big disk on a smaller one")
 
-        disk.set_next(top)
+        disk.next = top
         self._piles[pile] = disk
 
     def _pop_disk_from(self, pile):
@@ -56,8 +47,8 @@ class Towers(Benchmark):
         if top is None:
             raise Exception("Attempting to remove a disk from an empty pile")
 
-        self._piles[pile] = top.get_next()
-        top.set_next(None)
+        self._piles[pile] = top.next
+        top.next = None
         return top
 
     def _move_top_disk(self, from_pile, to_pile):
@@ -66,7 +57,7 @@ class Towers(Benchmark):
 
     def _build_tower_at(self, pile, disks):
         for i in range(disks, -1, -1):
-            self._push_disk(TowersDisk(i), pile)
+            self._push_disk(_TowersDisk(i), pile)
 
     def _move_disks(self, disks, from_pile, to_pile):
         if disks == 1:

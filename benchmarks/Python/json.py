@@ -29,7 +29,7 @@ _RAP_BENCHMARK_MINIFIED = '{"head":{"requestCounter":4},"operations":[["destroy"
 
 class Json(Benchmark):
     def benchmark(self):
-        return Parser(_RAP_BENCHMARK_MINIFIED).parse()
+        return _Parser(_RAP_BENCHMARK_MINIFIED).parse()
 
     def verify_result(self, result):
         if not result.is_object():
@@ -42,7 +42,7 @@ class Json(Benchmark):
         return result.as_object().get("operations").as_array().size() == 156
 
 
-class JsonValue:
+class _JsonValue:
     def is_object(self):
         return False
 
@@ -74,7 +74,7 @@ class JsonValue:
         raise Exception("Unsupported operation, not an array: " + str(self))
 
 
-class JsonLiteral(JsonValue):
+class _JsonLiteral(_JsonValue):
     def __init__(self, value):
         self._value = value
         self._is_null = "null" == value
@@ -97,12 +97,12 @@ class JsonLiteral(JsonValue):
         return self._is_true or self._is_false
 
 
-_LITERAL_NULL = JsonLiteral("null")
-_LITERAL_TRUE = JsonLiteral("true")
-_LITERAL_FALSE = JsonLiteral("false")
+_LITERAL_NULL = _JsonLiteral("null")
+_LITERAL_TRUE = _JsonLiteral("true")
+_LITERAL_FALSE = _JsonLiteral("false")
 
 
-class Parser:
+class _Parser:
     def __init__(self, string):
         self._input = string
         self._index = -1
@@ -157,7 +157,7 @@ class Parser:
 
     def _read_array(self):
         self._read()
-        array = JsonArray()
+        array = _JsonArray()
         self._skip_white_space()
         if self._read_char("]"):
             return array
@@ -185,7 +185,7 @@ class Parser:
 
     def _read_object(self):
         self._read()
-        obj = JsonObject()
+        obj = _JsonObject()
         self._skip_white_space()
         if self._read_char("}"):
             return obj
@@ -231,7 +231,7 @@ class Parser:
             raise self._expected("'" + ch + "'")
 
     def _read_string(self):
-        return JsonString(self._read_string_internal())
+        return _JsonString(self._read_string_internal())
 
     def _read_string_internal(self):
         self._read()
@@ -284,7 +284,7 @@ class Parser:
 
         self._read_fraction()
         self._read_exponent()
-        return JsonNumber(self._end_capture())
+        return _JsonNumber(self._end_capture())
 
     def _read_fraction(self):
         if not self._read_char("."):
@@ -369,7 +369,7 @@ class Parser:
         return self._error("Expected " + expected)
 
     def _error(self, message):
-        return ParseException(message, self._index, self._line, self._column - 1)
+        return _ParseException(message, self._index, self._line, self._column - 1)
 
     def _is_white_space(self):
         return (
@@ -397,7 +397,7 @@ class Parser:
         return self._current is None
 
 
-class HashIndexTable:
+class _HashIndexTable:
     def __init__(self):
         self._hash_table = [0] * 32
 
@@ -424,7 +424,7 @@ class HashIndexTable:
         return self._string_hash(element) & len(self._hash_table) - 1
 
 
-class ParseException(Exception):
+class _ParseException(Exception):
     def __init__(self, message, offset, line, column):
         super().__init__()
         self._message = message
@@ -445,7 +445,7 @@ class ParseException(Exception):
         return self._column
 
 
-class JsonArray(JsonValue):
+class _JsonArray(_JsonValue):
     def __init__(self):
         self._values = Vector()
 
@@ -468,7 +468,7 @@ class JsonArray(JsonValue):
         return self
 
 
-class JsonNumber(JsonValue):
+class _JsonNumber(_JsonValue):
     def __init__(self, string):
         self._string = string
         if string is None:
@@ -481,11 +481,11 @@ class JsonNumber(JsonValue):
         return True
 
 
-class JsonObject(JsonValue):
+class _JsonObject(_JsonValue):
     def __init__(self):
         self._names = Vector()
         self._values = Vector()
-        self._table = HashIndexTable()
+        self._table = _HashIndexTable()
 
     def add(self, name, value):
         if name is None:
@@ -524,7 +524,7 @@ class JsonObject(JsonValue):
         raise Exception("NotImplemented")  # Not needed for benchmark
 
 
-class JsonString(JsonValue):
+class _JsonString(_JsonValue):
     def __init__(self, string):
         self._string = string
 
