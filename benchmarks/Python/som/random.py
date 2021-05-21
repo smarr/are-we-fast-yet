@@ -1,7 +1,9 @@
 class Random:
-    seed = 74755
+
+    def __init__(self):
+        self._seed = 74755
 
     def next(self):
-        self.seed = ((self.seed * 1309) + 13849) & 65535
+        self._seed = ((self._seed * 1309) + 13849) & 65535
 
-        return self.seed
+        return self._seed
