@@ -21,7 +21,6 @@ from enum import Enum
 from math import sqrt, cos, sin
 
 from benchmark import Benchmark
-from som.vector import Vector
 
 MIN_X = 0.0
 MIN_Y = 0.0
@@ -461,10 +460,10 @@ class _CollisionDetector:
         self._state = _RedBlackTree()
 
     def handle_new_frame(self, frame):
-        motions = Vector()
+        motions = []
         seen = _RedBlackTree()
 
-        def each(aircraft):
+        for aircraft in frame:
             old_position = self._state.put(aircraft.call_sign, aircraft.position)
             new_position = aircraft.position
             seen.put(aircraft.call_sign, True)
@@ -475,10 +474,8 @@ class _CollisionDetector:
 
             motions.append(_Motion(aircraft.call_sign, old_position, new_position))
 
-        frame.for_each(each)
-
         # Remove aircraft that are no longer present.
-        to_remove = Vector()
+        to_remove = []
 
         def for_removal(e):
             if not seen.get(e.key):
@@ -486,23 +483,22 @@ class _CollisionDetector:
 
         self._state.for_each(for_removal)
 
-        to_remove.for_each(self._state.remove)
+        for i in to_remove:
+            self._state.remove(i)
 
         all_reduced = _reduce_collision_set(motions)
-        collisions = Vector()
+        collisions = []
 
-        def find_collisions(reduced):
-            for i in range(reduced.size()):
-                motion1 = reduced.at(i)
-                for j in range(i + 1, reduced.size()):
-                    motion2 = reduced.at(j)
+        for reduced in all_reduced:
+            for i in range(len(reduced)):
+                motion1 = reduced[i]
+                for j in range(i + 1, len(reduced)):
+                    motion2 = reduced[j]
                     collision = motion1.find_intersection(motion2)
                     if collision is not None:
                         collisions.append(
                             _Collision(motion1.call_sign, motion2.call_sign, collision)
                         )
-
-        all_reduced.for_each(find_collisions)
 
         return collisions
 
@@ -577,7 +573,7 @@ def _is_in_voxel(voxel, motion):
 def _put_into_map(voxel_map, voxel, motion):
     array = voxel_map.get(voxel)
     if array is None:
-        array = Vector()
+        array = []
         voxel_map.put(voxel, array)
     array.append(motion)
 
@@ -603,12 +599,13 @@ def _recurse(voxel_map, seen, next_voxel, motion):
 
 def _reduce_collision_set(motions):
     voxel_map = _RedBlackTree()
-    motions.for_each(lambda motion: _draw_motion_on_voxel_map(voxel_map, motion))
+    for motion in motions:
+        _draw_motion_on_voxel_map(voxel_map, motion)
 
-    result = Vector()
+    result = []
 
     def each(e):
-        if e.value.size() > 1:
+        if len(e.value) > 1:
             result.append(e.value)
 
     voxel_map.for_each(each)
@@ -749,23 +746,23 @@ class _Aircraft:
 
 class _Simulator:
     def __init__(self, num_aircraft):
-        self._aircraft = Vector()
+        self._aircraft = []
         for i in range(num_aircraft):
             self._aircraft.append(_CallSign(i))
 
     def simulate(self, time):
-        frame = Vector()
-        for i in range(0, self._aircraft.size(), 2):
+        frame = []
+        for i in range(0, len(self._aircraft), 2):
             frame.append(
                 _Aircraft(
-                    self._aircraft.at(i),
+                    self._aircraft[i],
                     _Vector3D(time, cos(time) * 2.0 + i * 3.0, 10.0),
                 )
             )
 
             frame.append(
                 _Aircraft(
-                    self._aircraft.at(i + 1),
+                    self._aircraft[i + 1],
                     _Vector3D(time, sin(time) * 2.0 + i * 3.0, 10.0),
                 )
             )
@@ -785,7 +782,7 @@ class CD(Benchmark):
         for i in range(num_frames):
             time = i / 10.0
             collisions = detector.handle_new_frame(simulator.simulate(time))
-            actual_collisions += collisions.size()
+            actual_collisions += len(collisions)
 
         return actual_collisions
 
