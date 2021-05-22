@@ -504,7 +504,7 @@ class CollisionDetector
   end
 
   def handle_new_frame(frame)
-    motions = Vector.new
+    motions = []
     seen    = RedBlackTree.new
 
     frame.each do |aircraft|
@@ -521,7 +521,7 @@ class CollisionDetector
     end
 
     # Remove aircraft that are no longer present.
-    to_remove = Vector.new
+    to_remove = []
     @state.for_each do |e|
       to_remove.append(e.key) unless seen.get(e.key)
     end
@@ -529,7 +529,7 @@ class CollisionDetector
     to_remove.each { |e| @state.remove(e) }
 
     all_reduced = reduce_collision_set(motions)
-    collisions = Vector.new
+    collisions = []
     all_reduced.each do |reduced|
       (0...reduced.size).each do |i|
         motion1 = reduced.at(i)
@@ -603,7 +603,7 @@ class CollisionDetector
   def put_into_map(voxel_map, voxel, motion)
     array = voxel_map.get(voxel)
     unless array
-      array = Vector.new
+      array = []
       voxel_map.put(voxel, array)
     end
     array.append(motion)
@@ -629,7 +629,7 @@ class CollisionDetector
     voxel_map = RedBlackTree.new
     motions.each { |motion| draw_motion_on_voxel_map(voxel_map, motion) }
 
-    result = Vector.new
+    result = []
     voxel_map.for_each do |e|
       result.append(e.value) if e.value.size > 1
     end
@@ -783,14 +783,14 @@ end
 
 class Simulator
   def initialize(num_aircrafts)
-    @aircraft = Vector.new
+    @aircraft = []
     (0...num_aircrafts).each do |i|
       @aircraft.append(CallSign.new(i))
     end
   end
 
   def simulate(time)
-    frame = Vector.new
+    frame = []
     (0...@aircraft.size).step(2) do |i|
       frame.append(Aircraft.new(@aircraft.at(i),
                                 Vector3D.new(time,
