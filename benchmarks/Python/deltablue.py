@@ -74,8 +74,8 @@ class _Planner:
         c.remove_from_graph()
 
         unsatisfied = self._remove_propagate_from(out)
-        for u in unsatisfied:
-            self.incremental_add(u)
+        for constraint in unsatisfied:
+            self.incremental_add(constraint)
 
     # Extract a plan for resatisfaction starting from the outputs of
     # the given constraints, usually a set of input constraints.
@@ -214,7 +214,7 @@ class _Planner:
 
             self._constraints_consuming(v, recalc)
 
-        unsatisfied.sort(key = lambda constraint: constraint.strength.arithmetic_value)
+        unsatisfied.sort(key=lambda constraint: constraint.strength.arithmetic_value)
         return unsatisfied
 
     # This is the standard DeltaBlue benchmark. A long chain of
@@ -295,6 +295,7 @@ class _Planner:
             if dests[i].value != (i + 1) * 5 + 2000:
                 raise Exception("Projection test 4 failed!")
 
+
 _ABSOLUTE_STRONGEST = 0
 _REQUIRED = 1
 _STRONG_PREFERRED = 2
@@ -353,8 +354,8 @@ def _create_strength_constants():
 _strength_table = _create_strength_table()
 _strength_constant = _create_strength_constants()
 
-_absolute_weakest = _Strength.of(_ABSOLUTE_WEAKEST)
-_required = _Strength.of(_REQUIRED)
+_absolute_weakest = _Strength.of(_ABSOLUTE_WEAKEST)  # pylint: disable=invalid-name
+_required = _Strength.of(_REQUIRED)  # pylint: disable=invalid-name
 
 
 class _Direction(Enum):
