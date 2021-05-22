@@ -38,13 +38,17 @@ class DeltaBlue < Benchmark
   end
 end
 
-class Plan < Vector
+class Plan
   def initialize
-    super(15)
+    @items = []
+  end
+
+  def append(i)
+    @items.append(i)
   end
 
   def execute
-    each { |c| c.execute }
+    @items.each { |c| c.execute }
   end
 end
 
@@ -69,7 +73,7 @@ class Planner
   end
 
   def extract_plan_from_constraints(constraints)
-    sources = Vector.new
+    sources = []
 
     constraints.each do |c|
       sources.append(c) if c.is_input && c.is_satisfied
@@ -84,7 +88,7 @@ class Planner
     todo = sources
 
     until todo.empty?
-      c = todo.remove_first
+      c = todo.shift
 
       if c.output.mark != mark && c.inputs_known(mark)
         plan.append(c)
@@ -97,11 +101,11 @@ class Planner
   end
 
   def propagate_from(v)
-    todo = Vector.new
+    todo = []
     add_constraints_consuming_to(v, todo)
 
     until todo.empty?
-      c = todo.remove_first
+      c = todo.shift
       c.execute
       add_constraints_consuming_to(c.output, todo)
     end
@@ -116,10 +120,10 @@ class Planner
   end
 
   def add_propagate(c, mark)
-    todo = Vector.with(c)
+    todo = [c]
 
     until todo.empty?
-      d = todo.remove_first
+      d = todo.shift
       if d.output.mark == mark
         incremental_remove(c)
         return false
@@ -132,7 +136,7 @@ class Planner
 
   def change_var(var, val)
     edit_constraint = EditConstraint.new(var, SYM_PREFERRED, self)
-    plan = extract_plan_from_constraints(Vector.with(edit_constraint))
+    plan = extract_plan_from_constraints([edit_constraint])
     10.times do
       var.value = val
       plan.execute
@@ -152,16 +156,16 @@ class Planner
   end
 
   def remove_propagate_from(out_v)
-    unsatisfied = Vector.new
+    unsatisfied = []
 
     out_v.determined_by = nil
     out_v.walk_strength = ABSOLUTE_WEAKEST
     out_v.stay = true
 
-    todo = Vector.with(out_v)
+    todo = [out_v]
 
     until todo.empty?
-      v = todo.remove_first
+      v = todo.shift
 
       v.constraints.each do |c|
         unsatisfied.append(c) unless c.is_satisfied
@@ -222,7 +226,7 @@ class Planner
     # mapping and to change the scale and offset factors.
 
     planner = Planner.new
-    dests   = Vector.new
+    dests   = []
     scale   = Variable.value(10)
     offset  = Variable.value(1000)
 
@@ -255,29 +259,21 @@ class Planner
   end
 end
 
-class Sym
-  attr_reader :custom_hash
-
-  def initialize(hash)
-    @custom_hash = hash
-  end
-end
-
-SYM_ABSOLUTE_STRONGEST = Sym.new(0)
-SYM_REQUIRED           = Sym.new(1)
-SYM_STRONG_PREFERRED   = Sym.new(2)
-SYM_PREFERRED          = Sym.new(3)
-SYM_STRONG_DEFAULT     = Sym.new(4)
-SYM_DEFAULT            = Sym.new(5)
-SYM_WEAK_DEFAULT       = Sym.new(6)
-SYM_ABSOLUTE_WEAKEST   = Sym.new(7)
+SYM_ABSOLUTE_STRONGEST = 0
+SYM_REQUIRED           = 1
+SYM_STRONG_PREFERRED   = 2
+SYM_PREFERRED          = 3
+SYM_STRONG_DEFAULT     = 4
+SYM_DEFAULT            = 5
+SYM_WEAK_DEFAULT       = 6
+SYM_ABSOLUTE_WEAKEST   = 7
 
 class Strength
   attr_reader :arithmetic_value
 
-  def initialize(strength_sym)
-    @symbolic_value   = strength_sym
-    @arithmetic_value = STRENGHT_TABLE.at(strength_sym)
+  def initialize(strength_val)
+    @symbolic_value   = strength_val
+    @arithmetic_value = STRENGHT_TABLE[strength_val]
   end
 
   def same_as(strength)
@@ -309,22 +305,22 @@ class Strength
   end
 
   def self.create_strength_table
-    table = IdentityDictionary.new
-    table.at_put(SYM_ABSOLUTE_STRONGEST, -10_000)
-    table.at_put(SYM_REQUIRED,              -800)
-    table.at_put(SYM_STRONG_PREFERRED,      -600)
-    table.at_put(SYM_PREFERRED,             -400)
-    table.at_put(SYM_STRONG_DEFAULT,        -200)
-    table.at_put(SYM_DEFAULT,                  0)
-    table.at_put(SYM_WEAK_DEFAULT,           500)
-    table.at_put(SYM_ABSOLUTE_WEAKEST,    10_000)
+    table = Array.new(SYM_ABSOLUTE_WEAKEST + 1)
+    table[SYM_ABSOLUTE_STRONGEST] = -10_000
+    table[SYM_REQUIRED] =              -800
+    table[SYM_STRONG_PREFERRED] =      -600
+    table[SYM_PREFERRED] =             -400
+    table[SYM_STRONG_DEFAULT] =        -200
+    table[SYM_DEFAULT] =                  0
+    table[SYM_WEAK_DEFAULT] =           500
+    table[SYM_ABSOLUTE_WEAKEST] =    10_000
     table
   end
 
   def self.create_strength_constants
-    constants = IdentityDictionary.new
-    STRENGHT_TABLE.keys.each do |strength_sym|
-      constants.at_put(strength_sym, new(strength_sym))
+    constants = Array.new(STRENGHT_TABLE.size)
+    STRENGHT_TABLE.each_index do |i|
+      constants[i] = new(i)
     end
     constants
   end
@@ -332,8 +328,8 @@ class Strength
   STRENGHT_TABLE     = create_strength_table
   STRENGHT_CONSTANTS = create_strength_constants
 
-  def self.of(sym)
-    STRENGHT_CONSTANTS.at(sym)
+  def self.of(i)
+    STRENGHT_CONSTANTS[i]
   end
 end
 
@@ -637,7 +633,7 @@ class Variable
 
   def initialize
     @value         = 0
-    @constraints   = Vector.new(2)
+    @constraints   = []
     @determined_by = nil
     @walk_strength = ABSOLUTE_WEAKEST
     @stay          = true
@@ -649,7 +645,7 @@ class Variable
   end
 
   def remove_constraint(constraint)
-    @constraints.remove(constraint)
+    @constraints.delete(constraint)
 
     @determined_by = nil if @determined_by == constraint
   end
