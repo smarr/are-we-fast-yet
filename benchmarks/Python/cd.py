@@ -490,8 +490,7 @@ class _CollisionDetector:
         collisions = []
 
         for reduced in all_reduced:
-            for i in range(len(reduced)):
-                motion1 = reduced[i]
+            for i, motion1 in enumerate(reduced):
                 for j in range(i + 1, len(reduced)):
                     motion2 = reduced[j]
                     collision = motion1.find_intersection(motion2)
