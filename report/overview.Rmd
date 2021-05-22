@@ -51,6 +51,9 @@ vm_names <- c(
   "TruffleSOM-TOM-Enterprise" = "TruffleSOM GraalVM, Truffle OM",
   
   "CPython-interp"        = "CPython 3.10",
+  "Cinder-jit"            = "Cinder 3.8",
+  "Pyston-jit"            = "Pyston 3.8",
+  "GraalPython-jit"       = "GraalPython 21.1",
   "PyPy-jit"              = "PyPy 3.7 7.3.4"
   )
 
@@ -61,6 +64,7 @@ vms_slow <- c("JRubyC2", "JRubyGraal", "JRubyJ8",
               "MRI23", "RBX314",
               "CPython-interp",
               "Node-interp",
+              "Pyston-jit", "Cinder-jit",
               "Pharo", "SOMnsInt", "Topaz")
 vms_fast <- c("Crystal",
               "GraalBasic", "GraalC2", "GraalEnterprise",
@@ -68,6 +72,7 @@ vms_fast <- c("Crystal",
               "JRubyTruffle", "JRubyTruffleEnterprise",
               "Java8U66",
               "PyPy-jit",
+              "GraalPython-jit",
               "Node",
               "SOMns", "SOMns-Enterprise",
               "TruffleSOM", "TruffleSOM-TOM", "TruffleSOM-Enterprise", "TruffleSOM-TOM-Enterprise")
