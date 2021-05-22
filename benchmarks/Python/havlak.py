@@ -95,7 +95,7 @@ class _ControlFlowGraph:
             node = _BasicBlock(name)
             # assert len(self.basic_blocks) == name
             self.basic_blocks.append(node)
-            #self.basic_blocks[name] = node
+            # self.basic_blocks[name] = node
 
         if self.num_nodes() == 1:
             self.start_basic_block = node
