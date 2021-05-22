@@ -17,10 +17,6 @@ from enum import Enum
 import sys
 
 from benchmark import Benchmark
-from som.identity_dictionary import IdentityDictionary
-from som.identity_set import IdentitySet
-from som.set import Set
-from som.vector import Vector
 
 # Havlak needs more stack space in CPython
 sys.setrecursionlimit(1500)
@@ -59,11 +55,11 @@ class Havlak(Benchmark):
 class _BasicBlock:
     def __init__(self, name):
         self._name = name
-        self.in_edges = Vector(2)
-        self.out_edges = Vector(2)
+        self.in_edges = []
+        self.out_edges = []
 
     def get_num_pred(self):
-        return self.in_edges.size()
+        return len(self.in_edges)
 
     def add_out_edge(self, to):
         self.out_edges.append(to)
@@ -89,15 +85,17 @@ class _BasicBlockEdge:
 class _ControlFlowGraph:
     def __init__(self):
         self.start_basic_block = None
-        self.basic_blocks = Vector()
-        self._edge_list = Vector()
+        self.basic_blocks = []
+        self._edge_list = []
 
     def create_node(self, name):
-        if self.basic_blocks.at(name):
-            node = self.basic_blocks.at(name)
+        if len(self.basic_blocks) > name and self.basic_blocks[name]:
+            node = self.basic_blocks[name]
         else:
             node = _BasicBlock(name)
-            self.basic_blocks.at_put(name, node)
+            # assert len(self.basic_blocks) == name
+            self.basic_blocks.append(node)
+            #self.basic_blocks[name] = node
 
         if self.num_nodes() == 1:
             self.start_basic_block = node
@@ -107,13 +105,13 @@ class _ControlFlowGraph:
         self._edge_list.append(edge)
 
     def num_nodes(self):
-        return self.basic_blocks.size()
+        return len(self.basic_blocks)
 
 
 class _LoopStructureGraph:
     def __init__(self):
         self._loop_counter = 0
-        self._loops = Vector()
+        self._loops = []
         self._root = _SimpleLoop(None, True)
         self._root.set_nesting_level(0)
         self._root.counter = self._loop_counter
@@ -128,25 +126,22 @@ class _LoopStructureGraph:
         return loop
 
     def calculate_nesting_level(self):
-        def each(liter):
+        for liter in self._loops:
             if not liter.is_root:
                 if liter.parent is None:
                     liter.set_parent(self._root)
 
-        self._loops.for_each(each)
         self._calculate_nesting_level_rec(self._root, 0)
 
     def _calculate_nesting_level_rec(self, loop, depth):
         loop.depth_level = depth
 
-        def each(liter):
+        for liter in loop.children:
             self._calculate_nesting_level_rec(liter, depth + 1)
             loop.set_nesting_level(max(loop.nesting_level, 1 + liter.nesting_level))
 
-        loop.children.for_each(each)
-
     def num_loops(self):
-        return self._loops.size()
+        return len(self._loops)
 
 
 class _SimpleLoop:
@@ -157,8 +152,8 @@ class _SimpleLoop:
         self.nesting_level = 0
         self._depth_level = 0
         self._counter = 0
-        self._basic_blocks = IdentitySet()
-        self.children = IdentitySet()
+        self._basic_blocks = set()
+        self.children = set()
 
         if bb is not None:
             self._basic_blocks.add(bb)
@@ -195,7 +190,7 @@ class _UnionFindNode:
         self.loop = None
 
     def find_set(self):
-        node_list = Vector()
+        node_list = []
 
         node = self
         while node is not node.parent:
@@ -203,7 +198,8 @@ class _UnionFindNode:
                 node_list.append(node)
             node = node.parent
 
-        node_list.for_each(lambda i: i.union(self.parent))
+        for i in node_list:
+            i.union(self.parent)
         return node
 
     def union(self, basic_block):
@@ -311,9 +307,9 @@ class _HavlakLoopFinder:
     def __init__(self, cfg, lsg):
         self._cfg = cfg
         self._lsg = lsg
-        self._non_back_preds = Vector()
-        self._back_preds = Vector()
-        self._number = IdentityDictionary()
+        self._non_back_preds = []
+        self._back_preds = []
+        self._number = {}
         self._max_size = 0
         self._header = None
         self._type = None
@@ -325,23 +321,21 @@ class _HavlakLoopFinder:
 
     def _do_dfs(self, current_node, current):
         self._nodes[current].init_node(current_node, current)
-        self._number.at_put(current_node, current)
+        self._number[current_node] = current
 
         last_id = current
         outer_blocks = current_node.out_edges
 
-        def each(target):
-            nonlocal last_id
-            if self._number.at(target) == _UNVISITED:
+        for target in outer_blocks:
+            if self._number[target] == _UNVISITED:
                 last_id = self._do_dfs(target, last_id + 1)
-
-        outer_blocks.for_each(each)
 
         self._last[current] = last_id
         return last_id
 
     def _init_all_nodes(self):
-        self._cfg.basic_blocks.for_each(lambda bb: self._number.at_put(bb, _UNVISITED))
+        for bb in self._cfg.basic_blocks:
+            self._number[bb] = _UNVISITED
 
         self._do_dfs(self._cfg.start_basic_block, 0)
 
@@ -358,25 +352,22 @@ class _HavlakLoopFinder:
 
     def _process_edges(self, node_w, w):
         if node_w.get_num_pred() > 0:
-
-            def each(node_v):
-                v = self._number.at(node_v)
+            for node_v in node_w.in_edges:
+                v = self._number[node_v]
                 if v != _UNVISITED:
                     if self._is_ancestor(w, v):
-                        self._back_preds.at(w).append(v)
+                        self._back_preds[w].append(v)
                     else:
-                        self._non_back_preds.at(w).add(v)
-
-            node_w.in_edges.for_each(each)
+                        self._non_back_preds[w].add(v)
 
     def find_loops(self):
         if self._cfg.start_basic_block is None:
             return
 
         size = self._cfg.num_nodes()
-        self._non_back_preds.remove_all()
-        self._back_preds.remove_all()
-        self._number.remove_all()
+        self._non_back_preds.clear()
+        self._back_preds.clear()
+        self._number.clear()
 
         if size > self._max_size:
             self._header = [0] * size
@@ -386,8 +377,8 @@ class _HavlakLoopFinder:
             self._max_size = size
 
         for i in range(size):
-            self._non_back_preds.append(Set())
-            self._back_preds.append(Vector())
+            self._non_back_preds.append(set())
+            self._back_preds.append([])
             self._nodes[i] = _UnionFindNode()
 
         self._init_all_nodes()
@@ -396,27 +387,28 @@ class _HavlakLoopFinder:
         self._header[0] = 0
 
         for w in range(size - 1, -1, -1):
-            node_pool = Vector()
+            node_pool = []
             node_w = self._nodes[w].bb
             if node_w is not None:
                 self._step_d(w, node_pool)
 
-                work_list = Vector()
-                node_pool.for_each(work_list.append)
+                work_list = []
+                for i in work_list:
+                    work_list.append(i)
 
-                if node_pool.size() != 0:
+                if len(node_pool) != 0:
                     self._type[w] = _BasicBlockClass.BB_REDUCIBLE
 
-                while not work_list.is_empty():
-                    x = work_list.remove_first()
+                while work_list:
+                    x = work_list.pop()
 
-                    non_back_size = self._non_back_preds.at(x.dfs_number).size()
+                    non_back_size = len(self._non_back_preds[x.dfs_number])
                     if non_back_size > _MAXNONBACKPREDS:
                         return
 
                     self._step_e_process_non_back_preds(w, node_pool, work_list, x)
 
-            if node_pool.size() > 0 or self._type[w] == _BasicBlockClass.BB_SELF:
+            if len(node_pool) > 0 or self._type[w] == _BasicBlockClass.BB_SELF:
                 loop = self._lsg.create_new_loop(
                     node_w, self._type[w] != _BasicBlockClass.BB_IRREDUCIBLE
                 )
@@ -429,18 +421,18 @@ class _HavlakLoopFinder:
 
             if not self._is_ancestor(w, ydash.dfs_number):
                 self._type[w] = _BasicBlockClass.BB_IRREDUCIBLE
-                self._non_back_preds.at(w).add(ydash.dfs_number)
+                self._non_back_preds[w].add(ydash.dfs_number)
             else:
                 if ydash.dfs_number != w:
                     work_list.append(ydash)
                     node_pool.append(ydash)
 
-        self._non_back_preds.at(x.dfs_number).for_each(each)
+        self._non_back_preds[x.dfs_number].for_each(each)
 
     def _set_loop_attributes(self, w, node_pool, loop):
         self._nodes[w].loop = loop
 
-        def each(node):
+        for node in node_pool:
             self._header[node.dfs_number] = w
             node.union(self._nodes[w])
 
@@ -449,13 +441,9 @@ class _HavlakLoopFinder:
             else:
                 loop.add_node(node.bb)
 
-        node_pool.for_each(each)
-
     def _step_d(self, w, node_pool):
-        def each(v):
+        for v in self._back_preds[w]:
             if v != w:
                 node_pool.append(self._nodes[v].find_set())
             else:
                 self._type[w] = _BasicBlockClass.BB_SELF
-
-        self._back_preds.at(w).for_each(each)
