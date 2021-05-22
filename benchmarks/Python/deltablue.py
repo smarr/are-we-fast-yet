@@ -9,8 +9,6 @@ from abc import abstractmethod
 from enum import Enum
 
 from benchmark import Benchmark
-from som.identity_dictionary import IdentityDictionary
-from som.vector import Vector, vector_with
 
 
 class DeltaBlue(Benchmark):
@@ -26,12 +24,16 @@ class DeltaBlue(Benchmark):
         raise Exception("should never be reached")
 
 
-class _Plan(Vector):
+class _Plan:
     def __init__(self):
-        super().__init__(15)
+        self._items = []
+
+    def append(self, i):
+        self._items.append(i)
 
     def execute(self):
-        self.for_each(lambda c: c.execute())
+        for i in self._items:
+            i.execute()
 
 
 class _Planner:
@@ -72,19 +74,18 @@ class _Planner:
         c.remove_from_graph()
 
         unsatisfied = self._remove_propagate_from(out)
-        unsatisfied.for_each(self.incremental_add)
+        for u in unsatisfied:
+            self.incremental_add(u)
 
     # Extract a plan for resatisfaction starting from the outputs of
     # the given constraints, usually a set of input constraints.
 
     def extract_plan_from_constraints(self, constraints):
-        sources = Vector()
+        sources = []
 
-        def each(c):
+        for c in constraints:
             if c.is_input() and c.is_satisfied():
                 sources.append(c)
-
-        constraints.for_each(each)
 
         return self._make_plan(sources)
 
@@ -110,8 +111,8 @@ class _Planner:
         plan = _Plan()
         todo = sources
 
-        while not todo.is_empty():
-            c = todo.remove_first()
+        while todo:
+            c = todo.pop()
 
             if c.get_output().mark != mark and c.inputs_known(mark):
                 # not in plan already and eligible for inclusion
@@ -122,11 +123,11 @@ class _Planner:
 
     # The given variable has changed. Propagate new values downstream.
     def propagate_from(self, v):
-        todo = Vector()
+        todo = []
         self._add_constraints_consuming_to(v, todo)
 
-        while not todo.is_empty():
-            c = todo.remove_first()
+        while todo:
+            c = todo.pop()
             c.execute()
             self._add_constraints_consuming_to(c.get_output(), todo)
 
@@ -134,11 +135,9 @@ class _Planner:
     def _add_constraints_consuming_to(v, coll):
         determining_c = v.determined_by
 
-        def each(c):
+        for c in v.constraints:
             if c is not determining_c and c.is_satisfied():
                 coll.append(c)
-
-        v.constraints.for_each(each)
 
     # Recompute the walkabout strengths and stay flags of all variables
     # downstream of the given constraint and recompute the actual
@@ -152,10 +151,10 @@ class _Planner:
     # the output constraint means that there is a path from the
     # constraint's output to one of its inputs.
     def add_propagate(self, c, mark):
-        todo = vector_with(c)
+        todo = [c]
 
-        while not todo.is_empty():
-            d = todo.remove_first()
+        while todo:
+            d = todo.pop()
 
             if d.get_output().mark == mark:
                 self.incremental_remove(c)
@@ -169,7 +168,7 @@ class _Planner:
     def change(self, var, new_value):
         edit_c = _EditConstraint(var, _PREFERRED, self)
 
-        edit_v = vector_with(edit_c)
+        edit_v = [edit_c]
         plan = self.extract_plan_from_constraints(edit_v)
         for _ in range(10):
             var.value = new_value
@@ -181,11 +180,9 @@ class _Planner:
     def _constraints_consuming(v, fn):
         determining_c = v.determined_by
 
-        def each(c):
+        for c in v.constraints:
             if c is not determining_c and c.is_satisfied():
                 fn(c)
-
-        v.constraints.for_each(each)
 
     # Select a previously unused mark value.
     def _new_mark(self):
@@ -196,22 +193,20 @@ class _Planner:
     # downstream of the given constraint. Answer a collection of
     # unsatisfied constraints sorted in order of decreasing strength.
     def _remove_propagate_from(self, out):
-        unsatisfied = Vector()
+        unsatisfied = []
 
         out.determined_by = None
         out.walk_strength = _absolute_weakest
         out.stay = True
 
-        todo = vector_with(out)
+        todo = [out]
 
-        while not todo.is_empty():
-            v = todo.remove_first()
+        while todo:
+            v = todo.pop()
 
-            def each(c):
+            for c in v.constraints:
                 if not c.is_satisfied():
                     unsatisfied.append(c)
-
-            v.constraints.for_each(each)
 
             def recalc(c):
                 c.recalculate()
@@ -219,10 +214,7 @@ class _Planner:
 
             self._constraints_consuming(v, recalc)
 
-        def comp(c1, c2):
-            return -1 if c1.strength.stronger(c2.strength) else 1
-
-        unsatisfied.sort(comp)
+        unsatisfied.sort(key = lambda constraint: constraint.strength.arithmetic_value)
         return unsatisfied
 
     # This is the standard DeltaBlue benchmark. A long chain of
@@ -253,7 +245,7 @@ class _Planner:
         _StayConstraint(variables[n], _STRONG_DEFAULT, planner)
         edit_c = _EditConstraint(variables[0], _PREFERRED, planner)
 
-        edit_v = vector_with(edit_c)
+        edit_v = [edit_c]
         plan = planner.extract_plan_from_constraints(edit_v)
         for i in range(100):
             variables[0].value = i
@@ -271,7 +263,7 @@ class _Planner:
     def projection_test(n):
         planner = _Planner()
 
-        dests = Vector()
+        dests = []
 
         scale = _Variable(10)
         offset = _Variable(1000)
@@ -295,37 +287,28 @@ class _Planner:
 
         planner.change(scale, 5)
         for i in range(n - 1):
-            if dests.at(i).value != (i + 1) * 5 + 1000:
+            if dests[i].value != (i + 1) * 5 + 1000:
                 raise Exception("Projection test 3 failed!")
 
         planner.change(offset, 2000)
         for i in range(n - 1):
-            if dests.at(i).value != (i + 1) * 5 + 2000:
+            if dests[i].value != (i + 1) * 5 + 2000:
                 raise Exception("Projection test 4 failed!")
 
-
-class _Sym:
-    def __init__(self, hash_):
-        self._hash = hash_
-
-    def custom_hash(self):
-        return self._hash
-
-
-_ABSOLUTE_STRONGEST = _Sym(0)
-_REQUIRED = _Sym(1)
-_STRONG_PREFERRED = _Sym(2)
-_PREFERRED = _Sym(3)
-_STRONG_DEFAULT = _Sym(4)
-_DEFAULT = _Sym(5)
-_WEAK_DEFAULT = _Sym(6)
-_ABSOLUTE_WEAKEST = _Sym(7)
+_ABSOLUTE_STRONGEST = 0
+_REQUIRED = 1
+_STRONG_PREFERRED = 2
+_PREFERRED = 3
+_STRONG_DEFAULT = 4
+_DEFAULT = 5
+_WEAK_DEFAULT = 6
+_ABSOLUTE_WEAKEST = 7
 
 
 class _Strength:
-    def __init__(self, strength_sym):
-        self._symbolic_value = strength_sym
-        self.arithmetic_value = _strength_table.at(strength_sym)
+    def __init__(self, strength_val):
+        self._symbolic_value = strength_val
+        self.arithmetic_value = _strength_table[strength_val]
 
     def same_as(self, s):
         return self.arithmetic_value == s.arithmetic_value
@@ -344,27 +327,26 @@ class _Strength:
 
     @staticmethod
     def of(strength):
-        return _strength_constant.at(strength)
+        return _strength_constant[strength]
 
 
 def _create_strength_table():
-    strength_table = IdentityDictionary()
-    strength_table.at_put(_ABSOLUTE_STRONGEST, -10000)
-    strength_table.at_put(_REQUIRED, -800)
-    strength_table.at_put(_STRONG_PREFERRED, -600)
-    strength_table.at_put(_PREFERRED, -400)
-    strength_table.at_put(_STRONG_DEFAULT, -200)
-    strength_table.at_put(_DEFAULT, 0)
-    strength_table.at_put(_WEAK_DEFAULT, 500)
-    strength_table.at_put(_ABSOLUTE_WEAKEST, 10000)
+    strength_table = [0] * (_ABSOLUTE_WEAKEST + 1)
+    strength_table[_ABSOLUTE_STRONGEST] = -10000
+    strength_table[_REQUIRED] = -800
+    strength_table[_STRONG_PREFERRED] = -600
+    strength_table[_PREFERRED] = -400
+    strength_table[_STRONG_DEFAULT] = -200
+    strength_table[_DEFAULT] = 0
+    strength_table[_WEAK_DEFAULT] = 500
+    strength_table[_ABSOLUTE_WEAKEST] = 10000
     return strength_table
 
 
 def _create_strength_constants():
-    strength_constant = IdentityDictionary()
-    _strength_table.get_keys().for_each(
-        lambda key: strength_constant.at_put(key, _Strength(key))
-    )
+    strength_constant = [None] * len(_strength_table)
+    for i in range(len(_strength_table)):
+        strength_constant[i] = _Strength(i)
     return strength_constant
 
 
@@ -780,7 +762,7 @@ class _StayConstraint(_UnaryConstraint):
 class _Variable:
     def __init__(self, value=0):
         self.value = value  # my value; changed by constraints
-        self.constraints = Vector(2)  # normal constraints that reference me
+        self.constraints = []  # normal constraints that reference me
         self.determined_by = None  # the constraint that currently determines
         # my value (or null if there isn't one)
         self.mark = 0  # used by the planner to mark constraints
@@ -793,6 +775,9 @@ class _Variable:
 
     # Remove all traces of c from this variable.
     def remove_constraint(self, c):
-        self.constraints.remove(c)
+        try:
+            self.constraints.remove(c)
+        except ValueError:
+            pass
         if self.determined_by is c:
             self.determined_by = None
