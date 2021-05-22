@@ -13,6 +13,7 @@
 #     See the License for the specific language governing permissions and
 #         limitations under the License.
 require_relative 'som'
+require 'set'
 
 class Havlak < Benchmark
   def inner_benchmark_loop(inner_iterations)
@@ -39,8 +40,8 @@ class BasicBlock
 
   def initialize(name)
     @name = name
-    @in_edges  = Vector.new(2)
-    @out_edges = Vector.new(2)
+    @in_edges  = []
+    @out_edges = []
   end
 
   def num_pred
@@ -75,16 +76,16 @@ end
 class ControlFlowGraph
   def initialize
     @start_node = nil
-    @basic_block_map = Vector.new
-    @edge_list = Vector.new
+    @basic_block_map = []
+    @edge_list = []
   end
 
   def create_node(name)
-    if @basic_block_map.at(name)
-      node = @basic_block_map.at(name)
+    if @basic_block_map[name]
+      node = @basic_block_map[name]
     else
       node = BasicBlock.new(name)
-      @basic_block_map.at_put(name, node)
+      @basic_block_map[name] = node
     end
 
     @start_node = node if num_nodes == 1
@@ -115,7 +116,7 @@ end
 class LoopStructureGraph
   def initialize
     @loop_counter = 0
-    @loops = Vector.new
+    @loops = []
     @root = SimpleLoop.new(nil, true)
     @root.set_nesting_level(0)
     @root.counter = @loop_counter
@@ -165,8 +166,8 @@ class SimpleLoop
     @nesting_level = 0
     @depth_level   = 0
     @counter       = 0
-    @basic_blocks  = IdentitySet.new
-    @children      = IdentitySet.new
+    @basic_blocks  = Set.new
+    @children      = Set.new
 
     @basic_blocks.add(bb) if bb
 
@@ -215,7 +216,7 @@ class UnionFindNode
   end
 
   def find_set
-    node_list = Vector.new
+    node_list = []
 
     node = self
     until node.equal? node.parent
@@ -328,9 +329,9 @@ class HavlakLoopFinder
   def initialize(cfg, lsg)
     @cfg = cfg
     @lsg = lsg
-    @non_back_preds = Vector.new
-    @back_preds     = Vector.new
-    @number         = IdentityDictionary.new
+    @non_back_preds = []
+    @back_preds     = []
+    @number         = {}
     @max_size = 0
     @header = nil
     @type   = nil
@@ -344,13 +345,13 @@ class HavlakLoopFinder
 
   def do_dfs(current_node, current)
     @nodes[current].init_node(current_node, current)
-    @number.at_put(current_node, current)
+    @number[current_node] = current
 
     last_id = current
     outer_blocks = current_node.out_edges
 
     outer_blocks.each do |target|
-      last_id = do_dfs(target, last_id + 1) if @number.at(target) == UNVISITED
+      last_id = do_dfs(target, last_id + 1) if @number[target] == UNVISITED
     end
 
     @last[current] = last_id
@@ -358,7 +359,7 @@ class HavlakLoopFinder
   end
 
   def init_all_nodes
-    @cfg.get_basic_blocks.each { |bb| @number.at_put(bb, UNVISITED) }
+    @cfg.get_basic_blocks.each { |bb| @number[bb] = UNVISITED }
 
     do_dfs(@cfg.get_start_basic_block, 0)
   end
@@ -380,12 +381,12 @@ class HavlakLoopFinder
   def process_edges(node_w, w)
     if node_w.num_pred > 0
       node_w.in_edges.each do |node_v|
-        v = @number.at(node_v)
+        v = @number[node_v]
         unless v == UNVISITED
           if is_ancestor(w, v)
-            @back_preds.at(w).append(v)
+            @back_preds[w].append(v)
           else
-            @non_back_preds.at(w).add(v)
+            @non_back_preds[w].add(v)
           end
         end
       end
@@ -396,9 +397,9 @@ class HavlakLoopFinder
     return unless @cfg.get_start_basic_block
 
     size = @cfg.num_nodes
-    @non_back_preds.remove_all
-    @back_preds.remove_all
-    @number.remove_all
+    @non_back_preds.clear
+    @back_preds.clear
+    @number.clear
 
     if size > @max_size
       @header   = Array.new(size)
@@ -410,7 +411,7 @@ class HavlakLoopFinder
 
     (0...size).each do |i|
       @non_back_preds.append(Set.new)
-      @back_preds.append(Vector.new)
+      @back_preds.append([])
       @nodes[i] = UnionFindNode.new
     end
 
@@ -420,20 +421,20 @@ class HavlakLoopFinder
     @header[0] = 0
 
     (size - 1).downto(0) do |w|
-      node_pool = Vector.new
+      node_pool = []
       node_w = @nodes[w].bb
       if node_w
         step_d(w, node_pool)
 
-        work_list = Vector.new
+        work_list = []
         node_pool.each { |niter| work_list.append(niter) }
 
         @type[w] = :BB_REDUCIBLE if node_pool.size != 0
 
         until work_list.empty?
-          x = work_list.remove_first
+          x = work_list.shift
 
-          non_back_size = @non_back_preds.at(x.dfs_number).size
+          non_back_size = @non_back_preds[x.dfs_number].size
           return self if non_back_size > MAXNONBACKPREDS
 
           step_e_process_non_back_preds(w, node_pool, work_list, x)
@@ -448,13 +449,13 @@ class HavlakLoopFinder
   end
 
   def step_e_process_non_back_preds(w, node_pool, work_list, x)
-    @non_back_preds.at(x.dfs_number).each do |iter|
+    @non_back_preds[x.dfs_number].each do |iter|
       y = @nodes[iter]
       ydash = y.find_set
 
       if !is_ancestor(w, ydash.dfs_number)
         @type[w] = :BB_IRREDUCIBLE
-        @non_back_preds.at(w).add(ydash.dfs_number)
+        @non_back_preds[w].add(ydash.dfs_number)
       else
         if ydash.dfs_number != w
           work_list.append(ydash)
@@ -479,7 +480,7 @@ class HavlakLoopFinder
   end
 
   def step_d(w, node_pool)
-    @back_preds.at(w).each do |v|
+    @back_preds[w].each do |v|
       if v != w
         node_pool.append(@nodes[v].find_set)
       else
