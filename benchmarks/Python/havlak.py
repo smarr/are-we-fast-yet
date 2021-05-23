@@ -393,7 +393,7 @@ class _HavlakLoopFinder:
                 self._step_d(w, node_pool)
 
                 work_list = []
-                for i in work_list:
+                for i in node_pool:
                     work_list.append(i)
 
                 if len(node_pool) != 0:
@@ -415,7 +415,7 @@ class _HavlakLoopFinder:
                 self._set_loop_attributes(w, node_pool, loop)
 
     def _step_e_process_non_back_preds(self, w, node_pool, work_list, x):
-        def each(i):
+        for i in self._non_back_preds[x.dfs_number]:
             y = self._nodes[i]
             ydash = y.find_set()
 
@@ -424,10 +424,9 @@ class _HavlakLoopFinder:
                 self._non_back_preds[w].add(ydash.dfs_number)
             else:
                 if ydash.dfs_number != w:
-                    work_list.append(ydash)
-                    node_pool.append(ydash)
-
-        self._non_back_preds[x.dfs_number].for_each(each)
+                    if ydash not in node_pool:
+                        work_list.append(ydash)
+                        node_pool.append(ydash)
 
     def _set_loop_attributes(self, w, node_pool, loop):
         self._nodes[w].loop = loop
