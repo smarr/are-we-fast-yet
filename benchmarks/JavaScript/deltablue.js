@@ -22,30 +22,27 @@ function DeltaBlue() {
   };
 }
 
-function Sym(hash) {
-  this.hash = hash;
-}
-
-Sym.prototype.customHash = function () {
-  return this.hash;
-};
-
-var ABSOLUTE_STRONGEST = new Sym(0),
-  REQUIRED             = new Sym(1),
-  STRONG_PREFERRED     = new Sym(2),
-  PREFERRED            = new Sym(3),
-  STRONG_DEFAULT       = new Sym(4),
-  DEFAULT              = new Sym(5),
-  WEAK_DEFAULT         = new Sym(6),
-  ABSOLUTE_WEAKEST     = new Sym(7);
+var ABSOLUTE_STRONGEST = 0,
+  REQUIRED             = 1,
+  STRONG_PREFERRED     = 2,
+  PREFERRED            = 3,
+  STRONG_DEFAULT       = 4,
+  DEFAULT              = 5,
+  WEAK_DEFAULT         = 6,
+  ABSOLUTE_WEAKEST     = 7;
 
 function Plan() {
-  som.Vector.call(this, 15);
+  this.items = [];
 }
-Plan.prototype = Object.create(som.Vector.prototype);
+
+Plan.prototype.append = function (i) {
+  this.items.push(i);
+};
 
 Plan.prototype.execute = function () {
-  this.forEach(function (c) { c.execute(); });
+  for (const c of this.items) {
+    c.execute();
+  }
 };
 
 Planner.prototype.newMark = function () {
@@ -73,11 +70,11 @@ Planner.prototype.incrementalRemove = function (c) {
 };
 
 Planner.prototype.extractPlanFromConstraints = function (constraints) {
-  var sources = new som.Vector();
+  var sources = [];
 
   constraints.forEach(function (c) {
     if (c.isInput() && c.isSatisfied()) {
-      sources.append(c);
+      sources.push(c);
     }
   });
 
@@ -89,8 +86,8 @@ Planner.prototype.makePlan = function (sources) {
     plan = new Plan(),
     todo = sources;
 
-  while (!todo.isEmpty()) {
-    var c = todo.removeFirst();
+  while (todo.length > 0) {
+    var c = todo.shift();
 
     if (c.getOutput().mark !== mark && c.inputsKnown(mark)) {
       // not in plan already and eligible for inclusion
@@ -103,11 +100,11 @@ Planner.prototype.makePlan = function (sources) {
 };
 
 Planner.prototype.propagateFrom = function (v) {
-  var todo = new som.Vector();
+  var todo = [];
   this.addConstraintsConsumingTo(v, todo);
 
-  while (!todo.isEmpty()) {
-    var c = todo.removeFirst();
+  while (todo.length > 0) {
+    var c = todo.shift();
     c.execute();
     this.addConstraintsConsumingTo(c.getOutput(), todo);
   }
@@ -118,16 +115,16 @@ Planner.prototype.addConstraintsConsumingTo = function (v, coll) {
 
   v.constraints.forEach(function (c) {
     if (c !== determiningC && c.isSatisfied()) {
-      coll.append(c);
+      coll.push(c);
     }
   });
 };
 
 Planner.prototype.addPropagate = function (c, mark) {
-  var todo = som.Vector.with(c);
+  var todo = [c];
 
-  while (!todo.isEmpty()) {
-    var d = todo.removeFirst();
+  while (todo.length > 0) {
+    var d = todo.shift();
 
     if (d.getOutput().mark === mark) {
       this.incrementalRemove(c);
@@ -141,7 +138,7 @@ Planner.prototype.addPropagate = function (c, mark) {
 
 Planner.prototype.change = function (v, newValue) {
   var editC = new EditConstraint(v, PREFERRED, this),
-    editV = som.Vector.with(editC),
+    editV = [editC],
     plan = this.extractPlanFromConstraints(editV);
 
   for (var i = 0; i < 10; i++) {
@@ -161,23 +158,23 @@ Planner.prototype.constraintsConsuming = function (v, fn) {
 };
 
 Planner.prototype.removePropagateFrom = function(out) {
-  var unsatisfied = new som.Vector();
+  var unsatisfied = [];
 
   out.determinedBy = null;
   out.walkStrength = Strength.absoluteWeakest;
   out.stay = true;
 
-  var todo = som.Vector.with(out);
+  var todo = [out];
 
-  while (!todo.isEmpty()) {
-    var v = todo.removeFirst();
+  while (todo.length > 0) {
+    var v = todo.shift();
 
     v.constraints.forEach(function (c) {
-        if (!c.isSatisfied()) { unsatisfied.append(c); }});
+        if (!c.isSatisfied()) { unsatisfied.push(c); }});
 
     this.constraintsConsuming(v, function (c) {
       c.recalculate();
-      todo.append(c.getOutput());
+      todo.push(c.getOutput());
     });
   }
 
@@ -206,7 +203,7 @@ Planner.chainTest = function (n) {
   new StayConstraint(vars[n], STRONG_DEFAULT, planner);
 
   var editC = new EditConstraint(vars[0], PREFERRED, planner),
-    editV = som.Vector.with(editC),
+    editV = [editC],
     plan = planner.extractPlanFromConstraints(editV);
 
   for (i = 0; i < 100; i++) {
@@ -221,7 +218,7 @@ Planner.chainTest = function (n) {
 
 Planner.projectionTest = function(n) {
   var planner = new Planner(),
-    dests  = new som.Vector(),
+    dests  = [],
     scale  = Variable.value(10),
     offset = Variable.value(1000),
 
@@ -231,7 +228,7 @@ Planner.projectionTest = function(n) {
   for (i = 1; i <= n; i++) {
     src = Variable.value(i);
     dst = Variable.value(i);
-    dests.append(dst);
+    dests.push(dst);
     new StayConstraint(src, DEFAULT, planner);
     new ScaleConstraint(src, scale, offset, dst, REQUIRED, planner);
   }
@@ -248,21 +245,21 @@ Planner.projectionTest = function(n) {
 
   planner.change(scale, 5);
   for (i = 0; i < n - 1; ++i) {
-    if (dests.at(i).value != (i + 1) * 5 + 1000) {
+    if (dests[i].value != (i + 1) * 5 + 1000) {
       throw new Error("Projection test 3 failed!");
     }
   }
 
   planner.change(offset, 2000);
   for (i = 0; i < n - 1; ++i) {
-    if (dests.at(i).value != (i + 1) * 5 + 2000) {
+    if (dests[i].value != (i + 1) * 5 + 2000) {
       throw new Error("Projection test 4 failed!");
     }
   }
 };
 
 function Strength(symbolicValue) {
-  this.arithmeticValue = Strength.strengthTable.at(symbolicValue);
+  this.arithmeticValue = Strength.strengthTable[symbolicValue];
 }
 
 Strength.prototype.sameAs = function (s) {
@@ -286,27 +283,27 @@ Strength.prototype.weakest = function (s) {
 };
 
 Strength.of = function (strength) {
-  return Strength.strengthConstant.at(strength);
+  return Strength.strengthConstant[strength];
 };
 
 function createStrengthTable() {
-  var strengthTable = new som.IdentityDictionary();
-  strengthTable.atPut(ABSOLUTE_STRONGEST, -10000);
-  strengthTable.atPut(REQUIRED,           -800);
-  strengthTable.atPut(STRONG_PREFERRED,   -600);
-  strengthTable.atPut(PREFERRED,          -400);
-  strengthTable.atPut(STRONG_DEFAULT,     -200);
-  strengthTable.atPut(DEFAULT,             0);
-  strengthTable.atPut(WEAK_DEFAULT,        500);
-  strengthTable.atPut(ABSOLUTE_WEAKEST,    10000);
+  var strengthTable = new Array(ABSOLUTE_WEAKEST + 1);
+  strengthTable[ABSOLUTE_STRONGEST] = -10000;
+  strengthTable[REQUIRED] =           -800;
+  strengthTable[STRONG_PREFERRED] =   -600;
+  strengthTable[PREFERRED] =          -400;
+  strengthTable[STRONG_DEFAULT] =     -200;
+  strengthTable[DEFAULT] =             0;
+  strengthTable[WEAK_DEFAULT] =        500;
+  strengthTable[ABSOLUTE_WEAKEST] =    10000;
   return strengthTable;
 }
 
 function createStrengthConstants() {
-  var strengthConstant = new som.IdentityDictionary();
-  Strength.strengthTable.getKeys().forEach(function (key) {
-    strengthConstant.atPut(key, new Strength(key));
-  });
+  var strengthConstant = new Array(Strength.strengthTable.length);
+  for (const i in Strength.strengthTable) {
+    strengthConstant[i] = new Strength(i);
+  }
   return strengthConstant;
 }
 
@@ -629,7 +626,7 @@ StayConstraint.prototype.execute = function() {};
 
 function Variable() {
   this.value = 0;
-  this.constraints = new som.Vector(2);
+  this.constraints = [];
   this.determinedBy = null;
   this.walkStrength = Strength.absoluteWeakest;
   this.stay = true;
@@ -637,11 +634,15 @@ function Variable() {
 }
 
 Variable.prototype.addConstraint = function (c) {
-  this.constraints.append(c);
+  this.constraints.push(c);
 };
 
 Variable.prototype.removeConstraint = function (c) {
-  this.constraints.remove(c);
+  const i = this.constraints.indexOf(c);
+  if (i >= 0) {
+    this.constraints.splice(i, 1);
+  }
+
   if (this.determinedBy == c) {
     this.determinedBy = null;
   }

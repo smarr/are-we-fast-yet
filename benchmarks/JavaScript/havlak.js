@@ -15,7 +15,6 @@
 'use strict';
 
 var benchmark = require('./benchmark.js');
-var som       = require('./som.js');
 
 function Havlak() {
   benchmark.Benchmark.call(this);
@@ -40,8 +39,8 @@ function Havlak() {
 
 function BasicBlock(name) {
   this.name     = name;
-  this.inEdges  = new som.Vector(2);
-  this.outEdges = new som.Vector(2);
+  this.inEdges  = [];
+  this.outEdges = [];
 }
 
 BasicBlock.prototype.getInEdges = function () {
@@ -53,15 +52,15 @@ BasicBlock.prototype.getOutEdges = function () {
 };
 
 BasicBlock.prototype.getNumPred = function () {
-  return this.inEdges.size();
+  return this.inEdges.length;
 };
 
 BasicBlock.prototype.addOutEdge = function (to) {
-  return this.outEdges.append(to);
+  return this.outEdges.push(to);
 };
 
 BasicBlock.prototype.addInEdge = function (from) {
-  return this.inEdges.append(from);
+  return this.inEdges.push(from);
 };
 
 BasicBlock.prototype.customHash = function () {
@@ -80,17 +79,17 @@ function BasicBlockEdge(cfg, fromName, toName) {
 
 function ControlFlowGraph() {
   this.startNode     = null;
-  this.basicBlockMap = new som.Vector();
-  this.edgeList      = new som.Vector();
+  this.basicBlockMap = [];
+  this.edgeList      = [];
 }
 
 ControlFlowGraph.prototype.createNode = function (name) {
   var node;
-  if (this.basicBlockMap.at(name)) {
-    node = this.basicBlockMap.at(name);
+  if (this.basicBlockMap[name]) {
+    node = this.basicBlockMap[name];
   } else {
     node = new BasicBlock(name);
-    this.basicBlockMap.atPut(name, node);
+    this.basicBlockMap[name] = node;
   }
 
   if (this.getNumNodes() === 1) {
@@ -100,11 +99,11 @@ ControlFlowGraph.prototype.createNode = function (name) {
 };
 
 ControlFlowGraph.prototype.addEdge = function (edge) {
-  this.edgeList.append(edge);
+  this.edgeList.push(edge);
 };
 
 ControlFlowGraph.prototype.getNumNodes = function () {
-  return this.basicBlockMap.size();
+  return this.basicBlockMap.length;
 };
 
 ControlFlowGraph.prototype.getStartBasicBlock = function () {
@@ -117,51 +116,49 @@ ControlFlowGraph.prototype.getBasicBlocks = function () {
 
 function LoopStructureGraph() {
   this.loopCounter = 0;
-  this.loops = new som.Vector();
+  this.loops = [];
   this.root  = new SimpleLoop(null, true);
   this.root.setNestingLevel(0);
   this.root.setCounter(this.loopCounter);
   this.loopCounter += 1;
-  this.loops.append(this.root);
+  this.loops.push(this.root);
 }
 
 LoopStructureGraph.prototype.createNewLoop = function (bb, isReducible) {
   var loop = new SimpleLoop(bb, isReducible);
   loop.setCounter(this.loopCounter);
   this.loopCounter += 1;
-  this.loops.append(loop);
+  this.loops.push(loop);
   return loop;
 };
 
 LoopStructureGraph.prototype.calculateNestingLevel = function () {
   // link up all 1st level loops to artificial root node.
-  var that = this;
-  this.loops.forEach(function (liter) {
+  for (const liter of this.loops) {
     if (!liter.isRoot()) {
       if (!liter.getParent()) {
-        liter.setParent(that.root);
+        liter.setParent(this.root);
       }
     }
-  });
+  }
 
   // recursively traverse the tree and assign levels.
   this.calculateNestingLevelRec(this.root, 0);
 };
 
 LoopStructureGraph.prototype.calculateNestingLevelRec = function (loop, depth) {
-  var that = this;
   loop.setDepthLevel(depth);
-  loop.getChildren().forEach(function (liter) {
-    that.calculateNestingLevelRec(liter, depth + 1);
+  for (const liter of loop.getChildren().values()) {
+    this.calculateNestingLevelRec(liter, depth + 1);
 
     loop.setNestingLevel(
       Math.max(loop.getNestingLevel(),
         1 + liter.getNestingLevel()));
-  });
+  }
 };
 
 LoopStructureGraph.prototype.getNumLoops = function () {
-  return this.loops.size();
+  return this.loops.length;
 };
 
 
@@ -171,8 +168,8 @@ function SimpleLoop(bb, isReducible) {
   this.isRoot_ = false;
   this.nestingLevel = 0;
   this.depthLevel   = 0;
-  this.basicBlocks  = new som.IdentitySet();
-  this.children     = new som.IdentitySet();
+  this.basicBlocks  = new Set();
+  this.children     = new Set();
 
   if (bb) {
     this.basicBlocks.add(bb);
@@ -229,7 +226,12 @@ SimpleLoop.prototype.setDepthLevel = function (level) {
   this.depthLevel = level;
 };
 
-function UnionFindNode() { /* no op */ }
+function UnionFindNode() {
+  this.parent = null;
+  this.bb = null;
+  this.dfsNumber = 0;
+  this.loop = null;
+}
 
 // Initialize this node.
 UnionFindNode.prototype.initNode = function (bb, dfsNumber) {
@@ -246,18 +248,19 @@ UnionFindNode.prototype.initNode = function (bb, dfsNumber) {
 // result in significant traversals).
 //
 UnionFindNode.prototype.findSet = function () {
-  var nodeList = new som.Vector(),
-    node = this,
-    that = this;
+  var nodeList = [],
+    node = this;
   while (node !== node.parent) {
     if (node.parent !== node.parent.parent) {
-      nodeList.append(node);
+      nodeList.push(node);
     }
     node = node.parent;
   }
 
   // Path Compression, all nodes' parents point to the 1st level parent.
-  nodeList.forEach(function (iter) { iter.union(that.parent); });
+  for (const iter of nodeList) {
+    iter.union(this.parent);
+  }
   return node;
 };
 
@@ -394,9 +397,9 @@ var UNVISITED = 2147483647,       // Marker for uninitialized nodes.
   MAXNONBACKPREDS = (32 * 1024);  // Safeguard against pathological algorithm behavior.
 
 function HavlakLoopFinder(cfg, lsg) {
-  this.nonBackPreds = new som.Vector();
-  this.backPreds  = new som.Vector();
-  this.number = new som.IdentityDictionary();
+  this.nonBackPreds = [];
+  this.backPreds  = [];
+  this.number = new Map();
   this.maxSize = 0;
 
   this.cfg = cfg;
@@ -419,14 +422,14 @@ HavlakLoopFinder.prototype.isAncestor = function (w, v) {
 // Simple depth first traversal along out edges with node numbering.
 HavlakLoopFinder.prototype.doDFS = function (currentNode, current) {
   this.nodes[current].initNode(currentNode, current);
-  this.number.atPut(currentNode, current);
+  this.number.set(currentNode, current);
 
   var lastId = current,
     outerBlocks = currentNode.getOutEdges();
 
-  for (var i = 0; i < outerBlocks.size(); i++) {
-    var target = outerBlocks.at(i);
-    if (this.number.at(target) == UNVISITED) {
+  for (var i = 0; i < outerBlocks.length; i++) {
+    var target = outerBlocks[i];
+    if (this.number.get(target) == UNVISITED) {
       lastId = this.doDFS(target, lastId + 1);
     }
   }
@@ -441,9 +444,9 @@ HavlakLoopFinder.prototype.initAllNodes = function () {
   //   - depth-first traversal and numbering.
   //   - unreached BB's are marked as dead.
   //
-  var that = this;
-  this.cfg.getBasicBlocks().forEach(
-    function (bb) { that.number.atPut(bb, UNVISITED); });
+  for (const bb of this.cfg.getBasicBlocks()) {
+    this.number.set(bb, UNVISITED);
+  }
 
   this.doDFS(this.cfg.getStartBasicBlock(), 0);
 };
@@ -472,19 +475,17 @@ HavlakLoopFinder.prototype.identifyEdges = function (size) {
 };
 
 HavlakLoopFinder.prototype.processEdges = function (nodeW, w) {
-  var that = this;
-
   if (nodeW.getNumPred() > 0) {
-    nodeW.getInEdges().forEach(function (nodeV) {
-      var v = that.number.at(nodeV);
+    for (const nodeV of nodeW.getInEdges()) {
+      var v = this.number.get(nodeV);
       if (v != UNVISITED) {
-        if (that.isAncestor(w, v)) {
-          that.backPreds.at(w).append(v);
+        if (this.isAncestor(w, v)) {
+          this.backPreds[w].push(v);
         } else {
-          that.nonBackPreds.at(w).add(v);
+          this.nonBackPreds[w].add(v);
         }
       }
-    });
+    }
   }
 };
 
@@ -499,9 +500,9 @@ HavlakLoopFinder.prototype.findLoops = function () {
 
   var size = this.cfg.getNumNodes();
 
-  this.nonBackPreds.removeAll();
-  this.backPreds.removeAll();
-  this.number.removeAll();
+  this.nonBackPreds.length = 0;
+  this.backPreds.length = 0;
+  this.number.clear();
   if (size > this.maxSize) {
     this.header  = new Array(size);
     this.type    = new Array(size);
@@ -511,8 +512,8 @@ HavlakLoopFinder.prototype.findLoops = function () {
   }
 
   for (var i = 0; i < size; ++i) {
-    this.nonBackPreds.append(new som.Set());
-    this.backPreds.append(new som.Vector());
+    this.nonBackPreds.push(new Set());
+    this.backPreds.push([]);
     this.nodes[i] = new UnionFindNode();
   }
 
@@ -536,23 +537,25 @@ HavlakLoopFinder.prototype.findLoops = function () {
   //
   for (var w = size - 1; w >= 0; w--) {
     // this is 'P' in Havlak's paper
-    var nodePool = new som.Vector();
+    var nodePool = [];
 
     var nodeW = this.nodes[w].getBb();
     if (nodeW) {
       this.stepD(w, nodePool);
 
       // Copy nodePool to workList.
-      var workList = new som.Vector();
-      nodePool.forEach(function (niter) { workList.append(niter); });
+      var workList = [];
+      for (const niter of nodePool) {
+        workList.push(niter);
+      }
 
-      if (nodePool.size() !== 0) {
+      if (nodePool.length !== 0) {
         this.type[w] = "BB_REDUCIBLE";
       }
 
       // work the list...
-      while (!workList.isEmpty()) {
-        var x = workList.removeFirst();
+      while (workList.length > 0) {
+        var x = workList.shift();
 
         // Step e:
         //
@@ -564,7 +567,7 @@ HavlakLoopFinder.prototype.findLoops = function () {
 
         // The algorithm has degenerated. Break and
         // return in this case.
-        var nonBackSize = this.nonBackPreds.at(x.getDfsNumber()).size();
+        var nonBackSize = this.nonBackPreds[x.getDfsNumber()].length;
         if (nonBackSize > MAXNONBACKPREDS) {
           return;
         }
@@ -574,7 +577,7 @@ HavlakLoopFinder.prototype.findLoops = function () {
       // Collapse/Unionize nodes in a SCC to a single node
       // For every SCC found, create a loop descriptor and link it in.
       //
-      if ((nodePool.size() > 0) || (this.type[w] === "BB_SELF")) {
+      if ((nodePool.length > 0) || (this.type[w] === "BB_SELF")) {
         var loop = this.lsg.createNewLoop(nodeW, this.type[w] !== "BB_IRREDUCIBLE");
         this.setLoopAttributes(w, nodePool, loop);
       }
@@ -584,23 +587,22 @@ HavlakLoopFinder.prototype.findLoops = function () {
 
 HavlakLoopFinder.prototype.stepEProcessNonBackPreds = function (w, nodePool,
                                                                 workList, x) {
-  var that = this;
-  this.nonBackPreds.at(x.getDfsNumber()).forEach(function (iter) {
-    var y = that.nodes[iter],
+  for (const iter of this.nonBackPreds[x.getDfsNumber()]) {
+    var y = this.nodes[iter],
       ydash = y.findSet();
 
-    if (!that.isAncestor(w, ydash.getDfsNumber())) {
-      that.type[w] = "BB_IRREDUCIBLE";
-      that.nonBackPreds.at(w).add(ydash.getDfsNumber());
+    if (!this.isAncestor(w, ydash.getDfsNumber())) {
+      this.type[w] = "BB_IRREDUCIBLE";
+      this.nonBackPreds[w].add(ydash.getDfsNumber());
     } else {
       if (ydash.getDfsNumber() != w) {
-        if (!nodePool.hasSome(function (e) { return e == ydash; })) {
-          workList.append(ydash);
-          nodePool.append(ydash);
+        if (!nodePool.includes(ydash)) {
+          workList.push(ydash);
+          nodePool.push(ydash);
         }
       }
     }
-  });
+  }
 };
 
 HavlakLoopFinder.prototype.setLoopAttributes = function (w, nodePool, loop) {
@@ -617,12 +619,11 @@ HavlakLoopFinder.prototype.setLoopAttributes = function (w, nodePool, loop) {
   //    type[w] != BasicBlockClass.BB_IRREDUCIBLE
   //
   this.nodes[w].setLoop(loop);
-  var that = this;
 
-  nodePool.forEach(function (node) {
+  for (const node of nodePool) {
     // Add nodes to loop descriptor.
-    that.header[node.getDfsNumber()] = w;
-    node.union(that.nodes[w]);
+    this.header[node.getDfsNumber()] = w;
+    node.union(this.nodes[w]);
 
     // Nested loops are not added, but linked together.
     if (node.getLoop()) {
@@ -630,18 +631,17 @@ HavlakLoopFinder.prototype.setLoopAttributes = function (w, nodePool, loop) {
     } else {
       loop.addNode(node.getBb());
     }
-  });
+  }
 };
 
 HavlakLoopFinder.prototype.stepD = function (w, nodePool) {
-  var that = this;
-  this.backPreds.at(w).forEach(function (v) {
+  for (const v of this.backPreds[w]) {
     if (v != w) {
-      nodePool.append(that.nodes[v].findSet());
+      nodePool.push(this.nodes[v].findSet());
     } else {
-      that.type[w] = "BB_SELF";
+      this.type[w] = "BB_SELF";
     }
-  });
+  };
 };
 
 exports.newInstance = function () {

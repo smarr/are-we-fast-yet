@@ -466,7 +466,7 @@ function CollisionDetector() {
 }
 
 CollisionDetector.prototype.handleNewFrame = function (frame) {
-  var motions = new som.Vector();
+  var motions = [];
   var seen = new RedBlackTree();
   var that = this;
   frame.forEach(function (aircraft) {
@@ -478,30 +478,30 @@ CollisionDetector.prototype.handleNewFrame = function (frame) {
       // Treat newly introduced aircraft as if they were stationary.
       oldPosition = newPosition;
     }
-    motions.append(new Motion(aircraft.callsign, oldPosition, newPosition));
+    motions.push(new Motion(aircraft.callsign, oldPosition, newPosition));
   });
 
   // Remove aircraft that are no longer present.
-  var toRemove = new som.Vector();
+  var toRemove = [];
   this.state.forEach(function(e) {
     if (!seen.get(e.key)) {
-      toRemove.append(e.key);
+      toRemove.push(e.key);
     }
   });
 
   toRemove.forEach(function (e) { that.state.remove(e); });
 
   var allReduced = reduceCollisionSet(motions);
-  var collisions = new som.Vector();
+  var collisions = [];
 
   allReduced.forEach(function (reduced) {
-    for (var i = 0; i < reduced.size(); ++i) {
-      var motion1 = reduced.at(i);
-      for (var j = i + 1; j < reduced.size(); ++j) {
-        var motion2 = reduced.at(j);
+    for (var i = 0; i < reduced.length; ++i) {
+      var motion1 = reduced[i];
+      for (var j = i + 1; j < reduced.length; ++j) {
+        var motion2 = reduced[j];
         var collision = motion1.findIntersection(motion2);
         if (collision) {
-          collisions.append(new Collision(motion1.callsign, motion2.callsign, collision));
+          collisions.push(new Collision(motion1.callsign, motion2.callsign, collision));
         }
       }
     }
@@ -717,10 +717,10 @@ function isInVoxel(voxel, motion) {
 function putIntoMap(voxelMap, voxel, motion) {
   var vec = voxelMap.get(voxel);
   if (!vec) {
-    vec = new som.Vector();
+    vec = [];
     voxelMap.put(voxel, vec);
   }
-  vec.append(motion);
+  vec.push(motion);
 }
 
 function voxelHash(position) {
@@ -766,14 +766,14 @@ function drawMotionOnVoxelMap(voxelMap, motion) {
 
 function reduceCollisionSet(motions) {
   var voxelMap = new RedBlackTree();
-  motions.forEach(function (motion) {
+  for (const motion of motions) {
     drawMotionOnVoxelMap(voxelMap, motion);
-  });
+  }
 
-  var result = new som.Vector();
+  var result = [];
   voxelMap.forEach(function (e) {
-    if (e.value.size() > 1) {
-      result.append(e.value);
+    if (e.value.length > 1) {
+      result.push(e.value);
     }
   });
   return result;
@@ -785,18 +785,18 @@ function Aircraft(callsign, position) {
 }
 
 function Simulator(numAircraft) {
-  this.aircraft = new som.Vector();
+  this.aircraft = [];
   for (var i = 0; i < numAircraft; ++i) {
-    this.aircraft.append(new CallSign(i));
+    this.aircraft.push(new CallSign(i));
   }
 }
 
 Simulator.prototype.simulate = function (time) {
-  var frame = new som.Vector();
-  for (var i = 0; i < this.aircraft.size(); i += 2) {
-    frame.append(new Aircraft(this.aircraft.at(i),
+  var frame = [];
+  for (var i = 0; i < this.aircraft.length; i += 2) {
+    frame.push(new Aircraft(this.aircraft[i],
         new Vector3D(time, Math.cos(time) * 2 + i * 3, 10)));
-    frame.append(new Aircraft(this.aircraft.at(i + 1),
+    frame.push(new Aircraft(this.aircraft[i + 1],
         new Vector3D(time, Math.sin(time) * 2 + i * 3, 10)));
   }
   return frame;
@@ -805,9 +805,9 @@ Simulator.prototype.simulate = function (time) {
 function CD() {
   benchmark.Benchmark.call(this);
 
-  function cd(numAircrafts) {
+  function cd(numAircraft) {
     var numFrames = 200;
-    var simulator = new Simulator(numAircrafts);
+    var simulator = new Simulator(numAircraft);
     var detector = new CollisionDetector();
 
     var actualCollisions = 0;
@@ -815,21 +815,21 @@ function CD() {
       var time = i / 10;
 
       var collisions = detector.handleNewFrame(simulator.simulate(time));
-      actualCollisions += collisions.size();
+      actualCollisions += collisions.length;
     }
     return actualCollisions;
   }
 
-  function verifyResult(actualCollisions, numAircrafts) {
-    if (numAircrafts == 1000) { return actualCollisions == 14484; }
-    if (numAircrafts ==  500) { return actualCollisions == 14484; }
-    if (numAircrafts ==  250) { return actualCollisions == 10830; }
-    if (numAircrafts ==  200) { return actualCollisions ==  8655; }
-    if (numAircrafts ==  100) { return actualCollisions ==  4305; }
-    if (numAircrafts ==   10) { return actualCollisions ==   390; }
-    if (numAircrafts ==    2) { return actualCollisions ==    42; }
+  function verifyResult(actualCollisions, numAircraft) {
+    if (numAircraft == 1000) { return actualCollisions == 14484; }
+    if (numAircraft ==  500) { return actualCollisions == 14484; }
+    if (numAircraft ==  250) { return actualCollisions == 10830; }
+    if (numAircraft ==  200) { return actualCollisions ==  8655; }
+    if (numAircraft ==  100) { return actualCollisions ==  4305; }
+    if (numAircraft ==   10) { return actualCollisions ==   390; }
+    if (numAircraft ==    2) { return actualCollisions ==    42; }
 
-    process.stdout.write("No verification result for " + numAircrafts + " found");
+    process.stdout.write("No verification result for " + numAircraft + " found");
     process.stdout.write("Result is: " + actualCollisions);
     return false;
   }
