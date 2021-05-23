@@ -432,8 +432,9 @@ class _HavlakLoopFinder:
                 self._non_back_preds.at(w).add(ydash.dfs_number)
             else:
                 if ydash.dfs_number != w:
-                    work_list.append(ydash)
-                    node_pool.append(ydash)
+                    if not node_pool.has_some(lambda e: e == ydash):
+                        work_list.append(ydash)
+                        node_pool.append(ydash)
 
         self._non_back_preds.at(x.dfs_number).for_each(each)
 
