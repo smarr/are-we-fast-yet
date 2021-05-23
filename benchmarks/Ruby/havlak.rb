@@ -458,8 +458,10 @@ class HavlakLoopFinder
         @non_back_preds[w].add(ydash.dfs_number)
       else
         if ydash.dfs_number != w
-          work_list.append(ydash)
-          node_pool.append(ydash)
+          unless node_pool.include? ydash
+            work_list.append(ydash)
+            node_pool.append(ydash)
+          end
         end
       end
     end
