@@ -316,38 +316,6 @@ class Parser
   end
 end
 
-class HashIndexTable
-  def initialize
-    @hash_table = Array.new(32, 0)
-  end
-
-  def add(name, index)
-    slot = hash_slot_for(name)
-    if index < 0xff
-      # increment by 1, 0 stands for empty
-      @hash_table[slot] = (index + 1) & 0xff
-    else
-      @hash_table[slot] = 0
-    end
-  end
-
-  def get(name)
-    slot = hash_slot_for(name)
-    # subtract 1, 0 stands for empty
-    (@hash_table[slot] & 0xff) - 1
-  end
-
-  def string_hash(s)
-    # this is not a proper hash, but sufficient for the benchmark,
-    # and very portable!
-    s.size * 1_402_589
-  end
-
-  def hash_slot_for(element)
-    string_hash(element) & @hash_table.length - 1
-  end
-end
-
 class ParseException < StandardError
   attr_reader :message, :offset, :line, :column
 
@@ -403,7 +371,7 @@ end
 
 class JsonArray < JsonValue
   def initialize
-    @values = Vector.new
+    @values = []
   end
 
   def add(value)
@@ -417,7 +385,7 @@ class JsonArray < JsonValue
   end
 
   def get(index)
-    @values.at(index)
+    @values[index]
   end
 
   def is_array
@@ -469,34 +437,28 @@ end
 
 class JsonObject < JsonValue
   def initialize
-    @names  = Vector.new
-    @values = Vector.new
-    @table  = HashIndexTable.new
+    @properties = {}
   end
 
   def add(name, value)
     raise 'name is null'  unless name
     raise 'value is null' unless value
 
-    @table.add(name, @names.size)
-    @names.append(name)
-    @values.append(value)
+    @properties[name] = value
     self
   end
 
   def get(name)
     raise 'name is null' unless name
-
-    index = index_of(name)
-    index == -1 ? nil : @values.at(index)
+    @properties[name]
   end
 
   def size
-    @names.size
+    @properties.size
   end
 
   def is_empty
-    @names.is_empty
+    @properties.empty?
   end
 
   def is_object
@@ -505,12 +467,6 @@ class JsonObject < JsonValue
 
   def as_object
     self
-  end
-
-  def index_of(name)
-    index = @table.get(name)
-    return index if index != -1 && name == @names.at(index)
-    raise 'NotImplemented' # Not needed for benchmark
   end
 end
 
