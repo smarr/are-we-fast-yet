@@ -462,8 +462,10 @@ function HavlakLoopFinder:step_e_process_non_back_preds (w, node_pool, work_list
             self.non_back_preds:at(w):add(ydash.dfs_number)
         else
             if ydash.dfs_number ~= w then
-                work_list:append(ydash)
-                node_pool:append(ydash)
+                if not node_pool:has_some(function (e) return e == ydash end) then
+                    work_list:append(ydash)
+                    node_pool:append(ydash)
+                end
             end
         end
     end)
