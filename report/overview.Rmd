@@ -29,7 +29,7 @@ vm_names <- c(
   
   "Topaz"                 = "Topaz",
   
-  "JRubyTruffle"           = "TruffleRuby (core)",
+  "TruffleRuby-jit"       = "TruffleRuby 21.1",
   "JRubyTruffleEnterprise" = "TruffleRuby (GraalVM)",
   
   "Java8U66"              = "HotSpot 1.8 292",
@@ -69,7 +69,7 @@ vms_slow <- c("JRubyC2", "JRubyGraal", "JRubyJ8",
 vms_fast <- c("Crystal",
               "GraalBasic", "GraalC2", "GraalEnterprise",
               "GraalJS",
-              "JRubyTruffle", "JRubyTruffleEnterprise",
+              "TruffleRuby-jit", "JRubyTruffleEnterprise",
               "Java8U66",
               "PyPy-jit",
               "GraalPython-jit",
@@ -77,7 +77,8 @@ vms_fast <- c("Crystal",
               "SOMns", "SOMns-Enterprise",
               "TruffleSOM", "TruffleSOM-TOM", "TruffleSOM-Enterprise", "TruffleSOM-TOM-Enterprise")
 vms_truffle <- c("GraalJS",
-                 "JRubyTruffle", "JRubyTruffleEnterprise",
+                 "TruffleRuby-jit", "JRubyTruffleEnterprise",
+                 "GraalPython-jit",
                  "TruffleSOM", "TruffleSOM-Enterprise", "TruffleSOM-TOM", "TruffleSOM-TOM-Enterprise",
                  "SOMns", "SOMns-Enterprise")
 
