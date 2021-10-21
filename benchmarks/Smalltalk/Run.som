@@ -44,7 +44,6 @@ Run = (
   innerIterations: anInt = ( innerIterations := anInt )
   
   runBenchmark = (
-    | result |
     ScriptConsole println: ('Starting ', name, ' benchmark ... ').
     
     self doRuns: benchmarkSuite new.

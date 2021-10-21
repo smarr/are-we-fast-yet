@@ -187,7 +187,7 @@ Planner = (
      downstream of the given constraint. Answer a collection of unsatisfied
      constraints sorted in order of decreasing strength."
 
-    | unsatisfied todo v nextC  u2 |
+    | unsatisfied todo v |
     unsatisfied := Vector new.
         
     out determinedBy: nil.
