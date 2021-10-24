@@ -28,3 +28,6 @@
 [submodule "implementations/SOMppOMR"]
 	path = implementations/SOMppOMR
 	url = https://github.com/SOM-st/SOMpp.git
+[submodule "implementations/PySOM"]
+	path = implementations/PySOM
+	url = https://github.com/SOM-st/PySOM.git
