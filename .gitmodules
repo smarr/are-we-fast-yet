@@ -28,6 +28,3 @@
 [submodule "implementations/SOMppOMR"]
 	path = implementations/SOMppOMR
 	url = https://github.com/SOM-st/SOMpp.git
-[submodule "implementations/RTruffleSOM"]
-	path = implementations/RTruffleSOM
-	url = http://github.com/SOM-st/RTruffleSOM.git
