@@ -18,8 +18,8 @@ if [ ! -d "$SCRIPT_PATH/pharo-vm" ]; then
 
   INFO Get Pharo Image
   pushd $SCRIPT_PATH/../benchmarks/Smalltalk
-  $GET get.pharo.org/stable || $GET get.pharo.org/stable
-  bash stable
+  $GET get.pharo.org/70 || $GET get.pharo.org/70
+  bash 70
   popd
 fi
 

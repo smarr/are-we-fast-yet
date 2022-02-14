@@ -65,7 +65,7 @@ jobs:
         if: matrix.id == 'pharo'
         uses: hpi-swa/setup-smalltalkCI@v1
         with:
-          smalltalk-image: Pharo64-9.0
+          smalltalk-image: Pharo64-7.0
 
       - name: Install Squeak64
         if: matrix.id == 'squeak64'
