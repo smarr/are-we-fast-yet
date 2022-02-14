@@ -7,7 +7,9 @@ if [ "$1" = "style" ]
 then
   INFO Check style of Python benchmarks
   pushd $SCRIPT_PATH/../benchmarks/Python
-  python -m black --check --diff .
+  if [[ "$2" != "skip-black-for-python" ]]; then
+    python -m black --check --diff .
+  fi
   python -m pylint *.py som
 else
   exit 0
