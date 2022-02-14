@@ -17,65 +17,49 @@ opts_chunk$set(dev = 'png',
 #    cache=TRUE,
 
 vm_names <- c(
-  "Crystal"               = "Crystal",
-  "GraalBasic"            = "Graal Core",
-  "GraalC2"               = "HotSpot C2, jvmi",
-  "GraalEnterprise"       = "Graal VM",
-  "GraalJS"               = "Graal.js",
+  "TruffleRuby-NativeCE-int" = "TruffleRuby 21.3 NativeCE int", 
+  "TruffleRuby-NativeCE-jit" = "TruffleRuby 21.3 NativeCE jit",
   
-  "JRubyC2"               = "JRuby (C2, jvmci)",
-  "JRubyGraal"            = "JRuby (Graal Core)",
-  "JRubyJ8"               = "JRuby (C2, Java)",
+  "Java-GraalCE-jit" = "Graal CE 21.3 jit",
+  "Java-GraalEE-jit" = "Graal EE 21.3 jit", 
+  "Java17-C2-jit"    = "HotSpot C2 17 jit",
+  "Java8-C2-jit"     = "HotSpot C2  8 jit",
+  "Java8-int" = "HotSpot 8 int",
+  "Java17-int" = "HotSpot 17  int",
+
+  "CRuby27-int" =  "CRuby 2.7 int",
+  "CRuby30-int" =  "CRuby 3.0 int",
   
-  "Topaz"                 = "Topaz",
-  
-  "TruffleRuby-jit"       = "TruffleRuby 21.1",
-  "JRubyTruffleEnterprise" = "TruffleRuby (GraalVM)",
-  
-  "Java8U66"              = "HotSpot 1.8 292",
-  "JavaInt"               = "HotSpot 1.8 292 Int",
-  
-  "Lua53"                 = "Lua 5.3.3",
-  "LuaJIT2"               = "LuaJIT 2",
-  "MRI23"                 = "MRI 2.5.1",
-  "Node"                  = "Node 14.17",
-  "Node-interp"           = "Node 14.17 Int",
-  "Pharo"                 = "Pharo",
-  "RBX314"                = "Rubinius",
-  "SOMns"                 = "SOMns core",
-  "SOMns-Enterprise"      = "SOMns GraalVM",
-  "SOMnsInt"              = "SOMns int",
-  "TruffleSOM"            = "TruffleSOM core",
-  "TruffleSOM-Enterprise" = "TruffleSOM GraalVM",
-  "TruffleSOM-TOM"        = "TruffleSOM core, Truffle OM",
-  "TruffleSOM-TOM-Enterprise" = "TruffleSOM GraalVM, Truffle OM",
-  
-  "CPython-interp"        = "CPython 3.10",
-  "Cinder-jit"            = "Cinder 3.8",
-  "Pyston-jit"            = "Pyston 3.8",
-  "GraalPython-jit"       = "GraalPython 21.1",
-  "PyPy-jit"              = "PyPy 3.7 7.3.4"
-  )
+  "Node-jit"              = "Node 17.0 jit",
+  "Node-int"              = "Node 17.0 int",
+
+  "PySOM-ast-int" = "PySOM ast int",
+  "PySOM-bc-int"  = "PySOM bc int", 
+  "PySOM-ast-jit" = "PySOM ast jit",
+  "PySOM-bc-jit" = "PySOM bc jit",
+ 
+  "TruffleSOM-ast-CE-jit" = "TruffleSOM ast CE jit", 
+  "TruffleSOM-bc-CE-jit" = "TruffleSOM bc CE jit",
+  "TruffleSOM-bc-NativeCE-int" = "TruffleSOM bc NativeCE int",
+  "TruffleSOM-ast-NativeCE-int" = "TruffleSOM ast NativeCE int", 
+  "SOM-Java17-C2" = "SOM HotSpot 17 C2 int"
+)
 
 vms_all  <- names(vm_names)
-vms_slow <- c("JRubyC2", "JRubyGraal", "JRubyJ8",
-              "JavaInt",
-              "Lua53", "LuaJIT2",
-              "MRI23", "RBX314",
-              "CPython-interp",
-              "Node-interp",
-              "Pyston-jit", "Cinder-jit",
-              "Pharo", "SOMnsInt", "Topaz")
-vms_fast <- c("Crystal",
-              "GraalBasic", "GraalC2", "GraalEnterprise",
-              "GraalJS",
-              "TruffleRuby-jit", "JRubyTruffleEnterprise",
-              "Java8U66",
-              "PyPy-jit",
-              "GraalPython-jit",
-              "Node",
-              "SOMns", "SOMns-Enterprise",
-              "TruffleSOM", "TruffleSOM-TOM", "TruffleSOM-Enterprise", "TruffleSOM-TOM-Enterprise")
+vms_slow <- c("Java8-int", "Java17-int",
+              "CRuby27-int", "CRuby30-int",
+              "PySOM-bc-int", "PySOM-ast-int",
+              "Node-int", 
+              "TruffleSOM-bc-NativeCE-int",
+              "TruffleSOM-ast-NativeCE-int",
+              "TruffleRuby-NativeCE-int", 
+              "SOM-Java17-C2")
+vms_fast <- c("TruffleRuby-NativeCE-jit", 
+              "Java-GraalCE-jit", "Java-GraalEE-jit", "Java17-C2-jit", "Java8-C2-jit",
+              "Node-jit",
+              "PySOM-ast-jit", "PySOM-bc-jit",
+              "TruffleSOM-ast-CE-jit", 
+              "TruffleSOM-bc-CE-jit")
 vms_truffle <- c("GraalJS",
                  "TruffleRuby-jit", "JRubyTruffleEnterprise",
                  "GraalPython-jit",
@@ -112,7 +96,7 @@ data <- rbind(data_fast_vms, data_slow_vms, data_very_slow_vms) %>%
 
 
 base <- data %>%
-  filter(exe == "Java8U66") %>%
+  filter(exe == "Java8-C2-jit") %>%
   group_by(bench,
            varvalue, cores, inputsize, extraargs) %>%
   summarise(base_mean = mean(value),
@@ -286,6 +270,13 @@ implementations.
 
 ```{r all-langs-overview, fig.width=8, fig.height=10}
 p <- overview_box_plot(stats_latest, vms_all)
+p + scale_y_continuous(breaks = c(0, 5, seq(from=10, by=10, to=100)))
+```
+
+###### Java Performance
+
+```{r java-overview, fig.width=8, fig.height=6}
+p <- overview_box_plot(stats_latest, vms_all %>% str_subset("^Java"))
 p + scale_y_continuous(breaks = c(0, 5, seq(from=10, by=10, to=100)))
 ```
 

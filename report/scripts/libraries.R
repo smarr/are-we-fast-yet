@@ -22,6 +22,7 @@ load_and_install_if_necessary("ggrepel")   # make sure labels don't overlap
 
 load_and_install_if_necessary("qs")
 load_and_install_if_necessary("knitr")
+load_and_install_if_necessary("stringr")
 
 source("data-processing.R")
 source("plots.R")
