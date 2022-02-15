@@ -23,7 +23,7 @@ List = Benchmark (
 
   benchmark = ( | result |
     result := self
-        talkWithX: (self makeList: 15)
+        tailWithX: (self makeList: 15)
         withY:     (self makeList: 10)
         withZ:     (self makeList: 6).
     ^ result length
@@ -56,13 +56,13 @@ List = Benchmark (
     ^ false
   )
   
-  talkWithX: x withY: y withZ: z = (
+  tailWithX: x withY: y withZ: z = (
     (self isShorter: y than: x)
       ifTrue: [
         ^ (self
-            talkWithX: (self talkWithX: x next withY: y withZ: z)
-            withY: (self talkWithX: y next withY: z withZ: x)
-            withZ: (self talkWithX: z next withY: x withZ: y)) ]
+            tailWithX: (self tailWithX: x next withY: y withZ: z)
+            withY: (self tailWithX: y next withY: z withZ: x)
+            withZ: (self tailWithX: z next withY: x withZ: y)) ]
       ifFalse: [ ^ z ].
   ) 
 )
