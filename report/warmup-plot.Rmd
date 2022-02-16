@@ -1,54 +1,119 @@
 # Warmup Plots of the Data Set
 
+The following report shows all data, as warmup plots.
+It shows for each benchmark and VM the run time for each iteration.
+If the data set contains multiple invocations, they are shown on the same plot.
+
+Plots are sorted by benchmark, and then as second order concern the VM.
+
 ```{r prepare-data, echo=TRUE, message=TRUE, warning=TRUE, dev='svg'}
 # load libraries, the data, and prepare it
-if (Sys.getenv("RSTUDIO") == "1") { setwd("/Users/smarr/Projects/PostDoc/FASTXX/are-we-fast-yet/report") }
+if (Sys.getenv("RSTUDIO") == "1") { setwd("/Users/smarr/Projects/awfy-runs/awfy/report") }
 
 source("scripts/libraries.R", chdir=TRUE)
-data <- load_data_file("data/benchmark.data")
+#data <- load_data_file("data/benchmark.data")
+data <- load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1518")
 data <- subset(data, select = c(Value, Unit, Benchmark, VM, Iteration))
 data <- prepare_vm_names(data)
 
 summary(data)
+# dput(levels(data$bench))
+# dput(levels(data$exe))
 
-warmup_plot <- function (data_b, b) {
+sorted_benchmarks <- c(
+  "CD", "DeltaBlue", "Havlak", "Json", "NBody", "Richards", 
+  "Bounce", "List", "Mandelbrot", "Permute",
+  "Queens", "Sieve", "Storage", "Towers"
+)
+
+sorted_exe <- c(
+  "Java17-C2-jit",
+  "Java-int", 
+ 
+  "Node-jit",
+  "Node-int", 
+  "GraalJS-HotspotEE-jit", 
+  "GraalJS-NativeEE-int", 
+  
+  "PyPy-jit",
+  "CPython-int",
+  "GraalPython-HotspotEE-jit",
+  "GraalPython-NativeEE-int", 
+  
+  "CRuby-int",
+  "CRuby-y-jit",
+  "TruffleRuby-HotspotEE-jit",
+  "TruffleRuby-NativeEE-int",
+  
+  "PySOM-ast-jit",
+  "PySOM-ast-int",
+  "PySOM-bc-jit",
+  "PySOM-bc-int",
+
+  "TruffleSOM-ast-HotspotCE-jit-main", 
+  "TruffleSOM-ast-NativeEE-int-main",
+  "TruffleSOM-ast-NativeEE-int-super", 
+  "TruffleSOM-ast-NativeEE-int-uber",
+  "TruffleSOM-bc-HotspotCE-jit-main", 
+  "TruffleSOM-bc-NativeEE-int-main"
+)
+
+# data_ea is expected to have only a single configuration,
+# and perhaps multiple invocations, but no other variation
+warmup_plot <- function (data_ea, b, e) {
   ## First take the medians over the values for each VM separated
-  medians <- ddply(data_b, ~ VM, summarise,
-             median = median(Value))
+  data_ea_stats <- data_ea %>%
+    summarise(
+      median = median(value),
+      max = max(value),
+      .groups = "drop")
+  
+  # summary(data_ea)
+  
   # use the highest one with a little margin as an upper bound
-  upperBound <- 2 * max(medians$median)
-  data_b <- ddply(data_b, ~ Benchmark, here(transform),
-                  ValCut = pmin(Value, upperBound))
-
-  plot <- ggplot(data_b, aes(x=Iteration, y=ValCut))
-  plot <- plot + geom_line(aes(colour = VM))
-  plot <- plot + ggtitle(b)
-  plot <- plot + scale_x_continuous(breaks = seq(0, max(data_b$Iteration), 100))
-  plot <- plot + geom_vline(xintercept = c(100, 200, 300), linetype = "longdash", colour = "#cccccc")
-  plot <- plot + theme_simple()
-  print(plot)
+  upper_bound <- min(2 * max(data_ea_stats$median), 1.05 * max(data_ea_stats$max))
+  
+  plot <- ggplot(data_ea, aes(x=iteration, y=value)) +
+    geom_line(aes(colour = invocation)) +
+    #scale_color_manual(values = colors) +
+    ggtitle(paste(b, e)) +
+    ylab(levels(data_b$unit)) +
+    # scale_x_continuous(breaks = seq(0, max(data_b$iteration), 10)) +
+    coord_cartesian(ylim=c(0, upper_bound)) +
+    geom_vline(
+      xintercept = seq(0, max(data_ea$iteration), 50),
+      linetype = "longdash", colour = "#cccccc") +
+    theme_simple(8) +
+    theme(legend.position=c(0.85, .92))
+  plot
 }
 ```
 
 # Plots
 
 ```{r warmup-plots, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
-b <- "Mandelbrot"
+# b <- sorted_benchmarks[1]
+# e <- sorted_exe[2]
+for (b in sorted_benchmarks) { data_b <- data %>% filter(bench == b) %>% droplevels()
+  for (e in sorted_exe) { data_e <- data_b %>% filter(exe == e) %>% droplevels()
+    
+    # v <- levels(data_b$varvalue)[1]
+    for (v in levels(data_b$varvalue)) {   data_v  <- data_e %>% filter(varvalue == v)   %>% droplevels()
+    # c <- levels(data_v$cores)[1]
+    for (c in levels(data_v$cores)) {      data_c  <- data_v %>% filter(cores == c)      %>% droplevels()
+    # i <- levels(data_c$inputsize)[1]
+    for (i in levels(data_c$inputsize)) {  data_i  <- data_c %>% filter(inputsize == i)  %>% droplevels()
+    # ea <- levels(data_i$extraargs)[1]
+    for (ea in levels(data_i$extraargs)) { data_ea <- data_i %>% filter(extraargs == ea) %>% droplevels()
 
-for (b in levels(data$Benchmark)) {
-  data_b <- droplevels(subset(data, Benchmark == b))
-  warmup_plot(data_b, b)
-}
-```
+    args <- ""
+    if (length(levels(data_b$varvalue))  > 1) { args <- paste0(args, v) }
+    if (length(levels(data_v$cores))     > 1) { args <- paste0(args, c) }
+    if (length(levels(data_c$inputsize)) > 1) { args <- paste0(args, i) }
+    if (length(levels(data_i$extraargs)) > 1) { args <- paste0(args, ea) }
+    
+    print(warmup_plot(data_ea, b, e))
+    } } } }
+} }
 
-# Plots JRuby with Indy
-
-```{r warmup-plots-jruby, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
-b <- "Mandelbrot"
-d <- droplevels(subset(data, VM %in% c("JRubyGraal", "JRubyC2")))
-
-for (b in levels(d$Benchmark)) {
-  data_b <- droplevels(subset(d, Benchmark == b))
-  warmup_plot(data_b, b)
-}
 ```
