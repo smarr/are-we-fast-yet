@@ -11,12 +11,10 @@ Plots are sorted by benchmark, and then as second order concern the VM.
 if (Sys.getenv("RSTUDIO") == "1") { setwd("/Users/smarr/Projects/awfy-runs/awfy/report") }
 
 source("scripts/libraries.R", chdir=TRUE)
-#data <- load_data_file("data/benchmark.data")
-data <- load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1518")
-data <- subset(data, select = c(Value, Unit, Benchmark, VM, Iteration))
-data <- prepare_vm_names(data)
+data <- load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1518") %>%
+  factorize_result()
 
-summary(data)
+# summary(data)
 # dput(levels(data$bench))
 # dput(levels(data$exe))
 
