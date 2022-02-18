@@ -118,171 +118,26 @@ names(vm_colors) <- vm_names
 names(vm_colors_light) <- vm_names
 
 warmup_jit_iteration <- 100
-
-select_data <- function(data, filter_cond) {
-  filter_cond <- enquo(filter_cond)
-  data %>%
-    group_by(exe, bench,
-           varvalue, cores, inputsize, extraargs) %>%
-    select(!c(cmdline, commitid, trialid, suite, warmup, criterion)) %>%
-    filter(!!filter_cond) %>%
-    droplevels()
-}
-
-compute_baseline <- function(data, baseline_exe) {
-  data %>%
-    filter(exe == baseline_exe) %>%
-    summarise(base_median = median(value),
-              .groups = "drop")  %>%
-    select(!exe) %>%
-    droplevels()
-}
-
-compute_normalized <- function(data, baseline_data) {
-  data %>%
-    left_join(
-      baseline_data,
-      by = c("bench", "varvalue", "cores", "inputsize", "extraargs")) %>%
-    group_by(
-      exe, bench,
-      varvalue, cores, inputsize, extraargs) %>%
-    transform(ratio_median = value / base_median)
-}
-
-compute_bench_stats <- function(data) {
-  data %>%
-    group_by(
-      exe, bench,
-      varvalue, cores, inputsize, extraargs) %>%
-    summarise(
-      unit = unit[1],
-      min = min(value),
-      max = max(value),
-      median = median(value),
-      samples = length(value),
-  
-      ratio = median(value) / base_median[1],
-      change_m = ratio - 1,
-      .groups = "drop")
-}
-
-compute_exe_stats <- function(data) {
-  data %>%
-    group_by(exe) %>%
-    summarise(
-      unit = unit[1],
-      median_ratio = median(ratio),
-      min_ratio = min(ratio),
-      max_ratio = max(ratio),
-      .groups = "drop")
-}
-
-add_exe_median_ratio <- function (stats, stats_exe) {
-  d <- stats_exe %>%
-    rename(exe_ratio = median_ratio) %>%
-    select(exe, exe_ratio)
-  
-  stats %>%
-    left_join(d, by = c("exe"))
-}
-
-compute_all <- function(data, filter_cond, baseline) {
-  filter_cond <- enquo(filter_cond)
-  
-  filtered <- data %>%
-    select_data(!!filter_cond)
-  
-  base <- filtered %>%
-    compute_baseline(baseline)
-  
-  norm <- filtered %>%
-    compute_normalized(base)
-  
-  stats_bench <- norm %>%
-    compute_bench_stats()
-  
-  stats_exe <- stats_bench %>%
-    compute_exe_stats()
-  
-  stats_bench <- stats_bench %>%
-    add_exe_median_ratio(stats_exe)
-  
-  list(
-    filtered = filtered,
-    base = base,
-    normalized = norm,
-    baseline = baseline,
-    stats = list(
-      bench = stats_bench,
-      exe = stats_exe
-    )
-  )
-}
+baseline_vm_peak <- "Java8-C2-jit"
+baseline_vm_int <- "Java8-int"
+baseline_vm_first <- "Java8-C2-jit"
 
 results_peak <- data %>%
   compute_all(
     iteration >= warmup_jit_iteration | exe %in% vms_int | exe == "CRuby-y-jit",
-    "Java8-C2-jit")
+    baseline_vm_peak)
 
-data_peak <- data %>%
-  select_data(iteration >= warmup_jit_iteration | exe %in% vms_int | exe == "CRuby-y-jit")
-
-baseline_vm_peak <- "Java8-C2-jit"
-
-base_peak <- data_peak %>%
-  compute_baseline(baseline_vm_peak)
-
-norm_peak <- data_peak %>%
-  compute_normalized(base_peak)
-
-stats_peak <- norm_peak %>%
-  compute_bench_stats()
-
-stats_peak_vm <- stats_peak %>%
-  compute_exe_stats()
-
-stats_peak <- stats_peak %>%
-  add_exe_median_ratio(stats_peak_vm) 
+results_int <- data %>%
+  compute_all(
+    exe %in% vms_int,
+    baseline_vm_int)
 
 
+results_first <- data %>%
+  compute_all(
+    iteration == 1,
+    baseline_vm_first)
 
-data_int <- data  %>%
-  select_data(exe %in% vms_int)
-
-data_first <- data %>%
-  select_data(iteration == 1)
-
-
-
-baseline_vm_int <- "Java8-int"
-baseline_vm_first <- "Java8-C2-jit"
-
-base_int <- data_int %>%
-  compute_baseline(baseline_vm_int)
-
-base_first <- data_first %>%
-  compute_baseline(baseline_vm_first)
-
-norm_int <- data_int %>%
-  compute_normalized(base_int)
-  
-
-norm_first <- data_first %>%
-  compute_normalized(base_first)
-  
-
-stats_int <- norm_int %>%
-  compute_bench_stats()
-
-stats_first <- norm_first %>%
-  compute_bench_stats()
-
-
-stats_int_vm <- stats_int %>%
-  compute_exe_stats()
-
-stats_first_vm <- stats_first %>%
-  compute_exe_stats()
 
 plot_benchmarks_speedup_for_vms <- function(
   vm_norm, vms, label = "Runtime Factor, normalized to Java\n(lower is better)") {
@@ -405,7 +260,7 @@ detailed assessment of these implementations, we exclude slower
 ones from the following plot.
 
 ```{r jit-overview, fig.width=15, fig.height=5}
-overview_box_plot(stats_peak, vms = vms_jit,
+overview_box_plot(results_peak$stats$bench, vms = vms_jit,
   x_breaks = c(1, 2, 3, 4, 5, 6, 8, 10, 12, 20, 30, 40))
 ```
 
@@ -416,14 +271,14 @@ quite a bit different. Here we use `r vm_names[baseline_vm_int]` as baseline.
 
 ```{r int-overview, fig.width=8, fig.height=6}
 overview_box_plot(
-  stats_int,
+  results_int$stats$bench,
   x_breaks = c(0.33333, 0.5, 0.75, 1, 1.33333, 2, 3, 5, 10, 15, 20))
 ```
 
 ###### Java Performance
 
 ```{r java-overview, fig.width=8, fig.height=1.5}
-overview_box_plot(stats_peak,
+overview_box_plot(results_int$stats$bench,
                   c("Java-int",  "Java17-C2-jit",
                     "Java8-int", "Java8-C2-jit"))
 ```
@@ -431,7 +286,7 @@ overview_box_plot(stats_peak,
 ###### JavaScript Performance
 
 ```{r js-overview, fig.width=8, fig.height=1.5}
-overview_box_plot(stats_peak,
+overview_box_plot(results_peak$stats$bench,
                   c("Node-int", "Node-jit",
                     "GraalJS-HotspotEE-jit", "GraalJS-NativeEE-int"))
 ```
@@ -439,7 +294,7 @@ overview_box_plot(stats_peak,
 ###### Python Performance
 
 ```{r python-overview, fig.width=8, fig.height=1.5}
-overview_box_plot(stats_peak,
+overview_box_plot(results_peak$stats$bench,
                   c("GraalPython-HotspotEE-jit","CPython-int",
                     "PyPy-jit",
                     "GraalPython-NativeEE-int"))
@@ -448,7 +303,7 @@ overview_box_plot(stats_peak,
 ###### Ruby Performance
 
 ```{r ruby-overview, fig.width=8, fig.height=1.5}
-overview_box_plot(stats_peak,
+overview_box_plot(results_peak$stats$bench,
                   c("CRuby-int",
                     "CRuby-y-jit",
                     "TruffleRuby-HotspotEE-jit",
@@ -458,7 +313,7 @@ overview_box_plot(stats_peak,
 ###### SOM Performance
 
 ```{r som-overview, fig.width=8, fig.height=2.2}
-overview_box_plot(stats_peak,
+overview_box_plot(results_peak$stats$bench,
                   c("PySOM-ast-int", "PySOM-ast-jit", "PySOM-bc-int",
                     "PySOM-bc-jit", 
                     "TruffleSOM-ast-HotspotCE-jit-main",
@@ -470,7 +325,7 @@ overview_box_plot(stats_peak,
 ###### SOM Interpreters Performance
 
 ```{r som-int-overview, fig.width=8, fig.height=1.5}
-overview_box_plot(stats_int,
+overview_box_plot(results_int$stats$bench,
                   c("PySOM-ast-int", "PySOM-bc-int",
                     "TruffleSOM-ast-NativeEE-int-main",
                     "TruffleSOM-bc-NativeEE-int-main"))
@@ -479,7 +334,7 @@ overview_box_plot(stats_int,
 ###### SOM Optimizations Performance
 
 ```{r som-opt-overview, fig.width=8, fig.height=1.5}
-overview_box_plot(stats_int,
+overview_box_plot(results_int$stats$bench,
                   c("PySOM-ast-int",
                     "TruffleSOM-ast-NativeEE-int-main",
                     "TruffleSOM-ast-NativeEE-int-super",
@@ -494,7 +349,7 @@ The following table contains the numerical representation of the results
 depicted above.
 
 ```{r truffle-lang-table, results='asis', echo=FALSE}
-vm_stats <- stats_peak_vm
+vm_stats <- results_peak$stats$exe
 suppressMessages(vm_stats$exe <- revalue(vm_stats$exe, vm_names))
 vm_stats$exe <- reorder(vm_stats$exe, X=vm_stats$median_ratio)
 
@@ -519,21 +374,21 @@ plot_benchmarks_speedup_for_vms(norm_peak, vms_jit)
 ##### Interpreter Only
 
 ```{r int-benchmarks, fig.width=8, fig.height=5}
-plot_benchmarks_speedup_for_vms(norm_int, vms_int)
+plot_benchmarks_speedup_for_vms(results_int$normalized, vms_int)
 ```
 
 ##### Java+JavaScript Interpreter Only
 
 ```{r java-js-benchmarks, fig.width=8, fig.height=2.2}
 plot_benchmarks_speedup_for_vms(
-  norm_int,
+  results_int$normalized,
   c("Java-int", "Java8-int", "Node-int", "GraalJS-NativeEE-int"))
 ```
 
 ##### SOM Optimizations
 
 ```{r som-opt-benchmarks, fig.width=8, fig.height=2.2}
-plot_benchmarks_speedup_for_vms(norm_int, c("PySOM-ast-int",
+plot_benchmarks_speedup_for_vms(results_int$normalized, c("PySOM-ast-int",
                     "TruffleSOM-ast-NativeEE-int-main",
                     "TruffleSOM-ast-NativeEE-int-super",
                     "TruffleSOM-ast-NativeEE-int-uber"
@@ -547,7 +402,7 @@ plot_benchmarks_speedup_for_vms(norm_int, c("PySOM-ast-int",
 The following table contains the numerical results for all benchmarks.
 
 ```{r benchmark-table, results='asis', echo=FALSE}
-t_stats <- stats_peak
+t_stats <- results_peak$stats$bench
 suppressMessages(t_stats$exe <- revalue(t_stats$exe, vm_names))
 t_stats$exe <- reorder(t_stats$exe, X=t_stats$exe_ratio)
 
