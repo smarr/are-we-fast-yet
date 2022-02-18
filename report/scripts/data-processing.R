@@ -25,6 +25,28 @@ load_data_url <- function(url) {
   )
 }
 
+factorize_result <- function(result) {
+  result$expid <- factor(result$expid)
+  result$trialid <- factor(result$trialid)
+  result$runid <- factor(result$runid)
+  result$commitid <- factor(result$commitid)
+  result$bench <- factor(result$bench)
+  result$suite <- factor(result$suite)
+  result$exe <- factor(result$exe)
+  result$cmdline <- factor(result$cmdline)
+  result$varvalue <- forcats::fct_explicit_na(factor(result$varvalue), na_level = "")
+  result$cores <- factor(result$cores)
+  result$inputsize <- forcats::fct_explicit_na(factor(result$inputsize), na_level = "")
+  result$extraargs <- forcats::fct_explicit_na(factor(result$extraargs), na_level = "")
+  
+  if ("criterion" %in% colnames(result)) {
+    result$criterion <- factor(result$criterion)
+    result$unit <- factor(result$unit)
+  }
+  
+  result
+}
+
 load_all_data <- function (folder, data_file_prefix = "") {
   ## folder <- "data"
   ## data_file_prefix <- "AWFY-"
