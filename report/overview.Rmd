@@ -11,9 +11,11 @@ load_and_install_if_necessary("ragg")
 library(ragg)
 
 data <- rbind(
+  # main run, one invocation of everything
   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1518"),
-  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1523"))
-data <- factorize_result(data)
+  # another run, adding JDK8
+  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1523")) %>%
+  factorize_result()
 
 # ragg_png = function(..., res = 192) {
 #   ragg::agg_png(..., res = res, units = "in")
