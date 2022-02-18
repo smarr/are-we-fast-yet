@@ -1,13 +1,27 @@
 # Performance Results
 
-The last complete run of this benchmark setup yielded the results presented
-below. This report was generated on `r Sys.time()`.
+This report was generated on `r Sys.time()`.
 
 ```{r load-scripts, echo=FALSE, include=FALSE}
 # load libraries, the data, and prepare it
-if (Sys.getenv("RSTUDIO") == "1") { setwd("/Users/smarr/Projects/are-we-fast-yet/report") }
+if (Sys.getenv("RSTUDIO") == "1") { setwd("/Users/smarr/Projects/awfy-runs/awfy/report") }
 source("scripts/libraries.R", chdir=TRUE)
+
+load_and_install_if_necessary("ragg")
+library(ragg)
+
+data <- rbind(
+  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1518"),
+  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1523"))
+data <- factorize_result(data)
+
+# ragg_png = function(..., res = 192) {
+#   ragg::agg_png(..., res = res, units = "in")
+# }
 opts_chunk$set(dev = 'png',
+               #fig.ext = 'png',
+               #dpi = 120,
+               fig.retina = 2,
                dev.args=list(pointsize=10),
                echo = FALSE,
                fig.keep='all',
@@ -17,71 +31,82 @@ opts_chunk$set(dev = 'png',
 #    cache=TRUE,
 
 vm_names <- c(
-  "Crystal"               = "Crystal",
-  "GraalBasic"            = "Graal Core",
-  "GraalC2"               = "HotSpot C2, jvmi",
-  "GraalEnterprise"       = "Graal VM",
-  "GraalJS"               = "Graal.js",
+  "Java17-C2-jit" = "Java JDK17 C2",
+  "Java-int"      = "Java JDK17 Int", 
+  "Java8-C2-jit"  = "Java JDK8 C2",
+  "Java8-int"     = "Java JDK8 Int", 
+ 
+  "Node-jit"      = "Node.js 17.5",
+  "Node-int"      = "Node.js 17.5 jitless", 
+  "GraalJS-HotspotEE-jit" = "Graal.js EE 22.0.0.2 Hotspot", 
+  "GraalJS-NativeEE-int"  = "Graal.js EE 22.0.0.2 Native Int", 
   
-  "JRubyC2"               = "JRuby (C2, jvmci)",
-  "JRubyGraal"            = "JRuby (Graal Core)",
-  "JRubyJ8"               = "JRuby (C2, Java)",
+  "PyPy-jit" = "PyPy 3.8 7.3.7",
+  "CPython-int" = "CPython 3.10",
+  "GraalPython-HotspotEE-jit" = "GraalPython EE 22.0.0.2 Hotspot",
+  "GraalPython-NativeEE-int"  = "GraalPython EE 22.0.0.2 Native Int",
   
-  "Topaz"                 = "Topaz",
+  "CRuby-int" = "Ruby 3.1.0",
+  "CRuby-y-jit" = "Ruby 3.1.0 yjit",
+  "TruffleRuby-HotspotEE-jit" = "TruffleRuby EE 22.0.0.2 Hotspot",
+  "TruffleRuby-NativeEE-int"  = "TruffleRuby EE 22.0.0.2 Native Int",
   
-  "JRubyTruffle"           = "TruffleRuby (core)",
-  "JRubyTruffleEnterprise" = "TruffleRuby (GraalVM)",
-  
-  "Java8U66"              = "HotSpot 1.8 292",
-  "JavaInt"               = "HotSpot 1.8 292 Int",
-  
-  "Lua53"                 = "Lua 5.3.3",
-  "LuaJIT2"               = "LuaJIT 2",
-  "MRI23"                 = "MRI 2.5.1",
-  "Node"                  = "Node 14.17",
-  "Node-interp"           = "Node 14.17 Int",
-  "Pharo"                 = "Pharo",
-  "RBX314"                = "Rubinius",
-  "SOMns"                 = "SOMns core",
-  "SOMns-Enterprise"      = "SOMns GraalVM",
-  "SOMnsInt"              = "SOMns int",
-  "TruffleSOM"            = "TruffleSOM core",
-  "TruffleSOM-Enterprise" = "TruffleSOM GraalVM",
-  "TruffleSOM-TOM"        = "TruffleSOM core, Truffle OM",
-  "TruffleSOM-TOM-Enterprise" = "TruffleSOM GraalVM, Truffle OM",
-  
-  "CPython-interp"        = "CPython 3.10",
-  "Cinder-jit"            = "Cinder 3.8",
-  "Pyston-jit"            = "Pyston 3.8",
-  "GraalPython-jit"       = "GraalPython 21.1",
-  "PyPy-jit"              = "PyPy 3.7 7.3.4"
-  )
+  "PySOM-ast-jit" = "PySOM AST JIT",
+  "PySOM-ast-int" = "PySOM AST Int",
+  "PySOM-bc-jit"  = "PySOM BC JIT",
+  "PySOM-bc-int"  = "PySOM BC Int",
 
-vms_all  <- names(vm_names)
-vms_slow <- c("JRubyC2", "JRubyGraal", "JRubyJ8",
-              "JavaInt",
-              "Lua53", "LuaJIT2",
-              "MRI23", "RBX314",
-              "CPython-interp",
-              "Node-interp",
-              "Pyston-jit", "Cinder-jit",
-              "Pharo", "SOMnsInt", "Topaz")
-vms_fast <- c("Crystal",
-              "GraalBasic", "GraalC2", "GraalEnterprise",
-              "GraalJS",
-              "JRubyTruffle", "JRubyTruffleEnterprise",
-              "Java8U66",
-              "PyPy-jit",
-              "GraalPython-jit",
-              "Node",
-              "SOMns", "SOMns-Enterprise",
-              "TruffleSOM", "TruffleSOM-TOM", "TruffleSOM-Enterprise", "TruffleSOM-TOM-Enterprise")
-vms_truffle <- c("GraalJS",
-                 "JRubyTruffle", "JRubyTruffleEnterprise",
-                 "TruffleSOM", "TruffleSOM-Enterprise", "TruffleSOM-TOM", "TruffleSOM-TOM-Enterprise",
-                 "SOMns", "SOMns-Enterprise")
+  "TruffleSOM-ast-HotspotCE-jit-main" = "TruffleSOM AST Hotspot CE base", 
+  "TruffleSOM-ast-NativeEE-int-main"  = "TruffleSOM AST Native Int EE base",
+  "TruffleSOM-ast-NativeEE-int-super" = "TruffleSOM AST Native Int EE super", 
+  "TruffleSOM-ast-NativeEE-int-uber"  = "TruffleSOM AST Native Int EE uber",
+  "TruffleSOM-bc-HotspotCE-jit-main"  = "TruffleSOM BC Hotspot CE base",
+  "TruffleSOM-bc-NativeEE-int-main"   = "TruffleSOM BC Native Int EE base"
+)
 
-assert_that(all(sort(c(vms_slow, vms_fast)) == sort(vms_all))) ## sanity check
+# dput(levels(data$bench))
+
+vms_all <- names(vm_names)
+vms_int <- c(
+  "Java-int",
+  "Java8-int",
+  "Node-int",
+  "GraalJS-NativeEE-int",
+  
+  "CPython-int",
+  "GraalPython-NativeEE-int", 
+  
+  "CRuby-int",
+  "TruffleRuby-NativeEE-int",
+ 
+     
+  "PySOM-ast-int",
+  "PySOM-bc-int", 
+  
+  "TruffleSOM-ast-NativeEE-int-main",
+  "TruffleSOM-ast-NativeEE-int-super", 
+  "TruffleSOM-ast-NativeEE-int-uber", 
+  "TruffleSOM-bc-NativeEE-int-main")
+
+vms_jit <- c(
+  "Java17-C2-jit",
+  "Java8-C2-jit",
+  "Node-jit",
+  "GraalJS-HotspotEE-jit",
+  
+  "PyPy-jit",
+  "GraalPython-HotspotEE-jit", 
+  
+  "CRuby-y-jit",
+  "TruffleRuby-HotspotEE-jit",
+  
+  "PySOM-ast-jit",
+  "PySOM-bc-jit", 
+  "TruffleSOM-ast-HotspotCE-jit-main", 
+  "TruffleSOM-bc-HotspotCE-jit-main"
+)
+
+assert_that(all(sort(c(vms_int, vms_jit)) == sort(vms_all))) ## sanity check
 
 # vm_colors <- brewer.pal(length(vms_all), "Paired")  # to replace scale_fill_brewer(type = "qual", palette = "Paired")
 vm_colors <- rainbow(length(vms_all))
@@ -90,102 +115,184 @@ vm_colors_light <- rainbow(length(vms_all), s = 0.8, v = 0.8)
 names(vm_colors) <- vm_names
 names(vm_colors_light) <- vm_names
 
-data <- load_all_data("data", "AWFY-")
+warmup_jit_iteration <- 100
 
-warmup_slow <- 100
-warmup_fast <- 500
-
-data_fast_vms <- data %>%
-  filter(iteration >= warmup_fast & iteration <= 1000 & exe %in% vms_fast) %>%
-  droplevels()
-
-data_very_slow_vms <- data %>%
-  filter(exe %in% vms_slow & exe != "JRubyJ8") %>%
-  droplevels()
-  
-data_slow_vms <- data %>%
-  filter(iteration >= warmup_slow & (exe == "JRubyJ8" | exe == "Pharo")) %>%
-  droplevels()
-data <- rbind(data_fast_vms, data_slow_vms, data_very_slow_vms) %>%
-  select(-c(runid, trialid, commitid, suite, cmdline))
-
-
-base <- data %>%
-  filter(exe == "Java8U66") %>%
-  group_by(bench,
+select_data <- function(data, filter_cond) {
+  filter_cond <- enquo(filter_cond)
+  data %>%
+    group_by(exe, bench,
            varvalue, cores, inputsize, extraargs) %>%
-  summarise(base_mean = mean(value),
-            base_median = median(value),
-            .groups = "drop")
+    select(!c(cmdline, commitid, trialid, suite, warmup, criterion)) %>%
+    filter(!!filter_cond) %>%
+    droplevels()
+}
 
+compute_baseline <- function(data, baseline_exe) {
+  data %>%
+    filter(exe == baseline_exe) %>%
+    summarise(base_median = median(value),
+              .groups = "drop")  %>%
+    select(!exe) %>%
+    droplevels()
+}
 
-norm <- data %>%
-  left_join(base, by = c("bench",
-                         "varvalue", "cores", "inputsize", "extraargs")) %>%
-  group_by(exe, bench,
-           varvalue, cores, inputsize, extraargs) %>%
-  transform(ratio_mean = value / base_mean,
-            ratio_median = value / base_median)
+compute_normalized <- function(data, baseline_data) {
+  data %>%
+    left_join(
+      baseline_data,
+      by = c("bench", "varvalue", "cores", "inputsize", "extraargs")) %>%
+    group_by(
+      exe, bench,
+      varvalue, cores, inputsize, extraargs) %>%
+    transform(ratio_median = value / base_median)
+}
+
+compute_bench_stats <- function(data) {
+  data %>%
+    group_by(
+      exe, bench,
+      varvalue, cores, inputsize, extraargs) %>%
+    summarise(
+      unit = unit[1],
+      min = min(value),
+      max = max(value),
+      median = median(value),
+      samples = length(value),
   
+      ratio = median(value) / base_median[1],
+      change_m = ratio - 1,
+      .groups = "drop")
+}
+
+compute_exe_stats <- function(data) {
+  data %>%
+    group_by(exe) %>%
+    summarise(
+      unit = unit[1],
+      median_ratio = median(ratio),
+      min_ratio = min(ratio),
+      max_ratio = max(ratio),
+      .groups = "drop")
+}
+
+add_exe_median_ratio <- function (stats, stats_exe) {
+  d <- stats_exe %>%
+    rename(exe_ratio = median_ratio) %>%
+    select(exe, exe_ratio)
   
+  stats %>%
+    left_join(d, by = c("exe"))
+}
+
+compute_all <- function(data, filter_cond, baseline) {
+  filter_cond <- enquo(filter_cond)
   
-stats <- norm %>%
-  group_by(expid,
-           exe, bench,
-           varvalue, cores, inputsize, extraargs) %>%
-  summarise(
-    unit = unit[1],
-    median = median(value),
-    min = min(value),
-    max = max(value),
-    samples = length(value),
-    ratio = median / base_median[1],
-    change_m = ratio - 1,
-    .groups = "drop")
+  filtered <- data %>%
+    select_data(!!filter_cond)
+  
+  base <- filtered %>%
+    compute_baseline(baseline)
+  
+  norm <- filtered %>%
+    compute_normalized(base)
+  
+  stats_bench <- norm %>%
+    compute_bench_stats()
+  
+  stats_exe <- stats_bench %>%
+    compute_exe_stats()
+  
+  stats_bench <- stats_bench %>%
+    add_exe_median_ratio(stats_exe)
+  
+  list(
+    filtered = filtered,
+    base = base,
+    normalized = norm,
+    baseline = baseline,
+    stats = list(
+      bench = stats_bench,
+      exe = stats_exe
+    )
+  )
+}
+
+results_peak <- data %>%
+  compute_all(
+    iteration >= warmup_jit_iteration | exe %in% vms_int | exe == "CRuby-y-jit",
+    "Java8-C2-jit")
+
+data_peak <- data %>%
+  select_data(iteration >= warmup_jit_iteration | exe %in% vms_int | exe == "CRuby-y-jit")
+
+baseline_vm_peak <- "Java8-C2-jit"
+
+base_peak <- data_peak %>%
+  compute_baseline(baseline_vm_peak)
+
+norm_peak <- data_peak %>%
+  compute_normalized(base_peak)
+
+stats_peak <- norm_peak %>%
+  compute_bench_stats()
+
+stats_peak_vm <- stats_peak %>%
+  compute_exe_stats()
+
+stats_peak <- stats_peak %>%
+  add_exe_median_ratio(stats_peak_vm) 
+
+
+
+data_int <- data  %>%
+  select_data(exe %in% vms_int)
+
+data_first <- data %>%
+  select_data(iteration == 1)
+
+
+
+baseline_vm_int <- "Java8-int"
+baseline_vm_first <- "Java8-C2-jit"
+
+base_int <- data_int %>%
+  compute_baseline(baseline_vm_int)
+
+base_first <- data_first %>%
+  compute_baseline(baseline_vm_first)
+
+norm_int <- data_int %>%
+  compute_normalized(base_int)
   
 
-
-stats_vm <- stats %>%
-  group_by(exe, expid) %>%
-  summarise(
-    unit = unit[1],
-    median_ratio = median(ratio),
-    min_ratio = min(ratio),
-    max_ratio = max(ratio),
-    .groups = "drop")
+norm_first <- data_first %>%
+  compute_normalized(base_first)
   
-stats_vm_latest <- stats_vm %>%
-  transform(expid = as.integer(as.character(expid))) %>%
-  group_by(exe) %>%
-  filter(expid == max(expid))
 
-norm_latest <- norm %>%
-  transform(expid = as.integer(as.character(expid))) %>%
-  group_by(exe) %>%
-  filter(expid == max(expid)) %>%
-  left_join(stats_vm_latest %>%
-              transmute(vm_ratio = median_ratio), by = c("exe")) %>%
-  droplevels()
+stats_int <- norm_int %>%
+  compute_bench_stats()
 
-stats_latest <- stats %>%
-  transform(expid = as.integer(as.character(expid))) %>%
-  group_by(exe) %>%
-  filter(expid == max(expid)) %>%
-  left_join(stats_vm_latest %>%
-              transmute(vm_ratio = median_ratio), by = c("exe")) %>%
-  droplevels()
+stats_first <- norm_first %>%
+  compute_bench_stats()
 
+
+stats_int_vm <- stats_int %>%
+  compute_exe_stats()
+
+stats_first_vm <- stats_first %>%
+  compute_exe_stats()
 
 plot_benchmarks_speedup_for_vms <- function(
   vm_norm, vms, label = "Runtime Factor, normalized to Java\n(lower is better)") {
-  # vm_norm <- norm_latest
-  # vms <- vms_fast
+  # vm_norm <- norm_peak
+  # vms <- vms_jit
   
   vm_norm <- vm_norm %>%
     filter(exe %in% vms) %>%
     droplevels()
-  suppressMessages(vm_norm$exe <- revalue(vm_norm$exe, vm_names))
-  vm_norm$exe <- reorder(vm_norm$exe, X=vm_norm$vm_ratio)
+  suppressMessages(vm_norm$exe <- revalue(vm_norm$exe, vm_names) %>% droplevels())
+  # TODO: is norm_peak the right table? we don't have exe_ratio there yet
+  # vm_norm$exe <- reorder(vm_norm$exe, X=vm_norm$exe_ratio)
 
   breaks <- levels(droplevels(vm_norm)$exe)
   col_values <- sapply(breaks, function(x) vm_colors[[x]])
@@ -211,88 +318,171 @@ plot_benchmarks_speedup_for_vms <- function(
               size = 12,
               margin = margin(t = 0.1, unit = "cm"))) +
       ggtitle(b) +
+      ylab(NULL) +
       xlab(label) 
       
     tryCatch({print(p)})
   }
 }
 
-overview_box_plot <- function(stats, vms, prepare_data = NULL, pre_plot = NULL, new_colors = FALSE) {
+overview_box_plot <- function(stats, vms = NULL, prepare_data = NULL, pre_plot = NULL, new_colors = FALSE, x_breaks = waiver()) {
   # stats <- stats_latest
   # vms <- c("Node", "Pharo", "JavaInt", 
   #          "Lua53", "LuaJIT2", "SOMns-Enterprise")
 
-  vm_stats <- stats %>%
-    filter(exe %in% vms)
+  if (is.null(vms)) {
+    vm_stats <- stats
+  } else {
+    vm_stats <- stats %>%
+      filter(exe %in% vms) %>%
+      droplevels()
+  }
+
+  if (!is.null(prepare_data)) {
+   vm_stats <- vm_stats %>%
+     prepare_data() %>%
+     droplevels()
+  }
 
   suppressMessages(vm_stats$exe <- revalue(vm_stats$exe, vm_names))
-  vm_stats$exe <- reorder(vm_stats$exe, X=-vm_stats$vm_ratio)
-  if (!is.null(prepare_data)) {
-   vm_stats <- prepare_data(vm_stats)
-  }
-  vm_stats <- droplevels(vm_stats)
-
   breaks <- levels(vm_stats$exe)
-  cat(breaks)
+
   if (new_colors) {
     col_values <- brewer.pal(length(breaks), "Paired")
   } else {
     col_values <- sapply(breaks, function(x) vm_colors[[x]])
   }
 
-  plot <- ggplot(vm_stats, aes(x=exe, y=ratio, fill = exe))
+  median_fn <- median
+  
+  plot <- ggplot(vm_stats, aes(x=ratio, y=reorder(exe, -ratio, FUN = median_fn), fill = exe))
   if (!is.null(pre_plot)) {
     plot <- pre_plot(plot)
   }
+  
+  if (!identical(x_breaks, waiver())) {
+    for (b in x_breaks) {
+      # REM: the loop requires the use of the eager aes_ here!
+      plot <- plot + geom_vline(aes_(xintercept=b),
+                                colour="#cccccc", linetype="dashed")
+    }
+  }
+  
   plot <- plot +
     geom_boxplot(outlier.size = 0.5) + #fill=get_color(5, 7)
+    scale_x_log10(breaks = x_breaks) +
+    scale_fill_manual(values = col_values) +
     theme_bw() + theme_simple(font_size = 8) +
-    theme(axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1), legend.position="none") +
+    theme(
+      axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1),
+      axis.title.x  = element_text(size = 8, family="Arial"),
+      legend.position="none") +
     #scale_y_log10(breaks=c(1,2,3,10,20,30,50,100,200,300,500,1000)) + #limit=c(0,30), breaks=seq(0,100,5), expand = c(0,0)
-    ggtitle("Runtime Factor, normalized to Java\n(lower is better)") + coord_flip() + xlab("") +
-    scale_fill_manual(values = col_values)
+    ylab("") +
+    xlab("Runtime Factor, normalized to Java (lower is better)")
   plot
 }
 ```
 
-All results are normalized to Java 1.8.0_292. Furthermore, we report afer 
-some warmup. This means, the reported measurements are taken after `r warmup_slow` or `r warmup_fast` warmup iterations.
+The results are usually normalized either to `r vm_names[baseline_vm_peak]`
+or `r vm_names[baseline_vm_int]`, depending on whether we are interested
+in best or interpreter performance.
+
+For VMs with just-in-time compilation, we report results based on
+the measurements starting from iteration `r warmup_jit_iteration`.
+While this does not guarantee that we measure "peak performance",
+it gives us relatively stable results for most language implementations.
 
 ## Overview
 
-##### Fast Language Implementations
+##### Just-in-Time Compiling Language Implementations
 
 The following set of language implementations reaches the performance of Java on
 our set of benchmarks within a factor of 2 to 3 on average. To allow for a more
-detailed assessment of these *fast* language implementations, we exclude slower
+detailed assessment of these implementations, we exclude slower
 ones from the following plot.
 
-```{r fast-langs-overview, fig.width=15, fig.height=6}
-# overview_box_plot(stats_latest,
-#                   c("Node", "Pharo", "JavaInt", "Java8U66", "MRI23", "Lua53", "LuaJIT2", "SOMns-Enterprise"), new_colors = TRUE)
-p <- overview_box_plot(stats_latest, vms_fast, pre_plot = function (p) {
-  p + geom_hline(aes(yintercept=1), colour="#cccccc", linetype="dashed") +
-      geom_hline(aes(yintercept=2), colour="#cccccc", linetype="dashed") +
-      geom_hline(aes(yintercept=3), colour="#cccccc", linetype="dashed") })
-p + scale_y_continuous(limit=c(0,13), breaks = c(1, 2, 3, 4, 6, 8, 10, 12))
+```{r jit-overview, fig.width=15, fig.height=5}
+overview_box_plot(stats_peak, vms = vms_jit,
+  x_breaks = c(1, 2, 3, 4, 5, 6, 8, 10, 12, 20, 30, 40))
 ```
 
-##### All Language Implementations
+##### Interpreters
 
-Other language implementations are not necessarily reaching performance similar
-to Java on our benchmarks. The following plot include all of the
-implementations.
+Looking at interpreter performance, the plot looks
+quite a bit different. Here we use `r vm_names[baseline_vm_int]` as baseline.
 
-```{r all-langs-overview, fig.width=8, fig.height=10}
-p <- overview_box_plot(stats_latest, vms_all)
-p + scale_y_continuous(breaks = c(0, 5, seq(from=10, by=10, to=100)))
+```{r int-overview, fig.width=8, fig.height=6}
+overview_box_plot(
+  stats_int,
+  x_breaks = c(0.33333, 0.5, 0.75, 1, 1.33333, 2, 3, 5, 10, 15, 20))
+```
+
+###### Java Performance
+
+```{r java-overview, fig.width=8, fig.height=1.5}
+overview_box_plot(stats_peak,
+                  c("Java-int",  "Java17-C2-jit",
+                    "Java8-int", "Java8-C2-jit"))
+```
+
+###### JavaScript Performance
+
+```{r js-overview, fig.width=8, fig.height=1.5}
+overview_box_plot(stats_peak,
+                  c("Node-int", "Node-jit",
+                    "GraalJS-HotspotEE-jit", "GraalJS-NativeEE-int"))
+```
+
+###### Python Performance
+
+```{r python-overview, fig.width=8, fig.height=1.5}
+overview_box_plot(stats_peak,
+                  c("GraalPython-HotspotEE-jit","CPython-int",
+                    "PyPy-jit",
+                    "GraalPython-NativeEE-int"))
 ```
 
 ###### Ruby Performance
 
-```{r ruby-overview, fig.width=8, fig.height=6}
-p <- overview_box_plot(stats_latest, c("Crystal", "Java8U66", "RBX314", "Topaz", "MRU23", "JRubyC2", "JRubyTruffleEnterprise", "Pharo"))
-p + scale_y_continuous(breaks = c(0, 5, seq(from=10, by=10, to=100)))
+```{r ruby-overview, fig.width=8, fig.height=1.5}
+overview_box_plot(stats_peak,
+                  c("CRuby-int",
+                    "CRuby-y-jit",
+                    "TruffleRuby-HotspotEE-jit",
+                    "TruffleRuby-NativeEE-int"))
+```
+
+###### SOM Performance
+
+```{r som-overview, fig.width=8, fig.height=2.2}
+overview_box_plot(stats_peak,
+                  c("PySOM-ast-int", "PySOM-ast-jit", "PySOM-bc-int",
+                    "PySOM-bc-jit", 
+                    "TruffleSOM-ast-HotspotCE-jit-main",
+                    "TruffleSOM-ast-NativeEE-int-main",
+                    "TruffleSOM-bc-HotspotCE-jit-main",
+                    "TruffleSOM-bc-NativeEE-int-main"))
+```
+
+###### SOM Interpreters Performance
+
+```{r som-int-overview, fig.width=8, fig.height=1.5}
+overview_box_plot(stats_int,
+                  c("PySOM-ast-int", "PySOM-bc-int",
+                    "TruffleSOM-ast-NativeEE-int-main",
+                    "TruffleSOM-bc-NativeEE-int-main"))
+```
+
+###### SOM Optimizations Performance
+
+```{r som-opt-overview, fig.width=8, fig.height=1.5}
+overview_box_plot(stats_int,
+                  c("PySOM-ast-int",
+                    "TruffleSOM-ast-NativeEE-int-main",
+                    "TruffleSOM-ast-NativeEE-int-super",
+                    "TruffleSOM-ast-NativeEE-int-uber"
+                    ))
 ```
 
 ##### Performance Overview Data
@@ -302,7 +492,7 @@ The following table contains the numerical representation of the results
 depicted above.
 
 ```{r truffle-lang-table, results='asis', echo=FALSE}
-vm_stats <- stats_vm_latest
+vm_stats <- stats_peak_vm
 suppressMessages(vm_stats$exe <- revalue(vm_stats$exe, vm_names))
 vm_stats$exe <- reorder(vm_stats$exe, X=vm_stats$median_ratio)
 
@@ -318,17 +508,36 @@ html.tabular(t)
 
 The following plots show results for each of the benchmarks.
 
-##### Fast Language Implementations
+##### With JIT Compiler
 
-```{r fast-langs-benchmarks, fig.width=6, fig.height=3}
-plot_benchmarks_speedup_for_vms(norm_latest, vms_fast)
+```{r jit-benchmarks, fig.width=8, fig.height=5}
+plot_benchmarks_speedup_for_vms(norm_peak, vms_jit)
 ```
 
-##### Slow Language Implementations
+##### Interpreter Only
 
-```{r slow-langs-benchmarks, fig.width=6, fig.height=4}
-plot_benchmarks_speedup_for_vms(norm_latest, vms_slow)
+```{r int-benchmarks, fig.width=8, fig.height=5}
+plot_benchmarks_speedup_for_vms(norm_int, vms_int)
 ```
+
+##### Java+JavaScript Interpreter Only
+
+```{r java-js-benchmarks, fig.width=8, fig.height=2.2}
+plot_benchmarks_speedup_for_vms(
+  norm_int,
+  c("Java-int", "Java8-int", "Node-int", "GraalJS-NativeEE-int"))
+```
+
+##### SOM Optimizations
+
+```{r som-opt-benchmarks, fig.width=8, fig.height=2.2}
+plot_benchmarks_speedup_for_vms(norm_int, c("PySOM-ast-int",
+                    "TruffleSOM-ast-NativeEE-int-main",
+                    "TruffleSOM-ast-NativeEE-int-super",
+                    "TruffleSOM-ast-NativeEE-int-uber"
+                    ))
+```
+
 
 ##### Benchmark Results
 <a id="benchmark-table"></a>
@@ -336,9 +545,9 @@ plot_benchmarks_speedup_for_vms(norm_latest, vms_slow)
 The following table contains the numerical results for all benchmarks.
 
 ```{r benchmark-table, results='asis', echo=FALSE}
-t_stats <- stats_latest
+t_stats <- stats_peak
 suppressMessages(t_stats$exe <- revalue(t_stats$exe, vm_names))
-t_stats$exe <- reorder(t_stats$exe, X=t_stats$vm_ratio)
+t_stats$exe <- reorder(t_stats$exe, X=t_stats$exe_ratio)
 
 show_plain <- mean ## this is silly, but works better than the identity for missing values
 
