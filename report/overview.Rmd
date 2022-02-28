@@ -14,7 +14,12 @@ data <- rbind(
   # main run, one invocation of everything
   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1518"),
   # another run, adding JDK8
-  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1523")) %>%
+  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1523"))
+
+data <- rbind(
+  data %>% filter(exe != "TruffleSOM-ast-NativeEE-int-uber"),
+  # latest uber run
+  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1543")) %>%
   factorize_result()
 
 # ragg_png = function(..., res = 192) {
@@ -275,6 +280,17 @@ overview_box_plot(
   x_breaks = c(0.33333, 0.5, 0.75, 1, 1.33333, 2, 3, 5, 10, 15, 20))
 ```
 
+##### First Iteration
+
+Looking at interpreter performance, the plot looks
+quite a bit different. Here we use `r vm_names[baseline_vm_int]` as baseline.
+
+```{r first-overview, fig.width=8, fig.height=6}
+overview_box_plot(
+  results_first$stats$bench,
+  x_breaks = c(0.7, 0.75, 1, 1.33333, 2, 3, 5, 10, 15, 20, 50, 100, 500, 1000, 250))
+```
+
 ###### Java Performance
 
 ```{r java-overview, fig.width=8, fig.height=1.5}
@@ -368,13 +384,35 @@ The following plots show results for each of the benchmarks.
 ##### With JIT Compiler
 
 ```{r jit-benchmarks, fig.width=8, fig.height=5}
-plot_benchmarks_speedup_for_vms(norm_peak, vms_jit)
+plot_benchmarks_speedup_for_vms(results_peak$normalized, vms_jit)
+```
+
+###### Truffle Impl. Only
+
+```{r jit-truffle-benchmarks, fig.width=8, fig.height=5}
+plot_benchmarks_speedup_for_vms(results_peak$normalized,
+                                c("GraalJS-HotspotEE-jit", 
+                                  "GraalPython-HotspotEE-jit",
+                                  "TruffleRuby-HotspotEE-jit", 
+                                  "TruffleSOM-ast-HotspotCE-jit-main"
+))
 ```
 
 ##### Interpreter Only
 
 ```{r int-benchmarks, fig.width=8, fig.height=5}
 plot_benchmarks_speedup_for_vms(results_int$normalized, vms_int)
+```
+
+###### Truffle Impl. Only
+
+```{r int-truffle-benchmarks, fig.width=8, fig.height=5}
+plot_benchmarks_speedup_for_vms(results_int$normalized, c(
+  "GraalJS-NativeEE-int",
+  "GraalPython-NativeEE-int", 
+  "TruffleRuby-NativeEE-int",
+  "TruffleSOM-ast-NativeEE-int-main"
+))
 ```
 
 ##### Java+JavaScript Interpreter Only
@@ -394,6 +432,29 @@ plot_benchmarks_speedup_for_vms(results_int$normalized, c("PySOM-ast-int",
                     "TruffleSOM-ast-NativeEE-int-uber"
                     ))
 ```
+
+
+##### TruffleSOM, Normalized to main
+
+```{r trufflesom-opt-overview, fig.width=8, fig.height=1.5}
+results_som <- data %>%
+  compute_all(str_detect(exe, "TruffleSOM"), "TruffleSOM-ast-NativeEE-int-main")
+
+overview_box_plot(results_som$stats$bench,
+                  c("TruffleSOM-ast-NativeEE-int-main",
+                    "TruffleSOM-ast-NativeEE-int-super",
+                    "TruffleSOM-ast-NativeEE-int-uber"
+                    ), x_breaks = c(0.1, 0.15, 0.2, 0.3, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3))
+
+
+plot_benchmarks_speedup_for_vms(
+  results_som$normalized,
+  c("TruffleSOM-ast-NativeEE-int-main",
+    "TruffleSOM-ast-NativeEE-int-super",
+    "TruffleSOM-ast-NativeEE-int-uber"
+  ))
+```
+
 
 
 ##### Benchmark Results
