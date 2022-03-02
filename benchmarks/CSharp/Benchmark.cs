@@ -1,12 +1,10 @@
-using System;
-
 public abstract class Benchmark {
-    public abstract Object benchmark();
-    public abstract bool verifyResult(Object result);
+    public abstract object Execute();
+    public abstract bool VerifyResult(object result);
 
-    public bool innerBenchmarkLoop(int innerIterations){
+    public bool InnerBenchmarkLoop(int innerIterations){
         for(int i = 0; i < innerIterations; i++){
-            if(!verifyResult(benchmark())){
+            if(!VerifyResult(Execute())){
                 return false;
             }
         }
