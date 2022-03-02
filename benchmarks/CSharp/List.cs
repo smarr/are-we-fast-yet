@@ -1,7 +1,3 @@
-using System;
-using System.Linq;
-using System.Collections;
-
 public class List : Benchmark
 {
     public class Element {
@@ -24,15 +20,7 @@ public class List : Benchmark
         }
     }
 
-    public static void Main(string[] args){
-        List s = new List();
-    Object? result = s.benchmark();
-    Console.WriteLine(result);
-    bool rr = s.verifyResult(result);
-    Console.WriteLine(rr);
-    }
-
-    public override Object? benchmark(){
+    public override object Execute() {
         Element? result = tail(makeList(15), makeList(10), makeList(6));
         return result?.length();
     }
@@ -71,7 +59,7 @@ public class List : Benchmark
         }
     }
 
-    public override bool verifyResult(Object? result){
+    public override bool VerifyResult(object result){
         return 10 == (int?) result;
     }
 }
