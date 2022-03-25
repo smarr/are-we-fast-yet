@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class NBody : IBenchmark
+namespace Harness.Benchmarks;
+
+public sealed class NBody : IBenchmark
 {
     public bool Benchmark(int innerIterations)
     {
@@ -33,7 +35,7 @@ public class NBody : IBenchmark
     }
 }
 
-public class NBodySystem
+public sealed class NBodySystem
 {
     private readonly Body[] bodies;
 
@@ -45,10 +47,10 @@ public class NBodySystem
     public static Body[] CreateBodies()
     {
         Body[] bodies = new[] {Body.Sun,
-                                Body.Jupiter,
-                                Body.Saturn,
-                                Body.Uranus,
-                                Body.Neptune};
+                            Body.Jupiter,
+                            Body.Saturn,
+                            Body.Uranus,
+                            Body.Neptune};
 
         double px = 0.0;
         double py = 0.0;
@@ -89,13 +91,13 @@ public class NBodySystem
             double distance = Math.Sqrt(dSquared);
             double mag = dt / (dSquared * distance);
 
-            a.Vx -= (dx * b.Mass * mag);
-            a.Vy -= (dy * b.Mass * mag);
-            a.Vz -= (dz * b.Mass * mag);
+            a.Vx -= dx * b.Mass * mag;
+            a.Vy -= dy * b.Mass * mag;
+            a.Vz -= dz * b.Mass * mag;
 
-            b.Vx += (dx * a.Mass * mag);
-            b.Vy += (dy * a.Mass * mag);
-            b.Vz += (dz * a.Mass * mag);
+            b.Vx += dx * a.Mass * mag;
+            b.Vy += dy * a.Mass * mag;
+            b.Vz += dz * a.Mass * mag;
         }
     }
 
@@ -119,18 +121,18 @@ public class NBodySystem
                 var dz = iBody.Z - jBody.Z;
 
                 var distance = Math.Sqrt(dx * dx + dy * dy + dz * dz);
-                e -= (iBody.Mass * jBody.Mass) / distance;
+                e -= iBody.Mass * jBody.Mass / distance;
             }
         }
         return e;
     }
 }
 
-public class Body
+public sealed class Body
 {
-    private static readonly double PI = 3.141592653589793;
-    private static readonly double SOLAR_MASS = 4 * PI * PI;
-    private static readonly double DAYS_PER_YER = 365.24;
+    private const double PI = 3.141592653589793;
+    private const double SOLAR_MASS = 4 * PI * PI;
+    private const double DAYS_PER_YER = 365.24;
 
     public Body(double x, double y, double z, double vx, double vy, double vz, double mass)
     {
@@ -190,8 +192,8 @@ public class Body
 
     internal void OffsetMomentum(double px, double py, double pz)
     {
-        Vx = 0.0 - (px / SOLAR_MASS);
-        Vy = 0.0 - (py / SOLAR_MASS);
-        Vz = 0.0 - (pz / SOLAR_MASS);
+        Vx = 0.0 - px / SOLAR_MASS;
+        Vy = 0.0 - py / SOLAR_MASS;
+        Vz = 0.0 - pz / SOLAR_MASS;
     }
 }

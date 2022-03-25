@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using Harness.Benchmarks;
+using System.Diagnostics;
 using System.Reflection;
 
 if (args.Length == 0)
@@ -40,7 +41,7 @@ int ArgumentOrDefault(int index, int defaultValue)
 
 IBenchmark? CreateBenchmarkInstance(string name)
 {
-    var benchmarkClass = Type.GetType(name, false, true);
+    var benchmarkClass = Type.GetType("Harness.Benchmarks." + name, false, true);
     if (benchmarkClass == null)
         return null;
     var benchmarkInstance = Activator.CreateInstance(benchmarkClass) as IBenchmark;
