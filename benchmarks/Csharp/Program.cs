@@ -16,6 +16,8 @@ var benchmarkInstance = CreateBenchmarkInstance(benchmarkName!);
 if (benchmarkInstance == null)
 {
     PrintHelp();
+    Console.WriteLine();
+    Console.WriteLine($"Error: Benchmark \"{ benchmarkName }\" was not found.");
     return;
 }
 var run = new Run(benchmarkInstance.GetType().Name) { 
@@ -34,10 +36,7 @@ void PrintHelp()
     Console.WriteLine("                   which is measured in total, default: 1");
 }
 
-int ArgumentOrDefault(int index, int defaultValue)
-{
-    return args.Length > index ? int.Parse(args[index]) : defaultValue;
-}
+int ArgumentOrDefault(int index, int defaultValue) => args.Length > index ? int.Parse(args[index]) : defaultValue;
 
 IBenchmark? CreateBenchmarkInstance(string name)
 {
