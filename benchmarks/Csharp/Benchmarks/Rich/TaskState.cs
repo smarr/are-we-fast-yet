@@ -6,14 +6,6 @@ class TaskState : RBObject
     public virtual bool IsTaskHolding { get; set; }
     public virtual bool IsTaskWaiting { get; set; }
 
-    public override string ToString()
-    {
-        var p = IsPacketPending ? "pp" : "";
-        var hld = IsTaskHolding ? "hld" : "";
-        var wait = IsWaiting ? "w_" : "";
-        return p+hld+wait;
-    }
-
     public virtual void SetPacketPending()
     {
         IsPacketPending = true;
@@ -44,9 +36,11 @@ class TaskState : RBObject
     public virtual bool IsTaskHoldingOrWaiting
         => IsTaskHolding || (!IsPacketPending && IsTaskWaiting);
 
-    public virtual bool IsWaiting => !IsPacketPending && IsTaskWaiting && !IsTaskHolding;
+    public virtual bool IsWaiting
+        => !IsPacketPending && IsTaskWaiting && !IsTaskHolding;
 
-    public virtual bool IsWaitingWithPacket => IsPacketPending && IsTaskWaiting && !IsTaskHolding;
+    public virtual bool IsWaitingWithPacket
+        => IsPacketPending && IsTaskWaiting && !IsTaskHolding;
 
     public static TaskState CreatePacketPending()
     {

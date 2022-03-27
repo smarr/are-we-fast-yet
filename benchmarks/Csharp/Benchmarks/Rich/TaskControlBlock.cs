@@ -43,7 +43,7 @@ sealed class TaskControlBlock : TaskState
 
     public TaskControlBlock RunTask()
     {
-        Packet message;
+        Packet message = NO_WORK;
         if (IsWaitingWithPacket)
         {
             message = input;
@@ -52,10 +52,6 @@ sealed class TaskControlBlock : TaskState
                 SetRunning();
             else            
                 SetPacketPending();
-        }
-        else
-        {
-            message = NO_WORK;
         }
         return function(message, handle);
     }
