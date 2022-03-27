@@ -22,7 +22,7 @@ var NO_TASK = null,
 
   DATA_SIZE = 4,
 
-  TRACING = false;
+  TRACING = true;
 
 function Richards() {
   benchmark.Benchmark.call(this);
@@ -257,7 +257,7 @@ Scheduler.prototype.trace = function (id) {
     process.stdout.write("\n");
     this.layout = 50;
   }
-  process.stdout.write(id);
+  process.stdout.write(id.toString());
 };
 
 Scheduler.prototype.markWaiting = function () {
