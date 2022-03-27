@@ -74,7 +74,7 @@ class Run
 
     private void DoRuns(IBenchmark bench)
     {
-        for (int i = 0; i < Iterations; i++)
+        for (var i = 0; i < Iterations; i++)
         {
             Measure(bench);
         }
@@ -100,6 +100,6 @@ class Run
     private void ReportBenchmark()
     {
         var avgTimeMs = (TotalRuntime / Iterations).TotalMilliseconds;
-        Console.WriteLine($"{Name}: iterations={Iterations} average: {avgTimeMs:0.000}ms total: {TotalRuntime}\n");
+        Console.WriteLine($"{Name}: iterations={Iterations} average: {avgTimeMs:0.00}ms total: {TotalRuntime}\n");
     }
 }

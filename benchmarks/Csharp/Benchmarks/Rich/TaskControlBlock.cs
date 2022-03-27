@@ -25,7 +25,7 @@ sealed class TaskControlBlock : TaskState
     public TaskControlBlock Link { get; }
     public int Priority { get; }
 
-    public TaskControlBlock addInputAndCheckPriority(Packet packet, TaskControlBlock oldTask)
+    public TaskControlBlock AddInputAndCheckPriority(Packet packet, TaskControlBlock oldTask)
     {
         if (NO_WORK == input)
         {
@@ -41,7 +41,7 @@ sealed class TaskControlBlock : TaskState
         return oldTask;
     }
 
-    public TaskControlBlock runTask()
+    public TaskControlBlock RunTask()
     {
         Packet message;
         if (IsWaitingWithPacket)

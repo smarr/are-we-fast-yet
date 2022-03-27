@@ -6,6 +6,6 @@ public sealed class Richards : IBenchmark
 {
     public bool Benchmark(int innerIterations)
     {
-        return new Scheduler().start();
+        return new Scheduler().Start();
     }
 }

@@ -1,5 +1,4 @@
-﻿#define TRACE
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace Harness.Benchmarks.Rich;
 
@@ -15,8 +14,7 @@ sealed class Scheduler : RBObject
 
     private int layout;
 
-    // private const bool TRACING = false
-    // Just define the TRACE symbol
+    // private const bool TRACING = false // Just define the TRACE symbol
 
     public Scheduler()
     {
@@ -32,41 +30,41 @@ sealed class Scheduler : RBObject
     }
 
 
-    internal void createDevice(int identity, int priority, Packet workPacket, TaskState state)
+    internal void CreateDevice(int identity, int priority, Packet workPacket, TaskState state)
     {
-        DeviceTaskDataRecord data = new DeviceTaskDataRecord();
+        var data = new DeviceTaskDataRecord();
 
-        createTask(identity, priority, workPacket, state, (Packet workArg, RBObject wordArg) =>
+        CreateTask(identity, priority, workPacket, state, (Packet workArg, RBObject wordArg) =>
         {
-            DeviceTaskDataRecord dataRecord = (DeviceTaskDataRecord)wordArg;
+            var dataRecord = (DeviceTaskDataRecord)wordArg;
             Packet functionWork = workArg;
             if (NO_WORK == functionWork)
             {
                 if (NO_WORK == (functionWork = dataRecord.Pending))
                 {
-                    return markWaiting();
+                    return MarkWaiting();
                 }
                 else
                 {
                     dataRecord.Pending = NO_WORK;
-                    return queuePacket(functionWork);
+                    return QueuePacket(functionWork);
                 }
             }
             else
             {
                 dataRecord.Pending = functionWork;
-                trace(functionWork.Datum);
-                return holdSelf();
+                Trace(functionWork.Datum);
+                return HoldSelf();
             }
         }, data);
     }
 
-    internal void createHandler(int identity, int priority, Packet workPaket, TaskState state)
+    internal void CreateHandler(int identity, int priority, Packet workPaket, TaskState state)
     {
-        HandlerTaskDataRecord data = new HandlerTaskDataRecord();
-        createTask(identity, priority, workPaket, state, (Packet work, RBObject word) =>
+        var data = new HandlerTaskDataRecord();
+        CreateTask(identity, priority, workPaket, state, (Packet work, RBObject word) =>
     {
-        HandlerTaskDataRecord dataRecord = (HandlerTaskDataRecord)word;
+        var dataRecord = (HandlerTaskDataRecord)word;
         if (NO_WORK != work)
         {
             if (WORK_PACKET_KIND == work.Kind)
@@ -81,7 +79,7 @@ sealed class Scheduler : RBObject
         Packet workPacket = dataRecord.WorkIn;
         if (workPacket == NO_WORK)
         {
-            return markWaiting();
+            return MarkWaiting();
         }
         else
         {
@@ -89,76 +87,76 @@ sealed class Scheduler : RBObject
             if (count >= Packet.DATA_SIZE)
             {
                 dataRecord.WorkIn = workPacket.Link;
-                return queuePacket(workPacket);
+                return QueuePacket(workPacket);
             }
             else
             {
                 Packet devicePacket = dataRecord.DeviceIn;
                 if (devicePacket == NO_WORK)
                 {
-                    return markWaiting();
+                    return MarkWaiting();
                 }
                 else
                 {
                     dataRecord.DeviceIn = devicePacket.Link;
                     devicePacket.Datum = workPacket.Data[count];
                     workPacket.Datum = count + 1;
-                    return queuePacket(devicePacket);
+                    return QueuePacket(devicePacket);
                 }
             }
         }
     }, data);
     }
 
-    internal void createIdler(int identity, int priority, Packet work, TaskState state)
+    internal void CreateIdler(int identity, int priority, Packet work, TaskState state)
     {
-        IdleTaskDataRecord data = new IdleTaskDataRecord();
-        createTask(identity, priority, work, state, (Packet workArg, RBObject wordArg) =>
+        var data = new IdleTaskDataRecord();
+        CreateTask(identity, priority, work, state, (Packet workArg, RBObject wordArg) =>
         {
             var dataRecord = (IdleTaskDataRecord)wordArg;
             dataRecord.Count--;
             if (dataRecord.Count == 0)
             {
-                return holdSelf();
+                return HoldSelf();
             }
             else
             {
                 if ((dataRecord.Control & 1) == 0)
                 {
                     dataRecord.Control /= 2;
-                    return release(DEVICE_A);
+                    return Release(DEVICE_A);
                 }
                 else
                 {
                     dataRecord.Control = (dataRecord.Control / 2) ^ 53256;
-                    return release(DEVICE_B);
+                    return Release(DEVICE_B);
                 }
             }
         }, data);
     }
 
-    internal Packet createPacket(Packet link, int identity, int kind)
+    internal static Packet CreatePacket(Packet link, int identity, int kind)
     {
         return new Packet(link, identity, kind);
     }
 
-    internal void createTask(int identity, int priority, Packet work, TaskState state, ProcessFunction aBlock, RBObject data)
+    internal void CreateTask(int identity, int priority, Packet work, TaskState state, ProcessFunction aBlock, RBObject data)
     {
 
-        TaskControlBlock t = new TaskControlBlock(taskList, identity, priority, work, state, aBlock, data);
+        var t = new TaskControlBlock(taskList, identity, priority, work, state, aBlock, data);
         taskList = t;
         taskTable[identity] = t;
     }
 
-    internal void createWorker(int identity, int priority, Packet workPaket, TaskState state)
+    internal void CreateWorker(int identity, int priority, Packet workPaket, TaskState state)
     {
         var dataRecord = new WorkerTaskDataRecord();
-        createTask(identity, priority, workPaket, state, (Packet work, RBObject word) =>
+        CreateTask(identity, priority, workPaket, state, (Packet work, RBObject word) =>
             {
                 var data = (WorkerTaskDataRecord)word;
                 if (NO_WORK == work)
                 {
-                    return markWaiting();
+                    return MarkWaiting();
                 }
                 else
                 {
@@ -174,60 +172,56 @@ sealed class Scheduler : RBObject
                         }
                         work.Data[i] = 65 + data.Count - 1;
                     }
-                    return queuePacket(work);
+                    return QueuePacket(work);
                 }
             },
         dataRecord);
     }
 
-    public bool start()
+    public bool Start()
     {
         Packet workQ;
 
-        createIdler(IDLER, 0, NO_WORK, TaskState.createRunning());
-        workQ = createPacket(NO_WORK, WORKER, WORK_PACKET_KIND);
-        workQ = createPacket(workQ, WORKER, WORK_PACKET_KIND);
+        CreateIdler(IDLER, 0, NO_WORK, TaskState.CreateRunning());
+        workQ = CreatePacket(NO_WORK, WORKER, WORK_PACKET_KIND);
+        workQ = CreatePacket(workQ, WORKER, WORK_PACKET_KIND);
 
-        createWorker(WORKER, 1000, workQ, TaskState.createWaitingWithPacket());
-        workQ = createPacket(NO_WORK, DEVICE_A, DEVICE_PACKET_KIND);
-        workQ = createPacket(workQ, DEVICE_A, DEVICE_PACKET_KIND);
-        workQ = createPacket(workQ, DEVICE_A, DEVICE_PACKET_KIND);
+        CreateWorker(WORKER, 1000, workQ, TaskState.CreateWaitingWithPacket());
+        workQ = CreatePacket(NO_WORK, DEVICE_A, DEVICE_PACKET_KIND);
+        workQ = CreatePacket(workQ, DEVICE_A, DEVICE_PACKET_KIND);
+        workQ = CreatePacket(workQ, DEVICE_A, DEVICE_PACKET_KIND);
 
-        createHandler(HANDLER_A, 2000, workQ, TaskState.createWaitingWithPacket());
-        workQ = createPacket(NO_WORK, DEVICE_B, DEVICE_PACKET_KIND);
-        workQ = createPacket(workQ, DEVICE_B, DEVICE_PACKET_KIND);
-        workQ = createPacket(workQ, DEVICE_B, DEVICE_PACKET_KIND);
+        CreateHandler(HANDLER_A, 2000, workQ, TaskState.CreateWaitingWithPacket());
+        workQ = CreatePacket(NO_WORK, DEVICE_B, DEVICE_PACKET_KIND);
+        workQ = CreatePacket(workQ, DEVICE_B, DEVICE_PACKET_KIND);
+        workQ = CreatePacket(workQ, DEVICE_B, DEVICE_PACKET_KIND);
 
-        createHandler(HANDLER_B, 3000, workQ, TaskState.createWaitingWithPacket());
-        createDevice(DEVICE_A, 4000, NO_WORK, TaskState.createWaiting());
-        createDevice(DEVICE_B, 5000, NO_WORK, TaskState.createWaiting());
+        CreateHandler(HANDLER_B, 3000, workQ, TaskState.CreateWaitingWithPacket());
+        CreateDevice(DEVICE_A, 4000, NO_WORK, TaskState.CreateWaiting());
+        CreateDevice(DEVICE_B, 5000, NO_WORK, TaskState.CreateWaiting());
 
-        schedule();
+        Schedule();
 
         return queuePacketCount == 23246 && holdCount == 9297;
     }
 
-    internal TaskControlBlock findTask(int identity)
+    internal TaskControlBlock FindTask(int identity)
     {
         TaskControlBlock t = taskTable[identity];
-        if (NO_TASK == t)
-        {
-            throw new Exception("findTask failed");
-        }
-        return t;
+        return NO_TASK == t ? throw new Exception("findTask failed") : t;
     }
 
-    internal TaskControlBlock holdSelf()
+    internal TaskControlBlock HoldSelf()
     {
-        holdCount = holdCount + 1;
+        holdCount++;
         currentTask!.IsTaskHolding = true;
         return currentTask.Link;
     }
 
-    internal TaskControlBlock queuePacket(Packet packet)
+    internal TaskControlBlock QueuePacket(Packet packet)
     {
         Debug.Assert(currentTask != null);
-        TaskControlBlock t = findTask(packet.Identity);
+        TaskControlBlock t = FindTask(packet.Identity);
         if (t == NO_TASK)
         {
             return NO_TASK;
@@ -237,30 +231,23 @@ sealed class Scheduler : RBObject
 
         packet.Link = NO_WORK;
         packet.Identity = currentTaskIdentity;
-        return t.addInputAndCheckPriority(packet, currentTask);
+        return t.AddInputAndCheckPriority(packet, currentTask);
     }
 
-    internal TaskControlBlock release(int identity)
+    internal TaskControlBlock Release(int identity)
     {
         Debug.Assert(currentTask != null);
-        TaskControlBlock t = findTask(identity);
+        TaskControlBlock t = FindTask(identity);
         if (NO_TASK == t)
         {
             return NO_TASK;
         }
         t.IsTaskHolding = false;
-        if (t.Priority > currentTask.Priority)
-        {
-            return t;
-        }
-        else
-        {
-            return currentTask;
-        }
+        return t.Priority > currentTask.Priority ? t : currentTask;
     }
 
-    [Conditional("TRACE")]
-    internal void trace(int id)
+    [Conditional("TRACING")]
+    internal void Trace(int id)
     {
         layout--;
         if (0 >= layout)
@@ -269,25 +256,16 @@ sealed class Scheduler : RBObject
             layout = 50;
         }
         Console.Write(id);
-
-        //for (var i = 0; i < taskTable.Length; i++)
-        //{
-        //    TaskControlBlock? item = taskTable[i];
-        //    if (item == null)
-        //        Console.WriteLine($"idx {i}, no task");
-        //    else
-        //        Console.WriteLine($"idx {i}, {item}");
-        //}
     }
 
-    internal TaskControlBlock markWaiting()
+    internal TaskControlBlock MarkWaiting()
     {
         Debug.Assert(currentTask != null);
         currentTask.IsTaskWaiting = true;
         return currentTask;
     }
 
-    internal void schedule()
+    internal void Schedule()
     {
         currentTask = taskList;
         while (NO_TASK != currentTask)
@@ -299,9 +277,9 @@ sealed class Scheduler : RBObject
             else
             {
                 currentTaskIdentity = currentTask.Identity;
-                trace(currentTaskIdentity);
+                Trace(currentTaskIdentity);
 
-                currentTask = currentTask.runTask();
+                currentTask = currentTask.RunTask();
             }
         }
     }

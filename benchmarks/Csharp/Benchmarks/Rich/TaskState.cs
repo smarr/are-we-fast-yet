@@ -55,21 +55,21 @@ class TaskState : RBObject
         return t;
     }
 
-    public static TaskState createRunning()
+    public static TaskState CreateRunning()
     {
         var t = new TaskState();
         t.SetRunning();
         return t;
     }
 
-    public static TaskState createWaiting()
+    public static TaskState CreateWaiting()
     {
         var t = new TaskState();
         t.SetWaiting();
         return t;
     }
 
-    public static TaskState createWaitingWithPacket()
+    public static TaskState CreateWaitingWithPacket()
     {
         var t = new TaskState();
         t.SetWaitingWithPacket();
