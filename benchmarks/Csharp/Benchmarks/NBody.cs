@@ -4,8 +4,8 @@ public sealed class NBody : IBenchmark
 {
     public bool Benchmark(int innerIterations)
     {
-        NBodySystem system = new NBodySystem();
-        for (int i = 0; i < innerIterations; i++)
+        var system = new NBodySystem();
+        for (var i = 0; i < innerIterations; i++)
         {
             system.Advance(0.01);
         }
@@ -46,9 +46,9 @@ public sealed class NBodySystem
                             Body.Uranus,
                             Body.Neptune};
 
-        double px = 0.0;
-        double py = 0.0;
-        double pz = 0.0;
+        var px = 0.0;
+        var py = 0.0;
+        var pz = 0.0;
 
         foreach (var b in bodies)
         {
@@ -64,9 +64,9 @@ public sealed class NBodySystem
 
     public void Advance(double dt)
     {
-        for (int i = 0; i < bodies.Length; i++)
+        for (var i = 0; i < bodies.Length; i++)
         {
-            for (int j = i + 1; j < bodies.Length; j++)
+            for (var j = i + 1; j < bodies.Length; j++)
                 CalculateVelocities(bodies[i], bodies[j]);
         }
 
@@ -79,13 +79,13 @@ public sealed class NBodySystem
 
         void CalculateVelocities(Body a, Body b)
         {
-            double dx = a.X - b.X;
-            double dy = a.Y - b.Y;
-            double dz = a.Z - b.Z;
-
-            double dSquared = dx * dx + dy * dy + dz * dz;
-            double distance = Math.Sqrt(dSquared);
-            double mag = dt / (dSquared * distance);
+            var dx = a.X - b.X;
+            var dy = a.Y - b.Y;
+            var dz = a.Z - b.Z;
+            
+            var dSquared = (dx * dx) + (dy * dy) + (dz * dz);
+            var distance = Math.Sqrt(dSquared);
+            var mag = dt / (dSquared * distance);
 
             a.Vx -= dx * b.Mass * mag;
             a.Vy -= dy * b.Mass * mag;
@@ -99,24 +99,24 @@ public sealed class NBodySystem
 
     public double Energy()
     {
-        double e = 0.0;
+        var e = 0.0;
 
-        for (int i = 0; i < bodies.Length; i++)
+        for (var i = 0; i < bodies.Length; i++)
         {
             var iBody = bodies[i];
             e += 0.5 * iBody.Mass
-                * (iBody.Vx * iBody.Vx +
-                   iBody.Vy * iBody.Vy +
-                   iBody.Vz * iBody.Vz);
+                * ((iBody.Vx * iBody.Vx) +
+                   (iBody.Vy * iBody.Vy) +
+                   (iBody.Vz * iBody.Vz));
 
-            for (int j = i + 1; j < bodies.Length; j++)
+            for (var j = i + 1; j < bodies.Length; j++)
             {
                 var jBody = bodies[j];
                 var dx = iBody.X - jBody.X;
                 var dy = iBody.Y - jBody.Y;
                 var dz = iBody.Z - jBody.Z;
 
-                var distance = Math.Sqrt(dx * dx + dy * dy + dz * dz);
+                var distance = Math.Sqrt((dx * dx) + (dy * dy) + (dz * dz));
                 e -= iBody.Mass * jBody.Mass / distance;
             }
         }
@@ -188,8 +188,8 @@ public sealed class Body
 
     internal void OffsetMomentum(double px, double py, double pz)
     {
-        Vx = 0.0 - px / SOLAR_MASS;
-        Vy = 0.0 - py / SOLAR_MASS;
-        Vz = 0.0 - pz / SOLAR_MASS;
+        Vx = 0.0 - (px / SOLAR_MASS);
+        Vy = 0.0 - (py / SOLAR_MASS);
+        Vz = 0.0 - (pz / SOLAR_MASS);
     }
 }
