@@ -13,11 +13,8 @@ sealed class Packet : RBObject
         Data = new int[DATA_SIZE];
     }
 
-    public int[] Data
-    {
-        get;
+    public int[] Data { get; }
 
-    }
     public int Datum { get; set; }
 
     public int Identity { get; set; }
