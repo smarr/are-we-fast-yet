@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Harness.Benchmarks;
+﻿namespace Harness.Benchmarks;
 
 public sealed class NBody : IBenchmark
 {
@@ -18,7 +12,7 @@ public sealed class NBody : IBenchmark
 
         return VerifyResult(system.Energy(), innerIterations);
     }
-
+    
     private static bool VerifyResult(double result, int innerIterations)
     {
         if (innerIterations == 250000)
@@ -71,8 +65,10 @@ public sealed class NBodySystem
     public void Advance(double dt)
     {
         for (int i = 0; i < bodies.Length; i++)
+        {
             for (int j = i + 1; j < bodies.Length; j++)
                 CalculateVelocities(bodies[i], bodies[j]);
+        }
 
         foreach (var body in bodies)
         {
