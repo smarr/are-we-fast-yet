@@ -1,10 +1,4 @@
-﻿
-public interface IBenchmark
-{
-    public bool InnerBenchmarkLoop(int innerIterations);
-}
-
-public abstract class Benchmark : IBenchmark
+﻿public abstract class Benchmark
 {
     public abstract object Execute();
     public abstract bool VerifyResult(object result);

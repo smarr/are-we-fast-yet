@@ -1,8 +1,8 @@
 ﻿namespace AreWeFastYet;
 
-public sealed class NBody : IBenchmark
+public sealed class NBody : Benchmark
 {
-    public bool InnerBenchmarkLoop(int innerIterations)
+    public override bool InnerBenchmarkLoop(int innerIterations)
     {
         var system = new NBodySystem();
         for (var i = 0; i < innerIterations; i++)
@@ -26,6 +26,16 @@ public sealed class NBody : IBenchmark
         Console.WriteLine("No verification result for " + innerIterations + " found");
         Console.WriteLine("Result is: " + result);
         return false;
+    }
+
+    public override object Execute()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override bool VerifyResult(object result)
+    {
+        throw new NotImplementedException();
     }
 }
 
