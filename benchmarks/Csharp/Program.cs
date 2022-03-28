@@ -36,12 +36,12 @@ void PrintHelp()
 
 int ArgumentOrDefault(int index, int defaultValue) => args.Length > index ? int.Parse(args[index]) : defaultValue;
 
-IBenchmark? CreateBenchmarkInstance(string name)
+Benchmark? CreateBenchmarkInstance(string name)
 {
     var benchmarkClass = Type.GetType("AreWeFastYet." + name, false, true);
     if (benchmarkClass == null)
         return null;
-    var benchmarkInstance = Activator.CreateInstance(benchmarkClass) as IBenchmark;
+    var benchmarkInstance = Activator.CreateInstance(benchmarkClass) as Benchmark;
     return benchmarkInstance;
 }
 
@@ -60,7 +60,7 @@ class Run
         Name = name;
     }
 
-    public void RunBenchmark(IBenchmark benchmarkInstance)
+    public void RunBenchmark(Benchmark benchmarkInstance)
     {
         Console.WriteLine("Starting " + benchmarkInstance.ToString() + " benchmark ...");
         DoRuns(benchmarkInstance);        
@@ -68,14 +68,14 @@ class Run
         Console.WriteLine();        
     }
 
-    private void DoRuns(IBenchmark bench)
+    private void DoRuns(Benchmark bench)
     {
         for (var i = 0; i < Iterations; i++)
         {
             Measure(bench);
         }
     }
-    private void Measure(IBenchmark bench)
+    private void Measure(Benchmark bench)
     {
         var sw = new Stopwatch();
         sw.Start();
