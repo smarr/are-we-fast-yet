@@ -64,10 +64,27 @@ public sealed class NBodySystem
 
     public void Advance(double dt)
     {
-        for (var i = 0; i < bodies.Length; i++)
+        for (int i = 0; i < bodies.Length; i++)
         {
-            for (var j = i + 1; j < bodies.Length; j++)
-                CalculateVelocities(bodies[i], bodies[j]);
+            var iBody = bodies[i];
+            for (int j = i + 1; j < bodies.Length; j++)
+            {
+                var jBody = bodies[j];
+                double dx = iBody.X - jBody.X;
+                double dy = iBody.Y - jBody.Y;
+                double dz = iBody.Z - jBody.Z;
+
+                double dSquared = (dx * dx) + (dy * dy) + (dz * dz);
+                double distance = Math.Sqrt(dSquared);
+                double mag = dt / (dSquared * distance);
+
+                iBody.Vx -= dx * jBody.Mass * mag;
+                iBody.Vy -= dy * jBody.Mass * mag;
+                iBody.Vz -= dz * jBody.Mass * mag;
+                jBody.Vx += dx * iBody.Mass * mag;
+                jBody.Vy += dy * iBody.Mass * mag;
+                jBody.Vz += dz * iBody.Mass * mag;
+            }
         }
 
         foreach (var body in bodies)
@@ -75,25 +92,6 @@ public sealed class NBodySystem
             body.X += dt * body.Vx;
             body.Y += dt * body.Vy;
             body.Z += dt * body.Vz;
-        }
-
-        void CalculateVelocities(Body a, Body b)
-        {
-            var dx = a.X - b.X;
-            var dy = a.Y - b.Y;
-            var dz = a.Z - b.Z;
-            
-            var dSquared = (dx * dx) + (dy * dy) + (dz * dz);
-            var distance = Math.Sqrt(dSquared);
-            var mag = dt / (dSquared * distance);
-
-            a.Vx -= dx * b.Mass * mag;
-            a.Vy -= dy * b.Mass * mag;
-            a.Vz -= dz * b.Mass * mag;
-
-            b.Vx += dx * a.Mass * mag;
-            b.Vy += dy * a.Mass * mag;
-            b.Vz += dz * a.Mass * mag;
         }
     }
 
