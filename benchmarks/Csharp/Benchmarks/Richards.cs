@@ -353,3 +353,39 @@ internal sealed class DeviceTaskDataRecord : RBObject
 
     public Packet Pending { get; set; }
 }
+
+sealed class HandlerTaskDataRecord : RBObject
+{
+    public HandlerTaskDataRecord()
+    {
+        WorkIn = DeviceIn = NO_WORK;
+    }
+
+    public Packet DeviceIn { get; set; }
+
+    public void DeviceInAdd(Packet packet)
+    {
+        DeviceIn = Append(packet, DeviceIn);
+    }
+
+    public Packet WorkIn { get; set; }
+
+    public void WorkInAdd(Packet packet)
+    {
+        WorkIn = Append(packet, WorkIn);
+    }
+}
+
+internal sealed class IdleTaskDataRecord : RBObject
+{
+    public int Control { get; set; }
+
+    public int Count { get; set; }
+
+    internal IdleTaskDataRecord()
+    {
+        Control = 1;
+        Count = 10000;
+    }
+}
+
