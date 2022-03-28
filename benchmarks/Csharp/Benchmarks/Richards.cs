@@ -343,3 +343,13 @@ abstract class RBObject
     public const Packet NO_WORK = null;
     public const TaskControlBlock NO_TASK = null;
 }
+
+internal sealed class DeviceTaskDataRecord : RBObject
+{
+    internal DeviceTaskDataRecord()
+    {
+        Pending = NO_WORK;
+    }
+
+    public Packet Pending { get; set; }
+}
