@@ -1,9 +1,14 @@
-﻿namespace Harness.Benchmarks;
+﻿namespace AreWeFastYet;
 
-public sealed class Richards : IBenchmark
+public sealed class Richards : Benchmark
 {
-    public bool Benchmark(int innerIterations)
+    public override object Execute()
     {
-        return new Rich.Scheduler().Start();
+        return new Scheduler().Start();
+    }
+
+    public override bool VerifyResult(object result)
+    {
+        return (bool)result;
     }
 }
