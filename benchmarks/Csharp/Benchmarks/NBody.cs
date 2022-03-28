@@ -1,8 +1,8 @@
-﻿namespace Harness.Benchmarks;
+﻿namespace AreWeFastYet;
 
 public sealed class NBody : IBenchmark
 {
-    public bool Benchmark(int innerIterations)
+    public bool InnerBenchmarkLoop(int innerIterations)
     {
         var system = new NBodySystem();
         for (var i = 0; i < innerIterations; i++)

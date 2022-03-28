@@ -1,6 +1,4 @@
-﻿using Harness.Benchmarks;
-using System.Diagnostics;
-using System.Reflection;
+﻿using System.Diagnostics;
 
 if (args.Length == 0)
 {
@@ -40,23 +38,21 @@ int ArgumentOrDefault(int index, int defaultValue) => args.Length > index ? int.
 
 IBenchmark? CreateBenchmarkInstance(string name)
 {
-    var benchmarkClass = Type.GetType("Harness.Benchmarks." + name, false, true);
+    var benchmarkClass = Type.GetType("AreWeFastYet." + name, false, true);
     if (benchmarkClass == null)
         return null;
     var benchmarkInstance = Activator.CreateInstance(benchmarkClass) as IBenchmark;
     return benchmarkInstance;
 }
 
-interface IBenchmark
-{
-    public bool Benchmark(int innerIterations);
-}
-
 class Run
 {
     public int Iterations { get; set; } = 1;
     public int InnerIterations { get; set; } = 1;
-    public TimeSpan TotalRuntime { get; private set; }
+    /// <summary>
+    /// Total runtime in microseconds
+    /// </summary>
+    public long TotalRuntime { get; private set; }
     public string Name { get; }
 
     public Run(string name)
@@ -83,23 +79,23 @@ class Run
     {
         var sw = new Stopwatch();
         sw.Start();
-        if (!bench.Benchmark(InnerIterations))
+        if (!bench.InnerBenchmarkLoop(InnerIterations))
         {
             throw new Exception("Benchmark failed with incorrect result");
         }
-        var runTime = sw.Elapsed;
+        var runTime = (long)(sw.Elapsed.TotalMilliseconds * 1000);
         PrintResult(runTime);
         TotalRuntime += runTime;
     }
 
-    private void PrintResult(TimeSpan runTime)
+    private void PrintResult(long runTime)
     {
-        Console.WriteLine($"{Name} iteration runtime: {runTime.TotalMilliseconds:0.0}ms");
+        Console.WriteLine($"{Name} iteration runtime: {runTime}µs");
     }
 
     private void ReportBenchmark()
     {
-        var avgTimeMs = (TotalRuntime / Iterations).TotalMilliseconds;
-        Console.WriteLine($"{Name}: iterations={Iterations} average: {avgTimeMs:0.00}ms total: {TotalRuntime}\n");
+        var avgTimeUs = TotalRuntime / Iterations;
+        Console.WriteLine($"{Name}: iterations={Iterations} average: {avgTimeUs}µs total: {TotalRuntime}µs\n");
     }
 }
