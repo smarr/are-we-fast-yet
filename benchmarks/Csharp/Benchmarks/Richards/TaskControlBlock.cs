@@ -1,4 +1,4 @@
-﻿namespace Harness.Benchmarks.Rich;
+﻿namespace AreWeFastYet;
 
 delegate TaskControlBlock ProcessFunction(Packet work, RBObject word);
 

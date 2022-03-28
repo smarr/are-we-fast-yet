@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace Harness.Benchmarks.Rich;
+namespace AreWeFastYet;
 
 sealed class Scheduler : RBObject
 {
