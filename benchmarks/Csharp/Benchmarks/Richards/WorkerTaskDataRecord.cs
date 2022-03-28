@@ -1,4 +1,4 @@
-﻿namespace Harness.Benchmarks.Rich;
+﻿namespace AreWeFastYet;
 
 sealed class WorkerTaskDataRecord : RBObject
 {
