@@ -1,4 +1,5 @@
-﻿public interface IBenchmark
+﻿
+public interface IBenchmark
 {
     public bool InnerBenchmarkLoop(int innerIterations);
 }

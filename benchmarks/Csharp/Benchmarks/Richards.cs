@@ -389,3 +389,174 @@ internal sealed class IdleTaskDataRecord : RBObject
     }
 }
 
+
+sealed class Packet : RBObject
+{
+    public const int DATA_SIZE = 4;
+
+    public Packet(Packet link, int identity, int kind)
+    {
+        Link = link;
+        Identity = identity;
+        Kind = kind;
+        Datum = 0;
+        Data = new int[DATA_SIZE];
+    }
+
+    public int[] Data { get; }
+
+    public int Datum { get; set; }
+
+    public int Identity { get; set; }
+
+    public int Kind { get; }
+
+    public Packet Link { get; set; }
+
+    public override string ToString()
+    {
+        return "Packet id: " + Identity + " kind: " + Kind;
+    }
+}
+
+delegate TaskControlBlock ProcessFunction(Packet work, RBObject word);
+
+sealed class TaskControlBlock : TaskState
+{
+    private Packet input;
+    private readonly ProcessFunction function;
+    private readonly RBObject handle;
+
+    internal TaskControlBlock(TaskControlBlock aLink, int anIdentity, int aPriority, Packet anInitialWorkQueue, TaskState anInitialState, ProcessFunction aBlock, RBObject aPrivateData)
+    {
+        Link = aLink;
+        Identity = anIdentity;
+        Priority = aPriority;
+        input = anInitialWorkQueue;
+        IsPacketPending = anInitialState.IsPacketPending;
+        IsTaskWaiting = anInitialState.IsTaskWaiting;
+        IsTaskHolding = anInitialState.IsTaskHolding;
+        function = aBlock;
+        handle = aPrivateData;
+    }
+
+    public int Identity { get; }
+    public TaskControlBlock Link { get; }
+    public int Priority { get; }
+
+    public TaskControlBlock AddInputAndCheckPriority(Packet packet, TaskControlBlock oldTask)
+    {
+        if (NO_WORK == input)
+        {
+            input = packet;
+            IsPacketPending = true;
+            if (Priority > oldTask.Priority)
+                return this;
+        }
+        else
+        {
+            input = Append(packet, input);
+        }
+        return oldTask;
+    }
+
+    public TaskControlBlock RunTask()
+    {
+        Packet message = NO_WORK;
+        if (IsWaitingWithPacket)
+        {
+            message = input;
+            input = message.Link;
+            if (NO_WORK == input)
+                SetRunning();
+            else
+                SetPacketPending();
+        }
+        return function(message, handle);
+    }
+}
+
+
+class TaskState : RBObject
+{
+    public virtual bool IsPacketPending { get; set; }
+    public virtual bool IsTaskHolding { get; set; }
+    public virtual bool IsTaskWaiting { get; set; }
+
+    public virtual void SetPacketPending()
+    {
+        IsPacketPending = true;
+        IsTaskWaiting = false;
+        IsTaskHolding = false;
+    }
+
+    public virtual void SetRunning()
+    {
+        IsPacketPending = IsTaskWaiting = IsTaskHolding = false;
+    }
+
+    public virtual void SetWaiting()
+    {
+        IsPacketPending = IsTaskHolding = false;
+        IsTaskWaiting = true;
+    }
+
+    public virtual void SetWaitingWithPacket()
+    {
+        IsTaskHolding = false;
+        IsTaskWaiting = IsPacketPending = true;
+    }
+
+    public virtual bool IsRunning
+        => !IsPacketPending && !IsTaskWaiting && !IsTaskHolding;
+
+    public virtual bool IsTaskHoldingOrWaiting
+        => IsTaskHolding || (!IsPacketPending && IsTaskWaiting);
+
+    public virtual bool IsWaiting
+        => !IsPacketPending && IsTaskWaiting && !IsTaskHolding;
+
+    public virtual bool IsWaitingWithPacket
+        => IsPacketPending && IsTaskWaiting && !IsTaskHolding;
+
+    public static TaskState CreatePacketPending()
+    {
+        var t = new TaskState();
+        t.SetPacketPending();
+        return t;
+    }
+
+    public static TaskState CreateRunning()
+    {
+        var t = new TaskState();
+        t.SetRunning();
+        return t;
+    }
+
+    public static TaskState CreateWaiting()
+    {
+        var t = new TaskState();
+        t.SetWaiting();
+        return t;
+    }
+
+    public static TaskState CreateWaitingWithPacket()
+    {
+        var t = new TaskState();
+        t.SetWaitingWithPacket();
+        return t;
+    }
+}
+
+sealed class WorkerTaskDataRecord : RBObject
+{
+    public WorkerTaskDataRecord()
+    {
+        Destination = HANDLER_A;
+        Count = 0;
+    }
+
+    public int Count { get; set; }
+
+    public int Destination { get; set; }
+}
