@@ -14,7 +14,7 @@ sealed class Scheduler : RBObject
 
     private int layout;
 
-    // private const bool TRACING = false // Just define the TRACE symbol
+    private const bool TRACING = false;
 
     public Scheduler()
     {
@@ -53,7 +53,12 @@ sealed class Scheduler : RBObject
                 else
                 {
                     dataRecord.Pending = functionWork;
-                    Trace(functionWork.Datum);
+
+#pragma warning disable CS0162 // Unreachable code detected
+                    if (TRACING)
+                        Trace(functionWork.Datum);
+#pragma warning restore CS0162 // Unreachable code detected
+
                     return HoldSelf();
                 }
             },
@@ -249,7 +254,6 @@ sealed class Scheduler : RBObject
         return t.Priority > currentTask.Priority ? t : currentTask;
     }
 
-    [Conditional("TRACING")]
     internal void Trace(int id)
     {
         layout--;
@@ -280,7 +284,11 @@ sealed class Scheduler : RBObject
             else
             {
                 currentTaskIdentity = currentTask.Identity;
-                Trace(currentTaskIdentity);
+
+#pragma warning disable CS0162 // Unreachable code detected
+                if (TRACING)
+                    Trace(currentTaskIdentity);
+#pragma warning restore CS0162 // Unreachable code detected
 
                 currentTask = currentTask.RunTask();
             }
