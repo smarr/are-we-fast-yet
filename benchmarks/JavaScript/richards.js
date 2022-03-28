@@ -22,7 +22,7 @@ var NO_TASK = null,
 
   DATA_SIZE = 4,
 
-  TRACING = true;
+  TRACING = false;
 
 function Richards() {
   benchmark.Benchmark.call(this);
