@@ -1,4 +1,5 @@
 use crate::benchmark::Benchmark;
+use crate::json::Json;
 use crate::towers::Towers;
 use std::time::Duration;
 
@@ -26,6 +27,7 @@ impl Run {
     fn get_suite_from_name(name: &str) -> Box<dyn Benchmark> {
         match name {
             "Towers" => Box::new(Towers::default()),
+            "Json" => Box::new(Json::default()),
             _ => panic!("Unknown benchmark suite"),
         }
     }
