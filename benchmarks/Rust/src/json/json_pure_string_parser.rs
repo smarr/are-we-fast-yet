@@ -46,7 +46,7 @@ impl<'i> JsonPureStringParser<'i> {
             'f' => self.read_false(),
             '"' => self.read_string(),
             '[' => Ok(JsonValue::Array(self.read_array()?)),
-            '{' => Ok(JsonValue::Object(self.read_object()?)),
+            '{' => Ok(JsonValue::Object(Box::new(self.read_object()?))),
             '-' | '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' => self.read_number(),
             _ => self.error("value"),
         }
@@ -244,6 +244,7 @@ impl<'i> JsonPureStringParser<'i> {
             self.column = 0;
         }
         self.index += 1;
+        #[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
         if self.index < self.input.len() as isize {
             self.current = self.input.as_bytes()[self.index as usize] as char;
         } else {
@@ -261,7 +262,8 @@ impl<'i> JsonPureStringParser<'i> {
         } else {
             self.index - 1
         };
-        for &c in &self.input.as_bytes()[self.capture_start as usize..(end as usize + 1)] {
+        #[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
+        for &c in &self.input.as_bytes()[self.capture_start as usize..=end as usize] {
             self.capture_buffer.push(c as char);
         }
         self.capture_start = -1;
@@ -273,7 +275,8 @@ impl<'i> JsonPureStringParser<'i> {
         } else {
             self.index - 1
         };
-        for &c in &self.input.as_bytes()[self.capture_start as usize..(end as usize + 1)] {
+        #[allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
+        for &c in &self.input.as_bytes()[self.capture_start as usize..=end as usize] {
             self.capture_buffer.push(c as char);
         }
         let mut captured = String::new();

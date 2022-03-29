@@ -9,7 +9,7 @@ pub enum JsonValue {
     Number(String),
     String(String),
     Array(Vec<JsonValue>),
-    Object(JsonObject),
+    Object(Box<JsonObject>),
 }
 
 #[derive(Clone, Debug, Default)]
@@ -42,10 +42,8 @@ impl JsonValue {
     pub fn as_string(&self) -> Option<&str> {
         match self {
             JsonValue::Literal { value, .. } => Some(value),
-            JsonValue::Number(string) => Some(string),
-            JsonValue::String(string) => Some(string),
-            JsonValue::Array(_) => None,
-            JsonValue::Object { .. } => None,
+            JsonValue::Number(string) | JsonValue::String(string) => Some(string),
+            JsonValue::Array(_) | JsonValue::Object { .. } => None,
         }
     }
 
@@ -85,27 +83,15 @@ impl JsonValue {
     }
 
     pub fn is_number(&self) -> bool {
-        if let JsonValue::Number { .. } = self {
-            true
-        } else {
-            false
-        }
+        matches!(self, JsonValue::Number { .. })
     }
 
     pub fn is_string(&self) -> bool {
-        if let JsonValue::String(..) = self {
-            true
-        } else {
-            false
-        }
+        matches!(self, JsonValue::String(_))
     }
 
     pub fn is_array(&self) -> bool {
-        if let JsonValue::Array(..) = self {
-            true
-        } else {
-            false
-        }
+        matches!(self, JsonValue::Array(_))
     }
 
     pub fn as_array(&self) -> &Vec<JsonValue> {
@@ -123,11 +109,7 @@ impl JsonValue {
     }
 
     pub fn is_object(&self) -> bool {
-        if let JsonValue::Object(..) = self {
-            true
-        } else {
-            false
-        }
+        matches!(self, JsonValue::Object(_))
     }
 
     pub fn as_object(&self) -> &JsonObject {
@@ -147,7 +129,8 @@ impl JsonValue {
 
 impl JsonObject {
     pub fn add(&mut self, name: String, value: JsonValue) {
-        self.table.add(name.clone(), self.names.len() as isize);
+        #[allow(clippy::cast_possible_wrap)]
+        self.table.add(&name, self.names.len() as isize);
         self.names.push(name);
         self.values.push(value);
     }
@@ -186,8 +169,9 @@ struct HashIndexTable {
 }
 
 impl HashIndexTable {
-    fn add(&mut self, name: String, index: isize) {
-        let slot = self.hash_slot_for(&name);
+    fn add(&mut self, name: &str, index: isize) {
+        let slot = self.hash_slot_for(name);
+        #[allow(clippy::cast_sign_loss)]
         if index < 0xff {
             self.hash_table[slot as usize] = (index + 1) & 0xff;
         } else {
@@ -195,17 +179,20 @@ impl HashIndexTable {
         }
     }
 
+    #[allow(clippy::cast_sign_loss)]
     fn get(&self, name: &str) -> isize {
         let slot = self.hash_slot_for(name);
         (self.hash_table[slot as usize] & 0xff) - 1
     }
 
+    #[allow(clippy::cast_possible_wrap)]
     fn string_hash(s: &str) -> isize {
         // this is not a proper hash, but sufficient for the benchmark,
         // and very portable!
         s.len() as isize * 1_402_589
     }
 
+    #[allow(clippy::cast_possible_wrap)]
     fn hash_slot_for(&self, name: &str) -> isize {
         Self::string_hash(name) & (self.hash_table.len() as isize - 1)
     }
