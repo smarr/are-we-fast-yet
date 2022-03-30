@@ -10,6 +10,7 @@ pub mod benchmark;
 pub mod json;
 pub mod nbody;
 pub mod run;
+pub mod sieve;
 pub mod som;
 pub mod storage;
 pub mod towers;

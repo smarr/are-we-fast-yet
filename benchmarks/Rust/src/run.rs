@@ -1,6 +1,7 @@
 use crate::benchmark::Benchmark;
 use crate::json::Json;
 use crate::nbody::NBody;
+use crate::sieve::Sieve;
 use crate::storage::Storage;
 use crate::towers::Towers;
 use std::time::Duration;
@@ -30,6 +31,7 @@ impl Run {
         match name {
             "Json" => Box::new(Json::default()),
             "NBody" => Box::new(NBody::default()),
+            "Sieve" => Box::new(Sieve::default()),
             "Storage" => Box::new(Storage::default()),
             "Towers" => Box::new(Towers::default()),
             _ => panic!("Unknown benchmark suite"),
