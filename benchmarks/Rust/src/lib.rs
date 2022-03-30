@@ -10,4 +10,5 @@ pub mod benchmark;
 pub mod json;
 pub mod nbody;
 pub mod run;
+pub mod som;
 pub mod towers;
