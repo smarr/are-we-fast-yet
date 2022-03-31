@@ -73,7 +73,7 @@ impl Run {
         } = self;
         let total = self.total.as_micros();
         let average = total / *num_iterations as u128;
-        println!("{name}: iterations={num_iterations} average:{average}us total:{total}us\n");
+        println!("{name}: iterations={num_iterations} average: {average}us total:{total}us\n");
     }
 
     fn print_result(&self, run_time: &Duration) {
