@@ -1,6 +1,7 @@
 use crate::benchmark::Benchmark;
 use crate::json::Json;
 use crate::nbody::NBody;
+use crate::permute::Permute;
 use crate::queens::Queens;
 use crate::richards::Richards;
 use crate::sieve::Sieve;
@@ -33,6 +34,7 @@ impl Run {
         match name {
             "Json" => Box::new(Json::default()),
             "NBody" => Box::new(NBody::default()),
+            "Permute" => Box::new(Permute::default()),
             "Queens" => Box::new(Queens::default()),
             "Richards" => Box::new(Richards::default()),
             "Sieve" => Box::new(Sieve::default()),

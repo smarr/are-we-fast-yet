@@ -9,6 +9,7 @@
 pub mod benchmark;
 pub mod json;
 pub mod nbody;
+pub mod permute;
 pub mod queens;
 pub mod richards;
 pub mod run;
