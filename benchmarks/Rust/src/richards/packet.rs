@@ -1,12 +1,11 @@
 use crate::richards::rb_object::RBObject;
-use std::cell::Cell;
 use std::fmt::{Display, Formatter};
 
 pub struct Packet {
     link: Option<PacketBox>,
-    identity: Cell<usize>,
+    identity: usize,
     kind: usize,
-    datum: Cell<usize>,
+    datum: usize,
     data: [usize; 4],
 }
 
@@ -21,9 +20,9 @@ impl Packet {
     pub fn new(link: Option<PacketBox>, identity: usize, kind: usize) -> Packet {
         Packet {
             link,
-            identity: Cell::new(identity),
+            identity: identity,
             kind,
-            datum: Cell::new(0),
+            datum: 0,
             data: [0; Packet::DATA_SIZE],
         }
     }
@@ -41,19 +40,19 @@ impl Packet {
     }
 
     pub fn get_datum(&self) -> usize {
-        self.datum.get()
+        self.datum
     }
 
-    pub fn set_datum(&self, some_data: usize) {
-        self.datum.set(some_data);
+    pub fn set_datum(&mut self, some_data: usize) {
+        self.datum = some_data;
     }
 
     pub fn get_identity(&self) -> usize {
-        self.identity.get()
+        self.identity
     }
 
-    pub fn set_identity(&self, an_identity: usize) {
-        self.identity.set(an_identity);
+    pub fn set_identity(&mut self, an_identity: usize) {
+        self.identity = an_identity;
     }
 
     pub fn get_kind(&self) -> usize {
@@ -85,10 +84,6 @@ impl Packet {
 impl Display for Packet {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let Self { identity, kind, .. } = self;
-        write!(
-            f,
-            "Packet id: {identity} kind: {kind}",
-            identity = identity.get()
-        )
+        write!(f, "Packet id: {identity} kind: {kind}")
     }
 }
