@@ -9,6 +9,7 @@
 pub mod benchmark;
 pub mod json;
 pub mod nbody;
+pub mod richards;
 pub mod run;
 pub mod sieve;
 pub mod som;

@@ -1,6 +1,7 @@
 use crate::benchmark::Benchmark;
 use crate::json::Json;
 use crate::nbody::NBody;
+use crate::richards::Richards;
 use crate::sieve::Sieve;
 use crate::storage::Storage;
 use crate::towers::Towers;
@@ -31,6 +32,7 @@ impl Run {
         match name {
             "Json" => Box::new(Json::default()),
             "NBody" => Box::new(NBody::default()),
+            "Richards" => Box::new(Richards::default()),
             "Sieve" => Box::new(Sieve::default()),
             "Storage" => Box::new(Storage::default()),
             "Towers" => Box::new(Towers::default()),
