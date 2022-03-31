@@ -20,7 +20,7 @@ impl Packet {
     pub fn new(link: Option<PacketBox>, identity: usize, kind: usize) -> Packet {
         Packet {
             link,
-            identity: identity,
+            identity,
             kind,
             datum: 0,
             data: [0; Packet::DATA_SIZE],
