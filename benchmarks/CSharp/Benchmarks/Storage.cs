@@ -4,27 +4,27 @@ public class Storage : Benchmark
 {
   int count;
 
-  public override Object Execute()
+  public override object Execute()
   {
     Random random = new Random();
     count = 0;
-    buildTreeDepth(7, random);
+    BuildTreeDepth(7, random);
     return count;
   }
 
-  private Object buildTreeDepth(int depth, Random random)
+  private object BuildTreeDepth(int depth, Random random)
   {
     count++;
     if (depth == 1)
     {
-      return new Object[random.Next() % 10 + 1];
+      return new object[random.Next() % 10 + 1];
     }
     else
     {
-      Object[] arr = new Object[4];
+      object[] arr = new object[4];
       for (int i = 0; i < 4; i++)
       {
-        arr[i] = this.buildTreeDepth(depth - 1, random);
+        arr[i] = this.BuildTreeDepth(depth - 1, random);
       }
       return arr;
     }

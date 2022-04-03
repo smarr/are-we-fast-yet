@@ -16,70 +16,70 @@ public class Towers : Benchmark
 {
 
 
-  public TowersDisk?[] piles;
-  public int movesDone;
+  public TowersDisk?[] Piles;
+  public int MovesDone;
 
-  private void pushDisk(TowersDisk disk, int pile)
+  private void PushDisk(TowersDisk disk, int pile)
   {
-    TowersDisk? top = piles[pile];
+    TowersDisk? top = Piles[pile];
     if (!(top == null) && (disk.Size >= top.Size))
     {
       throw new InvalidOperationException("Cannot put a big disk on a smaller one");
     }
 
     disk.Next = top;
-    piles[pile] = disk;
+    Piles[pile] = disk;
   }
 
-  private TowersDisk popDiskFrom(int pile)
+  private TowersDisk PopDiskFrom(int pile)
   {
-    TowersDisk? top = piles[pile];
+    TowersDisk? top = Piles[pile];
     if (top == null)
     {
       throw new InvalidOperationException("Attempting to remove a disk from an empty pile");
     }
 
-    piles[pile] = top.Next;
+    Piles[pile] = top.Next;
     top.Next = null;
     return top;
   }
 
-  private void moveTopDisk(int fromPile, int toPile)
+  private void MoveTopDisk(int fromPile, int toPile)
   {
-    pushDisk(popDiskFrom(fromPile), toPile);
-    movesDone++;
+    PushDisk(PopDiskFrom(fromPile), toPile);
+    MovesDone++;
   }
 
-  private void buildTowerAt(int pile, int disks)
+  private void BuildTowerAt(int pile, int disks)
   {
     for (int i = disks; i >= 0; i--)
     {
-      pushDisk(new TowersDisk(i), pile);
+      PushDisk(new TowersDisk(i), pile);
     }
   }
 
-  private void moveDisks(int disks, int fromPile, int toPile)
+  private void MoveDisks(int disks, int fromPile, int toPile)
   {
     if (disks == 1)
     {
-      moveTopDisk(fromPile, toPile);
+      MoveTopDisk(fromPile, toPile);
     }
     else
     {
       int otherPile = (3 - fromPile) - toPile;
-      moveDisks(disks - 1, fromPile, otherPile);
-      moveTopDisk(fromPile, toPile);
-      moveDisks(disks - 1, otherPile, toPile);
+      MoveDisks(disks - 1, fromPile, otherPile);
+      MoveTopDisk(fromPile, toPile);
+      MoveDisks(disks - 1, otherPile, toPile);
     }
   }
 
   public override object Execute()
   {
-    piles = new TowersDisk[3];
-    buildTowerAt(0, 13);
-    movesDone = 0;
-    moveDisks(13, 0, 1);
-    return movesDone;
+    Piles = new TowersDisk[3];
+    BuildTowerAt(0, 13);
+    MovesDone = 0;
+    MoveDisks(13, 0, 1);
+    return MovesDone;
   }
 
   public override bool VerifyResult(object result)

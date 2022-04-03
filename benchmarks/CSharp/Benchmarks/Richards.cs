@@ -104,7 +104,7 @@ sealed class Scheduler : RBObject
             else
             {
                 var count = workPacket.Datum;
-                if (count >= Packet.DATA_SIZE)
+                if (count >= Packet.DataSize)
                 {
                     dataRecord.WorkIn = workPacket.Link;
                     return QueuePacket(workPacket);
@@ -185,7 +185,7 @@ sealed class Scheduler : RBObject
                 data.Destination = (HANDLER_A == data.Destination) ? HANDLER_B : HANDLER_A;
                 work.Identity = data.Destination;
                 work.Datum = 0;
-                for (var i = 0; i < Packet.DATA_SIZE; i++)
+                for (var i = 0; i < Packet.DataSize; i++)
                 {
                     data.Count++;
                     if (data.Count > 26)
@@ -311,7 +311,7 @@ sealed class Scheduler : RBObject
 
 }
 
-abstract class RBObject
+internal abstract class RBObject
 {
     public virtual Packet Append(Packet packet, Packet queueHead)
     {
@@ -329,6 +329,7 @@ abstract class RBObject
         return queueHead;
     }
 
+    // ReSharper disable InconsistentNaming
     public const int IDLER = 0;
     public const int WORKER = 1;
     public const int HANDLER_A = 2;
@@ -342,6 +343,7 @@ abstract class RBObject
 
     public const Packet NO_WORK = null;
     public const TaskControlBlock NO_TASK = null;
+    // ReSharper restore InconsistentNaming
 }
 
 internal sealed class DeviceTaskDataRecord : RBObject
@@ -392,7 +394,7 @@ internal sealed class IdleTaskDataRecord : RBObject
 
 sealed class Packet : RBObject
 {
-    public const int DATA_SIZE = 4;
+    public const int DataSize = 4;
 
     public Packet(Packet link, int identity, int kind)
     {
@@ -400,7 +402,7 @@ sealed class Packet : RBObject
         Identity = identity;
         Kind = kind;
         Datum = 0;
-        Data = new int[DATA_SIZE];
+        Data = new int[DataSize];
     }
 
     public int[] Data { get; }
