@@ -3,7 +3,7 @@ namespace Benchmarks;
 public class Permute : Benchmark
 {
   int count;
-  int[] v;
+  int[] v = Array.Empty<int>();
 
   public override object Execute()
   {
