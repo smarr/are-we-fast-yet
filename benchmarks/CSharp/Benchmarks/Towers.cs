@@ -14,9 +14,7 @@ public class TowersDisk
 
 public class Towers : Benchmark
 {
-
-
-  public TowersDisk?[] Piles;
+  public TowersDisk?[] Piles = Array.Empty<TowersDisk>();
   public int MovesDone;
 
   private void PushDisk(TowersDisk disk, int pile)

@@ -24,7 +24,7 @@ public class List : Benchmark
 
     public override object Execute() {
         Element? result = Tail(MakeList(15), MakeList(10), MakeList(6));
-        return result?.Length();
+        return result!.Length();
     }
 
     public Element? MakeList(int length){
@@ -54,7 +54,7 @@ public class List : Benchmark
 
     public Element? Tail(Element? x, Element? y, Element? z){
         if(IsShorterThan(y,x)){
-            return Tail(Tail(x.Next, y, z), Tail(y.Next, z, x), Tail(z.Next, x, y));
+            return Tail(Tail(x?.Next, y, z), Tail(y?.Next, z, x), Tail(z?.Next, x, y));
         }
         else{
             return z;
