@@ -2,10 +2,10 @@ namespace Benchmarks;
 
 public class Queens : Benchmark
 {
-  private bool[] freeMaxs;
-  private bool[] freeRows;
-  private bool[] freeMins;
-  private int[] queenRows;
+  private bool[] freeMaxs = Array.Empty<bool>();
+  private bool[] freeRows = Array.Empty<bool>();
+  private bool[] freeMins = Array.Empty<bool>();
+  private int[] queenRows = Array.Empty<int>();
 
   public override object Execute()
   {
