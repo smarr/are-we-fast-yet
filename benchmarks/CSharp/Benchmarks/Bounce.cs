@@ -15,7 +15,7 @@ public class Ball
     yVel = (random.Next() % 300) - 150;
   }
 
-  public bool bounce()
+  public bool Bounce()
   {
     int xLimit = 500;
     int yLimit = 500;
@@ -50,7 +50,7 @@ public sealed class Bounce : Benchmark
     {
       foreach (Ball ball in balls)
       {
-        if (ball.bounce())
+        if (ball.Bounce())
         {
           bounces += 1;
         }

@@ -4,41 +4,41 @@ public class List : Benchmark
 {
     public class Element {
 
-        public Object Val;
+        public object Val;
 
         public Element? Next;
 
-        public Element(Object v) {
+        public Element(object v) {
             Val = v;
         }
 
-        public int length(){
+        public int Length(){
             if(Next == null){
                 return 1;
             }
             else{
-                return 1 + Next.length();
+                return 1 + Next.Length();
             }
         }
     }
 
     public override object Execute() {
-        Element? result = tail(makeList(15), makeList(10), makeList(6));
-        return result?.length();
+        Element? result = Tail(MakeList(15), MakeList(10), MakeList(6));
+        return result?.Length();
     }
 
-    public Element? makeList(int length){
+    public Element? MakeList(int length){
         if(length ==0){
             return null;
         }
         else{
             Element e = new Element(length);
-            e.Next = makeList(length-1);
+            e.Next = MakeList(length-1);
             return e;
         }
     }
 
-    public bool isShorterThan(Element? x, Element? y){
+    public bool IsShorterThan(Element? x, Element? y){
         Element? xTail = x;
         Element? yTail = y;
 
@@ -52,9 +52,9 @@ public class List : Benchmark
         return false;
     }
 
-    public Element? tail(Element? x, Element? y, Element? z){
-        if(isShorterThan(y,x)){
-            return tail(tail(x.Next, y, z), tail(y.Next, z, x), tail(z.Next, x, y));
+    public Element? Tail(Element? x, Element? y, Element? z){
+        if(IsShorterThan(y,x)){
+            return Tail(Tail(x.Next, y, z), Tail(y.Next, z, x), Tail(z.Next, x, y));
         }
         else{
             return z;

@@ -5,7 +5,7 @@ public class Permute : Benchmark
   int count;
   int[] v;
 
-  public override Object Execute()
+  public override object Execute()
   {
     count = 0;
     v = new int[6];
