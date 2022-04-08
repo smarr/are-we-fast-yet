@@ -7,6 +7,7 @@
 )]
 
 pub mod benchmark;
+pub mod bounce;
 pub mod json;
 pub mod list;
 pub mod mandelbrot;

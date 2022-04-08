@@ -1,4 +1,5 @@
 use crate::benchmark::Benchmark;
+use crate::bounce::Bounce;
 use crate::json::Json;
 use crate::list::List;
 use crate::mandelbrot::Mandelbrot;
@@ -34,6 +35,7 @@ impl Run {
 
     fn get_suite_from_name(name: &str) -> Box<dyn Benchmark> {
         match name {
+            "Bounce" => Box::new(Bounce::default()),
             "Json" => Box::new(Json::default()),
             "List" => Box::new(List::default()),
             "Mandelbrot" => Box::new(Mandelbrot::default()),
