@@ -1,5 +1,6 @@
 use crate::benchmark::Benchmark;
 use crate::json::Json;
+use crate::list::List;
 use crate::mandelbrot::Mandelbrot;
 use crate::nbody::NBody;
 use crate::permute::Permute;
@@ -34,6 +35,7 @@ impl Run {
     fn get_suite_from_name(name: &str) -> Box<dyn Benchmark> {
         match name {
             "Json" => Box::new(Json::default()),
+            "List" => Box::new(List::default()),
             "Mandelbrot" => Box::new(Mandelbrot::default()),
             "NBody" => Box::new(NBody::default()),
             "Permute" => Box::new(Permute::default()),

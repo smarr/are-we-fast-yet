@@ -8,6 +8,7 @@
 
 pub mod benchmark;
 pub mod json;
+pub mod list;
 pub mod mandelbrot;
 pub mod nbody;
 pub mod permute;
