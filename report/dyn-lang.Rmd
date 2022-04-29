@@ -39,18 +39,18 @@ vm_names <- c(
  
   "Node-jit"      = "Node.js 17.5",
   "Node-int"      = "Node.js 17.5 jitless", 
-  "GraalJS-HotspotEE-jit" = "Graal.js EE 22.0.0.2 Hotspot", 
-  "GraalJS-NativeEE-int"  = "Graal.js EE 22.0.0.2 Native Int", 
+  "GraalJS-HotspotEE-jit" = "Graal.js EE 22 Hotspot", 
+  "GraalJS-NativeEE-int"  = "Graal.js EE 22 Native Int", 
   
   "PyPy-jit" = "PyPy 3.8 7.3.7",
   "CPython-int" = "CPython 3.10",
-  "GraalPython-HotspotEE-jit" = "GraalPython EE 22.0.0.2 Hotspot",
-  "GraalPython-NativeEE-int"  = "GraalPython EE 22.0.0.2 Native Int",
+  "GraalPython-HotspotEE-jit" = "GraalPython EE 22 Hotspot",
+  "GraalPython-NativeEE-int"  = "GraalPython EE 22 Native Int",
   
   "CRuby-int" = "Ruby 3.1.0",
   "CRuby-y-jit" = "Ruby 3.1.0 yjit",
-  "TruffleRuby-HotspotEE-jit" = "TruffleRuby EE 22.0.0.2 Hotspot",
-  "TruffleRuby-NativeEE-int"  = "TruffleRuby EE 22.0.0.2 Native Int",
+  "TruffleRuby-HotspotEE-jit" = "TruffleRuby EE 22 Hotspot",
+  "TruffleRuby-NativeEE-int"  = "TruffleRuby EE 22 Native Int",
   
   "PySOM-ast-jit" = "PySOM AST JIT",
   "PySOM-ast-int" = "PySOM AST Int",
@@ -148,18 +148,18 @@ baseline_vm_int <- "Node-int"
 baseline_vm_first <- "Node-jit"
 
 vm_colors[["Node.js 17.5"]]                       <- "#725000"
-vm_colors[["Graal.js EE 22.0.0.2 Hotspot"]]       <- "#c4a000"
+vm_colors[["Graal.js EE 22 Hotspot"]]       <- "#c4a000"
 vm_colors[["Node.js 17.5 jitless"]]               <- "#edd400"
-vm_colors[["Graal.js EE 22.0.0.2 Native Int"]]    <- "#fce94f"
+vm_colors[["Graal.js EE 22 Native Int"]]    <- "#fce94f"
 
 vm_colors[["PyPy 3.8 7.3.7"]]                     <- "#2a5703"
-vm_colors[["GraalPython EE 22.0.0.2 Hotspot"]]    <- "#4e9a06"
+vm_colors[["GraalPython EE 22 Hotspot"]]    <- "#4e9a06"
 vm_colors[["CPython 3.10"]]                       <- "#73d216"
-vm_colors[["GraalPython EE 22.0.0.2 Native Int"]] <- "#b7f774"
+vm_colors[["GraalPython EE 22 Native Int"]] <- "#b7f774"
 
 vm_colors[["Ruby 3.1.0"]]                         <- "#3465a4"
-vm_colors[["TruffleRuby EE 22.0.0.2 Hotspot"]]    <- "#204a87"
-vm_colors[["TruffleRuby EE 22.0.0.2 Native Int"]] <- "#97c4f0"
+vm_colors[["TruffleRuby EE 22 Hotspot"]]    <- "#204a87"
+vm_colors[["TruffleRuby EE 22 Native Int"]] <- "#97c4f0"
 
 vm_colors[["TruffleSOM AST Hotspot CE base"]]     <- "#a40000"
 vm_colors[["TruffleSOM AST Native Int EE base"]]  <- "#ef2929"
@@ -177,6 +177,20 @@ results_int <- data %>%
     exe %in% vms_int,
     baseline_vm_int)
 
+results_js_int <- data %>%
+  compute_all(
+    exe %in% vms_int,
+    "Node-int")
+
+results_python_int <- data %>%
+  compute_all(
+    exe %in% vms_int,
+    "CPython-int")
+
+results_ruby_int <- data %>%
+  compute_all(
+    exe %in% vms_int,
+    "CRuby-int")
 
 results_first <- data %>%
   compute_all(
@@ -227,7 +241,7 @@ plot_benchmarks_speedup_for_vms <- function(
   }
 }
 
-overview_box_plot <- function(stats, vms = NULL, prepare_data = NULL, pre_plot = NULL, new_colors = FALSE, x_breaks = waiver()) {
+overview_box_plot <- function(stats, vms = NULL, prepare_data = NULL, pre_plot = NULL, new_colors = FALSE, x_breaks = waiver(), font_size = 18, x_axis = "Runtime Factor, normalized to Java (lower is better)") {
   # stats <- stats_latest
   # vms <- c("Node", "Pharo", "JavaInt", 
   #          "Lua53", "LuaJIT2", "SOMns-Enterprise")
@@ -274,14 +288,19 @@ overview_box_plot <- function(stats, vms = NULL, prepare_data = NULL, pre_plot =
     geom_boxplot(outlier.size = 0.5) + #fill=get_color(5, 7)
     scale_x_log10(breaks = x_breaks) +
     scale_fill_manual(values = col_values) +
-    theme_bw() + theme_simple(font_size = 8) +
+    theme_bw() + theme_simple(font_size = font_size) +
     theme(
       axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1),
-      axis.title.x  = element_text(size = 8, family="Arial"),
+      axis.title.x  = element_text(size = font_size, family="Arial"),
+      panel.background = element_rect(fill = "transparent", color = NA, linetype = "blank"),
+      panel.border = element_rect(fill = "transparent", color = NA, linetype = "blank"),
+      plot.background = element_rect(fill = "transparent", color = NA, linetype = "blank"),
+      # axis.line = element_blank(),
+      plot.margin = unit(c(0.01,0.01,0.01,0.01), "in"),
       legend.position="none") +
     #scale_y_log10(breaks=c(1,2,3,10,20,30,50,100,200,300,500,1000)) + #limit=c(0,30), breaks=seq(0,100,5), expand = c(0,0)
     ylab("") +
-    xlab("Runtime Factor, normalized to Java (lower is better)")
+    xlab(x_axis) 
   plot
 }
 ```
@@ -303,7 +322,9 @@ The baseline here is `r vm_names[baseline_vm_peak]`.
 
 ```{r jit-overview, fig.width=15, fig.height=5}
 overview_box_plot(results_peak$stats$bench, vms = vms_dyn_jit,
-  x_breaks = c(1, 2, 3, 4, 5, 6, 8, 10, 12, 20, 30, 40))
+  x_breaks = c(0.33, 0.5, 0.75, 1, 1.33, 2, 3, 4, 5, 6, 8),
+  font_size = 18,
+  x_axis = "Runtime Factor, normalized to Node.js (lower is better)")
 ```
 
 ##### Interpreters
@@ -311,32 +332,62 @@ overview_box_plot(results_peak$stats$bench, vms = vms_dyn_jit,
 Looking at interpreter performance, the plot looks
 quite a bit different. Here we use `r vm_names[baseline_vm_int]` as baseline.
 
-```{r int-overview, fig.width=8, fig.height=6}
+```{r int-overview, fig.width=15, fig.height=7, dev.args = list(bg = 'transparent')}
 overview_box_plot(
-  results_int$stats$bench, vms = vms_dyn_int,
-  x_breaks = c(0.33333, 0.5, 0.75, 1, 1.33333, 2, 3, 5, 10, 15, 20))
+  results_int$stats$bench,
+  vms = c("Node-int",
+          "GraalJS-NativeEE-int",
+          "CPython-int",
+          "GraalPython-NativeEE-int",
+          "CRuby-int",
+          "TruffleRuby-NativeEE-int",
+          "TruffleSOM-ast-NativeEE-int-main", 
+          "TruffleSOM-bc-NativeEE-int-main",
+          "PySOM-ast-int",
+          "PySOM-bc-int"),
+  x_breaks = c(0.5, 0.75, 1, 1.33, 2, 3, 5, 10, 15, 20, 25, 30, 35),
+  font_size = 18,
+  x_axis = "Runtime Factor, normalized to Node.js (lower is better)")
 ```
 
 ###### JavaScript Performance
 
-```{r js-overview, fig.width=8, fig.height=1.5}
+```{r js-overview, fig.width=14.5, fig.height=3, dev.args = list(bg = 'transparent')}
 overview_box_plot(results_peak$stats$bench,
                   c("Node-int", "Node-jit",
                     "GraalJS-HotspotEE-jit", "GraalJS-NativeEE-int"))
+# +  theme(panel.border = element_rect(linetype = "blank"))
+```
+
+```{r js-int-overview, fig.width=15, fig.height=2, dev.args = list(bg = 'transparent')}
+overview_box_plot(results_js_int$stats$bench,
+                  c("Node-int",
+                    "GraalJS-NativeEE-int"),
+                  x_breaks = 1:17,
+                  x_axis = "Runtime Factor, normalized to Node.js (lower is better)")
+# +  theme(panel.border = element_rect(linetype = "blank"))
 ```
 
 ###### Python Performance
 
-```{r python-overview, fig.width=8, fig.height=1.5}
+```{r python-overview, fig.width=15, fig.height=3, dev.args = list(bg = 'transparent')}
 overview_box_plot(results_peak$stats$bench,
                   c("GraalPython-HotspotEE-jit","CPython-int",
                     "PyPy-jit",
                     "GraalPython-NativeEE-int"))
 ```
 
+```{r python-int-overview, fig.width=15, fig.height=2, dev.args = list(bg = 'transparent')}
+overview_box_plot(results_python_int$stats$bench,
+                  c("CPython-int",
+                    "GraalPython-NativeEE-int"),
+                  x_breaks = 1:17,
+                  x_axis = "Runtime Factor, normalized to CPython (lower is better)")
+```
+
 ###### Ruby Performance
 
-```{r ruby-overview, fig.width=8, fig.height=1.5}
+```{r ruby-overview, fig.width=15, fig.height=3}
 overview_box_plot(results_peak$stats$bench,
                   c("CRuby-int",
                     "CRuby-y-jit",
@@ -344,9 +395,18 @@ overview_box_plot(results_peak$stats$bench,
                     "TruffleRuby-NativeEE-int"))
 ```
 
+```{r ruby-int-overview, fig.width=15, fig.height=2}
+overview_box_plot(results_ruby_int$stats$bench,
+                  c("CRuby-int",
+                    "TruffleRuby-NativeEE-int"),
+                  x_breaks = 1:17,
+                  x_axis = "Runtime Factor, normalized to Ruby 3.1.0 (lower is better)")
+```
+
+
 ###### SOM Performance
 
-```{r som-overview, fig.width=8, fig.height=2.2}
+```{r som-overview, fig.width=15, fig.height=4}
 overview_box_plot(results_peak$stats$bench,
                   c("PySOM-ast-int", "PySOM-ast-jit", "PySOM-bc-int",
                     "PySOM-bc-jit", 
@@ -358,7 +418,7 @@ overview_box_plot(results_peak$stats$bench,
 
 ###### SOM Interpreters Performance
 
-```{r som-int-overview, fig.width=8, fig.height=1.5}
+```{r som-int-overview, fig.width=15, fig.height=3.5}
 overview_box_plot(results_int$stats$bench,
                   c("PySOM-ast-int", "PySOM-bc-int",
                     "TruffleSOM-ast-NativeEE-int-main",
@@ -374,6 +434,29 @@ overview_box_plot(results_int$stats$bench,
                     "TruffleSOM-ast-NativeEE-int-super",
                     "TruffleSOM-ast-NativeEE-int-uber"
                     ))
+```
+
+####### Super Nodes 
+
+```{r supernodes-overview, fig.width=15, fig.height=3}
+overview_box_plot(results_js_int$stats$bench,
+                  c("Node-int",
+                    "TruffleSOM-ast-NativeEE-int-main",
+                    "TruffleSOM-ast-NativeEE-int-super"),
+                  x_breaks = 1:7,
+                  x_axis = "Runtime Factor, normalized to Node.js (lower is better)")
+```
+
+
+####### Uber Nodes 
+
+```{r ubernodes-overview, fig.width=15, fig.height=3}
+overview_box_plot(results_js_int$stats$bench,
+                  c("Node-int",
+                    "TruffleSOM-ast-NativeEE-int-main",
+                    "TruffleSOM-ast-NativeEE-int-uber"),
+                  x_breaks = 1:7,
+                  x_axis = "Runtime Factor, normalized to Node.js (lower is better)")
 ```
 
 ##### Performance Overview Data
