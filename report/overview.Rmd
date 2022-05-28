@@ -14,7 +14,9 @@ data <- rbind(
   # main run, one invocation of everything
   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1518"),
   # another run, adding JDK8
-  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1523"))
+  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1523"),
+  # adding CSharp
+  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1583"))
 
 data <- rbind(
   data %>% filter(exe != "TruffleSOM-ast-NativeEE-int-uber"),
@@ -42,6 +44,8 @@ vm_names <- c(
   "Java-int"      = "Java JDK17 Int", 
   "Java8-C2-jit"  = "Java JDK8 C2",
   "Java8-int"     = "Java JDK8 Int", 
+  
+  "CSharp-jit"    = "C# .NET 6.0.200",
  
   "Node-jit"      = "Node.js 17.5",
   "Node-int"      = "Node.js 17.5 jitless", 
@@ -98,6 +102,7 @@ vms_int <- c(
 vms_jit <- c(
   "Java17-C2-jit",
   "Java8-C2-jit",
+  "CSharp-jit",
   "Node-jit",
   "GraalJS-HotspotEE-jit",
   
