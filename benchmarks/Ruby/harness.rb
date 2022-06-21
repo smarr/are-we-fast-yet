@@ -67,16 +67,30 @@ class Run
     puts ''
   end
 
-  def measure(bench)
-    start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC, :nanosecond)
-    unless bench.inner_benchmark_loop(@inner_iterations)
-      raise 'Benchmark failed with incorrect result'
-    end
-    end_time = Process.clock_gettime(Process::CLOCK_MONOTONIC, :nanosecond)
+  if RUBY_ENGINE != 'rbx' # not Rubinius
+    def measure(bench)
+      start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC, :nanosecond)
+      unless bench.inner_benchmark_loop(@inner_iterations)
+        raise 'Benchmark failed with incorrect result'
+      end
+      end_time = Process.clock_gettime(Process::CLOCK_MONOTONIC, :nanosecond)
 
-    run_time = (end_time - start_time) / 1000
-    print_result(run_time)
-    @total += run_time
+      run_time = (end_time - start_time) / 1000
+      print_result(run_time)
+      @total += run_time
+    end
+  else
+    def measure(bench)
+      start_time = Time.now
+      unless bench.inner_benchmark_loop(@inner_iterations)
+        raise 'Benchmark failed with incorrect result'
+      end
+      end_time = Time.now
+
+      run_time = ((end_time - start_time) * 1_000_000).to_i
+      print_result(run_time)
+      @total += run_time
+    end
   end
 
   def do_runs(bench)

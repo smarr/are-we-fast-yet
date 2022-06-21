@@ -50,7 +50,6 @@ Layout/LineLength:
     - 'json.rb'
     - 'havlak.rb'
     - 'harness.rb'
-    - 'harness-rbx.rb'
 
 Metrics/CyclomaticComplexity:
   Enabled: false
@@ -154,11 +153,6 @@ Layout/EmptyLineAfterGuardClause:
 Style/PerlBackrefs:
   Exclude:
     - 'harness.rb'
-    - 'harness-rbx.rb'
-
-Naming/FileName:
-  Exclude:
-    - 'harness-rbx.rb'
 
 Naming/MethodParameterName:
   Enabled: false
