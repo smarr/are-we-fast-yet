@@ -44,6 +44,7 @@ class Run
   end
 
   def run_benchmark
+    @total = 0
     puts "Starting #{@name} benchmark ..."
     do_runs(@benchmark_suite.new)
     report_benchmark
