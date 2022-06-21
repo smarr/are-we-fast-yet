@@ -55,7 +55,7 @@ class Run
       benchmark_file = benchmark_name.gsub(/([a-z])([A-Z])/) { "#{$1}-#{$2}" }.downcase
     end
     unless require_relative(benchmark_file)
-      raise "failed loading #{benchmark_file}"
+      raise "#{benchmark_file} was already loaded"
     end
     Object.const_get(benchmark_name)
   end
