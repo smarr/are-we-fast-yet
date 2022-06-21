@@ -11,6 +11,8 @@
 # Derived from http://pws.prserv.net/dlissett/ben/bench1.htm
 # Licensed CC BY-NC-SA 1.0
 
+require_relative 'benchmark'
+
 NO_TASK = nil
 NO_WORK = nil
 

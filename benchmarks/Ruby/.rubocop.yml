@@ -152,7 +152,7 @@ Layout/EmptyLineAfterGuardClause:
 
 Style/PerlBackrefs:
   Exclude:
-    - 'harness.rb'
+    - 'run.rb'
 
 Naming/MethodParameterName:
   Enabled: false

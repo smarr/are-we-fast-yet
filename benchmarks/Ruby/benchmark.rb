@@ -1,5 +1,3 @@
-# This code is derived from the SOM benchmarks, see AUTHORS.md file.
-#
 # Copyright (c) 2015-2016 Stefan Marr <git@stefan-marr.de>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,42 +18,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_relative 'benchmark'
-
-class Permute < Benchmark
-  def initialize
-    @count = 0
-    @v     = nil
+class Benchmark
+  def inner_benchmark_loop(inner_iterations)
+    inner_iterations.times do
+      return false unless verify_result(benchmark)
+    end
+    true
   end
 
   def benchmark
-    @count = 0
-    @v = Array.new(6, 0)
-    permute(6)
-    @count
+    raise 'subclass_responsibility'
   end
 
-  def permute(n)
-    @count += 1
-    if n != 0
-      n1 = n - 1
-      permute(n1)
-
-      n1.downto(0) do |i|
-        swap(n1, i)
-        permute(n1)
-        swap(n1, i)
-      end
-    end
-  end
-
-  def swap(i, j)
-    tmp = @v[i]
-    @v[i] = @v[j]
-    @v[j] = tmp
-  end
-
-  def verify_result(result)
-    result == 8660
+  # noinspection RubyUnusedLocalVariable
+  def verify_result(_result)
+    raise 'subclass_responsibility'
   end
 end
