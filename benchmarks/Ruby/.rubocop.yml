@@ -174,3 +174,7 @@ Layout/SpaceInsideReferenceBrackets:
 
 Style/OrAssignment:
   Enabled: false
+
+Style/RedundantCondition:
+  Exclude:
+    - 'cd.rb'
