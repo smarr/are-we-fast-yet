@@ -17,23 +17,6 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-class Benchmark
-  def inner_benchmark_loop(inner_iterations)
-    inner_iterations.times do
-      return false unless verify_result(benchmark)
-    end
-    true
-  end
-
-  def benchmark
-    raise 'subclass_responsibility'
-  end
-
-  # noinspection RubyUnusedLocalVariable
-  def verify_result(_result)
-    raise 'subclass_responsibility'
-  end
-end
 
 class Run
   attr_accessor :name, :benchmark_suite, :num_iterations, :inner_iterations
@@ -55,28 +38,43 @@ class Run
       benchmark_file = benchmark_name.gsub(/([a-z])([A-Z])/) { "#{$1}-#{$2}" }.downcase
     end
     unless require_relative(benchmark_file)
-      raise "failed loading #{benchmark_file}"
+      raise "#{benchmark_file} was already loaded"
     end
     Object.const_get(benchmark_name)
   end
 
   def run_benchmark
+    @total = 0
     puts "Starting #{@name} benchmark ..."
     do_runs(@benchmark_suite.new)
     report_benchmark
     puts ''
   end
 
-  def measure(bench)
-    start_time = Time.now
-    unless bench.inner_benchmark_loop(@inner_iterations)
-      raise 'Benchmark failed with incorrect result'
-    end
-    end_time = Time.now
+  if RUBY_ENGINE != 'rbx' # not Rubinius
+    def measure(bench)
+      start_time = Process.clock_gettime(Process::CLOCK_MONOTONIC, :nanosecond)
+      unless bench.inner_benchmark_loop(@inner_iterations)
+        raise 'Benchmark failed with incorrect result'
+      end
+      end_time = Process.clock_gettime(Process::CLOCK_MONOTONIC, :nanosecond)
 
-    run_time = ((end_time - start_time) * 1_000_000).to_i
-    print_result(run_time)
-    @total += run_time
+      run_time = (end_time - start_time) / 1000
+      print_result(run_time)
+      @total += run_time
+    end
+  else
+    def measure(bench)
+      start_time = Time.now
+      unless bench.inner_benchmark_loop(@inner_iterations)
+        raise 'Benchmark failed with incorrect result'
+      end
+      end_time = Time.now
+
+      run_time = ((end_time - start_time) * 1_000_000).to_i
+      print_result(run_time)
+      @total += run_time
+    end
   end
 
   def do_runs(bench)
@@ -95,31 +93,3 @@ class Run
     puts "Total Runtime: #{@total}us"
   end
 end
-
-def process_arguments(args)
-  run = Run.new(args[0])
-
-  if args.size > 1
-    run.num_iterations = Integer(args[1])
-    run.inner_iterations = Integer(args[2]) if args.size > 2
-  end
-  run
-end
-
-def print_usage
-  puts './harness.rb [benchmark] [num-iterations [inner-iter]]'
-  puts ''
-  puts '  benchmark      - benchmark class name '
-  puts '  num-iterations - number of times to execute benchmark, default: 1'
-  puts '  inner-iter     - number of times the benchmark is executed in an inner loop, '
-  puts '                   which is measured in total, default: 1'
-end
-
-if ARGV.size < 1
-  print_usage
-  exit 1
-end
-
-run = process_arguments(ARGV)
-run.run_benchmark
-run.print_total
