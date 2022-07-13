@@ -19,7 +19,7 @@ class Run
 
     public void RunBenchmark(Benchmark benchmarkInstance)
     {
-        Console.WriteLine("Starting " + benchmarkInstance.ToString() + " benchmark ...");
+        Console.WriteLine("Starting " + benchmarkInstance + " benchmark ...");
         DoRuns(benchmarkInstance);        
         ReportBenchmark();
         Console.WriteLine();        
