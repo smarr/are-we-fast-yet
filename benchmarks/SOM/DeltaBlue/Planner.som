@@ -187,9 +187,9 @@ Planner = (
      downstream of the given constraint. Answer a collection of unsatisfied
      constraints sorted in order of decreasing strength."
 
-    | unsatisfied todo v nextC  u2 |
+    | unsatisfied todo v |
     unsatisfied := Vector new.
-        
+
     out determinedBy: nil.
     out walkStrength: Strength absoluteWeakest.
     out stay: true.
@@ -205,9 +205,9 @@ Planner = (
     unsatisfied sort: [:c1 :c2 | c1 strength stronger: c2 strength].
     ^ unsatisfied
   )
-  
+
   ----
-  
+
   "instance creation"
   new = (
     ^ super new initialize
@@ -217,7 +217,7 @@ Planner = (
   chainTest: n = (
       "Do chain-of-equality-constraints performance tests."
       | vars editConstraint plan planner |
-      
+
       planner := Planner new.
       vars := Array new: n+1 withAll: [ Variable new ].
 

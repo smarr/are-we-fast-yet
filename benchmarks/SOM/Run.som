@@ -21,7 +21,7 @@ THE SOFTWARE.
 "
 Run = (
   | total numIterations innerIterations benchmarkSuite name |
-  
+
   initialize: aName = (
     name            := aName.
     benchmarkSuite  := self loadBenchmarkSuite: aName.
@@ -29,7 +29,7 @@ Run = (
     numIterations   := 1.
     innerIterations := 1.
   )
-  
+
   loadBenchmarkSuite: className = (
     | sym cls |
     sym := className asSymbol.
@@ -38,22 +38,21 @@ Run = (
         self error: 'Failed loading benchmark: ', className ].
     ^ cls
   )
-  
+
   name: aString = ( name := aString )
   benchmarkSuite: aSuite = ( benchmarkSuite  := aSuite )
   numIterations:   anInt = ( numIterations   := anInt )
   innerIterations: anInt = ( innerIterations := anInt )
-  
+
   runBenchmark = (
-    | result |
     ('Starting ' + name + ' benchmark ... ') println.
-    
+
     self doRuns: benchmarkSuite new.
     self reportBenchmark.
 
     '' println
   )
-  
+
   measure: bench = (
     | startTime endTime runTime |
     startTime := system ticks.
@@ -66,7 +65,7 @@ Run = (
 
     total := total + runTime.
   )
-  
+
   doRuns: bench = (
     1 to: numIterations do: [:i |
       self measure: bench
@@ -78,17 +77,17 @@ Run = (
      ' average: ' + (total / numIterations) + 'us total: ' + total +
      'us\n') println.
   )
-  
+
   printResult: runTime = (
     (name + ': iterations=1 runtime: ' + runTime + 'us') println
   )
-      
+
   printTotal = (
     ('Total Runtime: ' + total + 'us') println.
   )
-  
+
   ----
-  
+
   new: name = (
     ^ self new initialize: name
   )
