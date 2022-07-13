@@ -1,3 +1,5 @@
+using Random = Benchmarks.Random;
+
 namespace Benchmarks;
 
 public static class Harness
@@ -20,6 +22,9 @@ public static class Harness
             PrintHelp();
             Console.WriteLine();
             Console.WriteLine($"Error: Benchmark \"{benchmarkName}\" was not found.");
+            Console.WriteLine($"Known benchmarks:");
+            foreach (var known in KnownBenchmarks.Keys.OrderBy(x => x))
+                Console.WriteLine(known);
             return;
         }
 
@@ -46,10 +51,23 @@ public static class Harness
         Console.WriteLine("                   which is measured in total, default: 1");
     }
 
+    private static readonly Dictionary<string, Type> KnownBenchmarks = new(StringComparer.InvariantCultureIgnoreCase)
+    {
+        {nameof(Bounce), typeof(Bounce) },
+        {nameof(List), typeof(List) },
+        {nameof(NBody), typeof(NBody) },
+        {nameof(Permute), typeof(Permute) },
+        {nameof(Queens), typeof(Queens) },
+        {nameof(Random), typeof(Random) },
+        {nameof(Richards), typeof(Richards) },
+        {nameof(Sieve), typeof(Sieve) },
+        {nameof(Storage), typeof(Storage) },
+        {nameof(Towers), typeof(Towers) },
+    };
 
     private static Benchmark? CreateBenchmarkInstance(string name)
     {
-        var benchmarkClass = Type.GetType("AreWeFastYet." + name, false, true);
+        KnownBenchmarks.TryGetValue(name, out var benchmarkClass);
         if (benchmarkClass == null)
             return null;
         var benchmarkInstance = Activator.CreateInstance(benchmarkClass) as Benchmark;
