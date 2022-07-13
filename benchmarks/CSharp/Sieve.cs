@@ -1,16 +1,7 @@
-using System;
-using System.Collections;
-
 public class Sieve : Benchmark
 {
-  public static void Main(string[] args)
-  {
-    Sieve s = new Sieve();
-    Object result = s.benchmark();
-    bool rr = s.verifyResult(result);
-  }
 
-  public override Object benchmark()
+  public override object Execute()
   {
     bool[] flags = new bool[5000];
     Array.Fill(flags, true);
@@ -37,7 +28,7 @@ public class Sieve : Benchmark
     return primeCount;
   }
 
-  public override bool verifyResult(Object result)
+  public override bool VerifyResult(object result)
   {
     return 669 == (int)result;
   }
