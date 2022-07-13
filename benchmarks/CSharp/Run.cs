@@ -20,9 +20,9 @@ class Run
     public void RunBenchmark(Benchmark benchmarkInstance)
     {
         Console.WriteLine("Starting " + benchmarkInstance + " benchmark ...");
-        DoRuns(benchmarkInstance);        
+        DoRuns(benchmarkInstance);
         ReportBenchmark();
-        Console.WriteLine();        
+        Console.WriteLine();
     }
 
     private void DoRuns(Benchmark bench)
@@ -47,12 +47,12 @@ class Run
 
     private void PrintResult(long runTime)
     {
-        Console.WriteLine($"{Name} iteration runtime: {runTime}µs");
+        Console.WriteLine($"{Name}: iterations=1 runtime: {runTime}us");
     }
 
     private void ReportBenchmark()
     {
         var avgTimeUs = TotalRuntime / Iterations;
-        Console.WriteLine($"{Name}: iterations={Iterations} average: {avgTimeUs}µs total: {TotalRuntime}µs\n");
+        Console.WriteLine($"{Name}: iterations={Iterations} average: {avgTimeUs}us total: {TotalRuntime}us\n");
     }
 }
