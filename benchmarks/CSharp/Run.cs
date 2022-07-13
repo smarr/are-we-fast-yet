@@ -1,50 +1,5 @@
 using System.Diagnostics;
 
-if (args.Length == 0)
-{
-    PrintHelp();
-    return;
-}
-
-var benchmarkName = args[0];
-var NumberOfIterations = ArgumentOrDefault(1, 1);
-var NumberOfInnerIterations = ArgumentOrDefault(2, 1);
-
-var benchmarkInstance = CreateBenchmarkInstance(benchmarkName!);
-if (benchmarkInstance == null)
-{
-    PrintHelp();
-    Console.WriteLine();
-    Console.WriteLine($"Error: Benchmark \"{ benchmarkName }\" was not found.");
-    return;
-}
-var run = new Run(benchmarkInstance.GetType().Name) { 
-    Iterations = NumberOfIterations,
-    InnerIterations = NumberOfInnerIterations
-};
-run.RunBenchmark(benchmarkInstance);
-
-void PrintHelp()
-{
-    Console.WriteLine("Harness [benchmark] [num-iterations [inner-iter]]");
-    Console.WriteLine();
-    Console.WriteLine("  benchmark      - benchmark class name ");
-    Console.WriteLine("  num-iterations - number of times to execute benchmark, default: 1");
-    Console.WriteLine("  inner-iter     - number of times the benchmark is executed in an inner loop, ");
-    Console.WriteLine("                   which is measured in total, default: 1");
-}
-
-int ArgumentOrDefault(int index, int defaultValue) => args.Length > index ? int.Parse(args[index]) : defaultValue;
-
-Benchmark? CreateBenchmarkInstance(string name)
-{
-    var benchmarkClass = Type.GetType("AreWeFastYet." + name, false, true);
-    if (benchmarkClass == null)
-        return null;
-    var benchmarkInstance = Activator.CreateInstance(benchmarkClass) as Benchmark;
-    return benchmarkInstance;
-}
-
 class Run
 {
     public int Iterations { get; set; } = 1;
