@@ -61,6 +61,11 @@ jobs:
         with:
           dotnet-version: '6.x.x'
 
+      - name: Install ReSharper
+        if: matrix.id == 'csharp'
+        run: |
+          dotnet tool install -g JetBrains.ReSharper.GlobalTools
+
       - name: Install Crystal
         if: matrix.id == 'crystal'
         uses: oprypin/install-crystal@v1
