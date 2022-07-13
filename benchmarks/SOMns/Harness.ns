@@ -86,7 +86,6 @@ class Harness usingPlatform: platform = (
     |
   )(
     public runBenchmark = (
-      | result |
       ('Starting ' + name + ' benchmark ... ') println.
 
       self doRuns: benchmarkSuite newInstance.
