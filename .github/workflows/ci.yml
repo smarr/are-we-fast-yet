@@ -12,6 +12,9 @@ jobs:
           - name: Java
             id:   java
 
+          - name: C#
+            id:   csharp
+
           - name: SOM
             id:   som
 
@@ -52,6 +55,12 @@ jobs:
         run: |
           python -m pip install ReBench
       
+      - name: Install C#
+        if: matrix.id == 'csharp'
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '6.x.x'
+
       - name: Install Crystal
         if: matrix.id == 'crystal'
         uses: oprypin/install-crystal@v1
