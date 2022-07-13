@@ -1,5 +1,3 @@
-using Random = Benchmarks.Random;
-
 namespace Benchmarks;
 
 public static class Harness
@@ -16,7 +14,7 @@ public static class Harness
         var numberOfIterations = ArgumentOrDefault(1, 1);
         var numberOfInnerIterations = ArgumentOrDefault(2, 1);
 
-        var benchmarkInstance = CreateBenchmarkInstance(benchmarkName!);
+        var benchmarkInstance = CreateBenchmarkInstance(benchmarkName);
         if (benchmarkInstance == null)
         {
             PrintHelp();
@@ -58,7 +56,6 @@ public static class Harness
         {nameof(NBody), typeof(NBody) },
         {nameof(Permute), typeof(Permute) },
         {nameof(Queens), typeof(Queens) },
-        {nameof(Random), typeof(Random) },
         {nameof(Richards), typeof(Richards) },
         {nameof(Sieve), typeof(Sieve) },
         {nameof(Storage), typeof(Storage) },

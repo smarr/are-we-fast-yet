@@ -2,7 +2,6 @@ namespace Benchmarks;
 
 public class Sieve : Benchmark
 {
-
   public override object Execute()
   {
     bool[] flags = new bool[5000];
