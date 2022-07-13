@@ -26,13 +26,11 @@ public static class Harness
             return;
         }
 
-        var run = new Run(benchmarkInstance.GetType().Name)
-        {
-            Iterations = numberOfIterations,
-            InnerIterations = numberOfInnerIterations
-        };
+        var run = new Run(benchmarkInstance.GetType().Name);
+        run.SetIterations(numberOfIterations);
+        run.SetInnerIterations(numberOfInnerIterations);
         run.RunBenchmark(benchmarkInstance);
-        
+
         int ArgumentOrDefault(int index, int defaultValue)
         {
             return args.Length > index ? int.Parse(args[index]) : defaultValue;

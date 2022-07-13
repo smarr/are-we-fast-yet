@@ -2,19 +2,18 @@ using System.Diagnostics;
 
 namespace Benchmarks;
 
-class Run
+sealed class Run
 {
-    public int Iterations { get; init; } = 1;
-    public int InnerIterations { get; init; } = 1;
-    /// <summary>
-    /// Total runtime in microseconds
-    /// </summary>
-    public long TotalRuntime { get; private set; }
-    public string Name { get; }
+    private int iterations;
+    private int innerIterations;
+    private long total;
+    private readonly string name;
 
     public Run(string name)
     {
-        Name = name;
+        this.name = name;
+        iterations = 1;
+        innerIterations = 1;
     }
 
     public void RunBenchmark(Benchmark benchmarkInstance)
@@ -27,7 +26,7 @@ class Run
 
     private void DoRuns(Benchmark bench)
     {
-        for (var i = 0; i < Iterations; i++)
+        for (var i = 0; i < iterations; i++)
         {
             Measure(bench);
         }
@@ -36,23 +35,31 @@ class Run
     {
         var sw = new Stopwatch();
         sw.Start();
-        if (!bench.InnerBenchmarkLoop(InnerIterations))
+        if (!bench.InnerBenchmarkLoop(innerIterations))
         {
             throw new Exception("Benchmark failed with incorrect result");
         }
         var runTime = (long)(sw.Elapsed.TotalMilliseconds * 1000);
         PrintResult(runTime);
-        TotalRuntime += runTime;
+        total += runTime;
     }
 
     private void PrintResult(long runTime)
     {
-        Console.WriteLine($"{Name}: iterations=1 runtime: {runTime}us");
+        Console.WriteLine($"{name}: iterations=1 runtime: {runTime}us");
     }
 
     private void ReportBenchmark()
     {
-        var avgTimeUs = TotalRuntime / Iterations;
-        Console.WriteLine($"{Name}: iterations={Iterations} average: {avgTimeUs}us total: {TotalRuntime}us\n");
+        var avgTimeUs = total / iterations;
+        Console.WriteLine($"{name}: iterations={iterations} average: {avgTimeUs}us total: {total}us\n");
+    }
+
+    public void SetIterations(int value) {
+        iterations = value;
+    }
+
+    public void SetInnerIterations(int value) {
+        this.innerIterations = value;
     }
 }
