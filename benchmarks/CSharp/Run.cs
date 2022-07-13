@@ -1,9 +1,11 @@
 using System.Diagnostics;
 
+namespace Benchmarks;
+
 class Run
 {
-    public int Iterations { get; set; } = 1;
-    public int InnerIterations { get; set; } = 1;
+    public int Iterations { get; init; } = 1;
+    public int InnerIterations { get; init; } = 1;
     /// <summary>
     /// Total runtime in microseconds
     /// </summary>
