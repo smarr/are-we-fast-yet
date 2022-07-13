@@ -1,3 +1,5 @@
+namespace Benchmarks;
+
 public abstract class Benchmark {
     public abstract object Execute();
     public abstract bool VerifyResult(object result);

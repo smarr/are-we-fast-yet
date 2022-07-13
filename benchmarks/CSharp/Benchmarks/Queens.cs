@@ -1,3 +1,5 @@
+namespace Benchmarks;
+
 public class Queens : Benchmark
 {
   private bool[] freeMaxs;

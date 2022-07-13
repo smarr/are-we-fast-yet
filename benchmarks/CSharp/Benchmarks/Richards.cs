@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace AreWeFastYet;
+namespace Benchmarks;
 
 public sealed class Richards : Benchmark
 {

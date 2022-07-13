@@ -1,3 +1,5 @@
+namespace Benchmarks;
+
 public class List : Benchmark
 {
     public class Element {
