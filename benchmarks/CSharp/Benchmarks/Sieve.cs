@@ -1,3 +1,5 @@
+namespace Benchmarks;
+
 public class Sieve : Benchmark
 {
 

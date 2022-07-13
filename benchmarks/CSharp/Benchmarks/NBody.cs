@@ -1,4 +1,4 @@
-﻿namespace AreWeFastYet;
+﻿namespace Benchmarks;
 
 public sealed class NBody : Benchmark
 {

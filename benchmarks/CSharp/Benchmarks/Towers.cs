@@ -1,3 +1,5 @@
+namespace Benchmarks;
+
 public class TowersDisk
 {
   public readonly int Size;
