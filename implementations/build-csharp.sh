@@ -5,7 +5,7 @@ INFO "Build C\# Benchmarks"
 pushd $SCRIPT_PATH/../benchmarks/CSharp
 if [ "$1" = "style" ]
 then
-  dotnet tool run jb inspectcode
+  dotnet tool run jb inspectcode Benchmarks.csproj --build
 else
   dotnet publish -c Release
 fi
