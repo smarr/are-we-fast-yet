@@ -9,39 +9,39 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Java
-            id:   java
+          # - name: Java
+          #   id:   java
 
           - name: C#
             id:   csharp
 
-          - name: SOM
-            id:   som
+          # - name: SOM
+          #   id:   som
 
-          - name: Crystal
-            id:   crystal
+          # - name: Crystal
+          #   id:   crystal
 
-          - name: JavaScript
-            id:   js
+          # - name: JavaScript
+          #   id:   js
 
-          - name: SOMns
-            id:   somns
+          # - name: SOMns
+          #   id:   somns
 
-          - name: Pharo
-            id:   pharo
+          # - name: Pharo
+          #   id:   pharo
 
-          - name: Squeak 64-bit
-            id:   squeak64
+          # - name: Squeak 64-bit
+          #   id:   squeak64
 
-          - name: Ruby
-            id:   ruby
+          # - name: Ruby
+          #   id:   ruby
 
-          - name: Lua 5.2
-            id:   lua52
+          # - name: Lua 5.2
+          #   id:   lua52
 
-          - name: Python
-            id:   python
-          
+          # - name: Python
+          #   id:   python
+
     name: ${{ matrix.name }}
     steps:
       - uses: actions/setup-python@v2
