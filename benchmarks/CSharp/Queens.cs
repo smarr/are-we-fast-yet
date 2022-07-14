@@ -12,12 +12,12 @@ public class Queens : Benchmark
     bool result = true;
     for (int i = 0; i < 10; i++)
     {
-      result = result && queens();
+      result = result && _queens();
     }
     return result;
   }
 
-  private bool queens()
+  private bool _queens()
   {
     freeRows = new bool[8]; Array.Fill(freeRows, true);
     freeMaxs = new bool[16]; Array.Fill(freeMaxs, true);

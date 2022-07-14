@@ -20,7 +20,7 @@ public static class Harness
             PrintHelp();
             Console.WriteLine();
             Console.WriteLine($"Error: Benchmark \"{benchmarkName}\" was not found.");
-            Console.WriteLine($"Known benchmarks:");
+            Console.WriteLine("Known benchmarks:");
             foreach (var known in KnownBenchmarks.Keys.OrderBy(x => x))
                 Console.WriteLine(known);
             return;

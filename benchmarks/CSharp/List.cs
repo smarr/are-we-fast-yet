@@ -4,19 +4,18 @@ public class List : Benchmark
 {
     public class Element {
 
-        public object Val;
+        public object Val { get; set; }
 
-        public Element? Next;
+        public Element? Next { get; set; }
 
         public Element(object v) {
             Val = v;
         }
 
         public int Length(){
-            if(Next == null){
+            if (Next == null) {
                 return 1;
-            }
-            else{
+            } else {
                 return 1 + Next.Length();
             }
         }
