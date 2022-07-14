@@ -38,6 +38,6 @@ public class Permute : Benchmark
 
   public override bool VerifyResult(object result)
   {
-    return (int)result == 8660;
+    return (int) result == 8660;
   }
 }

@@ -7,6 +7,7 @@ if [ "$1" = "style" ]
 then
   dotnet tool run jb inspectcode Benchmarks.csproj --build -f=Text -o=report.txt --include=**/*.cs
   cat report.txt
+  dotnet tool run jb cleanupcode .
 else
   dotnet publish -c Release
 fi

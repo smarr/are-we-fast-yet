@@ -1,10 +1,8 @@
 
-[*.{appxmanifest,asax,ascx,aspx,axaml,build,cg,cginc,compute,cs,cshtml,dtd,hlsl,hlsli,hlslinc,master,nuspec,paml,razor,resw,resx,skin,usf,ush,vb,xaml,xamlx,xoml,xsd}]
-indent_style = space
-indent_size = 4
-tab_width = 4
-
 [*]
+indent_style = space
+indent_size = 2
+tab_width = 2
 
 # Microsoft .NET properties
 csharp_new_line_before_members_in_object_initializers = false
@@ -57,7 +55,7 @@ dotnet_style_qualification_for_method = false:suggestion
 dotnet_style_qualification_for_property = false:suggestion
 
 # ReSharper properties
-resharper_autodetect_indent_settings = true
+resharper_autodetect_indent_settings = false
 resharper_default_private_modifier = implicit
 resharper_space_within_single_line_array_initializer_braces = false
 resharper_use_indent_from_vs = false

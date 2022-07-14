@@ -14,15 +14,20 @@ public class Queens : Benchmark
     {
       result = result && _queens();
     }
+
     return result;
   }
 
   private bool _queens()
   {
-    freeRows = new bool[8]; Array.Fill(freeRows, true);
-    freeMaxs = new bool[16]; Array.Fill(freeMaxs, true);
-    freeMins = new bool[16]; Array.Fill(freeMins, true);
-    queenRows = new int[8]; Array.Fill(queenRows, -1);
+    freeRows = new bool[8];
+    Array.Fill(freeRows, true);
+    freeMaxs = new bool[16];
+    Array.Fill(freeMaxs, true);
+    freeMins = new bool[16];
+    Array.Fill(freeMins, true);
+    queenRows = new int[8];
+    Array.Fill(queenRows, -1);
 
     return PlaceQueen(0);
   }
@@ -45,9 +50,11 @@ public class Queens : Benchmark
         {
           return true;
         }
+
         SetRowColumn(r, c, true);
       }
     }
+
     return false;
   }
 
@@ -65,6 +72,6 @@ public class Queens : Benchmark
 
   public override bool VerifyResult(object result)
   {
-    return (bool)result;
+    return (bool) result;
   }
 }

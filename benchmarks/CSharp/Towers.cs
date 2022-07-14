@@ -82,7 +82,6 @@ public class Towers : Benchmark
 
   public override bool VerifyResult(object result)
   {
-    return 8191 == (int)result;
+    return 8191 == (int) result;
   }
-
 }
