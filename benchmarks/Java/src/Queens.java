@@ -48,7 +48,7 @@ public class Queens extends Benchmark {
     return placeQueen(0);
   }
 
-  boolean placeQueen(final int c) {
+  private boolean placeQueen(final int c) {
     for (int r = 0; r < 8; r++) {
       if (getRowColumn(r, c)) {
         queenRows[r] = c;
@@ -67,11 +67,11 @@ public class Queens extends Benchmark {
     return false;
   }
 
-  boolean getRowColumn(final int r, final int c) {
+  private boolean getRowColumn(final int r, final int c) {
     return freeRows[r] && freeMaxs[c + r] && freeMins[c - r + 7];
   }
 
-  void setRowColumn(final int r, final int c, final boolean v) {
+  private void setRowColumn(final int r, final int c, final boolean v) {
     freeRows[r        ] = v;
     freeMaxs[c + r    ] = v;
     freeMins[c - r + 7] = v;
