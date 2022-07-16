@@ -3,13 +3,13 @@
 
   contributed by Mark C. Lewis
   modified slightly by Chad Whipkey
-  
+
   Based on nbody.java ported to SOM by Stefan Marr.
   See LICENSE.md file.
 "
 NBodySystem = (
   | bodies |
-  
+
   initialize = (
     bodies := self createBodies
   )
@@ -23,7 +23,7 @@ NBodySystem = (
     bodies at: 3 put: Body saturn.
     bodies at: 4 put: Body uranus.
     bodies at: 5 put: Body neptune.
-    
+
     "bodies do: [:b | b print. '' println ]."
 
     px := 0.0.  py := 0.0.  pz := 0.0.
@@ -33,9 +33,9 @@ NBodySystem = (
         py := py + (b vy * b mass).
         pz := pz + (b vz * b mass).
     ].
-    
+
     (bodies at: 1) offsetMomentumX: px y: py z: pz.
-    
+
     "bodies do: [:b | b print. '' println ]."
     ^ bodies
   )
@@ -72,24 +72,24 @@ NBodySystem = (
        body z: body z + (dt * body vz).
     ].
   )
-  
+
   energy = (
-    | dx dy dz distance e |
+    | e |
     e := 0.0.
 
     1 to: bodies length do: [:i |
       | iBody |
       iBody := bodies at: i.
-  
+
       e := e + (0.5 * iBody mass *
            ((iBody vx * iBody vx) +
             (iBody vy * iBody vy) +
             (iBody vz * iBody vz))).
-  
+
       i + 1 to: bodies length do: [:j |
-          | jBody |
+          | jBody dx dy dz distance |
           jBody := bodies at: j.
-      
+
           dx := iBody x - jBody x.
           dy := iBody y - jBody y.
           dz := iBody z - jBody z.
@@ -100,9 +100,9 @@ NBodySystem = (
     ].
     ^ e
   )
-  
+
   ----
-  
+
   new = (
       ^ super new initialize
   )
