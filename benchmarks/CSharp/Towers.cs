@@ -1,9 +1,9 @@
 namespace Benchmarks;
 
-public class TowersDisk
+public sealed class TowersDisk
 {
-  public readonly int Size;
-  public TowersDisk? Next;
+  public int Size { get; }
+  public TowersDisk? Next { get; set; }
 
   public TowersDisk(int size)
   {
@@ -14,30 +14,30 @@ public class TowersDisk
 
 public class Towers : Benchmark
 {
-  public TowersDisk?[] Piles = Array.Empty<TowersDisk>();
-  public int MovesDone;
+  private TowersDisk?[] piles = Array.Empty<TowersDisk>();
+  private int movesDone;
 
   private void PushDisk(TowersDisk disk, int pile)
   {
-    TowersDisk? top = Piles[pile];
+    TowersDisk? top = piles[pile];
     if (!(top == null) && (disk.Size >= top.Size))
     {
       throw new InvalidOperationException("Cannot put a big disk on a smaller one");
     }
 
     disk.Next = top;
-    Piles[pile] = disk;
+    piles[pile] = disk;
   }
 
   private TowersDisk PopDiskFrom(int pile)
   {
-    TowersDisk? top = Piles[pile];
+    TowersDisk? top = piles[pile];
     if (top == null)
     {
       throw new InvalidOperationException("Attempting to remove a disk from an empty pile");
     }
 
-    Piles[pile] = top.Next;
+    piles[pile] = top.Next;
     top.Next = null;
     return top;
   }
@@ -45,7 +45,7 @@ public class Towers : Benchmark
   private void MoveTopDisk(int fromPile, int toPile)
   {
     PushDisk(PopDiskFrom(fromPile), toPile);
-    MovesDone++;
+    movesDone++;
   }
 
   private void BuildTowerAt(int pile, int disks)
@@ -73,11 +73,11 @@ public class Towers : Benchmark
 
   public override object Execute()
   {
-    Piles = new TowersDisk[3];
+    piles = new TowersDisk[3];
     BuildTowerAt(0, 13);
-    MovesDone = 0;
+    movesDone = 0;
     MoveDisks(13, 0, 1);
-    return MovesDone;
+    return movesDone;
   }
 
   public override bool VerifyResult(object result)
