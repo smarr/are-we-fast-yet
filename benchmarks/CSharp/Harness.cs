@@ -51,6 +51,7 @@ public static class Harness
   {
     {nameof(Bounce), typeof(Bounce)},
     {nameof(List), typeof(List)},
+    {nameof(Mandelbrot), typeof(Mandelbrot)},
     {nameof(NBody), typeof(NBody)},
     {nameof(Permute), typeof(Permute)},
     {nameof(Queens), typeof(Queens)},
