@@ -2,7 +2,7 @@ namespace Benchmarks;
 
 public class Storage : Benchmark
 {
-  int count;
+  private int count;
 
   public override object Execute()
   {
