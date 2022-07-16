@@ -2,8 +2,8 @@ namespace Benchmarks;
 
 public class Permute : Benchmark
 {
-  int count;
-  int[] v = Array.Empty<int>();
+  private int count;
+  private int[] v = Array.Empty<int>();
 
   public override object Execute()
   {
