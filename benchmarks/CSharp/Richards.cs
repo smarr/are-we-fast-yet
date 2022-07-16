@@ -15,12 +15,12 @@ public sealed class Richards : Benchmark
   }
 }
 
-sealed class Scheduler : RBObject
+sealed class Scheduler : RbObject
 {
-  private TaskControlBlock taskList;
+  private TaskControlBlock? taskList;
   private TaskControlBlock? currentTask;
   private int currentTaskIdentity;
-  private readonly TaskControlBlock[] taskTable;
+  private readonly TaskControlBlock?[] taskTable;
 
   private int queuePacketCount;
   private int holdCount;
@@ -38,19 +38,19 @@ sealed class Scheduler : RBObject
     queuePacketCount = 0;
     holdCount = 0;
     taskTable = new TaskControlBlock[NUM_TYPES];
-    //Not needed: Arrays.Fill(taskTable, NO_TASK);
+    Array.Fill(taskTable, NO_TASK);
     taskList = NO_TASK;
   }
 
 
-  internal void CreateDevice(int identity, int priority, Packet workPacket, TaskState state)
+  internal void CreateDevice(int identity, int priority, Packet? workPacket, TaskState state)
   {
     var data = new DeviceTaskDataRecord();
 
-    CreateTask(identity, priority, workPacket, state, (Packet workArg, RBObject wordArg) =>
+    CreateTask(identity, priority, workPacket, state, (workArg, wordArg) =>
       {
-        var dataRecord = (DeviceTaskDataRecord) wordArg;
-        Packet functionWork = workArg;
+        var dataRecord = (DeviceTaskDataRecord) wordArg!;
+        Packet? functionWork = workArg;
         if (NO_WORK == functionWork)
         {
           if (NO_WORK == (functionWork = dataRecord.Pending))
@@ -69,7 +69,7 @@ sealed class Scheduler : RBObject
 
 #pragma warning disable CS0162 // Unreachable code detected
           if (TRACING)
-            Trace(functionWork.Datum);
+            Trace(functionWork!.Datum);
 #pragma warning restore CS0162 // Unreachable code detected
 
           return HoldSelf();
@@ -78,12 +78,12 @@ sealed class Scheduler : RBObject
       data);
   }
 
-  internal void CreateHandler(int identity, int priority, Packet workPaket, TaskState state)
+  internal void CreateHandler(int identity, int priority, Packet? workPaket, TaskState state)
   {
     var data = new HandlerTaskDataRecord();
-    CreateTask(identity, priority, workPaket, state, (Packet work, RBObject word) =>
+    CreateTask(identity, priority, workPaket, state, (work, word) =>
       {
-        var dataRecord = (HandlerTaskDataRecord) word;
+        var dataRecord = (HandlerTaskDataRecord) word!;
         if (NO_WORK != work)
         {
           if (WORK_PACKET_KIND == work.Kind)
@@ -96,7 +96,7 @@ sealed class Scheduler : RBObject
           }
         }
 
-        Packet workPacket = dataRecord.WorkIn;
+        Packet? workPacket = dataRecord.WorkIn;
         if (workPacket == NO_WORK)
         {
           return MarkWaiting();
@@ -111,7 +111,7 @@ sealed class Scheduler : RBObject
           }
           else
           {
-            Packet devicePacket = dataRecord.DeviceIn;
+            Packet? devicePacket = dataRecord.DeviceIn;
             if (devicePacket == NO_WORK)
             {
               return MarkWaiting();
@@ -129,12 +129,12 @@ sealed class Scheduler : RBObject
       data);
   }
 
-  internal void CreateIdler(int identity, int priority, Packet work, TaskState state)
+  internal void CreateIdler(int identity, int priority, Packet? work, TaskState state)
   {
     var data = new IdleTaskDataRecord();
-    CreateTask(identity, priority, work, state, (Packet workArg, RBObject wordArg) =>
+    CreateTask(identity, priority, work, state, (_, wordArg) =>
       {
-        var dataRecord = (IdleTaskDataRecord) wordArg;
+        var dataRecord = (IdleTaskDataRecord) wordArg!;
         dataRecord.Count--;
         if (dataRecord.Count == 0)
         {
@@ -157,32 +157,32 @@ sealed class Scheduler : RBObject
       data);
   }
 
-  internal static Packet CreatePacket(Packet link, int identity, int kind)
+  internal static Packet CreatePacket(Packet? link, int identity, int kind)
   {
     return new Packet(link, identity, kind);
   }
 
-  internal void CreateTask(int identity, int priority, Packet work, TaskState state, ProcessFunction aBlock,
-    RBObject data)
+  internal void CreateTask(int identity, int priority, Packet? work, TaskState state, ProcessFunction aBlock,
+    RbObject data)
   {
-    var t = new TaskControlBlock(taskList, identity, priority, work, state, aBlock, data);
+    var t = new TaskControlBlock(taskList!, identity, priority, work, state, aBlock, data);
     taskList = t;
     taskTable[identity] = t;
   }
 
-  internal void CreateWorker(int identity, int priority, Packet workPaket, TaskState state)
+  internal void CreateWorker(int identity, int priority, Packet? workPaket, TaskState state)
   {
     var dataRecord = new WorkerTaskDataRecord();
-    CreateTask(identity, priority, workPaket, state, (Packet work, RBObject word) =>
+    CreateTask(identity, priority, workPaket, state, (work, word) =>
       {
-        var data = (WorkerTaskDataRecord) word;
+        var data = (WorkerTaskDataRecord?) word;
         if (NO_WORK == work)
         {
           return MarkWaiting();
         }
         else
         {
-          data.Destination = (HANDLER_A == data.Destination) ? HANDLER_B : HANDLER_A;
+          data!.Destination = (HANDLER_A == data.Destination) ? HANDLER_B : HANDLER_A;
           work.Identity = data.Destination;
           work.Datum = 0;
           for (var i = 0; i < Packet.DataSize; i++)
@@ -204,10 +204,8 @@ sealed class Scheduler : RBObject
 
   public bool Start()
   {
-    Packet workQ;
-
     CreateIdler(IDLER, 0, NO_WORK, TaskState.CreateRunning());
-    workQ = CreatePacket(NO_WORK, WORKER, WORK_PACKET_KIND);
+    Packet workQ = CreatePacket(NO_WORK, WORKER, WORK_PACKET_KIND);
     workQ = CreatePacket(workQ, WORKER, WORK_PACKET_KIND);
 
     CreateWorker(WORKER, 1000, workQ, TaskState.CreateWaitingWithPacket());
@@ -231,7 +229,7 @@ sealed class Scheduler : RBObject
 
   internal TaskControlBlock FindTask(int identity)
   {
-    TaskControlBlock t = taskTable[identity];
+    TaskControlBlock? t = taskTable[identity];
     return NO_TASK == t ? throw new Exception("findTask failed") : t;
   }
 
@@ -242,9 +240,8 @@ sealed class Scheduler : RBObject
     return currentTask.Link;
   }
 
-  internal TaskControlBlock QueuePacket(Packet packet)
+  internal TaskControlBlock? QueuePacket(Packet packet)
   {
-    Debug.Assert(currentTask != null);
     TaskControlBlock t = FindTask(packet.Identity);
     if (t == NO_TASK)
     {
@@ -258,9 +255,8 @@ sealed class Scheduler : RBObject
     return t.AddInputAndCheckPriority(packet, currentTask);
   }
 
-  internal TaskControlBlock Release(int identity)
+  internal TaskControlBlock? Release(int identity)
   {
-    Debug.Assert(currentTask != null);
     TaskControlBlock t = FindTask(identity);
     if (NO_TASK == t)
     {
@@ -268,7 +264,14 @@ sealed class Scheduler : RBObject
     }
 
     t.IsTaskHolding = false;
-    return t.Priority > currentTask.Priority ? t : currentTask;
+    if (t.Priority > currentTask!.Priority)
+    {
+      return t;
+    }
+    else
+    {
+      return currentTask;
+    }
   }
 
   internal void Trace(int id)
@@ -314,16 +317,16 @@ sealed class Scheduler : RBObject
   }
 }
 
-internal abstract class RBObject
+internal abstract class RbObject
 {
-  public virtual Packet Append(Packet packet, Packet queueHead)
+  public Packet Append(Packet packet, Packet? queueHead)
   {
     packet.Link = NO_WORK;
     if (NO_WORK == queueHead)
       return packet;
 
     Packet mouse = queueHead;
-    Packet link;
+    Packet? link;
     while (NO_WORK != (link = mouse.Link))
     {
       mouse = link;
@@ -345,37 +348,36 @@ internal abstract class RBObject
   public const int DEVICE_PACKET_KIND = 0;
   public const int WORK_PACKET_KIND = 1;
 
-  public const Packet NO_WORK = null;
+  public const Packet? NO_WORK = null;
 
-  public const TaskControlBlock NO_TASK = null;
-  // ReSharper restore InconsistentNaming
+  public const TaskControlBlock? NO_TASK = null;
 }
 
-internal sealed class DeviceTaskDataRecord : RBObject
+internal sealed class DeviceTaskDataRecord : RbObject
 {
   internal DeviceTaskDataRecord()
   {
     Pending = NO_WORK;
   }
 
-  public Packet Pending { get; set; }
+  public Packet? Pending { get; set; }
 }
 
-sealed class HandlerTaskDataRecord : RBObject
+sealed class HandlerTaskDataRecord : RbObject
 {
   public HandlerTaskDataRecord()
   {
     WorkIn = DeviceIn = NO_WORK;
   }
 
-  public Packet DeviceIn { get; set; }
+  public Packet? DeviceIn { get; set; }
 
   public void DeviceInAdd(Packet packet)
   {
     DeviceIn = Append(packet, DeviceIn);
   }
 
-  public Packet WorkIn { get; set; }
+  public Packet? WorkIn { get; set; }
 
   public void WorkInAdd(Packet packet)
   {
@@ -383,7 +385,7 @@ sealed class HandlerTaskDataRecord : RBObject
   }
 }
 
-internal sealed class IdleTaskDataRecord : RBObject
+internal sealed class IdleTaskDataRecord : RbObject
 {
   public int Control { get; set; }
 
@@ -396,11 +398,11 @@ internal sealed class IdleTaskDataRecord : RBObject
   }
 }
 
-sealed class Packet : RBObject
+sealed class Packet : RbObject
 {
   public const int DataSize = 4;
 
-  public Packet(Packet link, int identity, int kind)
+  public Packet(Packet? link, int identity, int kind)
   {
     Link = link;
     Identity = identity;
@@ -417,7 +419,7 @@ sealed class Packet : RBObject
 
   public int Kind { get; }
 
-  public Packet Link { get; set; }
+  public Packet? Link { get; set; }
 
   public override string ToString()
   {
@@ -425,16 +427,16 @@ sealed class Packet : RBObject
   }
 }
 
-delegate TaskControlBlock ProcessFunction(Packet work, RBObject word);
+delegate TaskControlBlock? ProcessFunction(Packet? work, RbObject? word);
 
 sealed class TaskControlBlock : TaskState
 {
-  private Packet input;
+  private Packet? input;
   private readonly ProcessFunction function;
-  private readonly RBObject handle;
+  private readonly RbObject handle;
 
-  internal TaskControlBlock(TaskControlBlock aLink, int anIdentity, int aPriority, Packet anInitialWorkQueue,
-    TaskState anInitialState, ProcessFunction aBlock, RBObject aPrivateData)
+  internal TaskControlBlock(TaskControlBlock aLink, int anIdentity, int aPriority, Packet? anInitialWorkQueue,
+    TaskState anInitialState, ProcessFunction aBlock, RbObject aPrivateData)
   {
     Link = aLink;
     Identity = anIdentity;
@@ -451,13 +453,13 @@ sealed class TaskControlBlock : TaskState
   public TaskControlBlock Link { get; }
   public int Priority { get; }
 
-  public TaskControlBlock AddInputAndCheckPriority(Packet packet, TaskControlBlock oldTask)
+  public TaskControlBlock? AddInputAndCheckPriority(Packet packet, TaskControlBlock? oldTask)
   {
     if (NO_WORK == input)
     {
       input = packet;
       IsPacketPending = true;
-      if (Priority > oldTask.Priority)
+      if (Priority > oldTask!.Priority)
         return this;
     }
     else
@@ -468,13 +470,13 @@ sealed class TaskControlBlock : TaskState
     return oldTask;
   }
 
-  public TaskControlBlock RunTask()
+  public TaskControlBlock? RunTask()
   {
-    Packet message = NO_WORK;
+    Packet? message = NO_WORK;
     if (IsWaitingWithPacket)
     {
       message = input;
-      input = message.Link;
+      input = message!.Link;
       if (NO_WORK == input)
         SetRunning();
       else
@@ -485,54 +487,41 @@ sealed class TaskControlBlock : TaskState
   }
 }
 
-class TaskState : RBObject
+class TaskState : RbObject
 {
-  public virtual bool IsPacketPending { get; set; }
-  public virtual bool IsTaskHolding { get; set; }
-  public virtual bool IsTaskWaiting { get; set; }
+  public bool IsPacketPending { get; set; }
+  public bool IsTaskHolding { get; set; }
+  public bool IsTaskWaiting { get; set; }
 
-  public virtual void SetPacketPending()
+  public void SetPacketPending()
   {
     IsPacketPending = true;
     IsTaskWaiting = false;
     IsTaskHolding = false;
   }
 
-  public virtual void SetRunning()
+  public void SetRunning()
   {
     IsPacketPending = IsTaskWaiting = IsTaskHolding = false;
   }
 
-  public virtual void SetWaiting()
+  public void SetWaiting()
   {
     IsPacketPending = IsTaskHolding = false;
     IsTaskWaiting = true;
   }
 
-  public virtual void SetWaitingWithPacket()
+  public void SetWaitingWithPacket()
   {
     IsTaskHolding = false;
     IsTaskWaiting = IsPacketPending = true;
   }
 
-  public virtual bool IsRunning
-    => !IsPacketPending && !IsTaskWaiting && !IsTaskHolding;
-
-  public virtual bool IsTaskHoldingOrWaiting
+  public bool IsTaskHoldingOrWaiting
     => IsTaskHolding || (!IsPacketPending && IsTaskWaiting);
 
-  public virtual bool IsWaiting
-    => !IsPacketPending && IsTaskWaiting && !IsTaskHolding;
-
-  public virtual bool IsWaitingWithPacket
+  public bool IsWaitingWithPacket
     => IsPacketPending && IsTaskWaiting && !IsTaskHolding;
-
-  public static TaskState CreatePacketPending()
-  {
-    var t = new TaskState();
-    t.SetPacketPending();
-    return t;
-  }
 
   public static TaskState CreateRunning()
   {
@@ -556,7 +545,7 @@ class TaskState : RBObject
   }
 }
 
-sealed class WorkerTaskDataRecord : RBObject
+sealed class WorkerTaskDataRecord : RbObject
 {
   public WorkerTaskDataRecord()
   {
