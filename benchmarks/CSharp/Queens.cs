@@ -32,7 +32,7 @@ public class Queens : Benchmark
     return PlaceQueen(0);
   }
 
-  bool PlaceQueen(int c)
+  private bool PlaceQueen(int c)
   {
     for (int r = 0; r < 8; r++)
     {
@@ -58,12 +58,12 @@ public class Queens : Benchmark
     return false;
   }
 
-  bool GetRowColumn(int r, int c)
+  private bool GetRowColumn(int r, int c)
   {
     return freeRows[r] && freeMaxs[c + r] && freeMins[c - r + 7];
   }
 
-  void SetRowColumn(int r, int c, bool v)
+  private void SetRowColumn(int r, int c, bool v)
   {
     freeRows[r] = v;
     freeMaxs[c + r] = v;
