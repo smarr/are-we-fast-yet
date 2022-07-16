@@ -35,7 +35,7 @@ class ListSuite usingPlatform: platform andHarness: harness = (
       ^ 10 = result
     )
 
-    makeList: length = (
+    private makeList: length = (
       (length = 0)
         ifTrue: [ ^ nil ]
         ifFalse: [
@@ -45,7 +45,7 @@ class ListSuite usingPlatform: platform andHarness: harness = (
           ^ e ]
     )
 
-    isShorter: x than: y = (
+    private isShorter: x than: y = (
       | xTail yTail |
 
       xTail:: x. yTail:: y.
@@ -58,7 +58,7 @@ class ListSuite usingPlatform: platform andHarness: harness = (
       ^ false
     )
 
-    tailWithX: x withY: y withZ: z = (
+    private tailWithX: x withY: y withZ: z = (
       (self isShorter: y than: x)
         ifTrue: [
           ^ (self

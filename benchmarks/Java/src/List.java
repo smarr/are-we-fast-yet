@@ -50,7 +50,7 @@ public final class List extends Benchmark {
     return result.length();
   }
 
-  public Element makeList(final int length) {
+  private Element makeList(final int length) {
     if (length == 0) { return null; } else {
       Element e = new Element(length);
       e.setNext(makeList(length - 1));
@@ -58,7 +58,7 @@ public final class List extends Benchmark {
     }
   }
 
-  public boolean isShorterThan(final Element x, final Element y) {
+  private boolean isShorterThan(final Element x, final Element y) {
     Element xTail = x;
     Element yTail = y;
 
@@ -70,7 +70,7 @@ public final class List extends Benchmark {
     return false;
   }
 
-  public Element tail(final Element x, final Element y, final Element z) {
+  private Element tail(final Element x, final Element y, final Element z) {
     if (isShorterThan(y, x)) {
       return tail(tail(x.getNext(), y, z),
              tail(y.getNext(), z, x),
