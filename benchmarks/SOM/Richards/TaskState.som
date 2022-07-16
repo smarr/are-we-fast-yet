@@ -38,18 +38,11 @@ TaskState = RBObject (
       taskWaiting := packetPending := true
   )
 
-  isRunning = ( ^ packetPending not and: [taskWaiting not and: [taskHolding not]] )
-
   isTaskHoldingOrWaiting = ( ^ taskHolding or: [packetPending not and: [taskWaiting]] )
-
-  isWaiting = ( ^ packetPending not and: [taskWaiting and: [taskHolding not]] )
 
   isWaitingWithPacket = ( ^ packetPending and: [taskWaiting and: [taskHolding not]] )
 
-
   ----
-  packetPending = ( ^ super new packetPending )
-
   running = ( ^ super new running )
 
   waiting = ( ^ super new waiting )

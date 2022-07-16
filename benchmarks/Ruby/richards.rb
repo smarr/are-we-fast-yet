@@ -360,24 +360,12 @@ class TaskState < RBObject
     self
   end
 
-  def is_running
-    !@packet_pending && !@task_waiting && !@task_holding
-  end
-
   def is_task_holding_or_waiting
     @task_holding || (!@packet_pending && @task_waiting)
   end
 
-  def is_waiting
-    !@packet_pending && @task_waiting && !@task_holding
-  end
-
   def is_waiting_with_packet
     @packet_pending && @task_waiting && !@task_holding
-  end
-
-  def self.packet_pending
-    new.packet_pending
   end
 
   def self.running

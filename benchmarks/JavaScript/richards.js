@@ -86,26 +86,12 @@ class TaskState extends RBObject {
     this.packetPending_ = true;
   }
 
-  isRunning() {
-    return !this.packetPending_ && !this.taskWaiting_ && !this.taskHolding_;
-  }
-
   isTaskHoldingOrWaiting() {
     return this.taskHolding_ || (!this.packetPending_ && this.taskWaiting_);
   }
 
-  isWaiting() {
-    return !this.packetPending_ && this.taskWaiting_ && !this.taskHolding_;
-  }
-
   isWaitingWithPacket() {
     return this.packetPending_ && this.taskWaiting_ && !this.taskHolding_;
-  }
-
-  static createPacketPending() {
-    const t = new TaskState();
-    t.packetPending();
-    return t;
   }
 
   static createRunning() {

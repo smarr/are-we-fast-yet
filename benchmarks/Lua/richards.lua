@@ -195,24 +195,12 @@ function TaskState:waiting_with_packet ()
     return self
 end
 
-function TaskState:is_running ()
-    return not self.packt_pending and not self.task_waiting and not self.task_holding
-end
-
 function TaskState:is_task_holding_or_waiting ()
     return self.task_holding or (not self.packt_pending and self.task_waiting)
 end
 
-function TaskState:is_waiting ()
-    return not self.packt_pending and self.task_waiting and not self.task_holding
-end
-
 function TaskState:is_waiting_with_packet ()
     return self.packt_pending and self.task_waiting and not self.task_holding
-end
-
-function TaskState.create_packet_pending ()
-    return TaskState.new():packet_pending()
 end
 
 function TaskState.create_running ()

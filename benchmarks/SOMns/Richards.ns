@@ -384,12 +384,9 @@ class RichardsBenchmark usingPlatform: platform andHarness: harness = (
       taskWaiting_:: packetPending_:: true
     )
 
-    public isRunning = ( ^ packetPending_ not and: [taskWaiting_ not and: [taskHolding_ not]])
     public isTaskHoldingOrWaiting = ( ^ taskHolding_ or: [packetPending_ not and: [taskWaiting_]])
-    public isWaiting = (^ packetPending_ not and: [taskWaiting_ and: [taskHolding_ not]])
     public isWaitingWithPacket = ( ^ packetPending_ and: [taskWaiting_ and: [taskHolding_ not]])
   ) : (
-    public packetPending = ( ^ self new packetPending )
     public running       = ( ^ self new running )
     public waiting       = ( ^ self new waiting )
     public waitingWithPacket = ( ^ self new waitingWithPacket )

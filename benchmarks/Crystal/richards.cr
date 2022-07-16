@@ -59,7 +59,7 @@ class RBObject
 end
 
 class RichardsScheduler < RBObject
-  
+
   @task_list    : TaskControlBlock?
   @current_task : TaskControlBlock?
 
@@ -83,7 +83,7 @@ class RichardsScheduler < RBObject
     create_task(identity, priority, work, state, data) { | work, word |
       data_record = word.as(DeviceTaskDataRecord)
       function_work = work
-      if function_work # NO_WORK == 
+      if function_work # NO_WORK ==
         data_record.pending = function_work
         if TRACING
           trace(function_work.datum)
@@ -91,7 +91,7 @@ class RichardsScheduler < RBObject
         hold_self
       else
         function_work = data_record.pending
-        if function_work ## NO_WORK == 
+        if function_work ## NO_WORK ==
           data_record.pending = NO_WORK
           queue_packet(function_work)
         else
@@ -132,7 +132,7 @@ class RichardsScheduler < RBObject
           end
         end
       else
-        # NO_WORK == 
+        # NO_WORK ==
         wait
       end
     }
@@ -161,7 +161,7 @@ class RichardsScheduler < RBObject
     Packet.new(link, identity, kind)
   end
 
-  def create_task(identity : Int32, priority : Int32, work : Packet?, 
+  def create_task(identity : Int32, priority : Int32, work : Packet?,
                   state : TaskState, data, &block : Packet?, RBObject -> TaskControlBlock?)
     t = TaskControlBlock.new(@task_list, identity, priority, work, state, data, &block)
     @task_list = t
@@ -184,7 +184,7 @@ class RichardsScheduler < RBObject
           work.data[i] = 65 + data.count - 1
         }
         queue_packet(work)
-      else # NO_WORK == 
+      else # NO_WORK ==
         wait
       end
     }
@@ -234,7 +234,7 @@ class RichardsScheduler < RBObject
     if NO_TASK == task_or_no_task
       return NO_TASK
     end
-    
+
     task = task_or_no_task.not_nil!
 
     @queue_count += 1
@@ -249,7 +249,7 @@ class RichardsScheduler < RBObject
     if NO_TASK == task_or_no_task
       return NO_TASK
     end
-    
+
     task = task_or_no_task.not_nil!
 
     task.task_holding = false
@@ -295,9 +295,9 @@ class RichardsScheduler < RBObject
 end
 
 class DeviceTaskDataRecord < RBObject
-  
+
   @pending : Packet?
-  
+
   property :pending
    def initialize
     @pending = NO_WORK
@@ -306,10 +306,10 @@ end
 
 class HandlerTaskDataRecord < RBObject
   property :work_in, :device_in
-  
+
   @work_in   : Packet?
   @device_in : Packet?
-  
+
   def initialize
     @work_in   = NO_WORK
     @device_in = NO_WORK
@@ -338,7 +338,7 @@ class Packet < RBObject
   property :link, :kind, :identity, :datum, :data
 
   @data : Array(Int32)
-  
+
   def initialize(link : Packet?, identity : Int32, kind : Int32)
     @link     = link
     @kind     = kind
@@ -393,24 +393,12 @@ class TaskState < RBObject
     self
   end
 
-  def is_running
-    !@packet_pending && !@task_waiting && !@task_holding
-  end
-
   def is_task_holding_or_waiting
     @task_holding || (!@packet_pending && @task_waiting)
   end
 
-  def is_waiting
-    !@packet_pending && @task_waiting && !@task_holding
-  end
-
   def is_waiting_with_packet
     @packet_pending && @task_waiting && !@task_holding
-  end
-
-  def self.packet_pending
-    self.new.packet_pending
   end
 
   def self.running
