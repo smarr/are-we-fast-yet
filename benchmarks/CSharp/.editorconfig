@@ -87,3 +87,6 @@ resharper_unused_auto_property_accessor_global_highlighting = none
 resharper_auto_property_can_be_made_get_only_global_highlighting = none
 resharper_unused_auto_property_accessor_local_highlighting = none
 resharper_auto_property_can_be_made_get_only_local_highlighting = none
+
+[NBody.cs]
+resharper_compare_of_floats_by_equality_operator_highlighting = none

@@ -17,12 +17,12 @@ public sealed class NBody : Benchmark
   {
     if (innerIterations == 250000)
     {
-      return result == -0.1690859889909308;
+      return result == -0.1690859889909308d;
     }
 
     if (innerIterations == 1)
     {
-      return result == -0.16907495402506745;
+      return result == -0.16907495402506745d;
     }
 
     Console.WriteLine("No verification result for " + innerIterations + " found");
@@ -96,6 +96,7 @@ public sealed class NBodySystem
         iBody.Vx -= dx * jBody.Mass * mag;
         iBody.Vy -= dy * jBody.Mass * mag;
         iBody.Vz -= dz * jBody.Mass * mag;
+
         jBody.Vx += dx * iBody.Mass * mag;
         jBody.Vy += dy * iBody.Mass * mag;
         jBody.Vz += dz * iBody.Mass * mag;
@@ -112,7 +113,7 @@ public sealed class NBodySystem
 
   public double Energy()
   {
-    var e = 0.0;
+    double e = 0.0;
 
     for (var i = 0; i < bodies.Length; i++)
     {
@@ -125,11 +126,11 @@ public sealed class NBodySystem
       for (var j = i + 1; j < bodies.Length; j++)
       {
         var jBody = bodies[j];
-        var dx = iBody.X - jBody.X;
-        var dy = iBody.Y - jBody.Y;
-        var dz = iBody.Z - jBody.Z;
+        double dx = iBody.X - jBody.X;
+        double dy = iBody.Y - jBody.Y;
+        double dz = iBody.Z - jBody.Z;
 
-        var distance = Math.Sqrt((dx * dx) + (dy * dy) + (dz * dz));
+        double distance = Math.Sqrt((dx * dx) + (dy * dy) + (dz * dz));
         e -= iBody.Mass * jBody.Mass / distance;
       }
     }
@@ -161,7 +162,7 @@ public sealed class Body
   public double Vx { get; set; }
   public double Vy { get; set; }
   public double Vz { get; set; }
-  public double Mass { get; init; }
+  public double Mass { get; }
 
   public static Body Jupiter => new(
     4.84143144246472090e+00,
