@@ -23,7 +23,7 @@ local function mandelbrot (size)
         local x  = 0
 
         while x < size do
-            local zrzr, zr = 0.0
+            local zrzr = 0.0
             local zizi, zi = 0.0, 0.0
             local cr   = (2.0 * x / size) - 1.5
 
@@ -31,7 +31,7 @@ local function mandelbrot (size)
             local not_done = true
             local escape = 0
             while not_done and z < 50 do
-                zr = zrzr - zizi + cr
+                local zr = zrzr - zizi + cr
                 zi = 2.0 * zr * zi + ci
 
                 -- preserve recalculation

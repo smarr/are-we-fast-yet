@@ -79,7 +79,6 @@ class Mandelbrot(Benchmark):
             x = 0
 
             while x < size:
-                zr = 0.0
                 zrzr = 0.0
                 zi = 0.0
                 zizi = 0.0
