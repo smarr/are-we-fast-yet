@@ -1,8 +1,8 @@
 namespace Benchmarks;
 
-public class List : Benchmark
+public sealed class List : Benchmark
 {
-  public class Element
+  private sealed class Element
   {
     public object Val { get; set; }
 
@@ -32,7 +32,7 @@ public class List : Benchmark
     return result!.Length();
   }
 
-  public Element? MakeList(int length)
+  private Element? MakeList(int length)
   {
     if (length == 0)
     {
@@ -46,7 +46,7 @@ public class List : Benchmark
     }
   }
 
-  public bool IsShorterThan(Element? x, Element? y)
+  private bool IsShorterThan(Element? x, Element? y)
   {
     Element? xTail = x;
     Element? yTail = y;
@@ -65,7 +65,7 @@ public class List : Benchmark
     return false;
   }
 
-  public Element? Tail(Element? x, Element? y, Element? z)
+  private Element? Tail(Element? x, Element? y, Element? z)
   {
     if (IsShorterThan(y, x))
     {
@@ -79,6 +79,6 @@ public class List : Benchmark
 
   public override bool VerifyResult(object result)
   {
-    return 10 == (int?) result;
+    return 10 == (int) result;
   }
 }

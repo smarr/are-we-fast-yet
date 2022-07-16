@@ -81,3 +81,9 @@ resharper_use_object_or_collection_initializer_highlighting = none
 resharper_replace_with_destructuring_swap_highlighting = none
 resharper_swap_via_deconstruction_highlighting = none
 resharper_negative_equality_expression_highlighting = none
+
+[List.cs]
+resharper_unused_auto_property_accessor_global_highlighting = none
+resharper_auto_property_can_be_made_get_only_global_highlighting = none
+resharper_unused_auto_property_accessor_local_highlighting = none
+resharper_auto_property_can_be_made_get_only_local_highlighting = none
