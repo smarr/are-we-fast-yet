@@ -53,7 +53,7 @@ public class Vector<E> where E : class
   {
   }
 
-  public E At(int idx)
+  public E? At(int idx)
   {
     if (idx >= storage.Length)
     {
@@ -125,7 +125,7 @@ public class Vector<E> where E : class
     return false;
   }
 
-  public E GetOne(Test<E> fn)
+  public E? GetOne(Test<E> fn)
   {
     for (int i = firstIdx; i < lastIdx; i++)
     {
@@ -139,7 +139,7 @@ public class Vector<E> where E : class
     return default(E);
   }
 
-  public E First()
+  public E? First()
   {
     if (IsEmpty())
     {
@@ -149,7 +149,7 @@ public class Vector<E> where E : class
     return (E) storage[firstIdx];
   }
 
-  public E RemoveFirst()
+  public E? RemoveFirst()
   {
     if (IsEmpty())
     {
@@ -226,7 +226,7 @@ public class Vector<E> where E : class
     E di = (E) storage[i];
     E dj = (E) storage[j];
 
-    if (c.Compare(di, dj) > 0)
+    if (c!.Compare(di, dj) > 0)
     {
       swap(storage, i, j);
       E tt = di;
@@ -324,7 +324,7 @@ public class Set<E> where E : class
     return items.HasSome(fn);
   }
 
-  public E GetOne(Test<E> fn)
+  public E? GetOne(Test<E> fn)
   {
     return items.GetOne(fn);
   }
@@ -386,7 +386,7 @@ public class Dictionary<K, V> where K : class, CustomHash where V : class
 {
   protected const int INITIAL_CAPACITY = 16;
 
-  private Entry[] buckets;
+  private Entry?[] buckets;
   private int size;
 
   protected class Entry
@@ -445,7 +445,7 @@ public class Dictionary<K, V> where K : class, CustomHash where V : class
     return (buckets.Length - 1) & hash;
   }
 
-  private Entry getBucket(int hash)
+  private Entry? getBucket(int hash)
   {
     return buckets[getBucketIdx(hash)];
   }
@@ -453,7 +453,7 @@ public class Dictionary<K, V> where K : class, CustomHash where V : class
   public V? At(K key)
   {
     int hash = calculateHash(key);
-    Entry e = getBucket(hash);
+    Entry? e = getBucket(hash);
 
     while (e != null)
     {
@@ -471,7 +471,7 @@ public class Dictionary<K, V> where K : class, CustomHash where V : class
   public bool ContainsKey(K key)
   {
     int hash = calculateHash(key);
-    Entry e = getBucket(hash);
+    Entry? e = getBucket(hash);
 
     while (e != null)
     {
@@ -491,7 +491,7 @@ public class Dictionary<K, V> where K : class, CustomHash where V : class
     int hash = calculateHash(key);
     int i = getBucketIdx(hash);
 
-    Entry current = buckets[i];
+    Entry? current = buckets[i];
 
     if (current == null)
     {
@@ -539,18 +539,18 @@ public class Dictionary<K, V> where K : class, CustomHash where V : class
 
   private void resize()
   {
-    Entry[] oldStorage = buckets;
+    Entry?[] oldStorage = buckets;
 
-    Entry[] newStorage = new Entry[oldStorage.Length * 2];
+    Entry?[] newStorage = new Entry?[oldStorage.Length * 2];
     buckets = newStorage;
     transferEntries(oldStorage);
   }
 
-  private void transferEntries(Entry[] oldStorage)
+  private void transferEntries(Entry?[] oldStorage)
   {
     for (int i = 0; i < oldStorage.Length; ++i)
     {
-      Entry current = oldStorage[i];
+      Entry? current = oldStorage[i];
       if (current != null)
       {
         oldStorage[i] = null;
@@ -567,13 +567,13 @@ public class Dictionary<K, V> where K : class, CustomHash where V : class
     }
   }
 
-  private void splitBucket(Entry[] oldStorage, int i, Entry head)
+  private void splitBucket(Entry?[] oldStorage, int i, Entry? head)
   {
     Entry? loHead = null;
     Entry? loTail = null;
     Entry? hiHead = null;
     Entry? hiTail = null;
-    Entry current = head;
+    Entry? current = head;
 
     while (current != null)
     {
@@ -631,7 +631,7 @@ public class Dictionary<K, V> where K : class, CustomHash where V : class
     Vector<K> keys = new Vector<K>(size);
     for (int i = 0; i < buckets.Length; ++i)
     {
-      Entry current = buckets[i];
+      Entry? current = buckets[i];
       while (current != null)
       {
         keys.Append(current.Key);
@@ -647,7 +647,7 @@ public class Dictionary<K, V> where K : class, CustomHash where V : class
     Vector<V> values = new Vector<V>(size);
     for (int i = 0; i < buckets.Length; ++i)
     {
-      Entry current = buckets[i];
+      Entry? current = buckets[i];
       while (current != null)
       {
         values.Append(current.Value);

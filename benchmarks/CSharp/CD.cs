@@ -144,10 +144,12 @@ public sealed class CD : Benchmark
       }
 
       // We say that NaN is smaller than non-NaN.
+      #pragma warning disable CS1718
       if (a == a)
       {
         return 1;
       }
+      #pragma warning restore CS1718
 
       return -1;
     }
@@ -250,7 +252,7 @@ public sealed class CD : Benchmark
         Color = Color.RED;
       }
 
-      public Node Successor()
+      public Node? Successor()
       {
         Node x = this;
         if (x.Right != null)
@@ -258,7 +260,7 @@ public sealed class CD : Benchmark
           return treeMinimum(x.Right);
         }
 
-        Node y = x.Parent;
+        Node? y = x.Parent;
         while (y != null && x == y.Right)
         {
           x = y;
@@ -269,7 +271,7 @@ public sealed class CD : Benchmark
       }
     }
 
-    public V Put(K key, V value)
+    public V? Put(K key, V value)
     {
       InsertResult insertionResult = treeInsert(key, value);
       if (!insertionResult.IsNewEntry)
@@ -277,11 +279,11 @@ public sealed class CD : Benchmark
         return insertionResult.OldValue;
       }
 
-      Node x = insertionResult.NewNode;
+      Node? x = insertionResult.NewNode;
 
-      while (x != root && x.Parent.Color == Color.RED)
+      while (x != root && x!.Parent!.Color == Color.RED)
       {
-        if (x.Parent == x.Parent.Parent.Left)
+        if (x.Parent == x.Parent!.Parent!.Left)
         {
           Node? y = x.Parent.Parent.Right;
           if (y != null && y.Color == Color.RED)
@@ -302,8 +304,8 @@ public sealed class CD : Benchmark
             }
 
             // Case 3
-            x.Parent.Color = Color.BLACK;
-            x.Parent.Parent.Color = Color.RED;
+            x!.Parent!.Color = Color.BLACK;
+            x.Parent.Parent!.Color = Color.RED;
             rightRotate(x.Parent.Parent);
           }
         }
@@ -329,27 +331,27 @@ public sealed class CD : Benchmark
             }
 
             // Case 3
-            x.Parent.Color = Color.BLACK;
-            x.Parent.Parent.Color = Color.RED;
+            x!.Parent!.Color = Color.BLACK;
+            x.Parent.Parent!.Color = Color.RED;
             leftRotate(x.Parent.Parent);
           }
         }
       }
 
-      root.Color = Color.BLACK;
+      root!.Color = Color.BLACK;
       return default(V);
     }
 
-    public V Remove(K key)
+    public V? Remove(K key)
     {
-      Node z = findNode(key);
+      Node? z = findNode(key);
       if (z == null)
       {
         return default(V);
       }
 
       // Y is the node to be unlinked from the tree.
-      Node y;
+      Node? y;
       if (z.Left == null || z.Right == null)
       {
         y = z;
@@ -360,8 +362,8 @@ public sealed class CD : Benchmark
       }
 
       // Y is guaranteed to be non-null at this point.
-      Node x;
-      if (y.Left != null)
+      Node? x;
+      if (y!.Left != null)
       {
         x = y.Left;
       }
@@ -372,7 +374,7 @@ public sealed class CD : Benchmark
 
       // X is the child of y which might potentially replace y in the tree. X might be null at
       // this point.
-      Node xParent;
+      Node? xParent;
       if (x != null)
       {
         x.Parent = y.Parent;
@@ -445,9 +447,9 @@ public sealed class CD : Benchmark
       return z.Value;
     }
 
-    public V Get(K key)
+    public V? Get(K key)
     {
-      Node node = findNode(key);
+      Node? node = findNode(key);
       if (node == null)
       {
         return default(V);
@@ -475,7 +477,7 @@ public sealed class CD : Benchmark
         return;
       }
 
-      Node current = treeMinimum(root);
+      Node? current = treeMinimum(root);
       while (current != null)
       {
         fn.Invoke(new Entry(current.Key, current.Value));
@@ -483,9 +485,9 @@ public sealed class CD : Benchmark
       }
     }
 
-    private Node findNode(K key)
+    private Node? findNode(K key)
     {
-      Node current = root;
+      Node? current = root;
       while (current != null)
       {
         int comparisonResult = key.CompareTo(current.Key);
@@ -510,10 +512,10 @@ public sealed class CD : Benchmark
     private sealed class InsertResult
     {
       public bool IsNewEntry { get; }
-      public Node NewNode { get; }
+      public Node? NewNode { get; }
       public V? OldValue { get; }
 
-      public InsertResult(bool isNewEntry, Node newNode, V? oldValue)
+      public InsertResult(bool isNewEntry, Node? newNode, V? oldValue)
       {
         IsNewEntry = isNewEntry;
         NewNode = newNode;
@@ -569,10 +571,10 @@ public sealed class CD : Benchmark
 
     private Node leftRotate(Node x)
     {
-      Node y = x.Right;
+      Node? y = x.Right;
 
       // Turn y's left subtree into x's right subtree.
-      x.Right = y.Left;
+      x.Right = y!.Left;
       if (y.Left != null)
       {
         y.Left.Parent = x;
@@ -605,10 +607,10 @@ public sealed class CD : Benchmark
 
     private Node rightRotate(Node y)
     {
-      Node x = y.Left;
+      Node? x = y.Left;
 
       // Turn x's right subtree into y's left subtree.
-      y.Left = x.Right;
+      y.Left = x!.Right;
       if (x.Right != null)
       {
         x.Right.Parent = y;
@@ -638,17 +640,17 @@ public sealed class CD : Benchmark
       return x;
     }
 
-    private void removeFixup(Node x, Node xParent)
+    private void removeFixup(Node? x, Node? xParent)
     {
       while (x != root && (x == null || x.Color == Color.BLACK))
       {
-        if (x == xParent.Left)
+        if (x == xParent!.Left)
         {
           // Note: the text points out that w cannot be null. The reason is not obvious from
           // simply looking at the code; it comes about from the properties of the red-black
           // tree.
-          Node w = xParent.Right;
-          if (w.Color == Color.RED)
+          Node? w = xParent.Right;
+          if (w!.Color == Color.RED)
           {
             // Case 1
             w.Color = Color.BLACK;
@@ -657,7 +659,7 @@ public sealed class CD : Benchmark
             w = xParent.Right;
           }
 
-          if ((w.Left == null || w.Left.Color == Color.BLACK)
+          if ((w!.Left == null || w.Left.Color == Color.BLACK)
               && (w.Right == null || w.Right.Color == Color.BLACK))
           {
             // Case 2
@@ -670,14 +672,14 @@ public sealed class CD : Benchmark
             if (w.Right == null || w.Right.Color == Color.BLACK)
             {
               // Case 3
-              w.Left.Color = Color.BLACK;
+              w.Left!.Color = Color.BLACK;
               w.Color = Color.RED;
               rightRotate(w);
               w = xParent.Right;
             }
 
             // Case 4
-            w.Color = xParent.Color;
+            w!.Color = xParent.Color;
             xParent.Color = Color.BLACK;
             if (w.Right != null)
             {
@@ -686,14 +688,14 @@ public sealed class CD : Benchmark
 
             leftRotate(xParent);
             x = root;
-            xParent = x.Parent;
+            xParent = x!.Parent;
           }
         }
         else
         {
           // Same as "then" clause with "right" and "left" exchanged.
-          Node w = xParent.Left;
-          if (w.Color == Color.RED)
+          Node? w = xParent.Left;
+          if (w!.Color == Color.RED)
           {
             // Case 1
             w.Color = Color.BLACK;
@@ -702,7 +704,7 @@ public sealed class CD : Benchmark
             w = xParent.Left;
           }
 
-          if ((w.Right == null || w.Right.Color == Color.BLACK)
+          if ((w!.Right == null || w.Right.Color == Color.BLACK)
               && (w.Left == null || w.Left.Color == Color.BLACK))
           {
             // Case 2
@@ -715,14 +717,14 @@ public sealed class CD : Benchmark
             if (w.Left == null || w.Left.Color == Color.BLACK)
             {
               // Case 3
-              w.Right.Color = Color.BLACK;
+              w.Right!.Color = Color.BLACK;
               w.Color = Color.RED;
               leftRotate(w);
               w = xParent.Left;
             }
 
             // Case 4
-            w.Color = xParent.Color;
+            w!.Color = xParent.Color;
             xParent.Color = Color.BLACK;
             if (w.Left != null)
             {
@@ -731,7 +733,7 @@ public sealed class CD : Benchmark
 
             rightRotate(xParent);
             x = root;
-            xParent = x.Parent;
+            xParent = x!.Parent;
           }
         }
       }
@@ -761,7 +763,7 @@ public sealed class CD : Benchmark
       return PosTwo.Minus(PosOne);
     }
 
-    public Vector3D FindIntersection(Motion other)
+    public Vector3D? FindIntersection(Motion other)
     {
       Vector3D init1 = PosOne;
       Vector3D init2 = other.PosOne;
@@ -946,14 +948,14 @@ public sealed class CD : Benchmark
       {
         for (int i = 0; i < reduced.Size(); ++i)
         {
-          Motion motion1 = reduced.At(i);
+          Motion? motion1 = reduced.At(i);
           for (int j = i + 1; j < reduced.Size(); ++j)
           {
-            Motion motion2 = reduced.At(j);
-            Vector3D collision = motion1.FindIntersection(motion2);
+            Motion? motion2 = reduced.At(j);
+            Vector3D? collision = motion1!.FindIntersection(motion2!);
             if (collision != null)
             {
-              collisions.Append(new Collision(motion1.CallSign, motion2.CallSign, collision));
+              collisions.Append(new Collision(motion1!.CallSign, motion2!.CallSign, collision));
             }
           }
         }
@@ -1023,7 +1025,7 @@ public sealed class CD : Benchmark
 
     private static void putIntoMap(RedBlackTree<Vector2D, Vector<Motion>> voxelMap, Vector2D voxel, Motion motion)
     {
-      Vector<Motion> array = voxelMap.Get(voxel);
+      Vector<Motion>? array = voxelMap.Get(voxel);
       if (array == null)
       {
         array = new Vector<Motion>();
@@ -1136,9 +1138,9 @@ public sealed class CD : Benchmark
       Vector<Aircraft> frame = new Vector<Aircraft>();
       for (int i = 0; i < aircraft.Size(); i += 2)
       {
-        frame.Append(new Aircraft(aircraft.At(i),
+        frame.Append(new Aircraft(aircraft.At(i)!,
           new Vector3D(time, Math.Cos(time) * 2 + i * 3, 10)));
-        frame.Append(new Aircraft(aircraft.At(i + 1),
+        frame.Append(new Aircraft(aircraft.At(i + 1)!,
           new Vector3D(time, Math.Sin(time) * 2 + i * 3, 10)));
       }
 
