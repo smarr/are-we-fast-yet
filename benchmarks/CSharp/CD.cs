@@ -90,7 +90,7 @@ public sealed class CD : Benchmark
     throw new NotImplementedException();
   }
 
-  private sealed class Vector2D : Comparable<Vector2D>
+  private sealed class Vector2D : ICompareTo<Vector2D>
   {
     public double X { get; }
     public double Y { get; }
@@ -113,7 +113,7 @@ public sealed class CD : Benchmark
         Y - other.Y);
     }
 
-    public int CompareTo(Vector2D other)
+    public int CompareTo(in Vector2D other)
     {
       int result = CompareNumbers(this.X, other.X);
       if (result != 0)
@@ -205,7 +205,7 @@ public sealed class CD : Benchmark
   }
 
 
-  private sealed class RedBlackTree<K, V> where K : Comparable<K>
+  private sealed class RedBlackTree<TK, TV> where TK : ICompareTo<TK>
   {
     Node? root;
 
@@ -233,14 +233,14 @@ public sealed class CD : Benchmark
 
     private sealed class Node
     {
-      public K Key { get; }
-      public V Value { get; set; }
+      public TK Key { get; }
+      public TV Value { get; set; }
       public Node? Left { get; set; }
       public Node? Right { get; set; }
       public Node? Parent { get; set; }
       public Color Color { get; set; }
 
-      public Node(K key, V value)
+      public Node(TK key, TV value)
       {
         Key = key;
         Value = value;
@@ -269,7 +269,7 @@ public sealed class CD : Benchmark
       }
     }
 
-    public V? Put(K key, V value)
+    public TV? Put(TK key, TV value)
     {
       InsertResult insertionResult = TreeInsert(key, value);
       if (!insertionResult.IsNewEntry)
@@ -337,15 +337,15 @@ public sealed class CD : Benchmark
       }
 
       root!.Color = Color.Black;
-      return default(V);
+      return default(TV);
     }
 
-    public V? Remove(K key)
+    public TV? Remove(TK key)
     {
       Node? z = FindNode(key);
       if (z == null)
       {
-        return default(V);
+        return default(TV);
       }
 
       // Y is the node to be unlinked from the tree.
@@ -445,12 +445,12 @@ public sealed class CD : Benchmark
       return z.Value;
     }
 
-    public V? Get(K key)
+    public TV? Get(TK key)
     {
       Node? node = FindNode(key);
       if (node == null)
       {
-        return default(V);
+        return default(TV);
       }
 
       return node.Value;
@@ -458,10 +458,10 @@ public sealed class CD : Benchmark
 
     public sealed class Entry
     {
-      public K Key { get; }
-      public V Value { get; }
+      public TK Key { get; }
+      public TV Value { get; }
 
-      public Entry(K key, V value)
+      public Entry(TK key, TV value)
       {
         Key = key;
         Value = value;
@@ -483,7 +483,7 @@ public sealed class CD : Benchmark
       }
     }
 
-    private Node? FindNode(K key)
+    private Node? FindNode(TK key)
     {
       Node? current = root;
       while (current != null)
@@ -511,9 +511,9 @@ public sealed class CD : Benchmark
     {
       public bool IsNewEntry { get; }
       public Node? NewNode { get; }
-      public V? OldValue { get; }
+      public TV? OldValue { get; }
 
-      public InsertResult(bool isNewEntry, Node? newNode, V? oldValue)
+      public InsertResult(bool isNewEntry, Node? newNode, TV? oldValue)
       {
         IsNewEntry = isNewEntry;
         NewNode = newNode;
@@ -521,7 +521,7 @@ public sealed class CD : Benchmark
       }
     }
 
-    private InsertResult TreeInsert(K key, V value)
+    private InsertResult TreeInsert(TK key, TV value)
     {
       Node? y = null;
       Node? x = root;
@@ -540,7 +540,7 @@ public sealed class CD : Benchmark
         }
         else
         {
-          V oldValue = x.Value;
+          TV oldValue = x.Value;
           x.Value = value;
           return new InsertResult(false, null, oldValue);
         }
@@ -564,7 +564,7 @@ public sealed class CD : Benchmark
         }
       }
 
-      return new InsertResult(true, z, default(V));
+      return new InsertResult(true, z, default(TV));
     }
 
     private Node LeftRotate(Node x)
@@ -868,7 +868,7 @@ public sealed class CD : Benchmark
     }
   }
 
-  private class CallSign : Comparable<CallSign>
+  private class CallSign : ICompareTo<CallSign>
   {
     private int Value { get; }
 
@@ -877,7 +877,7 @@ public sealed class CD : Benchmark
       Value = value;
     }
 
-    public int CompareTo(CallSign other)
+    public int CompareTo(in CallSign other)
     {
       return (Value == other.Value) ? 0 : ((Value < other.Value) ? -1 : 1);
     }
@@ -953,7 +953,7 @@ public sealed class CD : Benchmark
             Vector3D? collision = motion1!.FindIntersection(motion2!);
             if (collision != null)
             {
-              collisions.Append(new Collision(motion1!.CallSign, motion2!.CallSign, collision));
+              collisions.Append(new Collision(motion1.CallSign, motion2!.CallSign, collision));
             }
           }
         }
@@ -1018,8 +1018,8 @@ public sealed class CD : Benchmark
                (lowX <= lowY && highY <= highX)));
     }
 
-    private static readonly Vector2D Horizontal = new Vector2D(Constants.GoodVoxelSize, 0.0);
-    private static readonly Vector2D Vertical = new Vector2D(0.0, Constants.GoodVoxelSize);
+    private static readonly Vector2D Horizontal = new(Constants.GoodVoxelSize, 0.0);
+    private static readonly Vector2D Vertical = new(0.0, Constants.GoodVoxelSize);
 
     private static void PutIntoMap(RedBlackTree<Vector2D, Vector<Motion>> voxelMap, Vector2D voxel, Motion motion)
     {

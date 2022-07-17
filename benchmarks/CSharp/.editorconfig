@@ -85,6 +85,7 @@ resharper_negative_equality_expression_highlighting = none
 resharper_convert_if_statement_to_conditional_ternary_expression_highlighting = none
 
 resharper_merge_into_pattern_highlighting = none
+resharper_must_use_return_value_highlighting = none
 
 [List.cs]
 resharper_unused_auto_property_accessor_global_highlighting = none
@@ -101,3 +102,22 @@ resharper_heuristically_unreachable_code_highlighting = none
 resharper_c_sharp_warnings_cs0162_highlighting = none
 resharper_unused_auto_property_accessor_global_highlighting = none
 resharper_unused_auto_property_accessor_local_highlighting = none
+
+[CD.cs]
+resharper_unused_method_return_value_global_highlighting = none
+resharper_unused_method_return_value_local_highlighting = none
+resharper_unused_auto_property_accessor_global_highlighting = none
+resharper_unused_auto_property_accessor_local_highlighting = none
+resharper_convert_if_statement_to_null_coalescing_assignment_highlighting = none
+resharper_convert_if_statement_to_null_coalescing_expression_highlighting = none
+resharper_unused_local_function_return_value_highlighting = none
+
+[som.cs]
+resharper_unused_member_global_highlighting = none
+resharper_unused_parameter_global_highlighting = none
+resharper_unused_parameter_local_highlighting = none
+resharper_unused_type_global_highlighting = none
+resharper_virtual_member_never_overridden_global_highlighting = none
+resharper_virtual_member_never_overridden_local_highlighting = none
+resharper_auto_property_can_be_made_get_only_global_highlighting = none
+resharper_auto_property_can_be_made_get_only_local_highlighting = none

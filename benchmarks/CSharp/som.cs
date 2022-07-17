@@ -5,23 +5,23 @@ public static class CollectionConstants
   public const int InitialSize = 10;
 }
 
-public sealed class Pair<K, V>
+public sealed class Pair<TK, TV>
 {
-  public K Key { get; set; }
-  private V Value { get; set; }
+  public TK Key { get; set; }
+  private TV Value { get; set; }
 
-  public Pair(K key, V value)
+  public Pair(TK key, TV value)
   {
     Key = key;
     Value = value;
   }
 }
 
-public delegate void ForEach<E>(E elem);
+public delegate void ForEach<in TE>(TE elem);
 
-public delegate bool Test<E>(E elem);
+public delegate bool Test<in TE>(TE elem);
 
-public delegate T Collect<E, T>(E o);
+public delegate T Collect<in TE, out T>(TE o);
 
 /**
  * Porting notes:
@@ -338,13 +338,13 @@ public class Set<TE> where TE : class
   {
     Vector<T> coll = new Vector<T>();
 
-    ForEach(e => { coll.Append(fn.Invoke(e)); });
+    ForEach(e => coll.Append(fn.Invoke(e)));
     return coll;
   }
 
   public virtual bool Contains(TE obj)
   {
-    return HasSome(e => { return e.Equals(obj); });
+    return HasSome(e => e.Equals(obj));
   }
 
   public void RemoveAll()
@@ -355,7 +355,7 @@ public class Set<TE> where TE : class
 
 public sealed class IdentitySet<TE> : Set<TE> where TE : class
 {
-  public IdentitySet() : base()
+  public IdentitySet()
   {
   }
 
@@ -365,21 +365,21 @@ public sealed class IdentitySet<TE> : Set<TE> where TE : class
 
   public override bool Contains(TE obj)
   {
-    return HasSome(e => { return e == obj; });
+    return HasSome(e => e == obj);
   }
 }
 
-public interface Comparable<V>
+public interface ICompareTo<TV>
 {
-  int CompareTo(V v);
+  int CompareTo(in TV v);
 }
 
-public interface CustomHash
+public interface ICustomHash
 {
   int CustomHash();
 }
 
-public class Dictionary<TK, TV> where TK : class, CustomHash where TV : class
+public class Dictionary<TK, TV> where TK : class, ICustomHash where TV : class
 {
   protected const int InitialCapacity = 16;
 
@@ -626,9 +626,9 @@ public class Dictionary<TK, TV> where TK : class, CustomHash where TV : class
   public Vector<TK> GetKeys()
   {
     Vector<TK> keys = new Vector<TK>(size);
-    for (int i = 0; i < buckets.Length; ++i)
+    foreach (Entry? c in buckets)
     {
-      Entry? current = buckets[i];
+      Entry? current = c;
       while (current != null)
       {
         keys.Append(current.Key);
@@ -642,9 +642,9 @@ public class Dictionary<TK, TV> where TK : class, CustomHash where TV : class
   public Vector<TV> GetValues()
   {
     Vector<TV> values = new Vector<TV>(size);
-    for (int i = 0; i < buckets.Length; ++i)
+    foreach (Entry? c in buckets)
     {
-      Entry? current = buckets[i];
+      Entry? current = c;
       while (current != null)
       {
         values.Append(current.Value);
@@ -656,15 +656,15 @@ public class Dictionary<TK, TV> where TK : class, CustomHash where TV : class
   }
 }
 
-public class IdentityDictionary<K, V> : Dictionary<K, V> where K : class, CustomHash where V : class
+public class IdentityDictionary<TK, TV> : Dictionary<TK, TV> where TK : class, ICustomHash where TV : class
 {
   private sealed class IdEntry : Entry
   {
-    public IdEntry(int hash, K key, V value, Entry? next) : base(hash, key, value, next)
+    public IdEntry(int hash, TK key, TV value, Entry? next) : base(hash, key, value, next)
     {
     }
 
-    public override bool Match(int hash, K key)
+    public override bool Match(int hash, TK key)
     {
       return Hash == hash && Key == key;
     }
@@ -678,7 +678,7 @@ public class IdentityDictionary<K, V> : Dictionary<K, V> where K : class, Custom
   {
   }
 
-  protected override Entry NewEntry(K key, V value, int hash)
+  protected override Entry NewEntry(TK key, TV value, int hash)
   {
     return new IdEntry(hash, key, value, null);
   }
