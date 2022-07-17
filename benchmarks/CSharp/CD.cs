@@ -1,17 +1,15 @@
-using System;
-
 namespace Benchmarks;
 
 public static class Constants
 {
-  public const double MIN_X = 0.0;
-  public const double MIN_Y = 0.0;
-  public const double MAX_X = 1000.0;
-  public const double MAX_Y = 1000.0;
-  public const double MIN_Z = 0.0;
-  public const double MAX_Z = 10.0;
-  public const double PROXIMITY_RADIUS = 1.0;
-  public const double GOOD_VOXEL_SIZE = PROXIMITY_RADIUS * 2.0;
+  public const double MinX = 0.0;
+  public const double MinY = 0.0;
+  public const double MaxX = 1000.0;
+  public const double MaxY = 1000.0;
+  public const double MinZ = 0.0;
+  public const double MaxZ = 10.0;
+  public const double ProximityRadius = 1.0;
+  public const double GoodVoxelSize = ProximityRadius * 2.0;
 }
 
 public sealed class CD : Benchmark
@@ -117,16 +115,16 @@ public sealed class CD : Benchmark
 
     public int CompareTo(Vector2D other)
     {
-      int result = compareNumbers(this.X, other.X);
+      int result = CompareNumbers(this.X, other.X);
       if (result != 0)
       {
         return result;
       }
 
-      return compareNumbers(this.Y, other.Y);
+      return CompareNumbers(this.Y, other.Y);
     }
 
-    private static int compareNumbers(double a, double b)
+    private static int CompareNumbers(double a, double b)
     {
       if (a == b)
       {
@@ -144,12 +142,12 @@ public sealed class CD : Benchmark
       }
 
       // We say that NaN is smaller than non-NaN.
-      #pragma warning disable CS1718
+#pragma warning disable CS1718
       if (a == a)
       {
         return 1;
       }
-      #pragma warning restore CS1718
+#pragma warning restore CS1718
 
       return -1;
     }
@@ -218,11 +216,11 @@ public sealed class CD : Benchmark
 
     private enum Color
     {
-      RED,
-      BLACK
+      Red,
+      Black
     }
 
-    private static Node treeMinimum(Node x)
+    private static Node TreeMinimum(Node x)
     {
       Node current = x;
       while (current.Left != null)
@@ -249,7 +247,7 @@ public sealed class CD : Benchmark
         Left = null;
         Right = null;
         Parent = null;
-        Color = Color.RED;
+        Color = Color.Red;
       }
 
       public Node? Successor()
@@ -257,7 +255,7 @@ public sealed class CD : Benchmark
         Node x = this;
         if (x.Right != null)
         {
-          return treeMinimum(x.Right);
+          return TreeMinimum(x.Right);
         }
 
         Node? y = x.Parent;
@@ -273,7 +271,7 @@ public sealed class CD : Benchmark
 
     public V? Put(K key, V value)
     {
-      InsertResult insertionResult = treeInsert(key, value);
+      InsertResult insertionResult = TreeInsert(key, value);
       if (!insertionResult.IsNewEntry)
       {
         return insertionResult.OldValue;
@@ -281,17 +279,17 @@ public sealed class CD : Benchmark
 
       Node? x = insertionResult.NewNode;
 
-      while (x != root && x!.Parent!.Color == Color.RED)
+      while (x != root && x!.Parent!.Color == Color.Red)
       {
         if (x.Parent == x.Parent!.Parent!.Left)
         {
           Node? y = x.Parent.Parent.Right;
-          if (y != null && y.Color == Color.RED)
+          if (y != null && y.Color == Color.Red)
           {
             // Case 1
-            x.Parent.Color = Color.BLACK;
-            y.Color = Color.BLACK;
-            x.Parent.Parent.Color = Color.RED;
+            x.Parent.Color = Color.Black;
+            y.Color = Color.Black;
+            x.Parent.Parent.Color = Color.Red;
             x = x.Parent.Parent;
           }
           else
@@ -300,25 +298,25 @@ public sealed class CD : Benchmark
             {
               // Case 2
               x = x.Parent;
-              leftRotate(x);
+              LeftRotate(x);
             }
 
             // Case 3
-            x!.Parent!.Color = Color.BLACK;
-            x.Parent.Parent!.Color = Color.RED;
-            rightRotate(x.Parent.Parent);
+            x!.Parent!.Color = Color.Black;
+            x.Parent.Parent!.Color = Color.Red;
+            RightRotate(x.Parent.Parent);
           }
         }
         else
         {
           // Same as "then" clause with "right" and "left" exchanged.
           Node? y = x.Parent.Parent.Left;
-          if (y != null && y.Color == Color.RED)
+          if (y != null && y.Color == Color.Red)
           {
             // Case 1
-            x.Parent.Color = Color.BLACK;
-            y.Color = Color.BLACK;
-            x.Parent.Parent.Color = Color.RED;
+            x.Parent.Color = Color.Black;
+            y.Color = Color.Black;
+            x.Parent.Parent.Color = Color.Red;
             x = x.Parent.Parent;
           }
           else
@@ -327,24 +325,24 @@ public sealed class CD : Benchmark
             {
               // Case 2
               x = x.Parent;
-              rightRotate(x);
+              RightRotate(x);
             }
 
             // Case 3
-            x!.Parent!.Color = Color.BLACK;
-            x.Parent.Parent!.Color = Color.RED;
-            leftRotate(x.Parent.Parent);
+            x!.Parent!.Color = Color.Black;
+            x.Parent.Parent!.Color = Color.Red;
+            LeftRotate(x.Parent.Parent);
           }
         }
       }
 
-      root!.Color = Color.BLACK;
+      root!.Color = Color.Black;
       return default(V);
     }
 
     public V? Remove(K key)
     {
-      Node? z = findNode(key);
+      Node? z = FindNode(key);
       if (z == null)
       {
         return default(V);
@@ -403,9 +401,9 @@ public sealed class CD : Benchmark
 
       if (y != z)
       {
-        if (y.Color == Color.BLACK)
+        if (y.Color == Color.Black)
         {
-          removeFixup(x, xParent);
+          RemoveFixup(x, xParent);
         }
 
         y.Parent = z.Parent;
@@ -439,9 +437,9 @@ public sealed class CD : Benchmark
           root = y;
         }
       }
-      else if (y.Color == Color.BLACK)
+      else if (y.Color == Color.Black)
       {
-        removeFixup(x, xParent);
+        RemoveFixup(x, xParent);
       }
 
       return z.Value;
@@ -449,7 +447,7 @@ public sealed class CD : Benchmark
 
     public V? Get(K key)
     {
-      Node? node = findNode(key);
+      Node? node = FindNode(key);
       if (node == null)
       {
         return default(V);
@@ -477,7 +475,7 @@ public sealed class CD : Benchmark
         return;
       }
 
-      Node? current = treeMinimum(root);
+      Node? current = TreeMinimum(root);
       while (current != null)
       {
         fn.Invoke(new Entry(current.Key, current.Value));
@@ -485,7 +483,7 @@ public sealed class CD : Benchmark
       }
     }
 
-    private Node? findNode(K key)
+    private Node? FindNode(K key)
     {
       Node? current = root;
       while (current != null)
@@ -523,7 +521,7 @@ public sealed class CD : Benchmark
       }
     }
 
-    private InsertResult treeInsert(K key, V value)
+    private InsertResult TreeInsert(K key, V value)
     {
       Node? y = null;
       Node? x = root;
@@ -569,7 +567,7 @@ public sealed class CD : Benchmark
       return new InsertResult(true, z, default(V));
     }
 
-    private Node leftRotate(Node x)
+    private Node LeftRotate(Node x)
     {
       Node? y = x.Right;
 
@@ -605,7 +603,7 @@ public sealed class CD : Benchmark
       return y;
     }
 
-    private Node rightRotate(Node y)
+    private Node RightRotate(Node y)
     {
       Node? x = y.Left;
 
@@ -640,9 +638,9 @@ public sealed class CD : Benchmark
       return x;
     }
 
-    private void removeFixup(Node? x, Node? xParent)
+    private void RemoveFixup(Node? x, Node? xParent)
     {
-      while (x != root && (x == null || x.Color == Color.BLACK))
+      while (x != root && (x == null || x.Color == Color.Black))
       {
         if (x == xParent!.Left)
         {
@@ -650,43 +648,43 @@ public sealed class CD : Benchmark
           // simply looking at the code; it comes about from the properties of the red-black
           // tree.
           Node? w = xParent.Right;
-          if (w!.Color == Color.RED)
+          if (w!.Color == Color.Red)
           {
             // Case 1
-            w.Color = Color.BLACK;
-            xParent.Color = Color.RED;
-            leftRotate(xParent);
+            w.Color = Color.Black;
+            xParent.Color = Color.Red;
+            LeftRotate(xParent);
             w = xParent.Right;
           }
 
-          if ((w!.Left == null || w.Left.Color == Color.BLACK)
-              && (w.Right == null || w.Right.Color == Color.BLACK))
+          if ((w!.Left == null || w.Left.Color == Color.Black)
+              && (w.Right == null || w.Right.Color == Color.Black))
           {
             // Case 2
-            w.Color = Color.RED;
+            w.Color = Color.Red;
             x = xParent;
             xParent = x.Parent;
           }
           else
           {
-            if (w.Right == null || w.Right.Color == Color.BLACK)
+            if (w.Right == null || w.Right.Color == Color.Black)
             {
               // Case 3
-              w.Left!.Color = Color.BLACK;
-              w.Color = Color.RED;
-              rightRotate(w);
+              w.Left!.Color = Color.Black;
+              w.Color = Color.Red;
+              RightRotate(w);
               w = xParent.Right;
             }
 
             // Case 4
             w!.Color = xParent.Color;
-            xParent.Color = Color.BLACK;
+            xParent.Color = Color.Black;
             if (w.Right != null)
             {
-              w.Right.Color = Color.BLACK;
+              w.Right.Color = Color.Black;
             }
 
-            leftRotate(xParent);
+            LeftRotate(xParent);
             x = root;
             xParent = x!.Parent;
           }
@@ -695,43 +693,43 @@ public sealed class CD : Benchmark
         {
           // Same as "then" clause with "right" and "left" exchanged.
           Node? w = xParent.Left;
-          if (w!.Color == Color.RED)
+          if (w!.Color == Color.Red)
           {
             // Case 1
-            w.Color = Color.BLACK;
-            xParent.Color = Color.RED;
-            rightRotate(xParent);
+            w.Color = Color.Black;
+            xParent.Color = Color.Red;
+            RightRotate(xParent);
             w = xParent.Left;
           }
 
-          if ((w!.Right == null || w.Right.Color == Color.BLACK)
-              && (w.Left == null || w.Left.Color == Color.BLACK))
+          if ((w!.Right == null || w.Right.Color == Color.Black)
+              && (w.Left == null || w.Left.Color == Color.Black))
           {
             // Case 2
-            w.Color = Color.RED;
+            w.Color = Color.Red;
             x = xParent;
             xParent = x.Parent;
           }
           else
           {
-            if (w.Left == null || w.Left.Color == Color.BLACK)
+            if (w.Left == null || w.Left.Color == Color.Black)
             {
               // Case 3
-              w.Right!.Color = Color.BLACK;
-              w.Color = Color.RED;
-              leftRotate(w);
+              w.Right!.Color = Color.Black;
+              w.Color = Color.Red;
+              LeftRotate(w);
               w = xParent.Left;
             }
 
             // Case 4
             w!.Color = xParent.Color;
-            xParent.Color = Color.BLACK;
+            xParent.Color = Color.Black;
             if (w.Left != null)
             {
-              w.Left.Color = Color.BLACK;
+              w.Left.Color = Color.Black;
             }
 
-            rightRotate(xParent);
+            RightRotate(xParent);
             x = root;
             xParent = x!.Parent;
           }
@@ -740,7 +738,7 @@ public sealed class CD : Benchmark
 
       if (x != null)
       {
-        x.Color = Color.BLACK;
+        x.Color = Color.Black;
       }
     }
   }
@@ -758,7 +756,7 @@ public sealed class CD : Benchmark
       PosTwo = posTwo;
     }
 
-    private Vector3D delta()
+    private Vector3D Delta()
     {
       return PosTwo.Minus(PosOne);
     }
@@ -767,9 +765,9 @@ public sealed class CD : Benchmark
     {
       Vector3D init1 = PosOne;
       Vector3D init2 = other.PosOne;
-      Vector3D vec1 = delta();
-      Vector3D vec2 = other.delta();
-      double radius = Constants.PROXIMITY_RADIUS;
+      Vector3D vec1 = Delta();
+      Vector3D vec2 = other.Delta();
+      double radius = Constants.ProximityRadius;
 
       // this test is not geometrical 3-d intersection test, it takes the fact that the aircraft move
       // into account ; so it is more like a 4d test
@@ -842,12 +840,12 @@ public sealed class CD : Benchmark
           Vector3D result2 = init2.Plus(vec2.Times(v));
 
           Vector3D result = result1.Plus(result2).Times(0.5);
-          if (result.X >= Constants.MIN_X &&
-              result.X <= Constants.MAX_X &&
-              result.Y >= Constants.MIN_Y &&
-              result.Y <= Constants.MAX_Y &&
-              result.Z >= Constants.MIN_Z &&
-              result.Z <= Constants.MAX_Z)
+          if (result.X >= Constants.MinX &&
+              result.X <= Constants.MaxX &&
+              result.Y >= Constants.MinY &&
+              result.Y <= Constants.MaxY &&
+              result.Z >= Constants.MinZ &&
+              result.Z <= Constants.MaxZ)
           {
             return result;
           }
@@ -942,7 +940,7 @@ public sealed class CD : Benchmark
 
       toRemove.ForEach(e => state.Remove(e));
 
-      Vector<Vector<Motion>> allReduced = reduceCollisionSet(motions);
+      Vector<Vector<Motion>> allReduced = ReduceCollisionSet(motions);
       Vector<Collision> collisions = new Vector<Collision>();
       allReduced.ForEach(reduced =>
       {
@@ -964,12 +962,12 @@ public sealed class CD : Benchmark
       return collisions;
     }
 
-    private static bool isInVoxel(Vector2D voxel, Motion motion)
+    private static bool IsInVoxel(Vector2D voxel, Motion motion)
     {
-      if (voxel.X > Constants.MAX_X ||
-          voxel.X < Constants.MIN_X ||
-          voxel.Y > Constants.MAX_Y ||
-          voxel.Y < Constants.MIN_Y)
+      if (voxel.X > Constants.MaxX ||
+          voxel.X < Constants.MinX ||
+          voxel.Y > Constants.MaxY ||
+          voxel.Y < Constants.MinY)
       {
         return false;
       }
@@ -977,53 +975,53 @@ public sealed class CD : Benchmark
       Vector3D init = motion.PosOne;
       Vector3D fin = motion.PosTwo;
 
-      double v_s = Constants.GOOD_VOXEL_SIZE;
-      double r = Constants.PROXIMITY_RADIUS / 2.0;
+      double vS = Constants.GoodVoxelSize;
+      double r = Constants.ProximityRadius / 2.0;
 
-      double v_x = voxel.X;
+      double vX = voxel.X;
       double x0 = init.X;
       double xv = fin.X - init.X;
 
-      double v_y = voxel.Y;
+      double vY = voxel.Y;
       double y0 = init.Y;
       double yv = fin.Y - init.Y;
 
-      double low_x = (v_x - r - x0) / xv;
-      double high_x = (v_x + v_s + r - x0) / xv;
+      double lowX = (vX - r - x0) / xv;
+      double highX = (vX + vS + r - x0) / xv;
 
       if (xv < 0.0)
       {
-        double tmp = low_x;
-        low_x = high_x;
-        high_x = tmp;
+        double tmp = lowX;
+        lowX = highX;
+        highX = tmp;
       }
 
-      double low_y = (v_y - r - y0) / yv;
-      double high_y = (v_y + v_s + r - y0) / yv;
+      double lowY = (vY - r - y0) / yv;
+      double highY = (vY + vS + r - y0) / yv;
 
       if (yv < 0.0)
       {
-        double tmp = low_y;
-        low_y = high_y;
-        high_y = tmp;
+        double tmp = lowY;
+        lowY = highY;
+        highY = tmp;
       }
 
-      return (((xv == 0.0 && v_x <= x0 + r && x0 - r <= v_x + v_s) /* no motion in x */ ||
-               (low_x <= 1.0 && 1.0 <= high_x) || (low_x <= 0.0 && 0.0 <= high_x) ||
-               (0.0 <= low_x && high_x <= 1.0)) &&
-              ((yv == 0.0 && v_y <= y0 + r && y0 - r <= v_y + v_s) /* no motion in y */ ||
-               ((low_y <= 1.0 && 1.0 <= high_y) || (low_y <= 0.0 && 0.0 <= high_y) ||
-                (0.0 <= low_y && high_y <= 1.0))) &&
+      return (((xv == 0.0 && vX <= x0 + r && x0 - r <= vX + vS) /* no motion in x */ ||
+               (lowX <= 1.0 && 1.0 <= highX) || (lowX <= 0.0 && 0.0 <= highX) ||
+               (0.0 <= lowX && highX <= 1.0)) &&
+              ((yv == 0.0 && vY <= y0 + r && y0 - r <= vY + vS) /* no motion in y */ ||
+               ((lowY <= 1.0 && 1.0 <= highY) || (lowY <= 0.0 && 0.0 <= highY) ||
+                (0.0 <= lowY && highY <= 1.0))) &&
               (xv == 0.0 || yv == 0.0 || /* no motion in x or y or both */
-               (low_y <= high_x && high_x <= high_y) ||
-               (low_y <= low_x && low_x <= high_y) ||
-               (low_x <= low_y && high_y <= high_x)));
+               (lowY <= highX && highX <= highY) ||
+               (lowY <= lowX && lowX <= highY) ||
+               (lowX <= lowY && highY <= highX)));
     }
 
-    private static readonly Vector2D horizontal = new Vector2D(Constants.GOOD_VOXEL_SIZE, 0.0);
-    private static readonly Vector2D vertical = new Vector2D(0.0, Constants.GOOD_VOXEL_SIZE);
+    private static readonly Vector2D Horizontal = new Vector2D(Constants.GoodVoxelSize, 0.0);
+    private static readonly Vector2D Vertical = new Vector2D(0.0, Constants.GoodVoxelSize);
 
-    private static void putIntoMap(RedBlackTree<Vector2D, Vector<Motion>> voxelMap, Vector2D voxel, Motion motion)
+    private static void PutIntoMap(RedBlackTree<Vector2D, Vector<Motion>> voxelMap, Vector2D voxel, Motion motion)
     {
       Vector<Motion>? array = voxelMap.Get(voxel);
       if (array == null)
@@ -1035,12 +1033,12 @@ public sealed class CD : Benchmark
       array.Append(motion);
     }
 
-    private static void recurse(
+    private static void Recurse(
       RedBlackTree<Vector2D, Vector<Motion>> voxelMap,
       RedBlackTree<Vector2D, bool> seen,
       Vector2D nextVoxel, Motion motion)
     {
-      if (!isInVoxel(nextVoxel, motion))
+      if (!IsInVoxel(nextVoxel, motion))
       {
         return;
       }
@@ -1050,22 +1048,22 @@ public sealed class CD : Benchmark
         return;
       }
 
-      putIntoMap(voxelMap, nextVoxel, motion);
+      PutIntoMap(voxelMap, nextVoxel, motion);
 
-      recurse(voxelMap, seen, nextVoxel.Minus(horizontal), motion);
-      recurse(voxelMap, seen, nextVoxel.Plus(horizontal), motion);
-      recurse(voxelMap, seen, nextVoxel.Minus(vertical), motion);
-      recurse(voxelMap, seen, nextVoxel.Plus(vertical), motion);
-      recurse(voxelMap, seen, nextVoxel.Minus(horizontal).Minus(vertical), motion);
-      recurse(voxelMap, seen, nextVoxel.Minus(horizontal).Plus(vertical), motion);
-      recurse(voxelMap, seen, nextVoxel.Plus(horizontal).Minus(vertical), motion);
-      recurse(voxelMap, seen, nextVoxel.Plus(horizontal).Plus(vertical), motion);
+      Recurse(voxelMap, seen, nextVoxel.Minus(Horizontal), motion);
+      Recurse(voxelMap, seen, nextVoxel.Plus(Horizontal), motion);
+      Recurse(voxelMap, seen, nextVoxel.Minus(Vertical), motion);
+      Recurse(voxelMap, seen, nextVoxel.Plus(Vertical), motion);
+      Recurse(voxelMap, seen, nextVoxel.Minus(Horizontal).Minus(Vertical), motion);
+      Recurse(voxelMap, seen, nextVoxel.Minus(Horizontal).Plus(Vertical), motion);
+      Recurse(voxelMap, seen, nextVoxel.Plus(Horizontal).Minus(Vertical), motion);
+      Recurse(voxelMap, seen, nextVoxel.Plus(Horizontal).Plus(Vertical), motion);
     }
 
-    private static Vector<Vector<Motion>> reduceCollisionSet(Vector<Motion> motions)
+    private static Vector<Vector<Motion>> ReduceCollisionSet(Vector<Motion> motions)
     {
       RedBlackTree<Vector2D, Vector<Motion>> voxelMap = new RedBlackTree<Vector2D, Vector<Motion>>();
-      motions.ForEach(motion => drawMotionOnVoxelMap(voxelMap, motion));
+      motions.ForEach(motion => DrawMotionOnVoxelMap(voxelMap, motion));
 
       Vector<Vector<Motion>> result = new Vector<Vector<Motion>>();
       voxelMap.ForEach(e =>
@@ -1078,32 +1076,32 @@ public sealed class CD : Benchmark
       return result;
     }
 
-    private static Vector2D voxelHash(Vector3D position)
+    private static Vector2D VoxelHash(Vector3D position)
     {
-      int xDiv = (int) (position.X / Constants.GOOD_VOXEL_SIZE);
-      int yDiv = (int) (position.Y / Constants.GOOD_VOXEL_SIZE);
+      int xDiv = (int) (position.X / Constants.GoodVoxelSize);
+      int yDiv = (int) (position.Y / Constants.GoodVoxelSize);
 
-      double x = Constants.GOOD_VOXEL_SIZE * xDiv;
-      double y = Constants.GOOD_VOXEL_SIZE * yDiv;
+      double x = Constants.GoodVoxelSize * xDiv;
+      double y = Constants.GoodVoxelSize * yDiv;
 
       if (position.X < 0)
       {
-        x -= Constants.GOOD_VOXEL_SIZE;
+        x -= Constants.GoodVoxelSize;
       }
 
       if (position.Y < 0)
       {
-        y -= Constants.GOOD_VOXEL_SIZE;
+        y -= Constants.GoodVoxelSize;
       }
 
       return new Vector2D(x, y);
     }
 
-    private static void drawMotionOnVoxelMap(
+    private static void DrawMotionOnVoxelMap(
       RedBlackTree<Vector2D, Vector<Motion>> voxelMap, Motion motion)
     {
       RedBlackTree<Vector2D, bool> seen = new RedBlackTree<Vector2D, bool>();
-      recurse(voxelMap, seen, voxelHash(motion.PosOne), motion);
+      Recurse(voxelMap, seen, VoxelHash(motion.PosOne), motion);
     }
   }
 

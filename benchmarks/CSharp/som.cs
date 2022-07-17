@@ -1,11 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
-
 namespace Benchmarks;
 
 public static class CollectionConstants
 {
-  public const int INITIAL_SIZE = 10;
+  public const int InitialSize = 10;
 }
 
 public sealed class Pair<K, V>
@@ -31,39 +28,39 @@ public delegate T Collect<E, T>(E o);
  *  - does not use an explicit array bounds check, because Java already does
  *    that. Don't see a point in doing it twice.
  */
-public class Vector<E> where E : class
+public class Vector<TE> where TE : class
 {
-  private E[] storage;
+  private TE[] storage;
   private int firstIdx;
   private int lastIdx;
 
-  public static Vector<E> With(E elem)
+  public static Vector<TE> With(TE elem)
   {
-    Vector<E> v = new Vector<E>(1);
+    Vector<TE> v = new Vector<TE>(1);
     v.Append(elem);
     return v;
   }
 
   public Vector(int size)
   {
-    storage = new E[size];
+    storage = new TE[size];
   }
 
   public Vector() : this(50)
   {
   }
 
-  public E? At(int idx)
+  public TE? At(int idx)
   {
     if (idx >= storage.Length)
     {
-      return default(E);
+      return default(TE);
     }
 
     return storage[idx];
   }
 
-  public void AtPut(int idx, E val)
+  public void AtPut(int idx, TE val)
   {
     if (idx >= storage.Length)
     {
@@ -73,7 +70,7 @@ public class Vector<E> where E : class
         newLength *= 2;
       }
 
-      E[] newStorage = new E[newLength];
+      TE[] newStorage = new TE[newLength];
       storage.CopyTo(newStorage, 0);
       storage = newStorage;
     }
@@ -85,12 +82,12 @@ public class Vector<E> where E : class
     }
   }
 
-  public void Append(E elem)
+  public void Append(TE elem)
   {
     if (lastIdx >= storage.Length)
     {
       // Need to expand capacity first
-      E[] newStorage = new E[2 * storage.Length];
+      TE[] newStorage = new TE[2 * storage.Length];
       storage.CopyTo(newStorage, 0);
       storage = newStorage;
     }
@@ -104,19 +101,19 @@ public class Vector<E> where E : class
     return lastIdx == firstIdx;
   }
 
-  public void ForEach(ForEach<E> fn)
+  public void ForEach(ForEach<TE> fn)
   {
     for (int i = firstIdx; i < lastIdx; i++)
     {
-      fn.Invoke((E) storage[i]);
+      fn.Invoke(storage[i]);
     }
   }
 
-  public bool HasSome(Test<E> fn)
+  public bool HasSome(Test<TE> fn)
   {
     for (int i = firstIdx; i < lastIdx; i++)
     {
-      if (fn.Invoke((E) storage[i]))
+      if (fn.Invoke(storage[i]))
       {
         return true;
       }
@@ -125,44 +122,44 @@ public class Vector<E> where E : class
     return false;
   }
 
-  public E? GetOne(Test<E> fn)
+  public TE? GetOne(Test<TE> fn)
   {
     for (int i = firstIdx; i < lastIdx; i++)
     {
-      E e = (E) storage[i];
+      TE e = storage[i];
       if (fn.Invoke(e))
       {
         return e;
       }
     }
 
-    return default(E);
+    return default(TE);
   }
 
-  public E? First()
+  public TE? First()
   {
     if (IsEmpty())
     {
-      return default(E);
+      return default(TE);
     }
 
-    return (E) storage[firstIdx];
+    return storage[firstIdx];
   }
 
-  public E? RemoveFirst()
+  public TE? RemoveFirst()
   {
     if (IsEmpty())
     {
-      return default(E);
+      return default(TE);
     }
 
     firstIdx++;
-    return (E) storage[firstIdx - 1];
+    return storage[firstIdx - 1];
   }
 
-  public bool Remove(E obj)
+  public bool Remove(TE obj)
   {
-    E[] newArray = new E[Capacity()];
+    TE[] newArray = new TE[Capacity()];
     int[] newLast = new int[] {0};
     bool[] found = new bool[] {false};
 
@@ -189,7 +186,7 @@ public class Vector<E> where E : class
   {
     firstIdx = 0;
     lastIdx = 0;
-    storage = new E[storage.Length];
+    storage = new TE[storage.Length];
   }
 
   public int Size()
@@ -202,7 +199,7 @@ public class Vector<E> where E : class
     return storage.Length;
   }
 
-  public void Sort(Comparer<E> c)
+  public void Sort(Comparer<TE>? c)
   {
     if (Size() > 0)
     {
@@ -210,11 +207,11 @@ public class Vector<E> where E : class
     }
   }
 
-  private void Sort(int i, int j, Comparer<E> c)
+  private void Sort(int i, int j, Comparer<TE>? c)
   {
     if (c == null)
     {
-      defaultSort(i, j);
+      DefaultSort(i, j);
     }
 
     int n = j + 1 - i;
@@ -223,13 +220,13 @@ public class Vector<E> where E : class
       return;
     }
 
-    E di = (E) storage[i];
-    E dj = (E) storage[j];
+    TE di = storage[i];
+    TE dj = storage[j];
 
     if (c!.Compare(di, dj) > 0)
     {
-      swap(storage, i, j);
-      E tt = di;
+      Swap(storage, i, j);
+      TE tt = di;
       di = dj;
       dj = tt;
     }
@@ -237,19 +234,19 @@ public class Vector<E> where E : class
     if (n > 2)
     {
       int ij = (i + j) / 2;
-      E dij = (E) storage[ij];
+      TE dij = storage[ij];
 
       if (c.Compare(di, dij) <= 0)
       {
         if (c.Compare(dij, dj) > 0)
         {
-          swap(storage, j, ij);
+          Swap(storage, j, ij);
           dij = dj;
         }
       }
       else
       {
-        swap(storage, i, ij);
+        Swap(storage, i, ij);
         dij = di;
       }
 
@@ -260,13 +257,13 @@ public class Vector<E> where E : class
 
         while (true)
         {
-          while (k <= l && c.Compare(dij, (E) storage[l]) <= 0)
+          while (k <= l && c.Compare(dij, storage[l]) <= 0)
           {
             l -= 1;
           }
 
           k += 1;
-          while (k <= l && c.Compare((E) storage[k], dij) <= 0)
+          while (k <= l && c.Compare(storage[k], dij) <= 0)
           {
             k += 1;
           }
@@ -276,7 +273,7 @@ public class Vector<E> where E : class
             break;
           }
 
-          swap(storage, k, l);
+          Swap(storage, k, l);
         }
 
         Sort(i, l, c);
@@ -285,28 +282,28 @@ public class Vector<E> where E : class
     }
   }
 
-  private static void swap(object[] storage2, int i, int j)
+  private static void Swap(TE[] storage2, int i, int j)
   {
     throw new NotImplementedException();
   }
 
-  private void defaultSort(int i, int j)
+  private void DefaultSort(int i, int j)
   {
     throw new NotImplementedException();
   }
 }
 
-public class Set<E> where E : class
+public class Set<TE> where TE : class
 {
-  private readonly Vector<E> items;
+  private readonly Vector<TE> items;
 
-  public Set() : this(CollectionConstants.INITIAL_SIZE)
+  public Set() : this(CollectionConstants.InitialSize)
   {
   }
 
   public Set(int size)
   {
-    items = new Vector<E>(size);
+    items = new Vector<TE>(size);
   }
 
   public int Size()
@@ -314,22 +311,22 @@ public class Set<E> where E : class
     return items.Size();
   }
 
-  public void ForEach(ForEach<E> fn)
+  public void ForEach(ForEach<TE> fn)
   {
     items.ForEach(fn);
   }
 
-  public bool HasSome(Test<E> fn)
+  public bool HasSome(Test<TE> fn)
   {
     return items.HasSome(fn);
   }
 
-  public E? GetOne(Test<E> fn)
+  public TE? GetOne(Test<TE> fn)
   {
     return items.GetOne(fn);
   }
 
-  public void Add(E obj)
+  public void Add(TE obj)
   {
     if (!Contains(obj))
     {
@@ -337,7 +334,7 @@ public class Set<E> where E : class
     }
   }
 
-  public Vector<T> Collect<T>(Collect<E, T> fn) where T : class
+  public Vector<T> Collect<T>(Collect<TE, T> fn) where T : class
   {
     Vector<T> coll = new Vector<T>();
 
@@ -345,7 +342,7 @@ public class Set<E> where E : class
     return coll;
   }
 
-  public virtual bool Contains(E obj)
+  public virtual bool Contains(TE obj)
   {
     return HasSome(e => { return e.Equals(obj); });
   }
@@ -356,7 +353,7 @@ public class Set<E> where E : class
   }
 }
 
-public sealed class IdentitySet<E> : Set<E> where E : class
+public sealed class IdentitySet<TE> : Set<TE> where TE : class
 {
   public IdentitySet() : base()
   {
@@ -366,7 +363,7 @@ public sealed class IdentitySet<E> : Set<E> where E : class
   {
   }
 
-  public override bool Contains(E obj)
+  public override bool Contains(TE obj)
   {
     return HasSome(e => { return e == obj; });
   }
@@ -382,9 +379,9 @@ public interface CustomHash
   int CustomHash();
 }
 
-public class Dictionary<K, V> where K : class, CustomHash where V : class
+public class Dictionary<TK, TV> where TK : class, CustomHash where TV : class
 {
-  protected const int INITIAL_CAPACITY = 16;
+  protected const int InitialCapacity = 16;
 
   private Entry?[] buckets;
   private int size;
@@ -392,11 +389,11 @@ public class Dictionary<K, V> where K : class, CustomHash where V : class
   protected class Entry
   {
     public int Hash { get; }
-    public K Key { get; }
-    public V Value { get; set; }
+    public TK Key { get; }
+    public TV Value { get; set; }
     public Entry? Next { get; set; }
 
-    public Entry(int hash, K key, V value, Entry? next)
+    public Entry(int hash, TK key, TV value, Entry? next)
     {
       Hash = hash;
       Key = key;
@@ -404,7 +401,7 @@ public class Dictionary<K, V> where K : class, CustomHash where V : class
       Next = next;
     }
 
-    public virtual bool Match(int hash, K key)
+    public virtual bool Match(int hash, TK key)
     {
       return Hash == hash && key.Equals(Key);
     }
@@ -415,11 +412,11 @@ public class Dictionary<K, V> where K : class, CustomHash where V : class
     this.buckets = new Entry[size];
   }
 
-  public Dictionary() : this(INITIAL_CAPACITY)
+  public Dictionary() : this(InitialCapacity)
   {
   }
 
-  private static int calculateHash(K key)
+  private static int CalculateHash(TK key)
   {
     if (key == null)
     {
@@ -440,20 +437,20 @@ public class Dictionary<K, V> where K : class, CustomHash where V : class
     return size == 0;
   }
 
-  private int getBucketIdx(int hash)
+  private int GetBucketIdx(int hash)
   {
     return (buckets.Length - 1) & hash;
   }
 
-  private Entry? getBucket(int hash)
+  private Entry? GetBucket(int hash)
   {
-    return buckets[getBucketIdx(hash)];
+    return buckets[GetBucketIdx(hash)];
   }
 
-  public V? At(K key)
+  public TV? At(TK key)
   {
-    int hash = calculateHash(key);
-    Entry? e = getBucket(hash);
+    int hash = CalculateHash(key);
+    Entry? e = GetBucket(hash);
 
     while (e != null)
     {
@@ -465,13 +462,13 @@ public class Dictionary<K, V> where K : class, CustomHash where V : class
       e = e.Next;
     }
 
-    return default(V);
+    return default(TV);
   }
 
-  public bool ContainsKey(K key)
+  public bool ContainsKey(TK key)
   {
-    int hash = calculateHash(key);
-    Entry? e = getBucket(hash);
+    int hash = CalculateHash(key);
+    Entry? e = GetBucket(hash);
 
     while (e != null)
     {
@@ -486,10 +483,10 @@ public class Dictionary<K, V> where K : class, CustomHash where V : class
     return false;
   }
 
-  public void AtPut(K key, V value)
+  public void AtPut(TK key, TV value)
   {
-    int hash = calculateHash(key);
-    int i = getBucketIdx(hash);
+    int hash = CalculateHash(key);
+    int i = GetBucketIdx(hash);
 
     Entry? current = buckets[i];
 
@@ -500,21 +497,21 @@ public class Dictionary<K, V> where K : class, CustomHash where V : class
     }
     else
     {
-      insertBucketEntry(key, value, hash, current);
+      InsertBucketEntry(key, value, hash, current);
     }
 
     if (size > buckets.Length)
     {
-      resize();
+      Resize();
     }
   }
 
-  protected virtual Entry NewEntry(K key, V value, int hash)
+  protected virtual Entry NewEntry(TK key, TV value, int hash)
   {
     return new Entry(hash, key, value, null);
   }
 
-  private void insertBucketEntry(K key, V value, int hash, Entry head)
+  private void InsertBucketEntry(TK key, TV value, int hash, Entry head)
   {
     Entry current = head;
 
@@ -537,16 +534,16 @@ public class Dictionary<K, V> where K : class, CustomHash where V : class
     }
   }
 
-  private void resize()
+  private void Resize()
   {
     Entry?[] oldStorage = buckets;
 
     Entry?[] newStorage = new Entry?[oldStorage.Length * 2];
     buckets = newStorage;
-    transferEntries(oldStorage);
+    TransferEntries(oldStorage);
   }
 
-  private void transferEntries(Entry?[] oldStorage)
+  private void TransferEntries(Entry?[] oldStorage)
   {
     for (int i = 0; i < oldStorage.Length; ++i)
     {
@@ -561,13 +558,13 @@ public class Dictionary<K, V> where K : class, CustomHash where V : class
         }
         else
         {
-          splitBucket(oldStorage, i, current);
+          SplitBucket(oldStorage, i, current);
         }
       }
     }
   }
 
-  private void splitBucket(Entry?[] oldStorage, int i, Entry? head)
+  private void SplitBucket(Entry?[] oldStorage, int i, Entry? head)
   {
     Entry? loHead = null;
     Entry? loTail = null;
@@ -620,15 +617,15 @@ public class Dictionary<K, V> where K : class, CustomHash where V : class
     }
   }
 
-  public void removeAll()
+  public void RemoveAll()
   {
     buckets = new Entry[buckets.Length];
     size = 0;
   }
 
-  public Vector<K> getKeys()
+  public Vector<TK> GetKeys()
   {
-    Vector<K> keys = new Vector<K>(size);
+    Vector<TK> keys = new Vector<TK>(size);
     for (int i = 0; i < buckets.Length; ++i)
     {
       Entry? current = buckets[i];
@@ -642,9 +639,9 @@ public class Dictionary<K, V> where K : class, CustomHash where V : class
     return keys;
   }
 
-  public Vector<V> GetValues()
+  public Vector<TV> GetValues()
   {
-    Vector<V> values = new Vector<V>(size);
+    Vector<TV> values = new Vector<TV>(size);
     for (int i = 0; i < buckets.Length; ++i)
     {
       Entry? current = buckets[i];
@@ -677,7 +674,7 @@ public class IdentityDictionary<K, V> : Dictionary<K, V> where K : class, Custom
   {
   }
 
-  public IdentityDictionary() : base(INITIAL_CAPACITY)
+  public IdentityDictionary() : base(InitialCapacity)
   {
   }
 
