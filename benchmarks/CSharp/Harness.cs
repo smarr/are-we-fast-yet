@@ -47,19 +47,21 @@ public static class Harness
     Console.WriteLine("                   which is measured in total, default: 1");
   }
 
-  private static readonly Dictionary<string, Type> KnownBenchmarks = new(StringComparer.InvariantCultureIgnoreCase)
-  {
-    {nameof(Bounce), typeof(Bounce)},
-    {nameof(List), typeof(List)},
-    {nameof(Mandelbrot), typeof(Mandelbrot)},
-    {nameof(NBody), typeof(NBody)},
-    {nameof(Permute), typeof(Permute)},
-    {nameof(Queens), typeof(Queens)},
-    {nameof(Richards), typeof(Richards)},
-    {nameof(Sieve), typeof(Sieve)},
-    {nameof(Storage), typeof(Storage)},
-    {nameof(Towers), typeof(Towers)},
-  };
+  private static readonly System.Collections.Generic.Dictionary<string, Type> KnownBenchmarks =
+    new(StringComparer.InvariantCultureIgnoreCase)
+    {
+      {nameof(Bounce), typeof(Bounce)},
+      {nameof(CD), typeof(CD)},
+      {nameof(List), typeof(List)},
+      {nameof(Mandelbrot), typeof(Mandelbrot)},
+      {nameof(NBody), typeof(NBody)},
+      {nameof(Permute), typeof(Permute)},
+      {nameof(Queens), typeof(Queens)},
+      {nameof(Richards), typeof(Richards)},
+      {nameof(Sieve), typeof(Sieve)},
+      {nameof(Storage), typeof(Storage)},
+      {nameof(Towers), typeof(Towers)},
+    };
 
   private static Benchmark? CreateBenchmarkInstance(string name)
   {
