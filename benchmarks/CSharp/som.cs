@@ -199,7 +199,7 @@ public class Vector<TE> where TE : class
     return storage.Length;
   }
 
-  public void Sort(Comparer<TE>? c)
+  public void Sort(CompareTo<TE>? c)
   {
     if (Size() > 0)
     {
@@ -207,7 +207,7 @@ public class Vector<TE> where TE : class
     }
   }
 
-  private void Sort(int i, int j, Comparer<TE>? c)
+  private void Sort(int i, int j, CompareTo<TE>? c)
   {
     if (c == null)
     {
@@ -223,7 +223,7 @@ public class Vector<TE> where TE : class
     TE di = storage[i];
     TE dj = storage[j];
 
-    if (c!.Compare(di, dj) > 0)
+    if (c!.Invoke(di, dj) > 0)
     {
       Swap(storage, i, j);
       TE tt = di;
@@ -236,9 +236,9 @@ public class Vector<TE> where TE : class
       int ij = (i + j) / 2;
       TE dij = storage[ij];
 
-      if (c.Compare(di, dij) <= 0)
+      if (c.Invoke(di, dij) <= 0)
       {
-        if (c.Compare(dij, dj) > 0)
+        if (c.Invoke(dij, dj) > 0)
         {
           Swap(storage, j, ij);
           dij = dj;
@@ -257,13 +257,13 @@ public class Vector<TE> where TE : class
 
         while (true)
         {
-          while (k <= l && c.Compare(dij, storage[l]) <= 0)
+          while (k <= l && c.Invoke(dij, storage[l]) <= 0)
           {
             l -= 1;
           }
 
           k += 1;
-          while (k <= l && c.Compare(storage[k], dij) <= 0)
+          while (k <= l && c.Invoke(storage[k], dij) <= 0)
           {
             k += 1;
           }
@@ -373,6 +373,8 @@ public interface ICompareTo<TV>
 {
   int CompareTo(in TV v);
 }
+
+public delegate int CompareTo<in TE>(TE a, TE b);
 
 public interface ICustomHash
 {
