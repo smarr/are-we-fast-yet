@@ -11,16 +11,14 @@ then
 else
   load_git_repo https://github.com/SOM-st/som-java.git $SCRIPT_PATH/SOM
   pushd $SCRIPT_PATH/SOM
-  make clean; make
+  git submodule update --recursive --init
+  ant
   popd
   
   load_git_repo https://github.com/SOM-st/TruffleSOM.git $SCRIPT_PATH/TruffleSOM
   pushd $SCRIPT_PATH/TruffleSOM
-  make clean; make
+  git submodule update --recursive --init
+  ant jar
   popd
-  
-  load_git_repo https://github.com/SOM-st/TruffleSOM.git $SCRIPT_PATH/TruffleSOM-TOM truffle-object-model
-  pushd $SCRIPT_PATH/TruffleSOM-TOM
-  make clean; make
 fi
-OK TruffleSOM Build Completed.
+OK SOM and TruffleSOM Build Completed.
