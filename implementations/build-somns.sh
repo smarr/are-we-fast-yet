@@ -9,7 +9,7 @@ if [ "$1" = "style" ]
 then
   exit 0
 else
-  load_submodule $SCRIPT_PATH/SOMns
+  load_git_repo https://github.com/smarr/SOMns.git $SCRIPT_PATH/SOMns
   pushd $SCRIPT_PATH/SOMns
   ant clobber; ant compile
 fi
