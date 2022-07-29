@@ -9,18 +9,16 @@ if [ "$1" = "style" ]
 then
   exit 0
 else
-  load_submodule $SCRIPT_PATH/SOM
+  load_git_repo https://github.com/SOM-st/som-java.git $SCRIPT_PATH/SOM
   pushd $SCRIPT_PATH/SOM
-  make clean; make
+  git submodule update --recursive --init
+  ant
   popd
   
-  load_submodule $SCRIPT_PATH/TruffleSOM
+  load_git_repo https://github.com/SOM-st/TruffleSOM.git $SCRIPT_PATH/TruffleSOM
   pushd $SCRIPT_PATH/TruffleSOM
-  make clean; make
+  git submodule update --recursive --init
+  ant jar
   popd
-  
-  load_submodule $SCRIPT_PATH/TruffleSOM-TOM
-  pushd $SCRIPT_PATH/TruffleSOM-TOM
-  make clean; make
 fi
-OK TruffleSOM Build Completed.
+OK SOM and TruffleSOM Build Completed.

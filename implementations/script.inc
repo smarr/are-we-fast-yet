@@ -84,11 +84,19 @@ function get_jdk9ea() {
   fi
 }
 
+function load_git_repo() {
+  INFO Cloning "$1" into "$2"
+  if [ -z "$3" ]
+  then
+    git clone --depth=1 "$1" "$2"
+  else
+    INFO Using Branch "$3"
+    git clone --branch="$3" --depth=1 "$1" "$2"
+  fi
+}
+
 function load_submodule() {
-  INFO Load "$1"
-  git submodule init $1
-  git submodule sync $1
-  git submodule update --init --recursive $1
+  ERR Submodules are not longer used. Please replace the use of "$1" with load_git_repo for the relevant repo and branch.
 }
 
 function check_for() {
