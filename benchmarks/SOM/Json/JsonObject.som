@@ -64,7 +64,7 @@ JsonObject = JsonValue (
   indexOf: name = (
     | idx |
     idx := table at: name.    
-    idx <> 0 && name = (names at: idx) ifTrue: [ ^ idx ].
+    idx <> 0 && (name = (names at: idx)) ifTrue: [ ^ idx ].
     ^ self error: 'not implement'
   )
 
