@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This code is derived from the SOM benchmarks, see AUTHORS.md file.
 #
 # Copyright (c) 2015-2016 Stefan Marr <git@stefan-marr.de>

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # The benchmark in its current state is a derivation from the SOM version,
 # which is derived from Mario Wolczko's Smalltalk version of DeltaBlue.
 #

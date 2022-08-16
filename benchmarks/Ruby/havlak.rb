@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Adapted based on SOM benchmark.
 # Copyright 2011 Google Inc.
 #
