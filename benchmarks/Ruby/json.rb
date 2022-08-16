@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # This code is derived from the SOM benchmarks, see AUTHORS.md file.
 # This benchmark is based on the minimal-json Java library maintained at:
 # https://github.com/ralfstx/minimal-json

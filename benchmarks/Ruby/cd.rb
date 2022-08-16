@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Ported from the adapted JavaScript and Java versions.
 #
 #     Copyright (c) 2001-2010, Purdue University. All rights reserved.
