@@ -215,6 +215,12 @@ benchmarks.
 
 ## Academic Work using this benchmark suite
 
+- [A Surprisingly Simple Lua Compiler – Extended Version][17]  
+  H. M. Gualandi, R. Ierusalimschy. Journal of Computer Languages. 2021.
+
+- [Contextual Dispatch for Function Specialization][16]  
+  O. Flückiger, G. Chari, M. Yee, J. Ječmen, J. Hain, J. Vitek. Proceedings of the ACM on Programming Languages, OOPSLA, 2020.
+
 - [GraalSqueak: Toward a Smalltalk-based Tooling Platform for Polyglot Programming][15]  
   F. Niephaus, T. Felgentreff, R. Hirschfeld. Proceedings of 16th International Conference on Managed Programming Languages & Runtimes, MPLR'19. 2019.
 
@@ -271,6 +277,8 @@ benchmarks.
  [13]: https://github.com/densh/talks/blob/master/2018-06-16-interflow-preprint-v1.pdf
  [14]: http://janvitek.org/pubs/dls18.pdf
  [15]: https://fniephaus.com/2019/mplr19-graalsqueak.pdf
+ [16]: http://janvitek.org/pubs/oopsla20-cd.pdf
+ [17]: http://www.inf.puc-rio.br/~hgualandi/papers/Gualandi-2022-SCP.pdf
 
  [CD]:        https://www.cs.purdue.edu/sss/projects/cdx/
  [CDjs]:      https://github.com/WebKit/webkit/tree/master/PerformanceTests/JetStream/cdjs
