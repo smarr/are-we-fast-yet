@@ -802,25 +802,22 @@ Simulator.prototype.simulate = function (time) {
   return frame;
 };
 
-function CD() {
-  benchmark.Benchmark.call(this);
+class CD {
+  cd(numAircrafts) {
+    const numFrames = 200;
+    const simulator = new Simulator(numAircrafts);
+    const detector = new CollisionDetector();
 
-  function cd(numAircrafts) {
-    var numFrames = 200;
-    var simulator = new Simulator(numAircrafts);
-    var detector = new CollisionDetector();
-
-    var actualCollisions = 0;
-    for (var i = 0; i < numFrames; ++i) {
-      var time = i / 10;
-
-      var collisions = detector.handleNewFrame(simulator.simulate(time));
+    let actualCollisions = 0;
+    for (let i = 0; i < numFrames; ++i) {
+      const time = i / 10;
+      const collisions = detector.handleNewFrame(simulator.simulate(time));
       actualCollisions += collisions.size();
     }
     return actualCollisions;
   }
 
-  function verifyResult(actualCollisions, numAircrafts) {
+  verifyResult(actualCollisions, numAircrafts) {
     if (numAircrafts == 1000) { return actualCollisions == 14484; }
     if (numAircrafts ==  500) { return actualCollisions == 14484; }
     if (numAircrafts ==  250) { return actualCollisions == 10830; }
@@ -834,8 +831,8 @@ function CD() {
     return false;
   }
 
-  this.innerBenchmarkLoop = function (innerIterations) {
-    return verifyResult(cd(innerIterations), innerIterations);
+  innerBenchmarkLoop(innerIterations) {
+    return this.verifyResult(this.cd(innerIterations), innerIterations);
   };
 }
 

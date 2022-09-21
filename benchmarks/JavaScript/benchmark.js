@@ -1,3 +1,4 @@
+// @ts-check
 // This code is derived from the SOM benchmarks, see AUTHORS.md file.
 //
 // Copyright (c) 2015-2016 Stefan Marr <git@stefan-marr.de>
@@ -21,23 +22,24 @@
 // THE SOFTWARE.
 'use strict';
 
-function Benchmark() {}
+class Benchmark {
 
-Benchmark.prototype.innerBenchmarkLoop = function (innerIterations) {
-  for (var i = 0; i < innerIterations; i++) {
-    if (!this.verifyResult(this.benchmark())) {
-      return false;
+  innerBenchmarkLoop(innerIterations) {
+    for (let i = 0; i < innerIterations; i++) {
+      if (!this.verifyResult(this.benchmark())) {
+        return false;
+      }
     }
+    return true;
   }
-  return true;
-};
 
-Benchmark.prototype.benchmark = function () {
-  throw "subclass responsibility";
-};
+  benchmark() {
+    throw "subclass responsibility";
+  }
 
-Benchmark.prototype.verifyResult = function () {
-  throw "subclass responsibility";
-};
+  verifyResult() {
+    throw "subclass responsibility";
+  }
+}
 
 exports.Benchmark = Benchmark;
