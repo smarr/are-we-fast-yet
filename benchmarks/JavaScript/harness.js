@@ -21,81 +21,16 @@
 // THE SOFTWARE.
 'use strict';
 
-function Run(name) {
-  function loadBenchmark() {
-    var filename = "./" + name.toLowerCase() + ".js";
-    return require(filename);
-  }
+const { Run } = require('./run');
 
-  var benchmarkSuite  = loadBenchmark(),
-    numIterations   = 1,
-    innerIterations = 1,
-    total           = 0;
-
-  function reportBenchmark() {
-    process.stdout.write(name + ": iterations=" + numIterations +
-      " average: " + Math.round(total / numIterations) + "us total: " + Math.round(total) + "us\n\n");
-  }
-
-  function printResult(runTime) {
-    process.stdout.write(name + ": iterations=1 runtime: " + Math.round(runTime) + "us\n");
-  }
-
-  function measure(bench) {
-    var startTime =  process.hrtime();
-    if (!bench.innerBenchmarkLoop(innerIterations)) {
-      throw "Benchmark failed with incorrect result";
-    }
-    var diff =  process.hrtime(startTime);
-    var runTime = ((diff[0] * 1e9 + diff[1]) / 1000) | 0; // truncate to integer
-
-    printResult(runTime);
-    total += runTime;
-  }
-
-  function doRuns(bench) {
-    for (var i = 0; i < numIterations; i++) {
-      measure(bench);
-    }
-  }
-
-  this.printTotal = function () {
-    process.stdout.write("Total Runtime: " + total + "us\n");
-  };
-
-  this.runBenchmark = function () {
-    process.stdout.write("Starting " + name + " benchmark ...\n");
-
-    doRuns(benchmarkSuite.newInstance());
-
-    reportBenchmark();
-    process.stdout.write("\n");
-  };
-
-  this.setNumIterations = function (val) {
-    numIterations = val;
-  };
-
-  this.setName = function (val) {
-    name = val;
-  };
-
-  this.setInnerIterations = function (val) {
-    innerIterations = val;
-  };
-
-  this.setBenchmarkSuite = function (val) {
-    benchmarkSuite = val;
-  };
-}
 
 function processArguments(args) {
   var run = new Run(args[2]);
 
   if (args.length > 3) {
-    run.setNumIterations(parseInt(args[3]));
+    run.numIterations = parseInt(args[3]);
     if (args.length > 4) {
-      run.setInnerIterations(parseInt(args[4]));
+      run.innerIterations = parseInt(args[4]);
     }
   }
   return run;
