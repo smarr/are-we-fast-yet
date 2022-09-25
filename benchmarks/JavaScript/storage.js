@@ -1,3 +1,4 @@
+// @ts-check
 // This code is derived from the SOM benchmarks, see AUTHORS.md file.
 //
 // Copyright (c) 2015-2016 Stefan Marr <git@stefan-marr.de>
@@ -19,41 +20,38 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-'use strict';
 
-var benchmark = require('./benchmark.js'),
-  som = require('./som.js');
+const { Benchmark } = require('./benchmark');
+const { Random } = require('./som');
 
-function Storage() {
-  benchmark.Benchmark.call(this);
-  this.count = 0;
-}
-Storage.prototype = Object.create(benchmark.Benchmark.prototype);
+class Storage extends Benchmark {
+  constructor() {
+    super();
+    this.count = 0;
+  }
 
-Storage.prototype.benchmark = function () {
-  var random = new som.Random();
-  this.count  = 0;
-  this.buildTreeDepth(7, random);
-  return this.count;
-};
+  benchmark() {
+    const random = new Random();
+    this.count = 0;
+    this.buildTreeDepth(7, random);
+    return this.count;
+  }
 
-Storage.prototype.verifyResult = function (result) {
-  return 5461 === result;
-};
+  verifyResult(result) {
+    return 5461 === result;
+  }
 
-Storage.prototype.buildTreeDepth = function (depth, random) {
-  this.count += 1;
-  if (depth === 1) {
-    return new Array(random.next() % 10 + 1);
-  } else {
-    var arr = new Array(4);
-    for (var i = 0; i < 4; i++) {
+  buildTreeDepth(depth, random) {
+    this.count += 1;
+    if (depth === 1) {
+      return new Array((random.next() % 10) + 1);
+    }
+    const arr = new Array(4);
+    for (let i = 0; i < 4; i += 1) {
       arr[i] = this.buildTreeDepth(depth - 1, random);
     }
     return arr;
   }
-};
+}
 
-exports.newInstance = function () {
-  return new Storage();
-};
+exports.newInstance = () => new Storage();
