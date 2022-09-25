@@ -17,6 +17,9 @@
         "comma-dangle": "off",
         "no-param-reassign": "off",
         "no-nested-ternary": "off",
-        "yoda": "off"
+        "yoda": "off",
+        "no-bitwise": "off",
+        "no-underscore-dangle": "off",
+        "no-new": "off"
     }
 }
