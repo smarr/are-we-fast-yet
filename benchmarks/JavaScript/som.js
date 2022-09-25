@@ -49,7 +49,7 @@ Vector.prototype.at = function (idx) {
 };
 
 Vector.prototype.atPut = function (idx, val) {
-  if (this.idx >= this.storage.length) {
+  if (idx >= this.storage.length) {
     var newLength = this.storage.length;
     while (newLength <= idx) {
       newLength *= 2;
