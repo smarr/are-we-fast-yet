@@ -60,18 +60,19 @@ vm_names <- c(
  
   "Node-jit"      = "Node.js 17.5",
   "Node-int"      = "Node.js 17.5 jitless", 
-  "GraalJS-HotspotEE-jit" = "Graal.js EE 22.0.0.2 Hotspot", 
-  "GraalJS-NativeEE-int"  = "Graal.js EE 22.0.0.2 Native Int", 
+  "GraalJS-HotspotEE-jit" = "Graal.js EE 22.2 Hotspot", 
+  "GraalJS-NativeEE-int"  = "Graal.js EE 22.2 Native Int", 
   
   "PyPy-jit" = "PyPy 3.8 7.3.7",
+  "PyPy-int" = "PyPy 3.8 7.3.7 Int",
   "CPython-int" = "CPython 3.10",
-  "GraalPython-HotspotEE-jit" = "GraalPython EE 22.0.0.2 Hotspot",
-  "GraalPython-NativeEE-int"  = "GraalPython EE 22.0.0.2 Native Int",
+  "GraalPython-HotspotEE-jit" = "GraalPython EE 22.2 Hotspot",
+  "GraalPython-NativeEE-int"  = "GraalPython EE 22.2 Native Int",
   
   "CRuby-int" = "Ruby 3.1.0",
   "CRuby-y-jit" = "Ruby 3.1.0 yjit",
-  "TruffleRuby-HotspotEE-jit" = "TruffleRuby EE 22.0.0.2 Hotspot",
-  "TruffleRuby-NativeEE-int"  = "TruffleRuby EE 22.0.0.2 Native Int",
+  "TruffleRuby-HotspotEE-jit" = "TruffleRuby EE 22.2 Hotspot",
+  "TruffleRuby-NativeEE-int"  = "TruffleRuby EE 22.2 Native Int",
   
   "PySOM-ast-jit" = "PySOM AST JIT",
   "PySOM-ast-int" = "PySOM AST Int",
@@ -79,10 +80,12 @@ vm_names <- c(
   "PySOM-bc-int"  = "PySOM BC Int",
 
   "TruffleSOM-ast-HotspotCE-jit-main" = "TruffleSOM AST Hotspot CE base", 
+  "TruffleSOM-ast-HotspotEE-jit-main" = "TruffleSOM AST Hotspot EE base", 
   "TruffleSOM-ast-NativeEE-int-main"  = "TruffleSOM AST Native Int EE base",
   "TruffleSOM-ast-NativeEE-int-super" = "TruffleSOM AST Native Int EE super", 
   "TruffleSOM-ast-NativeEE-int-uber"  = "TruffleSOM AST Native Int EE uber",
   "TruffleSOM-bc-HotspotCE-jit-main"  = "TruffleSOM BC Hotspot CE base",
+  "TruffleSOM-bc-HotspotEE-jit-main"  = "TruffleSOM BC Hotspot EE base",
   "TruffleSOM-bc-NativeEE-int-main"   = "TruffleSOM BC Native Int EE base"
 )
 
@@ -97,6 +100,7 @@ vms_int <- c(
   
   "CPython-int",
   "GraalPython-NativeEE-int", 
+  "PyPy-int",
   
   "CRuby-int",
   "TruffleRuby-NativeEE-int",
@@ -126,7 +130,9 @@ vms_jit <- c(
   "PySOM-ast-jit",
   "PySOM-bc-jit", 
   "TruffleSOM-ast-HotspotCE-jit-main", 
-  "TruffleSOM-bc-HotspotCE-jit-main"
+  "TruffleSOM-bc-HotspotCE-jit-main",
+  "TruffleSOM-ast-HotspotEE-jit-main", 
+  "TruffleSOM-bc-HotspotEE-jit-main"
 )
 
 assert_that(all(sort(c(vms_int, vms_jit)) == sort(vms_all))) ## sanity check
@@ -153,6 +159,10 @@ results_int <- data %>%
     exe %in% vms_int,
     baseline_vm_int)
 
+results_python_int <- data %>%
+  compute_all(
+    exe %in% vms_int,
+    "CPython-int")
 
 results_first <- data %>%
   compute_all(
@@ -328,9 +338,18 @@ overview_box_plot(results_peak$stats$bench,
 ```{r python-overview, fig.width=8, fig.height=1.5}
 overview_box_plot(results_peak$stats$bench,
                   c("GraalPython-HotspotEE-jit","CPython-int",
-                    "PyPy-jit",
+                    "PyPy-jit", "PyPy-int",
                     "GraalPython-NativeEE-int"))
 ```
+
+
+```{r python-overview-int, fig.width=8, fig.height=1.5}
+overview_box_plot(results_python_int$stats$bench,
+                  c("CPython-int",
+                    "PyPy-int",
+                    "GraalPython-NativeEE-int"))
+```
+
 
 ###### Ruby Performance
 
@@ -348,8 +367,10 @@ overview_box_plot(results_peak$stats$bench,
 overview_box_plot(results_peak$stats$bench,
                   c("PySOM-ast-int", "PySOM-ast-jit", "PySOM-bc-int",
                     "PySOM-bc-jit", 
+                    "TruffleSOM-ast-HotspotEE-jit-main",
                     "TruffleSOM-ast-HotspotCE-jit-main",
                     "TruffleSOM-ast-NativeEE-int-main",
+                    "TruffleSOM-bc-HotspotEE-jit-main",
                     "TruffleSOM-bc-HotspotCE-jit-main",
                     "TruffleSOM-bc-NativeEE-int-main"))
 ```
