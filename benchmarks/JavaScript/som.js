@@ -1,3 +1,4 @@
+// @ts-check
 // This code is derived from the SOM benchmarks, see AUTHORS.md file.
 //
 // Copyright (c) 2015-2016 Stefan Marr <git@stefan-marr.de>
@@ -19,198 +20,201 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-'use strict';
 
-var INITIAL_SIZE = 10,
-  INITIAL_CAPACITY = 16;
+const INITIAL_SIZE = 10;
+const INITIAL_CAPACITY = 16;
 
-function Pair(key, val) {
-  this.key   = key;
-  this.value = val;
+class Pair {
+  constructor(key, val) {
+    this.key = key;
+    this.value = val;
+  }
 }
 
-function Vector(size) {
-  this.storage  = new Array(size === undefined ? 50 : size);
-  this.firstIdx = 0;
-  this.lastIdx  = 0;
-}
-
-Vector.with = function (elem) {
-  var v = new Vector(1);
-  v.append(elem);
-  return v;
-};
-
-Vector.prototype.at = function (idx) {
-  if (idx >= this.storage.length) {
-    return null;
+class Vector {
+  constructor(size) {
+    this.storage = new Array(size === undefined ? 50 : size);
+    this.firstIdx = 0;
+    this.lastIdx = 0;
   }
-  return this.storage[idx];
-};
 
-Vector.prototype.atPut = function (idx, val) {
-  if (idx >= this.storage.length) {
-    var newLength = this.storage.length;
-    while (newLength <= idx) {
-      newLength *= 2;
+  static with(elem) {
+    const v = new Vector(1);
+    v.append(elem);
+    return v;
+  }
+
+  at(idx) {
+    if (idx >= this.storage.length) {
+      return null;
     }
-    this.storage = this.storage.slice();
-    this.storage.length = newLength;
-  }
-  this.storage[idx] = val;
-  if (this.lastIdx < idx + 1) {
-    this.lastIdx = idx + 1;
-  }
-};
-
-Vector.prototype.append = function (elem) {
-  if (this.lastIdx >= this.storage.length) {
-    // Copy storage to comply with rules, but don't extend storage
-    var newLength = this.storage.length * 2;
-    this.storage = this.storage.slice();
-    this.storage.length = newLength;
+    return this.storage[idx];
   }
 
-  this.storage[this.lastIdx] = elem;
-  this.lastIdx += 1;
-};
-
-Vector.prototype.isEmpty = function () {
-  return this.lastIdx === this.firstIdx;
-};
-
-Vector.prototype.forEach = function (fn) {
-  for (var i = this.firstIdx; i < this.lastIdx; i++) {
-    fn(this.storage[i]);
-  }
-};
-
-Vector.prototype.hasSome = function(fn) {
-  for (var i = this.firstIdx; i < this.lastIdx; i++) {
-    if (fn(this.storage[i])) {
-      return true;
-    }
-  }
-  return false;
-};
-
-Vector.prototype.getOne = function (fn) {
-  for (var i = this.firstIdx; i < this.lastIdx; i++) {
-    var e = this.storage[i];
-    if (fn(e)) {
-      return e;
-    }
-  }
-  return null;
-};
-
-Vector.prototype.removeFirst = function () {
-  if (this.isEmpty()) {
-    return null;
-  }
-  this.firstIdx++;
-  return this.storage[this.firstIdx - 1];
-};
-
-Vector.prototype.remove = function (obj) {
-  var newArray = new Array(this.capacity());
-  var newLast = 0;
-  var found = false;
-
-  this.forEach(function (it) {
-    if (it == obj) {
-      found = true;
-    } else {
-      newArray[newLast] = it;
-      newLast++;
-    }
-  });
-
-  this.storage  = newArray;
-  this.lastIdx  = newLast;
-  this.firstIdx = 0;
-  return found;
-};
-
-Vector.prototype.removeAll = function () {
-  this.firstIdx = 0;
-  this.lastIdx = 0;
-  this.storage = new Array(this.storage.length);
-};
-
-Vector.prototype.size = function () {
-  return this.lastIdx - this.firstIdx;
-};
-
-Vector.prototype.capacity = function () {
-  return this.storage.length;
-};
-
-Vector.prototype.sortRange = function (i, j, compare) {
-  if (!compare) {
-    this.defaultSort(i, j);
-  }
-
-  var n = j + 1 - i;
-  if (n <= 1) {
-    return;
-  }
-
-  var di = this.storage[i];
-  var dj = this.storage[j];
-
-  if (compare(di, dj)) {
-    this.swap(this.storage, i, j);
-    var tt = di;
-    di = dj;
-    dj = tt;
-  }
-
-  if (n > 2) {
-    var ij = (i + j) / 2;
-    var dij = this.storage[ij];
-
-    if (compare(di, dij) <= 0) {
-      if (!compare(dij, dj)) {
-        this.swap(this.storage, j, ij);
-        dij = dj;
+  atPut(idx, val) {
+    if (idx >= this.storage.length) {
+      var newLength = this.storage.length;
+      while (newLength <= idx) {
+        newLength *= 2;
       }
-    } else {
-      this.swap(this.storage, i, ij);
-      dij = di;
+      this.storage = this.storage.slice();
+      this.storage.length = newLength;
+    }
+    this.storage[idx] = val;
+    if (this.lastIdx < idx + 1) {
+      this.lastIdx = idx + 1;
+    }
+  }
+
+  append(elem) {
+    if (this.lastIdx >= this.storage.length) {
+      // Copy storage to comply with rules, but don't extend storage
+      var newLength = this.storage.length * 2;
+      this.storage = this.storage.slice();
+      this.storage.length = newLength;
     }
 
-    if (n > 3) {
-      var k = i;
-      var l = j - 1;
+    this.storage[this.lastIdx] = elem;
+    this.lastIdx += 1;
+  }
 
-      while (true) {
-        while (k <= l && compare(dij, this.storage[l])) {
-          l -= 1;
+  isEmpty() {
+    return this.lastIdx === this.firstIdx;
+  }
+
+  forEach(fn) {
+    for (var i = this.firstIdx; i < this.lastIdx; i++) {
+      fn(this.storage[i]);
+    }
+  }
+
+  hasSome(fn) {
+    for (var i = this.firstIdx; i < this.lastIdx; i++) {
+      if (fn(this.storage[i])) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  getOne(fn) {
+    for (var i = this.firstIdx; i < this.lastIdx; i++) {
+      var e = this.storage[i];
+      if (fn(e)) {
+        return e;
+      }
+    }
+    return null;
+  }
+
+  removeFirst() {
+    if (this.isEmpty()) {
+      return null;
+    }
+    this.firstIdx++;
+    return this.storage[this.firstIdx - 1];
+  }
+
+  remove(obj) {
+    var newArray = new Array(this.capacity());
+    var newLast = 0;
+    var found = false;
+
+    this.forEach(function (it) {
+      if (it == obj) {
+        found = true;
+      } else {
+        newArray[newLast] = it;
+        newLast++;
+      }
+    });
+
+    this.storage  = newArray;
+    this.lastIdx  = newLast;
+    this.firstIdx = 0;
+    return found;
+  }
+
+  removeAll = function () {
+    this.firstIdx = 0;
+    this.lastIdx = 0;
+    this.storage = new Array(this.storage.length);
+  }
+
+  size = function () {
+    return this.lastIdx - this.firstIdx;
+  }
+
+  capacity = function () {
+    return this.storage.length;
+  }
+
+  sortRange = function (i, j, compare) {
+    if (!compare) {
+      this.defaultSort(i, j);
+    }
+
+    var n = j + 1 - i;
+    if (n <= 1) {
+      return;
+    }
+
+    var di = this.storage[i];
+    var dj = this.storage[j];
+
+    if (compare(di, dj)) {
+      this.swap(this.storage, i, j);
+      var tt = di;
+      di = dj;
+      dj = tt;
+    }
+
+    if (n > 2) {
+      var ij = (i + j) / 2;
+      var dij = this.storage[ij];
+
+      if (compare(di, dij) <= 0) {
+        if (!compare(dij, dj)) {
+          this.swap(this.storage, j, ij);
+          dij = dj;
         }
+      } else {
+        this.swap(this.storage, i, ij);
+        dij = di;
+      }
 
-        k += 1;
-        while (k <= l && compare(this.storage[k], dij)) {
+      if (n > 3) {
+        var k = i;
+        var l = j - 1;
+
+        while (true) {
+          while (k <= l && compare(dij, this.storage[l])) {
+            l -= 1;
+          }
+
           k += 1;
-        }
+          while (k <= l && compare(this.storage[k], dij)) {
+            k += 1;
+          }
 
-        if (k > l) {
-          break;
+          if (k > l) {
+            break;
+          }
+          this.swap(this.storage, k, l);
         }
-        this.swap(this.storage, k, l);
+        var c = null; // never used
+        this.sort(i, l, c);
+        this.sort(k, j, c);
       }
-      var c = null; // never used
-      this.sort(i, l, c);
-      this.sort(k, j, c);
     }
   }
-};
 
-Vector.prototype.sort = function(compare) {
-  if (this.size() > 0) {
-    this.sortRange(this.firstIdx, this.lastIdx - 1, compare);
+  sort = function(compare) {
+    if (this.size() > 0) {
+      this.sortRange(this.firstIdx, this.lastIdx - 1, compare);
+    }
   }
-};
+}
 
 function Set(size) {
   this.items = new Vector(size === undefined ? INITIAL_SIZE : size);
