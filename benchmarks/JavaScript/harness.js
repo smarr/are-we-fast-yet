@@ -23,26 +23,25 @@
 
 const { Run } = require('./run');
 
-
 function processArguments(args) {
-  var run = new Run(args[2]);
+  const run = new Run(args[2]);
 
   if (args.length > 3) {
-    run.numIterations = parseInt(args[3]);
+    run.numIterations = parseInt(args[3], 10);
     if (args.length > 4) {
-      run.innerIterations = parseInt(args[4]);
+      run.innerIterations = parseInt(args[4], 10);
     }
   }
   return run;
 }
 
 function printUsage() {
-  process.stdout.write("harness.js [benchmark] [num-iterations [inner-iter]]\n");
-  process.stdout.write("\n");
-  process.stdout.write("  benchmark      - benchmark class name\n");
-  process.stdout.write("  num-iterations - number of times to execute benchmark, default: 1\n");
-  process.stdout.write("  inner-iter     - number of times the benchmark is executed in an inner loop,\n");
-  process.stdout.write("                   which is measured in total, default: 1\n");
+  process.stdout.write('harness.js [benchmark] [num-iterations [inner-iter]]\n');
+  process.stdout.write('\n');
+  process.stdout.write('  benchmark      - benchmark class name\n');
+  process.stdout.write('  num-iterations - number of times to execute benchmark, default: 1\n');
+  process.stdout.write('  inner-iter     - number of times the benchmark is executed in an inner loop,\n');
+  process.stdout.write('                   which is measured in total, default: 1\n');
 }
 
 if (process.argv.length < 3) {
@@ -50,6 +49,6 @@ if (process.argv.length < 3) {
   process.exit(1);
 }
 
-var run = processArguments(process.argv);
+const run = processArguments(process.argv);
 run.runBenchmark();
 run.printTotal();
