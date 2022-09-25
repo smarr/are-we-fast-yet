@@ -39,18 +39,18 @@ vm_names <- c(
  
   "Node-jit"      = "Node.js 17.5",
   "Node-int"      = "Node.js 17.5 jitless", 
-  "GraalJS-HotspotEE-jit" = "Graal.js EE 22 Hotspot", 
-  "GraalJS-NativeEE-int"  = "Graal.js EE 22 Native Int", 
+  "GraalJS-HotspotEE-jit" = "Graal.js EE 22.2 Hotspot", 
+  "GraalJS-NativeEE-int"  = "Graal.js EE 22.2 Native Int", 
   
   "PyPy-jit" = "PyPy 3.8 7.3.7",
   "CPython-int" = "CPython 3.10",
-  "GraalPython-HotspotEE-jit" = "GraalPython EE 22 Hotspot",
-  "GraalPython-NativeEE-int"  = "GraalPython EE 22 Native Int",
+  "GraalPython-HotspotEE-jit" = "GraalPython EE 22.2 Hotspot",
+  "GraalPython-NativeEE-int"  = "GraalPython EE 22.2 Native Int",
   
   "CRuby-int" = "Ruby 3.1.0",
   "CRuby-y-jit" = "Ruby 3.1.0 yjit",
-  "TruffleRuby-HotspotEE-jit" = "TruffleRuby EE 22 Hotspot",
-  "TruffleRuby-NativeEE-int"  = "TruffleRuby EE 22 Native Int",
+  "TruffleRuby-HotspotEE-jit" = "TruffleRuby EE 22.2 Hotspot",
+  "TruffleRuby-NativeEE-int"  = "TruffleRuby EE 22.2 Native Int",
   
   "PySOM-ast-jit" = "PySOM AST JIT",
   "PySOM-ast-int" = "PySOM AST Int",
@@ -58,10 +58,12 @@ vm_names <- c(
   "PySOM-bc-int"  = "PySOM BC Int",
 
   "TruffleSOM-ast-HotspotCE-jit-main" = "TruffleSOM AST Hotspot CE base", 
+  "TruffleSOM-ast-HotspotEE-jit-main" = "TruffleSOM AST Hotspot EE base", 
   "TruffleSOM-ast-NativeEE-int-main"  = "TruffleSOM AST Native Int EE base",
   "TruffleSOM-ast-NativeEE-int-super" = "TruffleSOM AST Native Int EE super", 
   "TruffleSOM-ast-NativeEE-int-uber"  = "TruffleSOM AST Native Int EE uber",
   "TruffleSOM-bc-HotspotCE-jit-main"  = "TruffleSOM BC Hotspot CE base",
+  "TruffleSOM-bc-HotspotEE-jit-main"  = "TruffleSOM BC Hotspot EE base",
   "TruffleSOM-bc-NativeEE-int-main"   = "TruffleSOM BC Native Int EE base"
 )
 
@@ -104,7 +106,9 @@ vms_jit <- c(
   "PySOM-ast-jit",
   "PySOM-bc-jit", 
   "TruffleSOM-ast-HotspotCE-jit-main", 
-  "TruffleSOM-bc-HotspotCE-jit-main"
+  "TruffleSOM-bc-HotspotCE-jit-main",
+  "TruffleSOM-ast-HotspotEE-jit-main", 
+  "TruffleSOM-bc-HotspotEE-jit-main"
 )
 
 vms_dyn_int <- c(
@@ -128,9 +132,11 @@ vms_dyn_jit <- c(
   "PyPy-jit",
   "GraalPython-HotspotEE-jit", 
   
+  "CRuby-y-jit",
   "TruffleRuby-HotspotEE-jit",
   
-  "TruffleSOM-ast-HotspotCE-jit-main"
+  "TruffleSOM-ast-HotspotEE-jit-main",
+  "TruffleSOM-bc-HotspotEE-jit-main"
 )
 
 assert_that(all(sort(c(vms_int, vms_jit)) == sort(vms_all))) ## sanity check
@@ -148,20 +154,21 @@ baseline_vm_int <- "Node-int"
 baseline_vm_first <- "Node-jit"
 
 vm_colors[["Node.js 17.5"]]                       <- "#725000"
-vm_colors[["Graal.js EE 22 Hotspot"]]       <- "#c4a000"
+vm_colors[["Graal.js EE 22.2 Hotspot"]]       <- "#c4a000"
 vm_colors[["Node.js 17.5 jitless"]]               <- "#edd400"
-vm_colors[["Graal.js EE 22 Native Int"]]    <- "#fce94f"
+vm_colors[["Graal.js EE 22.2 Native Int"]]    <- "#fce94f"
 
 vm_colors[["PyPy 3.8 7.3.7"]]                     <- "#2a5703"
-vm_colors[["GraalPython EE 22 Hotspot"]]    <- "#4e9a06"
+vm_colors[["GraalPython EE 22.2 Hotspot"]]    <- "#4e9a06"
 vm_colors[["CPython 3.10"]]                       <- "#73d216"
-vm_colors[["GraalPython EE 22 Native Int"]] <- "#b7f774"
+vm_colors[["GraalPython EE 22.2 Native Int"]] <- "#b7f774"
 
 vm_colors[["Ruby 3.1.0"]]                         <- "#3465a4"
-vm_colors[["TruffleRuby EE 22 Hotspot"]]    <- "#204a87"
-vm_colors[["TruffleRuby EE 22 Native Int"]] <- "#97c4f0"
+vm_colors[["TruffleRuby EE 22.2 Hotspot"]]    <- "#204a87"
+vm_colors[["TruffleRuby EE 22.2 Native Int"]] <- "#97c4f0"
 
 vm_colors[["TruffleSOM AST Hotspot CE base"]]     <- "#a40000"
+vm_colors[["TruffleSOM AST Hotspot EE base"]]     <- "#a40000"
 vm_colors[["TruffleSOM AST Native Int EE base"]]  <- "#ef2929"
 vm_colors[["TruffleSOM AST Native Int EE super"]] <- "#f78787"
 
@@ -170,6 +177,11 @@ vm_colors[["TruffleSOM AST Native Int EE super"]] <- "#f78787"
 results_peak <- data %>%
   compute_all(
     iteration >= warmup_jit_iteration | exe %in% vms_int | exe == "CRuby-y-jit",
+    baseline_vm_peak)
+
+results_first <- data %>%
+  compute_all(
+    iteration == 1,
     baseline_vm_peak)
 
 results_int <- data %>%
@@ -316,6 +328,8 @@ it gives us relatively stable results for most language implementations.
 
 ## Overview
 
+<a id="jit">
+
 ##### Just-in-Time Compiling Language Implementations
 
 The baseline here is `r vm_names[baseline_vm_peak]`.
@@ -326,6 +340,25 @@ overview_box_plot(results_peak$stats$bench, vms = vms_dyn_jit,
   font_size = 18,
   x_axis = "Runtime Factor, normalized to Node.js (lower is better)")
 ```
+
+<a id="first">
+
+##### First Iteration Performance
+
+The baseline here is `r vm_names[baseline_vm_peak]`.
+Instead of considering all data, let's look strictly at the first iteration.
+This would correspond to the performance of one-off scripts, and somewhat small
+workloads. However, benchmark sizing is a big issue here, because with it, one
+determines whether JIT-compiled or interpreter performance dominates.
+
+```{r first-overview, fig.width=15, fig.height=7, dev.args = list(bg = 'transparent')}
+overview_box_plot(results_first$stats$bench, vms = vms_dyn_jit,
+  x_breaks = c(0.33, 0.5, 0.75, 1, 1.33, 2, 3, 4, 5, 6, 8),
+  font_size = 18,
+  x_axis = "Runtime Factor, normalized to Node.js (lower is better)")
+```
+
+<a id="interpreters">
 
 ##### Interpreters
 
@@ -349,6 +382,8 @@ overview_box_plot(
   font_size = 18,
   x_axis = "Runtime Factor, normalized to Node.js (lower is better)")
 ```
+
+<a id="javascript">
 
 ###### JavaScript Performance
 
