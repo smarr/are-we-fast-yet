@@ -20,6 +20,8 @@
         "yoda": "off",
         "no-bitwise": "off",
         "no-underscore-dangle": "off",
-        "no-new": "off"
+        "no-new": "off",
+        "import/no-dynamic-require": "off",
+        "global-require": "off"
     }
 }

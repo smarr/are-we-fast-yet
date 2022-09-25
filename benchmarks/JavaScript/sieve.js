@@ -1,3 +1,4 @@
+// @ts-check
 // This code is derived from the SOM benchmarks, see AUTHORS.md file.
 //
 // Copyright (c) 2015-2016 Stefan Marr <git@stefan-marr.de>
@@ -19,41 +20,35 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-'use strict';
 
-var benchmark = require('./benchmark.js');
+const { Benchmark } = require('./benchmark');
 
-function Sieve() {
-  benchmark.Benchmark.call(this);
-}
-Sieve.prototype = Object.create(benchmark.Benchmark.prototype);
+class Sieve extends Benchmark {
+  sieve(flags, size) {
+    let primeCount = 0;
 
-function sieve(flags, size) {
-  var primeCount = 0;
-
-  for (var i = 2; i <= size; i++) {
-    if (flags[i - 1]) {
-      primeCount++;
-      var k = i + i;
-      while (k <= size) {
-        flags[k - 1] = false;
-        k += i;
+    for (let i = 2; i <= size; i += 1) {
+      if (flags[i - 1]) {
+        primeCount += 1;
+        let k = i + i;
+        while (k <= size) {
+          flags[k - 1] = false;
+          k += i;
+        }
       }
     }
+    return primeCount;
   }
-  return primeCount;
+
+  benchmark() {
+    const flags = new Array(5000);
+    flags.fill(true);
+    return this.sieve(flags, 5000);
+  }
+
+  verifyResult(result) {
+    return 669 === result;
+  }
 }
 
-Sieve.prototype.benchmark = function () {
-  var flags = new Array(5000);
-  flags.fill(true);
-  return sieve(flags, 5000);
-};
-
-Sieve.prototype.verifyResult = function (result) {
-  return 669 == result;
-};
-
-exports.newInstance = function () {
-  return new Sieve();
-};
+exports.newInstance = () => new Sieve();

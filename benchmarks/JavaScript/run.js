@@ -20,37 +20,35 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-'use strict';
 
 class Run {
   constructor(name) {
     this.name = name;
-    this.benchmarkSuite  = this.loadBenchmark();
-    this.numIterations   = 1;
+    this.benchmarkSuite = this.loadBenchmark();
+    this.numIterations = 1;
     this.innerIterations = 1;
-    this.total           = 0;
+    this.total = 0;
   }
 
   loadBenchmark() {
-    const filename = "./" + this.name.toLowerCase() + ".js";
+    const filename = `./${this.name.toLowerCase()}.js`;
     return require(filename);
   }
 
   reportBenchmark() {
-    process.stdout.write(this.name + ": iterations=" + this.numIterations +
-      " average: " + Math.round(this.total / this.numIterations) + "us total: " + Math.round(this.total) + "us\n\n");
+    process.stdout.write(`${this.name}: iterations=${this.numIterations} average: ${Math.round(this.total / this.numIterations)}us total: ${Math.round(this.total)}us\n\n`);
   }
 
   printResult(runTime) {
-    process.stdout.write(this.name + ": iterations=1 runtime: " + Math.round(runTime) + "us\n");
+    process.stdout.write(`${this.name}: iterations=1 runtime: ${Math.round(runTime)}us\n`);
   }
 
   measure(bench) {
-    const startTime =  process.hrtime();
+    const startTime = process.hrtime();
     if (!bench.innerBenchmarkLoop(this.innerIterations)) {
-      throw "Benchmark failed with incorrect result";
+      throw Error('Benchmark failed with incorrect result');
     }
-    const diff =  process.hrtime(startTime);
+    const diff = process.hrtime(startTime);
     const runTime = ((diff[0] * 1e9 + diff[1]) / 1000) | 0; // truncate to integer
 
     this.printResult(runTime);
@@ -64,16 +62,16 @@ class Run {
   }
 
   printTotal() {
-    process.stdout.write("Total Runtime: " + this.total + "us\n");
+    process.stdout.write(`Total Runtime: ${this.total}us\n`);
   }
 
   runBenchmark() {
-    process.stdout.write("Starting " + this.name + " benchmark ...\n");
+    process.stdout.write(`Starting ${this.name} benchmark ...\n`);
 
     this.doRuns(this.benchmarkSuite.newInstance());
 
     this.reportBenchmark();
-    process.stdout.write("\n");
+    process.stdout.write('\n');
   }
 }
 
