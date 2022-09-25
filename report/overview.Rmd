@@ -10,19 +10,30 @@ source("scripts/libraries.R", chdir=TRUE)
 load_and_install_if_necessary("ragg")
 library(ragg)
 
-data <- rbind(
-  # main run, one invocation of everything
-  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1518"),
-  # another run, adding JDK8
-  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1523"),
-  # adding CSharp
-  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1583"))
+# data <- rbind(
+#   # main run, one invocation of everything
+#   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1518"),
+#   # another run, adding JDK8
+#   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1523"))
+# 
+# data <- rbind(
+#   data %>% filter(exe != "TruffleSOM-ast-NativeEE-int-uber"),
+#   # latest uber run
+#   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1543")) %>%
+#   factorize_result()
 
-data <- rbind(
-  data %>% filter(exe != "TruffleSOM-ast-NativeEE-int-uber"),
-  # latest uber run
-  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1543")) %>%
+# data <- 
+#   rbind(load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1806") %>%
+#           factorize_result(),
+#         # PyPy-int
+#         load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1814"))
+
+data <-
+  rbind(load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1931"),
+        load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1933"),
+        load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1936") |>
   factorize_result()
+  
 
 # ragg_png = function(..., res = 192) {
 #   ragg::agg_png(..., res = res, units = "in")

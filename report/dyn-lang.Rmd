@@ -7,17 +7,26 @@ This report was generated on `r Sys.time()`.
 if (Sys.getenv("RSTUDIO") == "1") { setwd("/Users/smarr/Projects/awfy-runs/awfy/report") }
 source("scripts/libraries.R", chdir=TRUE)
 
-data <- rbind(
-  # main run, one invocation of everything
-  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1518"),
-  # another run, adding JDK8
-  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1523"))
+# data <- rbind(
+#   # main run, one invocation of everything
+#   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1518"),
+#   # another run, adding JDK8
+#   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1523"))
+# 
+# data <- rbind(
+#   data %>% filter(exe != "TruffleSOM-ast-NativeEE-int-uber"),
+#   # latest uber run
+#   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1543")) %>%
+#   factorize_result()
 
-data <- rbind(
-  data %>% filter(exe != "TruffleSOM-ast-NativeEE-int-uber"),
-  # latest uber run
-  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1543")) %>%
+data <- load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1806") %>%
   factorize_result()
+
+# data <-
+#   rbind(load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1931"),
+#         load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1933"),
+#         load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1936")) |>
+#   factorize_result()
 
 opts_chunk$set(dev = 'png',
                #fig.ext = 'png',
