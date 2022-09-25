@@ -20,12 +20,10 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-'use strict';
 
 class Benchmark {
-
   innerBenchmarkLoop(innerIterations) {
-    for (let i = 0; i < innerIterations; i++) {
+    for (let i = 0; i < innerIterations; i += 1) {
       if (!this.verifyResult(this.benchmark())) {
         return false;
       }
@@ -34,11 +32,11 @@ class Benchmark {
   }
 
   benchmark() {
-    throw "subclass responsibility";
+    throw new Error('subclass responsibility');
   }
 
   verifyResult() {
-    throw "subclass responsibility";
+    throw new Error('subclass responsibility');
   }
 }
 
