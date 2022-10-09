@@ -42,6 +42,7 @@ public final class Run {
       case "CD":          return () -> new CD();
       case "DeltaBlue":   return () -> new DeltaBlue();
       case "Havlak":      return () -> new Havlak();
+      case "Json":        return () -> new Json();
       case "List":        return () -> new List();
       case "Mandelbrot":  return () -> new Mandelbrot();
       case "NBody":       return () -> new NBody();
