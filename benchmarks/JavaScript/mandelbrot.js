@@ -1,3 +1,4 @@
+// @ts-check
 // This benchmark is adapted to match the SOM version.
 //
 // Copyright © 2004-2013 Brent Fulgham
@@ -40,44 +41,41 @@
 //  modified by Peter Zotov
 
 // http://benchmarksgame.alioth.debian.org/u64q/program.php?test=mandelbrot&lang=yarv&id=3
-'use strict';
 
-var benchmark = require('./benchmark.js');
+const { Benchmark } = require('./benchmark');
 
-function Mandelbrot() {
-  benchmark.Benchmark.call(this);
-
-  function verifyResult(result, innerIterations) {
+class Mandelbrot extends Benchmark {
+  verifyResult(result, innerIterations) {
     if (innerIterations === 500) { return result === 191; }
-    if (innerIterations === 750) { return result === 50;  }
-    if (innerIterations ===   1) { return result === 128; }
+    if (innerIterations === 750) { return result === 50; }
+    if (innerIterations === 1) { return result === 128; }
 
-    process.stdout.write("No verification result for " + innerIterations + " found\n");
-    process.stdout.write("Result is: " + result + "\n");
+    process.stdout.write(`No verification result for ${innerIterations} found\n`);
+    process.stdout.write(`Result is: ${result}\n`);
     return false;
   }
 
-  function mandelbrot(size) {
-    var sum     = 0;
-    var byteAcc = 0;
-    var bitNum  = 0;
+  mandelbrot(size) {
+    let sum = 0;
+    let byteAcc = 0;
+    let bitNum = 0;
 
-    var y = 0;
+    let y = 0;
 
     while (y < size) {
-      var ci = (2.0 * y / size) - 1.0,
-        x = 0;
+      const ci = ((2.0 * y) / size) - 1.0;
+      let x = 0;
 
       while (x < size) {
-        var zr   = 0.0,
-          zrzr = 0.0,
-          zi   = 0.0,
-          zizi = 0.0,
-          cr = (2.0 * x / size) - 1.5;
+        let zr = 0.0;
+        let zrzr = 0.0;
+        let zi = 0.0;
+        let zizi = 0.0;
+        const cr = ((2.0 * x) / size) - 1.5;
 
-        var z = 0,
-          notDone = true,
-          escape = 0;
+        let z = 0;
+        let notDone = true;
+        let escape = 0;
         while (notDone && z < 50) {
           zr = zrzr - zizi + cr;
           zi = 2.0 * zr * zi + ci;
@@ -88,7 +86,7 @@ function Mandelbrot() {
 
           if (zrzr + zizi > 4.0) {
             notDone = false;
-            escape  = 1;
+            escape = 1;
           }
           z += 1;
         }
@@ -101,12 +99,12 @@ function Mandelbrot() {
         if (bitNum === 8) {
           sum ^= byteAcc;
           byteAcc = 0;
-          bitNum  = 0;
+          bitNum = 0;
         } else if (x === size - 1) {
           byteAcc <<= (8 - bitNum);
           sum ^= byteAcc;
           byteAcc = 0;
-          bitNum  = 0;
+          bitNum = 0;
         }
         x += 1;
       }
@@ -115,13 +113,9 @@ function Mandelbrot() {
     return sum;
   }
 
-  this.innerBenchmarkLoop = function (innerIterations) {
-    return verifyResult(mandelbrot(innerIterations), innerIterations);
-  };
+  innerBenchmarkLoop(innerIterations) {
+    return this.verifyResult(this.mandelbrot(innerIterations), innerIterations);
+  }
 }
-// not sure why this would be necessary? was in old code of mine
-// Mandelbrot.prototype = Object.create(benchmark.Benchmark.prototype);
 
-exports.newInstance = function () {
-  return new Mandelbrot();
-};
+exports.newInstance = () => new Mandelbrot();
