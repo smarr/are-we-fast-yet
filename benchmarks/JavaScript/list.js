@@ -1,3 +1,4 @@
+// @ts-check
 // This code is derived from the SOM benchmarks, see AUTHORS.md file.
 //
 // Copyright (c) 2015-2016 Stefan Marr <git@stefan-marr.de>
@@ -19,71 +20,67 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-'use strict';
 
-var benchmark = require('./benchmark.js');
+const { Benchmark } = require('./benchmark');
 
-function List() {
-  benchmark.Benchmark.call(this);
+class Element {
+  constructor(v) {
+    this.val = v;
+    this.next = null;
+  }
+
+  length() {
+    if (this.next === null) {
+      return 1;
+    }
+    return 1 + this.next.length();
+  }
 }
-List.prototype = Object.create(benchmark.Benchmark.prototype);
+class List extends Benchmark {
+  benchmark() {
+    const result = this.tail(
+      this.makeList(15),
+      this.makeList(10),
+      this.makeList(6)
+    );
+    return result.length();
+  }
 
-List.prototype.benchmark = function () {
-  var result = this.tail(this.makeList(15),
-                         this.makeList(10),
-                         this.makeList(6));
-  return result.length();
-};
-
-List.prototype.makeList = function (length) {
-  if (length === 0) {
-    return null;
-  } else {
-    var e = new Element(length);
+  makeList(length) {
+    if (length === 0) {
+      return null;
+    }
+    const e = new Element(length);
     e.next = this.makeList(length - 1);
     return e;
   }
-};
 
-List.prototype.isShorterThan = function (x, y) {
-  var xTail = x,
-    yTail   = y;
+  isShorterThan(x, y) {
+    let xTail = x;
+    let yTail = y;
 
-  while (yTail !== null) {
-    if (xTail === null) { return true; }
-    xTail = xTail.next;
-    yTail = yTail.next;
+    while (yTail !== null) {
+      if (xTail === null) { return true; }
+      xTail = xTail.next;
+      yTail = yTail.next;
+    }
+    return false;
   }
-  return false;
-};
 
-List.prototype.tail = function (x, y, z) {
-  if (this.isShorterThan(y, x)) {
-    return this.tail(this.tail(x.next, y, z),
-      this.tail(y.next, z, x),
-      this.tail(z.next, x, y));
-  } else {
+  tail(x, y, z) {
+    if (this.isShorterThan(y, x)) {
+      return this.tail(
+        this.tail(x.next, y, z),
+        this.tail(y.next, z, x),
+        this.tail(z.next, x, y)
+      );
+    }
     return z;
   }
-};
 
-List.prototype.verifyResult = function (result) {
-  return 10 === result;
-};
-
-function Element(v) {
-  this.val  = v;
-  this.next = null;
+  verifyResult(result) {
+    return 10 === result;
+  }
 }
 
-Element.prototype.length = function () {
-  if (this.next === null) {
-    return 1;
-  } else {
-    return 1 + this.next.length();
-  }
-};
-
-exports.newInstance = function () {
-  return new List();
-};
+exports.newInstance = () => new List();
