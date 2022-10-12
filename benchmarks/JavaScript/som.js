@@ -24,13 +24,6 @@
 const INITIAL_SIZE = 10;
 const INITIAL_CAPACITY = 16;
 
-class Pair {
-  constructor(key, val) {
-    this.key = key;
-    this.value = val;
-  }
-}
-
 class Vector {
   constructor(size) {
     this.storage = new Array(size === undefined ? 50 : size);
@@ -197,6 +190,7 @@ class Vector {
         let k = i;
         let l = j - 1;
 
+        // eslint-disable-next-line no-constant-condition
         while (true) {
           while (k <= l && compare(dij, this.storage[l])) {
             l -= 1;
@@ -373,6 +367,7 @@ class Dictionary {
   insertBucketEntry(key, value, hash, head) {
     let current = head;
 
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       if (current.match(hash, key)) {
         current.value = value;

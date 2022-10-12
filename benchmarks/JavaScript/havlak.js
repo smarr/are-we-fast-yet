@@ -361,7 +361,7 @@ class HavlakLoopFinder {
         this.processEdges(nodeW, w);
       }
     }
-  };
+  }
 
   processEdges(nodeW, w) {
     if (nodeW.getNumPred() > 0) {

@@ -96,7 +96,6 @@ class Strength {
   static required = Strength.of(REQUIRED);
 }
 
-
 class AbstractConstraint {
   constructor(strengthSym) {
     this.strength = Strength.of(strengthSym);

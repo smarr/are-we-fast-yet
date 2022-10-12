@@ -817,7 +817,7 @@ class Simulator {
   }
 }
 
-class CD {
+class CD extends Benchmark {
   cd(numAircrafts) {
     const numFrames = 200;
     const simulator = new Simulator(numAircrafts);

@@ -22,6 +22,7 @@
         "no-underscore-dangle": "off",
         "no-new": "off",
         "import/no-dynamic-require": "off",
-        "global-require": "off"
+        "global-require": "off",
+        "no-cond-assign": "off"
     }
 }
