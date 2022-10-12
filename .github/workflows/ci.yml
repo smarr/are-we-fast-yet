@@ -59,7 +59,7 @@ jobs:
       - name: Install JS
         if: matrix.id == 'js'
         run: |
-          npm install .
+          (cd benchmarks/JavaScript; npm install .)
 
       - name: Install Pharo
         if: matrix.id == 'pharo'
