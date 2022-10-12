@@ -1,3 +1,4 @@
+// @ts-check
 // This code is derived from the SOM benchmarks, see AUTHORS.md file.
 //
 // Copyright (c) 2015-2016 Stefan Marr <git@stefan-marr.de>
@@ -19,70 +20,68 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-'use strict';
 
-var benchmark = require('./benchmark.js');
+const { Benchmark } = require('./benchmark');
 
-function Queens() {
-  benchmark.Benchmark.call(this);
+class Queens extends Benchmark {
+  constructor() {
+    super();
 
-  this.freeMaxs = null;
-  this.freeRows = null;
-  this.freeMins = null;
-  this.queenRows = null;
-}
-Queens.prototype = Object.create(benchmark.Benchmark.prototype);
-
-Queens.prototype.benchmark = function () {
-  var result = true;
-  for (var i = 0; i < 10; i++) {
-    result = result && this.queens();
+    this.freeMaxs = null;
+    this.freeRows = null;
+    this.freeMins = null;
+    this.queenRows = null;
   }
-  return result;
-};
 
-Queens.prototype.verifyResult = function (result) {
-  return result;
-};
-
-Queens.prototype.queens = function () {
-  this.freeRows  = new Array( 8).fill(true);
-  this.freeMaxs  = new Array(16).fill(true);
-  this.freeMins  = new Array(16).fill(true);
-  this.queenRows = new Array( 8).fill(-1);
-
-  return this.placeQueen(0);
-};
-
-Queens.prototype.placeQueen = function (c) {
-  for (var r = 0; r < 8; r++) {
-    if (this.getRowColumn(r, c)) {
-      this.queenRows[r] = c;
-      this.setRowColumn(r, c, false);
-
-      if (c == 7) {
-        return true;
-      }
-
-      if (this.placeQueen(c + 1)) {
-        return true;
-      }
-      this.setRowColumn(r, c, true);
+  benchmark() {
+    let result = true;
+    for (let i = 0; i < 10; i += 1) {
+      result = result && this.queens();
     }
+    return result;
   }
-  return false;
-};
 
-Queens.prototype.getRowColumn = function (r, c) {
-  return this.freeRows[r] && this.freeMaxs[c + r] && this.freeMins[c - r + 7];
-};
+  verifyResult(result) {
+    return result;
+  }
 
-Queens.prototype.setRowColumn = function (r, c, v) {
-  this.freeRows[r        ] = v;
-  this.freeMaxs[c + r    ] = v;
-  this.freeMins[c - r + 7] = v;
-};
+  queens() {
+    this.freeRows = new Array(8).fill(true);
+    this.freeMaxs = new Array(16).fill(true);
+    this.freeMins = new Array(16).fill(true);
+    this.queenRows = new Array(8).fill(-1);
 
-exports.newInstance = function () {
-  return new Queens();
-};
+    return this.placeQueen(0);
+  }
+
+  placeQueen(c) {
+    for (let r = 0; r < 8; r += 1) {
+      if (this.getRowColumn(r, c)) {
+        this.queenRows[r] = c;
+        this.setRowColumn(r, c, false);
+
+        if (c === 7) {
+          return true;
+        }
+
+        if (this.placeQueen(c + 1)) {
+          return true;
+        }
+        this.setRowColumn(r, c, true);
+      }
+    }
+    return false;
+  }
+
+  getRowColumn(r, c) {
+    return this.freeRows[r] && this.freeMaxs[c + r] && this.freeMins[c - r + 7];
+  }
+
+  setRowColumn(r, c, v) {
+    this.freeRows[r] = v;
+    this.freeMaxs[c + r] = v;
+    this.freeMins[c - r + 7] = v;
+  }
+}
+
+exports.newInstance = () => new Queens();
