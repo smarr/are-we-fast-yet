@@ -1,3 +1,5 @@
+import java.util.function.Supplier;
+
 /* This code is based on the SOM class library.
  *
  * Copyright (c) 2001-2016 see AUTHORS.md file
@@ -22,7 +24,7 @@
  */
 public final class Run {
   private final String name;
-  private final Class<? extends Benchmark> benchmarkSuite;
+  private final Supplier<Benchmark> benchmarkSuite;
   private int numIterations;
   private int innerIterations;
   private long total;
@@ -34,13 +36,24 @@ public final class Run {
     innerIterations = 1;
   }
 
-  @SuppressWarnings("unchecked")
-  private static Class<? extends Benchmark> getSuiteFromName(final String name) {
-    try {
-      return (Class<? extends Benchmark>) Class.forName(name);
-    } catch (ClassNotFoundException e) {
-      e.printStackTrace();
-      throw new RuntimeException(e);
+  private static Supplier<Benchmark> getSuiteFromName(final String name) {
+    switch (name) {
+      case "Bounce":      return () -> new Bounce();
+      case "CD":          return () -> new CD();
+      case "DeltaBlue":   return () -> new DeltaBlue();
+      case "Havlak":      return () -> new Havlak();
+      case "Json":        return () -> new Json();
+      case "List":        return () -> new List();
+      case "Mandelbrot":  return () -> new Mandelbrot();
+      case "NBody":       return () -> new NBody();
+      case "Permute":     return () -> new Permute();
+      case "Queens":      return () -> new Queens();
+      case "Richards":    return () -> new Richards();
+      case "Sieve":       return () -> new Sieve();
+      case "Storage":     return () -> new Storage();
+      case "Towers":      return () -> new Towers();
+      default:
+        throw new RuntimeException("No benchmark found with the name: " + name);
     }
   }
 
@@ -49,13 +62,7 @@ public final class Run {
     System.out.println("Starting " + name + " benchmark ...");
     // Checkstyle: resume
 
-    try {
-      doRuns(benchmarkSuite.newInstance());
-    } catch (ReflectiveOperationException | IllegalArgumentException
-        | SecurityException e) {
-      e.printStackTrace();
-      throw new RuntimeException(e);
-    }
+    doRuns(benchmarkSuite.get());
     reportBenchmark();
 
     // Checkstyle: stop

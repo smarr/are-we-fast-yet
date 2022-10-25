@@ -1,3 +1,4 @@
+// @ts-check
 // This code is derived from the SOM benchmarks, see AUTHORS.md file.
 //
 // Copyright (c) 2015-2016 Stefan Marr <git@stefan-marr.de>
@@ -19,78 +20,77 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-'use strict';
 
-var benchmark = require('./benchmark.js'),
-  som = require('./som.js');
+const { Benchmark } = require('./benchmark');
 
-function TowersDisk(size) {
-  this.size = size;
-  this.next = null;
+class TowersDisk {
+  constructor(size) {
+    this.size = size;
+    this.next = null;
+  }
 }
 
-function Towers() {
-  benchmark.Benchmark.call(this);
-  this.piles = null;
-  this.movesDone = 0;
+class Towers extends Benchmark {
+  constructor() {
+    super();
+    this.piles = null;
+    this.movesDone = 0;
+  }
+
+  benchmark() {
+    this.piles = new Array(3);
+    this.buildTowerAt(0, 13);
+    this.movesDone = 0;
+    this.moveDisks(13, 0, 1);
+    return this.movesDone;
+  }
+
+  verifyResult(result) {
+    return 8191 === result;
+  }
+
+  pushDisk(disk, pile) {
+    const top = this.piles[pile];
+    if (top && disk.size >= top.size) {
+      throw new Error('Cannot put a big disk on a smaller one');
+    }
+
+    disk.next = top;
+    this.piles[pile] = disk;
+  }
+
+  popDiskFrom(pile) {
+    const top = this.piles[pile];
+    if (top === null) {
+      throw new Error('Attempting to remove a disk from an empty pile');
+    }
+
+    this.piles[pile] = top.next;
+    top.next = null;
+    return top;
+  }
+
+  moveTopDisk(fromPile, toPile) {
+    this.pushDisk(this.popDiskFrom(fromPile), toPile);
+    this.movesDone += 1;
+  }
+
+  buildTowerAt(pile, disks) {
+    for (let i = disks; i >= 0; i -= 1) {
+      this.pushDisk(new TowersDisk(i), pile);
+    }
+  }
+
+  moveDisks(disks, fromPile, toPile) {
+    if (disks === 1) {
+      this.moveTopDisk(fromPile, toPile);
+    } else {
+      const otherPile = (3 - fromPile) - toPile;
+      this.moveDisks(disks - 1, fromPile, otherPile);
+      this.moveTopDisk(fromPile, toPile);
+      this.moveDisks(disks - 1, otherPile, toPile);
+    }
+  }
 }
-Towers.prototype = Object.create(benchmark.Benchmark.prototype);
 
-Towers.prototype.benchmark = function () {
-  this.piles = new Array(3);
-  this.buildTowerAt(0, 13);
-  this.movesDone = 0;
-  this.moveDisks(13, 0, 1);
-  return this.movesDone;
-};
-
-Towers.prototype.verifyResult = function (result) {
-  return 8191 === result;
-};
-
-Towers.prototype.pushDisk = function (disk, pile) {
-  var top = this.piles[pile];
-  if (top && disk.size >= top.size) {
-    throw "Cannot put a big disk on a smaller one";
-  }
-
-  disk.next = top;
-  this.piles[pile] = disk;
-};
-
-Towers.prototype.popDiskFrom = function (pile) {
-  var top = this.piles[pile];
-  if (top === null) {
-    throw "Attempting to remove a disk from an empty pile";
-  }
-
-  this.piles[pile] = top.next;
-  top.next = null;
-  return top;
-};
-
-Towers.prototype.moveTopDisk = function (fromPile, toPile) {
-  this.pushDisk(this.popDiskFrom(fromPile), toPile);
-  this.movesDone += 1;
-};
-
-Towers.prototype.buildTowerAt = function (pile, disks) {
-  for (var i = disks; i >= 0; i--) {
-    this.pushDisk(new TowersDisk(i), pile);
-  }
-};
-
-Towers.prototype.moveDisks = function (disks, fromPile, toPile) {
-  if (disks == 1) {
-    this.moveTopDisk(fromPile, toPile);
-  } else {
-    var otherPile = (3 - fromPile) - toPile;
-    this.moveDisks(disks - 1, fromPile, otherPile);
-    this.moveTopDisk(fromPile, toPile);
-    this.moveDisks(disks - 1, otherPile, toPile);
-  }
-};
-
-exports.newInstance = function () {
-  return new Towers();
-};
+exports.newInstance = () => new Towers();

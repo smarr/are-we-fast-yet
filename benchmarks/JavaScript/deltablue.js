@@ -1,658 +1,659 @@
+// @ts-check
 // The benchmark in its current state is a derivation from the SOM version,
 // which is derived from Mario Wolczko's Smalltalk version of DeltaBlue.
 //
 // The original license details are available here:
 // http://web.archive.org/web/20050825101121/http://www.sunlabs.com/people/mario/java_benchmarking/index.html
-'use strict';
 
-var benchmark = require('./benchmark.js');
-var som       = require('./som.js');
+const { Benchmark } = require('./benchmark');
+const { Vector, IdentityDictionary } = require('./som');
 
-function Planner() {
-  this.currentMark = 1;
+class Plan extends Vector {
+  constructor() {
+    super(15);
+  }
+
+  execute() {
+    this.forEach((c) => c.execute());
+  }
 }
 
-function DeltaBlue() {
-  benchmark.Benchmark.call(this);
+class Sym {
+  constructor(hash) {
+    this.hash = hash;
+  }
 
-  this.innerBenchmarkLoop = function (innerIterations) {
-    Planner.chainTest(innerIterations);
-    Planner.projectionTest(innerIterations);
-    return true;
-  };
+  customHash() {
+    return this.hash;
+  }
 }
 
-function Sym(hash) {
-  this.hash = hash;
-}
-
-Sym.prototype.customHash = function () {
-  return this.hash;
-};
-
-var ABSOLUTE_STRONGEST = new Sym(0),
-  REQUIRED             = new Sym(1),
-  STRONG_PREFERRED     = new Sym(2),
-  PREFERRED            = new Sym(3),
-  STRONG_DEFAULT       = new Sym(4),
-  DEFAULT              = new Sym(5),
-  WEAK_DEFAULT         = new Sym(6),
-  ABSOLUTE_WEAKEST     = new Sym(7);
-
-function Plan() {
-  som.Vector.call(this, 15);
-}
-Plan.prototype = Object.create(som.Vector.prototype);
-
-Plan.prototype.execute = function () {
-  this.forEach(function (c) { c.execute(); });
-};
-
-Planner.prototype.newMark = function () {
-  this.currentMark += 1;
-  return this.currentMark;
-};
-
-Planner.prototype.incrementalAdd = function (c) {
-  var mark = this.newMark(),
-    overridden = c.satisfy(mark, this);
-
-  while (overridden !== null) {
-    overridden = overridden.satisfy(mark, this);
-  }
-};
-
-Planner.prototype.incrementalRemove = function (c) {
-  var out = c.getOutput();
-  c.markUnsatisfied();
-  c.removeFromGraph();
-
-  var unsatisfied = this.removePropagateFrom(out),
-    that = this;
-  unsatisfied.forEach(function (u) { that.incrementalAdd(u); });
-};
-
-Planner.prototype.extractPlanFromConstraints = function (constraints) {
-  var sources = new som.Vector();
-
-  constraints.forEach(function (c) {
-    if (c.isInput() && c.isSatisfied()) {
-      sources.append(c);
-    }
-  });
-
-  return this.makePlan(sources);
-};
-
-Planner.prototype.makePlan = function (sources) {
-  var mark = this.newMark(),
-    plan = new Plan(),
-    todo = sources;
-
-  while (!todo.isEmpty()) {
-    var c = todo.removeFirst();
-
-    if (c.getOutput().mark !== mark && c.inputsKnown(mark)) {
-      // not in plan already and eligible for inclusion
-      plan.append(c);
-      c.getOutput().mark = mark;
-      this.addConstraintsConsumingTo(c.getOutput(), todo);
-    }
-  }
-  return plan;
-};
-
-Planner.prototype.propagateFrom = function (v) {
-  var todo = new som.Vector();
-  this.addConstraintsConsumingTo(v, todo);
-
-  while (!todo.isEmpty()) {
-    var c = todo.removeFirst();
-    c.execute();
-    this.addConstraintsConsumingTo(c.getOutput(), todo);
-  }
-};
-
-Planner.prototype.addConstraintsConsumingTo = function (v, coll) {
-  var determiningC = v.determinedBy;
-
-  v.constraints.forEach(function (c) {
-    if (c !== determiningC && c.isSatisfied()) {
-      coll.append(c);
-    }
-  });
-};
-
-Planner.prototype.addPropagate = function (c, mark) {
-  var todo = som.Vector.with(c);
-
-  while (!todo.isEmpty()) {
-    var d = todo.removeFirst();
-
-    if (d.getOutput().mark === mark) {
-      this.incrementalRemove(c);
-      return false;
-    }
-    d.recalculate();
-    this.addConstraintsConsumingTo(d.getOutput(), todo);
-  }
-  return true;
-};
-
-Planner.prototype.change = function (v, newValue) {
-  var editC = new EditConstraint(v, PREFERRED, this),
-    editV = som.Vector.with(editC),
-    plan = this.extractPlanFromConstraints(editV);
-
-  for (var i = 0; i < 10; i++) {
-    v.value = newValue;
-    plan.execute();
-  }
-  editC.destroyConstraint(this);
-};
-
-Planner.prototype.constraintsConsuming = function (v, fn) {
-  var determiningC = v.determinedBy;
-  v.constraints.forEach(function (c) {
-    if (c != determiningC && c.isSatisfied()) {
-      fn(c);
-    }
-  });
-};
-
-Planner.prototype.removePropagateFrom = function(out) {
-  var unsatisfied = new som.Vector();
-
-  out.determinedBy = null;
-  out.walkStrength = Strength.absoluteWeakest;
-  out.stay = true;
-
-  var todo = som.Vector.with(out);
-
-  while (!todo.isEmpty()) {
-    var v = todo.removeFirst();
-
-    v.constraints.forEach(function (c) {
-        if (!c.isSatisfied()) { unsatisfied.append(c); }});
-
-    this.constraintsConsuming(v, function (c) {
-      c.recalculate();
-      todo.append(c.getOutput());
-    });
-  }
-
-  unsatisfied.sort(function (c1, c2) {
-    return c1.strength.stronger(c2.strength); });
-  return unsatisfied;
-};
-
-
-Planner.chainTest = function (n) {
-  var planner = new Planner(),
-    vars = new Array(n + 1),
-    i = 0;
-
-  for (i = 0; i < n + 1; i++) {
-    vars[i] = new Variable();
-  }
-
-  // Build chain of n equality constraints
-  for (i = 0; i < n; i++) {
-    var v1 = vars[i],
-      v2 = vars[i + 1];
-    new EqualityConstraint(v1, v2, REQUIRED, planner);
-  }
-
-  new StayConstraint(vars[n], STRONG_DEFAULT, planner);
-
-  var editC = new EditConstraint(vars[0], PREFERRED, planner),
-    editV = som.Vector.with(editC),
-    plan = planner.extractPlanFromConstraints(editV);
-
-  for (i = 0; i < 100; i++) {
-    vars[0].value = i;
-    plan.execute();
-    if (vars[n].value != i) {
-      throw new Error("Chain test failed!");
-    }
-  }
-  editC.destroyConstraint(planner);
-};
-
-Planner.projectionTest = function(n) {
-  var planner = new Planner(),
-    dests  = new som.Vector(),
-    scale  = Variable.value(10),
-    offset = Variable.value(1000),
-
-    src = null, dst = null,
-    i;
-
-  for (i = 1; i <= n; i++) {
-    src = Variable.value(i);
-    dst = Variable.value(i);
-    dests.append(dst);
-    new StayConstraint(src, DEFAULT, planner);
-    new ScaleConstraint(src, scale, offset, dst, REQUIRED, planner);
-  }
-
-  planner.change(src, 17);
-  if (dst.value != 1170) {
-    throw new Error("Projection test 1 failed!");
-  }
-
-  planner.change(dst, 1050);
-  if (src.value != 5) {
-    throw new Error("Projection test 2 failed!");
-  }
-
-  planner.change(scale, 5);
-  for (i = 0; i < n - 1; ++i) {
-    if (dests.at(i).value != (i + 1) * 5 + 1000) {
-      throw new Error("Projection test 3 failed!");
-    }
-  }
-
-  planner.change(offset, 2000);
-  for (i = 0; i < n - 1; ++i) {
-    if (dests.at(i).value != (i + 1) * 5 + 2000) {
-      throw new Error("Projection test 4 failed!");
-    }
-  }
-};
-
-function Strength(symbolicValue) {
-  this.arithmeticValue = Strength.strengthTable.at(symbolicValue);
-}
-
-Strength.prototype.sameAs = function (s) {
-  return this.arithmeticValue == s.arithmeticValue;
-};
-
-Strength.prototype.stronger = function (s) {
-  return this.arithmeticValue < s.arithmeticValue;
-};
-
-Strength.prototype.weaker = function (s) {
-  return this.arithmeticValue > s.arithmeticValue;
-};
-
-Strength.prototype.strongest = function (s) {
-  return s.stronger(this) ? s : this;
-};
-
-Strength.prototype.weakest = function (s) {
-  return s.weaker(this) ? s : this;
-};
-
-Strength.of = function (strength) {
-  return Strength.strengthConstant.at(strength);
-};
+const ABSOLUTE_STRONGEST = new Sym(0);
+const REQUIRED = new Sym(1);
+const STRONG_PREFERRED = new Sym(2);
+const PREFERRED = new Sym(3);
+const STRONG_DEFAULT = new Sym(4);
+const DEFAULT = new Sym(5);
+const WEAK_DEFAULT = new Sym(6);
+const ABSOLUTE_WEAKEST = new Sym(7);
 
 function createStrengthTable() {
-  var strengthTable = new som.IdentityDictionary();
+  const strengthTable = new IdentityDictionary();
   strengthTable.atPut(ABSOLUTE_STRONGEST, -10000);
-  strengthTable.atPut(REQUIRED,           -800);
-  strengthTable.atPut(STRONG_PREFERRED,   -600);
-  strengthTable.atPut(PREFERRED,          -400);
-  strengthTable.atPut(STRONG_DEFAULT,     -200);
-  strengthTable.atPut(DEFAULT,             0);
-  strengthTable.atPut(WEAK_DEFAULT,        500);
-  strengthTable.atPut(ABSOLUTE_WEAKEST,    10000);
+  strengthTable.atPut(REQUIRED, -800);
+  strengthTable.atPut(STRONG_PREFERRED, -600);
+  strengthTable.atPut(PREFERRED, -400);
+  strengthTable.atPut(STRONG_DEFAULT, -200);
+  strengthTable.atPut(DEFAULT, 0);
+  strengthTable.atPut(WEAK_DEFAULT, 500);
+  strengthTable.atPut(ABSOLUTE_WEAKEST, 10000);
   return strengthTable;
 }
 
-function createStrengthConstants() {
-  var strengthConstant = new som.IdentityDictionary();
-  Strength.strengthTable.getKeys().forEach(function (key) {
-    strengthConstant.atPut(key, new Strength(key));
-  });
-  return strengthConstant;
+class Strength {
+  constructor(symbolicValue) {
+    this.arithmeticValue = Strength.strengthTable.at(symbolicValue);
+  }
+
+  sameAs(s) {
+    return this.arithmeticValue === s.arithmeticValue;
+  }
+
+  stronger(s) {
+    return this.arithmeticValue < s.arithmeticValue;
+  }
+
+  weaker(s) {
+    return this.arithmeticValue > s.arithmeticValue;
+  }
+
+  strongest(s) {
+    return s.stronger(this) ? s : this;
+  }
+
+  weakest(s) {
+    return s.weaker(this) ? s : this;
+  }
+
+  static of(strength) {
+    return Strength.strengthConstant.at(strength);
+  }
+
+  static strengthTable = createStrengthTable();
+
+  static createStrengthConstants() {
+    const strengthConstant = new IdentityDictionary();
+    Strength.strengthTable.getKeys().forEach((key) => {
+      strengthConstant.atPut(key, new Strength(key));
+    });
+    return strengthConstant;
+  }
+
+  static strengthConstant = Strength.createStrengthConstants();
+
+  static absoluteWeakest = Strength.of(ABSOLUTE_WEAKEST);
+
+  static required = Strength.of(REQUIRED);
 }
 
-Strength.strengthTable     = createStrengthTable();
-Strength.strengthConstant  = createStrengthConstants();
-
-Strength.absoluteWeakest   = Strength.of(ABSOLUTE_WEAKEST);
-Strength.required          = Strength.of(REQUIRED);
-
-function AbstractConstraint(strengthSym) {
-  this.strength = Strength.of(strengthSym);
-}
-
-AbstractConstraint.prototype.isInput = function() {
-  return false;
-};
-
-AbstractConstraint.prototype.addConstraint = function(planner) {
-  this.addToGraph();
-  planner.incrementalAdd(this);
-};
-
-AbstractConstraint.prototype.destroyConstraint = function(planner) {
-  if (this.isSatisfied()) {
-    planner.incrementalRemove(this);
+class AbstractConstraint {
+  constructor(strengthSym) {
+    this.strength = Strength.of(strengthSym);
   }
-  this.removeFromGraph();
-};
 
-AbstractConstraint.prototype.inputsKnown = function(mark) {
-  return !this.inputsHasOne(function (v) {
-      return !(v.mark === mark || v.stay || v.determinedBy === null);
-  });
-};
+  isInput() {
+    return false;
+  }
 
-AbstractConstraint.prototype.satisfy = function (mark, planner) {
-  var overridden;
-  this.chooseMethod(mark);
+  addConstraint(planner) {
+    this.addToGraph();
+    planner.incrementalAdd(this);
+  }
 
-  if (this.isSatisfied()) {
-    // constraint can be satisfied
-    // mark inputs to allow cycle detection in addPropagate
-    this.inputsDo(function (i) { i.mark = mark; });
-
-    var out = this.getOutput();
-    overridden = out.determinedBy;
-    if (overridden !== null) {
-      overridden.markUnsatisfied();
+  destroyConstraint(planner) {
+    if (this.isSatisfied()) {
+      planner.incrementalRemove(this);
     }
-    out.determinedBy = this;
-    if (!planner.addPropagate(this, mark)) {
-      throw new Error("Cycle encountered");
-    }
-    out.mark = mark;
-  } else {
-    overridden = null;
-    if (this.strength.sameAs(Strength.required)) {
-      throw new Error("Could not satisfy a required constraint");
-    }
+    this.removeFromGraph();
   }
-  return overridden;
-};
 
-function BinaryConstraint(var1, var2, strength, planner) {
-  AbstractConstraint.call(this, strength);
-  this.v1 = var1;
-  this.v2 = var2;
-  this.direction = null;
-}
-BinaryConstraint.prototype = Object.create(AbstractConstraint.prototype);
-
-BinaryConstraint.prototype.isSatisfied = function () {
-  return this.direction !== null;
-};
-
-BinaryConstraint.prototype.addToGraph = function () {
-  this.v1.addConstraint(this);
-  this.v2.addConstraint(this);
-  this.direction = null;
-};
-
-BinaryConstraint.prototype.removeFromGraph = function () {
-  if (this.v1 !== null) {
-    this.v1.removeConstraint(this);
+  inputsKnown(mark) {
+    return !this.inputsHasOne((v) => !(v.mark === mark || v.stay || v.determinedBy === null));
   }
-  if (this.v2 !== null) {
-    this.v2.removeConstraint(this);
-  }
-  this.direction = null;
-};
 
-BinaryConstraint.prototype.chooseMethod = function (mark) {
-  if (this.v1.mark === mark) {
-    if (this.v2.mark !== mark && this.strength.stronger(this.v2.walkStrength)) {
-      this.direction = "forward";
-      return this.direction;
+  satisfy(mark, planner) {
+    let overridden;
+    this.chooseMethod(mark);
+
+    if (this.isSatisfied()) {
+      // constraint can be satisfied
+      // mark inputs to allow cycle detection in addPropagate
+      this.inputsDo((i) => { i.mark = mark; });
+
+      const out = this.getOutput();
+      overridden = out.determinedBy;
+      if (overridden !== null) {
+        overridden.markUnsatisfied();
+      }
+      out.determinedBy = this;
+      if (!planner.addPropagate(this, mark)) {
+        throw new Error('Cycle encountered');
+      }
+      out.mark = mark;
     } else {
+      overridden = null;
+      if (this.strength.sameAs(Strength.required)) {
+        throw new Error('Could not satisfy a required constraint');
+      }
+    }
+    return overridden;
+  }
+}
+
+class BinaryConstraint extends AbstractConstraint {
+  // eslint-disable-next-line no-unused-vars
+  constructor(var1, var2, strength, planner) {
+    super(strength);
+    this.v1 = var1;
+    this.v2 = var2;
+    this.direction = null;
+  }
+
+  isSatisfied() {
+    return this.direction !== null;
+  }
+
+  addToGraph() {
+    this.v1.addConstraint(this);
+    this.v2.addConstraint(this);
+    this.direction = null;
+  }
+
+  removeFromGraph() {
+    if (this.v1 !== null) {
+      this.v1.removeConstraint(this);
+    }
+    if (this.v2 !== null) {
+      this.v2.removeConstraint(this);
+    }
+    this.direction = null;
+  }
+
+  chooseMethod(mark) {
+    if (this.v1.mark === mark) {
+      if (this.v2.mark !== mark && this.strength.stronger(this.v2.walkStrength)) {
+        this.direction = 'forward';
+        return this.direction;
+      }
       this.direction = null;
       return this.direction;
     }
-  }
 
-  if (this.v2.mark === mark) {
-    if (this.v1.mark !== mark && this.strength.stronger(this.v1.walkStrength)) {
-      this.direction = "backward";
-      return this.direction;
-    } else {
+    if (this.v2.mark === mark) {
+      if (this.v1.mark !== mark && this.strength.stronger(this.v1.walkStrength)) {
+        this.direction = 'backward';
+        return this.direction;
+      }
       this.direction = null;
       return this.direction;
     }
-  }
 
-  // If we get here, neither variable is marked, so we have a choice.
-  if (this.v1.walkStrength.weaker(this.v2.walkStrength)) {
-    if (this.strength.stronger(this.v1.walkStrength)) {
-      this.direction = "backward";
-      return this.direction;
-    } else {
+    // If we get here, neither variable is marked, so we have a choice.
+    if (this.v1.walkStrength.weaker(this.v2.walkStrength)) {
+      if (this.strength.stronger(this.v1.walkStrength)) {
+        this.direction = 'backward';
+        return this.direction;
+      }
       this.direction = null;
       return this.direction;
     }
-  } else {
     if (this.strength.stronger(this.v2.walkStrength)) {
-      this.direction = "forward";
-      return this.direction;
-    } else {
-      this.direction = null;
+      this.direction = 'forward';
       return this.direction;
     }
+    this.direction = null;
+    return this.direction;
   }
-};
 
-BinaryConstraint.prototype.inputsDo = function (fn) {
-  if (this.direction == "forward") {
-    fn(this.v1);
-  } else {
-    fn(this.v2);
+  inputsDo(fn) {
+    if (this.direction === 'forward') {
+      fn(this.v1);
+    } else {
+      fn(this.v2);
+    }
   }
-};
 
-BinaryConstraint.prototype.inputsHasOne = function (fn) {
-  if (this.direction == "forward") {
-    return fn(this.v1);
-  } else {
+  inputsHasOne(fn) {
+    if (this.direction === 'forward') {
+      return fn(this.v1);
+    }
     return fn(this.v2);
   }
-};
 
-BinaryConstraint.prototype.markUnsatisfied = function () {
-  this.direction = null;
-};
-
-BinaryConstraint.prototype.getOutput = function () {
-  return this.direction == "forward" ? this.v2 : this.v1;
-};
-
-BinaryConstraint.prototype.recalculate = function () {
-  var ihn, out;
-
-  if (this.direction == "forward") {
-    ihn = this.v1; out = this.v2;
-  } else {
-    ihn = this.v2; out = this.v1;
+  markUnsatisfied() {
+    this.direction = null;
   }
 
-  out.walkStrength = this.strength.weakest(ihn.walkStrength);
-  out.stay = ihn.stay;
-  if (out.stay) {
-    this.execute();
-  }
-};
-
-function UnaryConstraint (v, strength, planner) {
-  AbstractConstraint.call(this, strength);
-  this.output = v;
-  this.satisfied = false;
-
-  this.addConstraint(planner);
-}
-UnaryConstraint.prototype = Object.create(AbstractConstraint.prototype);
-
-UnaryConstraint.prototype.isSatisfied = function () {
-  return this.satisfied;
-};
-
-UnaryConstraint.prototype.addToGraph = function () {
-  this.output.addConstraint(this);
-  this.satisfied = false;
-};
-
-UnaryConstraint.prototype.removeFromGraph = function () {
-  if (this.output !== null) {
-    this.output.removeConstraint(this);
-  }
-  this.satisfied = false;
-};
-
-UnaryConstraint.prototype.chooseMethod = function (mark) {
-  this.satisfied = this.output.mark != mark &&
-    this.strength.stronger(this.output.walkStrength);
-  return null;
-};
-
-UnaryConstraint.prototype.inputsDo = function (fn) {
-  // I have no input variables
-};
-
-UnaryConstraint.prototype.inputsHasOne = function (fn) {
-  return false;
-};
-
-UnaryConstraint.prototype.markUnsatisfied = function () {
-  this.satisfied = false;
-};
-
-UnaryConstraint.prototype.getOutput = function () {
-  return this.output;
-};
-
-UnaryConstraint.prototype.recalculate = function () {
-  this.output.walkStrength = this.strength;
-  this.output.stay = !this.isInput();
-  if (this.output.stay) {
-    this.execute(); // stay optimization
-  }
-};
-
-function EditConstraint(v, strength, planner) {
-  UnaryConstraint.call(this, v, strength, planner);
-}
-EditConstraint.prototype = Object.create(UnaryConstraint.prototype);
-
-EditConstraint.prototype.isInput = function () {
-  return true;
-};
-
-EditConstraint.prototype.execute = function () {};
-
-function EqualityConstraint(var1, var2, strength, planner) {
-  BinaryConstraint.call(this, var1, var2, strength, planner);
-  this.addConstraint(planner);
-}
-EqualityConstraint.prototype = Object.create(BinaryConstraint.prototype);
-
-EqualityConstraint.prototype.execute = function () {
-  if (this.direction == "forward") {
-    this.v2.value = this.v1.value;
-  } else {
-    this.v1.value = this.v2.value;
-  }
-};
-
-function ScaleConstraint(src, scale, offset, dest, strength, planner) {
-  BinaryConstraint.call(this, src, dest, strength, planner);
-  this.scale  = scale;
-  this.offset = offset;
-
-  this.addConstraint(planner);
-}
-ScaleConstraint.prototype = Object.create(BinaryConstraint.prototype);
-
-ScaleConstraint.prototype.addToGraph = function () {
-  this.v1.addConstraint(this);
-  this.v2.addConstraint(this);
-  this.scale.addConstraint(this);
-  this.offset.addConstraint(this);
-  this.direction = null;
-};
-
-ScaleConstraint.prototype.removeFromGraph = function () {
-  if (this.v1 !== null) { this.v1.removeConstraint(this); }
-  if (this.v2 !== null) { this.v2.removeConstraint(this); }
-  if (this.scale  !== null) { this.scale.removeConstraint(this); }
-  if (this.offset !== null) { this.offset.removeConstraint(this); }
-  this.direction = null;
-};
-
-ScaleConstraint.prototype.execute = function () {
-  if (this.direction == "forward") {
-    this.v2.value = this.v1.value * this.scale.value + this.offset.value;
-  } else {
-    this.v1.value = (this.v2.value - this.offset.value) / this.scale.value;
-  }
-};
-
-ScaleConstraint.prototype.inputsDo = function (fn) {
-  if (this.direction == "forward") {
-    fn(this.v1);
-    fn(this.scale);
-    fn(this.offset);
-  } else {
-    fn(this.v2);
-    fn(this.scale);
-    fn(this.offset);
-  }
-};
-
-ScaleConstraint.prototype.recalculate = function () {
-  var ihn, out;
-
-  if (this.direction == "forward") {
-    ihn = this.v1; out = this.v2;
-  } else {
-    out = this.v1; ihn = this.v2;
+  getOutput() {
+    return this.direction === 'forward' ? this.v2 : this.v1;
   }
 
-  out.walkStrength = this.strength.weakest(ihn.walkStrength);
-  out.stay = ihn.stay && this.scale.stay && this.offset.stay;
-  if (out.stay) {
-    this.execute(); // stay optimization
+  recalculate() {
+    let ihn;
+    let out;
+
+    if (this.direction === 'forward') {
+      ihn = this.v1; out = this.v2;
+    } else {
+      ihn = this.v2; out = this.v1;
+    }
+
+    out.walkStrength = this.strength.weakest(ihn.walkStrength);
+    out.stay = ihn.stay;
+    if (out.stay) {
+      this.execute();
+    }
   }
-};
-
-function StayConstraint (v, strength, planner) {
-  UnaryConstraint.call(this, v, strength, planner);
-}
-StayConstraint.prototype = Object.create(UnaryConstraint.prototype);
-
-StayConstraint.prototype.execute = function() {};
-
-function Variable() {
-  this.value = 0;
-  this.constraints = new som.Vector(2);
-  this.determinedBy = null;
-  this.walkStrength = Strength.absoluteWeakest;
-  this.stay = true;
-  this.mark = 0;
 }
 
-Variable.prototype.addConstraint = function (c) {
-  this.constraints.append(c);
-};
+class UnaryConstraint extends AbstractConstraint {
+  constructor(v, strength, planner) {
+    super(strength);
+    this.output = v;
+    this.satisfied = false;
 
-Variable.prototype.removeConstraint = function (c) {
-  this.constraints.remove(c);
-  if (this.determinedBy == c) {
+    this.addConstraint(planner);
+  }
+
+  isSatisfied() {
+    return this.satisfied;
+  }
+
+  addToGraph() {
+    this.output.addConstraint(this);
+    this.satisfied = false;
+  }
+
+  removeFromGraph() {
+    if (this.output !== null) {
+      this.output.removeConstraint(this);
+    }
+    this.satisfied = false;
+  }
+
+  chooseMethod(mark) {
+    this.satisfied = this.output.mark !== mark
+      && this.strength.stronger(this.output.walkStrength);
+    return null;
+  }
+
+  // eslint-disable-next-line no-unused-vars
+  inputsDo(fn) {
+    // I have no input variables
+  }
+
+  // eslint-disable-next-line no-unused-vars
+  inputsHasOne(fn) {
+    return false;
+  }
+
+  markUnsatisfied() {
+    this.satisfied = false;
+  }
+
+  getOutput() {
+    return this.output;
+  }
+
+  recalculate() {
+    this.output.walkStrength = this.strength;
+    this.output.stay = !this.isInput();
+    if (this.output.stay) {
+      this.execute(); // stay optimization
+    }
+  }
+}
+
+class EditConstraint extends UnaryConstraint {
+  isInput() {
+    return true;
+  }
+
+  execute() {}
+}
+
+class EqualityConstraint extends BinaryConstraint {
+  constructor(var1, var2, strength, planner) {
+    super(var1, var2, strength, planner);
+    this.addConstraint(planner);
+  }
+
+  execute() {
+    if (this.direction === 'forward') {
+      this.v2.value = this.v1.value;
+    } else {
+      this.v1.value = this.v2.value;
+    }
+  }
+}
+
+class ScaleConstraint extends BinaryConstraint {
+  constructor(src, scale, offset, dest, strength, planner) {
+    super(src, dest, strength, planner);
+    this.scale = scale;
+    this.offset = offset;
+
+    this.addConstraint(planner);
+  }
+
+  addToGraph() {
+    this.v1.addConstraint(this);
+    this.v2.addConstraint(this);
+    this.scale.addConstraint(this);
+    this.offset.addConstraint(this);
+    this.direction = null;
+  }
+
+  removeFromGraph() {
+    if (this.v1 !== null) { this.v1.removeConstraint(this); }
+    if (this.v2 !== null) { this.v2.removeConstraint(this); }
+    if (this.scale !== null) { this.scale.removeConstraint(this); }
+    if (this.offset !== null) { this.offset.removeConstraint(this); }
+    this.direction = null;
+  }
+
+  execute() {
+    if (this.direction === 'forward') {
+      this.v2.value = this.v1.value * this.scale.value + this.offset.value;
+    } else {
+      this.v1.value = (this.v2.value - this.offset.value) / this.scale.value;
+    }
+  }
+
+  inputsDo(fn) {
+    if (this.direction === 'forward') {
+      fn(this.v1);
+      fn(this.scale);
+      fn(this.offset);
+    } else {
+      fn(this.v2);
+      fn(this.scale);
+      fn(this.offset);
+    }
+  }
+
+  recalculate() {
+    let ihn;
+    let out;
+
+    if (this.direction === 'forward') {
+      ihn = this.v1; out = this.v2;
+    } else {
+      out = this.v1; ihn = this.v2;
+    }
+
+    out.walkStrength = this.strength.weakest(ihn.walkStrength);
+    out.stay = ihn.stay && this.scale.stay && this.offset.stay;
+    if (out.stay) {
+      this.execute(); // stay optimization
+    }
+  }
+}
+
+class StayConstraint extends UnaryConstraint {
+  execute() {}
+}
+
+class Variable {
+  constructor() {
+    this.value = 0;
+    this.constraints = new Vector(2);
     this.determinedBy = null;
+    this.walkStrength = Strength.absoluteWeakest;
+    this.stay = true;
+    this.mark = 0;
   }
-};
 
-Variable.value = function (aValue) {
-  var v = new Variable();
-  v.value = aValue;
-  return v;
-};
+  addConstraint(c) {
+    this.constraints.append(c);
+  }
 
-exports.newInstance = function () {
-  return new DeltaBlue();
-};
+  removeConstraint(c) {
+    this.constraints.remove(c);
+    if (this.determinedBy === c) {
+      this.determinedBy = null;
+    }
+  }
+
+  static value(aValue) {
+    const v = new Variable();
+    v.value = aValue;
+    return v;
+  }
+}
+
+class Planner {
+  constructor() {
+    this.currentMark = 1;
+  }
+
+  newMark() {
+    this.currentMark += 1;
+    return this.currentMark;
+  }
+
+  incrementalAdd(c) {
+    const mark = this.newMark();
+    let overridden = c.satisfy(mark, this);
+
+    while (overridden !== null) {
+      overridden = overridden.satisfy(mark, this);
+    }
+  }
+
+  incrementalRemove(c) {
+    const out = c.getOutput();
+    c.markUnsatisfied();
+    c.removeFromGraph();
+
+    const unsatisfied = this.removePropagateFrom(out);
+    unsatisfied.forEach((u) => this.incrementalAdd(u));
+  }
+
+  extractPlanFromConstraints(constraints) {
+    const sources = new Vector();
+
+    constraints.forEach((c) => {
+      if (c.isInput() && c.isSatisfied()) {
+        sources.append(c);
+      }
+    });
+
+    return this.makePlan(sources);
+  }
+
+  makePlan(sources) {
+    const mark = this.newMark();
+    const plan = new Plan();
+    const todo = sources;
+
+    while (!todo.isEmpty()) {
+      const c = todo.removeFirst();
+
+      if (c.getOutput().mark !== mark && c.inputsKnown(mark)) {
+        // not in plan already and eligible for inclusion
+        plan.append(c);
+        c.getOutput().mark = mark;
+        this.addConstraintsConsumingTo(c.getOutput(), todo);
+      }
+    }
+    return plan;
+  }
+
+  propagateFrom(v) {
+    const todo = new Vector();
+    this.addConstraintsConsumingTo(v, todo);
+
+    while (!todo.isEmpty()) {
+      const c = todo.removeFirst();
+      c.execute();
+      this.addConstraintsConsumingTo(c.getOutput(), todo);
+    }
+  }
+
+  addConstraintsConsumingTo(v, coll) {
+    const determiningC = v.determinedBy;
+
+    v.constraints.forEach((c) => {
+      if (c !== determiningC && c.isSatisfied()) {
+        coll.append(c);
+      }
+    });
+  }
+
+  addPropagate(c, mark) {
+    const todo = Vector.with(c);
+
+    while (!todo.isEmpty()) {
+      const d = todo.removeFirst();
+
+      if (d.getOutput().mark === mark) {
+        this.incrementalRemove(c);
+        return false;
+      }
+      d.recalculate();
+      this.addConstraintsConsumingTo(d.getOutput(), todo);
+    }
+    return true;
+  }
+
+  change(v, newValue) {
+    const editC = new EditConstraint(v, PREFERRED, this);
+    const editV = Vector.with(editC);
+    const plan = this.extractPlanFromConstraints(editV);
+
+    for (let i = 0; i < 10; i += 1) {
+      v.value = newValue;
+      plan.execute();
+    }
+    editC.destroyConstraint(this);
+  }
+
+  constraintsConsuming(v, fn) {
+    const determiningC = v.determinedBy;
+    v.constraints.forEach((c) => {
+      if (c !== determiningC && c.isSatisfied()) {
+        fn(c);
+      }
+    });
+  }
+
+  removePropagateFrom(out) {
+    const unsatisfied = new Vector();
+
+    out.determinedBy = null;
+    out.walkStrength = Strength.absoluteWeakest;
+    out.stay = true;
+
+    const todo = Vector.with(out);
+
+    while (!todo.isEmpty()) {
+      const v = todo.removeFirst();
+
+      v.constraints.forEach((c) => {
+        if (!c.isSatisfied()) { unsatisfied.append(c); }
+      });
+
+      this.constraintsConsuming(v, (c) => {
+        c.recalculate();
+        todo.append(c.getOutput());
+      });
+    }
+
+    unsatisfied.sort((c1, c2) => c1.strength.stronger(c2.strength));
+    return unsatisfied;
+  }
+
+  static chainTest(n) {
+    const planner = new Planner();
+    const vars = new Array(n + 1);
+
+    for (let i = 0; i < n + 1; i += 1) {
+      vars[i] = new Variable();
+    }
+
+    // Build chain of n equality constraints
+    for (let i = 0; i < n; i += 1) {
+      const v1 = vars[i];
+      const v2 = vars[i + 1];
+      new EqualityConstraint(v1, v2, REQUIRED, planner);
+    }
+
+    new StayConstraint(vars[n], STRONG_DEFAULT, planner);
+
+    const editC = new EditConstraint(vars[0], PREFERRED, planner);
+    const editV = Vector.with(editC);
+    const plan = planner.extractPlanFromConstraints(editV);
+
+    for (let i = 0; i < 100; i += 1) {
+      vars[0].value = i;
+      plan.execute();
+      if (vars[n].value !== i) {
+        throw new Error('Chain test failed!');
+      }
+    }
+    editC.destroyConstraint(planner);
+  }
+
+  static projectionTest(n) {
+    const planner = new Planner();
+    const dests = new Vector();
+    const scale = Variable.value(10);
+    const offset = Variable.value(1000);
+
+    let src = null;
+    let dst = null;
+
+    for (let i = 1; i <= n; i += 1) {
+      src = Variable.value(i);
+      dst = Variable.value(i);
+      dests.append(dst);
+      new StayConstraint(src, DEFAULT, planner);
+      new ScaleConstraint(src, scale, offset, dst, REQUIRED, planner);
+    }
+
+    planner.change(src, 17);
+    if (dst.value !== 1170) {
+      throw new Error('Projection test 1 failed!');
+    }
+
+    planner.change(dst, 1050);
+    if (src.value !== 5) {
+      throw new Error('Projection test 2 failed!');
+    }
+
+    planner.change(scale, 5);
+    for (let i = 0; i < n - 1; i += 1) {
+      if (dests.at(i).value !== (i + 1) * 5 + 1000) {
+        throw new Error('Projection test 3 failed!');
+      }
+    }
+
+    planner.change(offset, 2000);
+    for (let i = 0; i < n - 1; i += 1) {
+      if (dests.at(i).value !== (i + 1) * 5 + 2000) {
+        throw new Error('Projection test 4 failed!');
+      }
+    }
+  }
+}
+
+class DeltaBlue extends Benchmark {
+  innerBenchmarkLoop(innerIterations) {
+    Planner.chainTest(innerIterations);
+    Planner.projectionTest(innerIterations);
+    return true;
+  }
+}
+
+exports.newInstance = () => new DeltaBlue();

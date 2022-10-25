@@ -38,28 +38,28 @@ jobs:
 
           - name: Python
             id:   python
-          
+
     name: ${{ matrix.name }}
     steps:
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
       - name: Checkout AWFY Repository
-        uses: actions/checkout@v2
-      
+        uses: actions/checkout@v3
+
       - name: Install ReBench
         run: |
           python -m pip install ReBench
-      
+
       - name: Install Crystal
         if: matrix.id == 'crystal'
         uses: oprypin/install-crystal@v1
-      
+
       - name: Install JS
         if: matrix.id == 'js'
         run: |
-          npm install jshint
+          (cd benchmarks/JavaScript; npm install .)
 
       - name: Install Pharo
         if: matrix.id == 'pharo'
@@ -83,7 +83,7 @@ jobs:
         if: matrix.id == 'ruby'
         run: |
           sudo gem install rubocop
-      
+
       - name: Install Lua
         uses: leafo/gh-actions-lua@v8
         with:
@@ -99,12 +99,12 @@ jobs:
           luarocks install luacheck
           sudo ln -s "`which lua`" "`which lua`5.2"
         if: matrix.id == 'lua52'
-      
+
       - name: Install Python
         run: |
           python -m pip install pylint
         if: matrix.id == 'python'
-      
+
       - name: Python Black Style Check
         uses: psf/black@stable
         with:
@@ -115,11 +115,11 @@ jobs:
       - name: Build
         run: |
           implementations/build-${{ matrix.id }}.sh
-      
+
       - name: ReBench Test Run
         run: |
           rebench test.conf test-${{ matrix.id }}
-      
+
       - name: Style Check
         run: |
           implementations/build-${{ matrix.id }}.sh style skip-black-for-python
