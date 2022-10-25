@@ -50,11 +50,11 @@ here. However, by focusing on one aspect, we know exactly what is compared.
 
 ## Current Status
 
-Currently, we have 14 benchmarks ported to six different languages, including
-[Crystal], Java, JavaScript, Ruby, [SOM Smalltalk][SOM], and [SOMns][1] (a
+Currently, we have 14 benchmarks ported to seven different languages, including
+[Crystal], Java, JavaScript, Python, Ruby, [SOM Smalltalk][SOM], and [SOMns][1] (a
 [Newspeak implementation][2]).
 
-The graph below shows the results for the
+The graph below shows some older results for
 different implementations after warmup, to ensure peak performance is reported:
 
 ![Peak Performance of Java, Node.js, JRuby, JRuby+Truffle, MRI, and SOMns,
@@ -215,6 +215,9 @@ benchmarks.
 
 ## Academic Work using this benchmark suite
 
+- [Generating Virtual Machine Code of JavaScript Engine for Embedded Systems][18]  
+  Y. Hirasawa, H. Iwasaki, T. Ugawa, H. Onozawa. Journal of Information Processing. 2022.
+
 - [A Surprisingly Simple Lua Compiler – Extended Version][17]  
   H. M. Gualandi, R. Ierusalimschy. Journal of Computer Languages. 2021.
 
@@ -279,6 +282,7 @@ benchmarks.
  [15]: https://fniephaus.com/2019/mplr19-graalsqueak.pdf
  [16]: http://janvitek.org/pubs/oopsla20-cd.pdf
  [17]: http://www.inf.puc-rio.br/~hgualandi/papers/Gualandi-2022-SCP.pdf
+ [18]: https://www.jstage.jst.go.jp/article/ipsjjip/30/0/30_679/_pdf
 
  [CD]:        https://www.cs.purdue.edu/sss/projects/cdx/
  [CDjs]:      https://github.com/WebKit/webkit/tree/master/PerformanceTests/JetStream/cdjs
