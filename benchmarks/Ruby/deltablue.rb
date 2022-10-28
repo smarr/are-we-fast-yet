@@ -281,7 +281,7 @@ class Strength
 
   def initialize(strength_sym)
     @symbolic_value   = strength_sym
-    @arithmetic_value = STRENGHT_TABLE.at(strength_sym)
+    @arithmetic_value = STRENGTH_TABLE.at(strength_sym)
   end
 
   def same_as(strength)
@@ -327,17 +327,17 @@ class Strength
 
   def self.create_strength_constants
     constants = IdentityDictionary.new
-    STRENGHT_TABLE.keys.each do |strength_sym|
+    STRENGTH_TABLE.keys.each do |strength_sym|
       constants.at_put(strength_sym, new(strength_sym))
     end
     constants
   end
 
-  STRENGHT_TABLE     = create_strength_table
-  STRENGHT_CONSTANTS = create_strength_constants
+  STRENGTH_TABLE     = create_strength_table
+  STRENGTH_CONSTANTS = create_strength_constants
 
   def self.of(sym)
-    STRENGHT_CONSTANTS.at(sym)
+    STRENGTH_CONSTANTS.at(sym)
   end
 end
 
