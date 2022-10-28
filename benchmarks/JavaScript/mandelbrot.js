@@ -67,7 +67,6 @@ class Mandelbrot extends Benchmark {
       let x = 0;
 
       while (x < size) {
-        let zr = 0.0;
         let zrzr = 0.0;
         let zi = 0.0;
         let zizi = 0.0;
@@ -77,7 +76,7 @@ class Mandelbrot extends Benchmark {
         let notDone = true;
         let escape = 0;
         while (notDone && z < 50) {
-          zr = zrzr - zizi + cr;
+          const zr = zrzr - zizi + cr;
           zi = 2.0 * zr * zi + ci;
 
           // preserve recalculation

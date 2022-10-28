@@ -88,7 +88,6 @@ final class Mandelbrot extends Benchmark {
        int x = 0;
 
        while (x < size) {
-         double zr   = 0.0;
          double zrzr = 0.0;
          double zi   = 0.0;
          double zizi = 0.0;
@@ -98,7 +97,7 @@ final class Mandelbrot extends Benchmark {
          boolean notDone = true;
          int escape = 0;
          while (notDone && z < 50) {
-           zr = zrzr - zizi + cr;
+           double zr = zrzr - zizi + cr;
            zi = 2.0 * zr * zi + ci;
 
            // preserve recalculation

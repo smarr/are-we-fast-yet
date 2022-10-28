@@ -70,7 +70,7 @@ class Mandelbrot < Benchmark
       x  = 0
 
       while x < size
-        zrzr = zr = 0.0
+        zrzr = 0.0
         zizi = zi = 0.0
         cr   = (2.0 * x / size) - 1.5
 

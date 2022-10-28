@@ -143,10 +143,6 @@ class NBodySystem {
   }
 
   energy() {
-    let dx = 0.0;
-    let dy = 0.0;
-    let dz = 0.0;
-    let distance = 0.0;
     let e = 0.0;
 
     for (let i = 0; i < this.bodies.length; i += 1) {
@@ -157,11 +153,11 @@ class NBodySystem {
 
       for (let j = i + 1; j < this.bodies.length; j += 1) {
         const jBody = this.bodies[j];
-        dx = iBody.x - jBody.x;
-        dy = iBody.y - jBody.y;
-        dz = iBody.z - jBody.z;
+        const dx = iBody.x - jBody.x;
+        const dy = iBody.y - jBody.y;
+        const dz = iBody.z - jBody.z;
 
-        distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
         e -= (iBody.mass * jBody.mass) / distance;
       }
     }

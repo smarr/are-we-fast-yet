@@ -67,10 +67,6 @@ public class NBodySystem {
   }
 
   public double energy() {
-    double dx;
-    double dy;
-    double dz;
-    double distance;
     double e = 0.0;
 
     for (int i = 0; i < bodies.length; ++i) {
@@ -82,11 +78,11 @@ public class NBodySystem {
 
       for (int j = i + 1; j < bodies.length; ++j) {
         Body jBody = bodies[j];
-        dx = iBody.getX() - jBody.getX();
-        dy = iBody.getY() - jBody.getY();
-        dz = iBody.getZ() - jBody.getZ();
+        double dx = iBody.getX() - jBody.getX();
+        double dy = iBody.getY() - jBody.getY();
+        double dz = iBody.getZ() - jBody.getZ();
 
-        distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
         e -= (iBody.getMass() * jBody.getMass()) / distance;
       }
     }

@@ -99,7 +99,7 @@ class NBodySuite usingPlatform: platform andHarness: harness = (
     )
 
     public energy = (
-      | dx dy dz distance e |
+      | e |
       e:: 0.0.
 
       1 to: bodies size do: [:i |
@@ -112,7 +112,7 @@ class NBodySuite usingPlatform: platform andHarness: harness = (
               (iBody vz * iBody vz))).
 
         i + 1 to: bodies size do: [:j |
-          | jBody |
+          | jBody dx dy dz distance |
           jBody:: bodies at: j.
 
           dx:: iBody x - jBody x.

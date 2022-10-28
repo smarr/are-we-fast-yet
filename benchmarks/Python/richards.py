@@ -330,27 +330,11 @@ class _TaskState(_RBObject):
         self._task_waiting = self._packet_pending = True
         return self
 
-    def is_running(self):
-        return (
-            not self._packet_pending
-            and not self._task_waiting
-            and not self._task_holding
-        )
-
     def is_task_holding_or_waiting(self):
         return self._task_holding or (not self._packet_pending and self._task_waiting)
 
-    def is_waiting(self):
-        return (
-            not self._packet_pending and self._task_waiting and not self._task_holding
-        )
-
     def is_waiting_with_packet(self):
         return self._packet_pending and self._task_waiting and not self._task_holding
-
-    @classmethod
-    def with_packet_pending(cls):
-        return cls().packet_pending()
 
     @classmethod
     def with_running(cls):
