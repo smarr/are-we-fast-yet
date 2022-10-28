@@ -55,7 +55,7 @@ sealed class Planner {
    */
     public void incrementalAdd(AbstractConstraint c) {
     int mark = newMark();
-    AbstractConstraint overridden = c.satisfy(mark, this);
+    AbstractConstraint? overridden = c.satisfy(mark, this);
 
     while (overridden != null) {
       overridden = overridden.satisfy(mark, this);
@@ -86,7 +86,7 @@ sealed class Planner {
   * Extract a plan for resatisfaction starting from the outputs of
   * the given constraints, usually a set of input constraints.
   */
-  protected Plan extractPlanFromConstraints(Vector<AbstractConstraint> constraints) {
+  private Plan extractPlanFromConstraints(Vector<AbstractConstraint> constraints) {
     Vector<AbstractConstraint> sources = new Vector<AbstractConstraint>();
 
     constraints.ForEach(c => {
@@ -114,15 +114,15 @@ sealed class Planner {
   // variables, which are not stay but which are also not computed by
   // any constraint.
   // Assume: sources are all satisfied.
-  protected Plan makePlan(Vector<AbstractConstraint> sources) {
+  private Plan makePlan(Vector<AbstractConstraint> sources) {
     int mark = newMark();
     Plan plan = new Plan();
     Vector<AbstractConstraint> todo = sources;
 
     while (!todo.IsEmpty()) {
-      AbstractConstraint c = todo.RemoveFirst();
+      AbstractConstraint? c = todo.RemoveFirst();
 
-      if (c.getOutput().getMark() != mark && c.inputsKnown(mark)) {
+      if (c != null && c.getOutput().getMark() != mark && c.inputsKnown(mark)) {
         // not in plan already and eligible for inclusion
         plan.Append(c);
         c.getOutput().setMark(mark);
@@ -138,14 +138,16 @@ sealed class Planner {
     addConstraintsConsumingTo(v, todo);
 
     while (!todo.IsEmpty()) {
-      AbstractConstraint c = todo.RemoveFirst();
-      c.execute();
-      addConstraintsConsumingTo(c.getOutput(), todo);
+      AbstractConstraint? c = todo.RemoveFirst();
+      if (c != null) {
+        c.execute();
+        addConstraintsConsumingTo(c.getOutput(), todo);
+      }
     }
   }
 
-  protected void addConstraintsConsumingTo(Variable v, Vector<AbstractConstraint> coll) {
-    AbstractConstraint determiningC = v.getDeterminedBy();
+  private void addConstraintsConsumingTo(Variable v, Vector<AbstractConstraint> coll) {
+    AbstractConstraint? determiningC = v.getDeterminedBy();
 
     v.getConstraints().ForEach(c => {
       if (c != determiningC && c.isSatisfied()) {
@@ -170,14 +172,16 @@ sealed class Planner {
     Vector<AbstractConstraint> todo = Vector<AbstractConstraint>.With(c);
 
     while (!todo.IsEmpty()) {
-      AbstractConstraint d = todo.RemoveFirst();
+      AbstractConstraint? d = todo.RemoveFirst();
 
-      if (d.getOutput().getMark() == mark) {
-        incrementalRemove(c);
-        return false;
+      if (d != null) {
+        if (d.getOutput().getMark() == mark) {
+          incrementalRemove(c);
+          return false;
+        }
+        d.recalculate();
+        addConstraintsConsumingTo(d.getOutput(), todo);
       }
-      d.recalculate();
-      addConstraintsConsumingTo(d.getOutput(), todo);
     }
     return true;
   }
@@ -194,9 +198,9 @@ sealed class Planner {
     editC.destroyConstraint(this);
   }
 
-  private void constraintsConsuming(Variable v, ForEach<AbstractConstraint> fn) {
-    AbstractConstraint determiningC = v.getDeterminedBy();
-    v.getConstraints().ForEach(c => {
+  private void constraintsConsuming(Variable? v, ForEach<AbstractConstraint> fn) {
+    AbstractConstraint? determiningC = v?.getDeterminedBy();
+    v?.getConstraints().ForEach(c => {
       if (c != determiningC && c.isSatisfied()) {
         fn.Invoke(c);
       }
@@ -212,7 +216,7 @@ sealed class Planner {
   // Update the walkabout strengths and stay flags of all variables
   // downstream of the given constraint. Answer a collection of
   // unsatisfied constraints sorted in order of decreasing strength.
-  protected Vector<AbstractConstraint> removePropagateFrom(Variable output) {
+  private Vector<AbstractConstraint> removePropagateFrom(Variable output) {
     Vector<AbstractConstraint> unsatisfied = new Vector<AbstractConstraint>();
 
     output.setDeterminedBy(null);
@@ -222,9 +226,9 @@ sealed class Planner {
     Vector<Variable> todo = Vector<Variable>.With(output);
 
     while (!todo.IsEmpty()) {
-      Variable v = todo.RemoveFirst();
+      Variable? v = todo.RemoveFirst();
 
-      v.getConstraints().ForEach(c => {
+      v?.getConstraints().ForEach(c => {
         if (!c.isSatisfied()) { unsatisfied.Append(c); }});
 
       constraintsConsuming(v, c => {
@@ -294,14 +298,18 @@ for (int i = 0; i < n + 1; i++) {
     Variable scale  = Variable.withValue(10);
     Variable offset = Variable.withValue(1000);
 
-    Variable src = null;
-    Variable dst = null;
+    Variable? src = null;
+    Variable? dst = null;
     for (int i = 1; i <= n; i++) {
       src = Variable.withValue(i);
       dst = Variable.withValue(i);
       dests.Append(dst);
       new StayConstraint(src, Strength.DEFAULT, planner);
       new ScaleConstraint(src, scale, offset, dst, Strength.REQUIRED, planner);
+    }
+
+    if (src == null || dst == null) {
+      return;
     }
 
     planner.change(src, 17);
@@ -316,14 +324,14 @@ for (int i = 0; i < n + 1; i++) {
 
     planner.change(scale, 5);
     for (int i = 0; i < n - 1; ++i) {
-      if (dests.At(i).getValue() != (i + 1) * 5 + 1000) {
+      if (dests.At(i)?.getValue() != (i + 1) * 5 + 1000) {
         throw new Exception("Projection test 3 failed!");
       }
     }
 
     planner.change(offset, 2000);
     for (int i = 0; i < n - 1; ++i) {
-      if (dests.At(i).getValue() != (i + 1) * 5 + 2000) {
+      if (dests.At(i)?.getValue() != (i + 1) * 5 + 2000) {
         throw new Exception("Projection test 4 failed!");
       }
     }
@@ -366,7 +374,12 @@ sealed class Strength {
 
   private Strength(Sym symbolicValue) {
     this.symbolicValue = symbolicValue;
-    ArithmeticValue = (int) strengthTable.At(symbolicValue);
+    ArithmeticValue = (int) (strengthTable.At(symbolicValue) ?? 0);
+  }
+
+  private Strength(bool check) {
+    this.symbolicValue = new Sym(-1);
+    ArithmeticValue = 0;
   }
 
   public bool sameAs(Strength s) {
@@ -389,9 +402,10 @@ sealed class Strength {
     return s.weaker(this) ? s : this;
   }
 
+  private static Strength undefined = new Strength(false);
 
   public static Strength of(Sym strength) {
-    return strengthConstant.At(strength);
+    return strengthConstant.At(strength) ?? undefined;
   }
 
   private static IdentityDictionary<Sym, object> createStrengthTable() {
@@ -423,11 +437,11 @@ sealed class Strength {
     return _required;
   }
 
-  private static readonly Strength _absoluteWeakest = of(ABSOLUTE_WEAKEST);
-  private static readonly Strength _required = of(REQUIRED);
-
   private static readonly IdentityDictionary<Sym, object>  strengthTable = createStrengthTable();
   private static readonly IdentityDictionary<Sym, Strength> strengthConstant = createStrengthConstants();
+
+  private static readonly Strength _absoluteWeakest = of(ABSOLUTE_WEAKEST);
+  private static readonly Strength _required = of(REQUIRED);
 }
 
 enum Direction {
@@ -522,8 +536,8 @@ abstract class AbstractConstraint {
   // there is one, or nil, if there isn't.
   // Assume: I am not already satisfied.
   //
-  public AbstractConstraint satisfy(int mark, Planner planner) {
-    AbstractConstraint overridden;
+  public AbstractConstraint? satisfy(int mark, Planner planner) {
+    AbstractConstraint? overridden;
 
     chooseMethod(mark);
 
@@ -799,8 +813,8 @@ sealed class EqualityConstraint : BinaryConstraint {
 // read-only.
 sealed class ScaleConstraint : BinaryConstraint {
 
-  protected readonly Variable scale;  // scale factor input variable
-  protected readonly Variable offset; // offset input variable
+  private readonly Variable scale;  // scale factor input variable
+  private readonly Variable offset; // offset input variable
 
   public ScaleConstraint(Variable src, Variable scale,
       Variable offset, Variable dest, Sym strength,
@@ -897,7 +911,7 @@ sealed class Variable {
 
   private int value;       // my value; changed by constraints
   private readonly Vector<AbstractConstraint> constraints; // normal constraints that reference me
-  private AbstractConstraint determinedBy; // the constraint that currently determines
+  private AbstractConstraint? determinedBy; // the constraint that currently determines
   // my value (or null if there isn't one)
   private int mark;        // used by the planner to mark constraints
   private Strength walkStrength; // my walkabout strength
@@ -927,11 +941,11 @@ sealed class Variable {
     return constraints;
   }
 
-  public AbstractConstraint getDeterminedBy() {
+  public AbstractConstraint? getDeterminedBy() {
     return determinedBy;
   }
 
-  public void setDeterminedBy(AbstractConstraint c) {
+  public void setDeterminedBy(AbstractConstraint? c) {
     determinedBy = c;
   }
 
