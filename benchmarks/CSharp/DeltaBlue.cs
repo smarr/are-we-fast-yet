@@ -87,7 +87,7 @@ sealed class Planner
     c.RemoveFromGraph();
 
     Vector<AbstractConstraint> unsatisfied = RemovePropagateFrom(output);
-    unsatisfied.ForEach(u => IncrementalAdd(u));
+    unsatisfied.ForEach(IncrementalAdd);
   }
 
   /**
@@ -419,14 +419,14 @@ sealed class Sym : ICustomHash
  */
 sealed class Strength
 {
-  public static readonly Sym AbsoluteStrongestSym = new Sym(0);
-  public static readonly Sym RequiredSym = new Sym(1);
-  public static readonly Sym StrongPreferredSym = new Sym(2);
-  public static readonly Sym PreferredSym = new Sym(3);
-  public static readonly Sym StrongDefaultSym = new Sym(4);
-  public static readonly Sym DefaultSym = new Sym(5);
-  public static readonly Sym WeakDefaultSym = new Sym(6);
-  public static readonly Sym AbsoluteWeakestSym = new Sym(7);
+  public static readonly Sym AbsoluteStrongestSym = new(0);
+  public static readonly Sym RequiredSym = new(1);
+  public static readonly Sym StrongPreferredSym = new(2);
+  public static readonly Sym PreferredSym = new(3);
+  public static readonly Sym StrongDefaultSym = new(4);
+  public static readonly Sym DefaultSym = new(5);
+  public static readonly Sym WeakDefaultSym = new(6);
+  public static readonly Sym AbsoluteWeakestSym = new(7);
 
   public int ArithmeticValue { get; }
 
@@ -661,20 +661,20 @@ abstract class BinaryConstraint : AbstractConstraint
 {
   protected Variable V1;
   protected Variable V2; // possible output variables
-  protected Direction? direction; // one of the following...
+  protected Direction? Direction; // one of the following...
 
   public BinaryConstraint(Variable var1, Variable var2,
     Sym strength, Planner planner) : base(strength)
   {
     V1 = var1;
     V2 = var2;
-    direction = null;
+    Direction = null;
   }
 
   // Answer true if this constraint is satisfied in the current solution.
   public override bool IsSatisfied()
   {
-    return direction != null;
+    return Direction != null;
   }
 
   // Add myself to the constraint graph.
@@ -682,7 +682,7 @@ abstract class BinaryConstraint : AbstractConstraint
   {
     V1.AddConstraint(this);
     V2.AddConstraint(this);
-    direction = null;
+    Direction = null;
   }
 
   // Remove myself from the constraint graph.
@@ -698,7 +698,7 @@ abstract class BinaryConstraint : AbstractConstraint
       V2.RemoveConstraint(this);
     }
 
-    direction = null;
+    Direction = null;
   }
 
   // Decide if I can be satisfied and which way I should flow based on
@@ -711,13 +711,13 @@ abstract class BinaryConstraint : AbstractConstraint
     {
       if (V2.Mark != mark && Strength.Stronger(V2.WalkStrength))
       {
-        direction = Direction.Forward;
-        return direction;
+        Direction = Benchmarks.Direction.Forward;
+        return Direction;
       }
       else
       {
-        direction = null;
-        return direction;
+        Direction = null;
+        return Direction;
       }
     }
 
@@ -725,13 +725,13 @@ abstract class BinaryConstraint : AbstractConstraint
     {
       if (V1.Mark != mark && Strength.Stronger(V1.WalkStrength))
       {
-        direction = Direction.Backward;
-        return direction;
+        Direction = Benchmarks.Direction.Backward;
+        return Direction;
       }
       else
       {
-        direction = null;
-        return direction;
+        Direction = null;
+        return Direction;
       }
     }
 
@@ -740,33 +740,33 @@ abstract class BinaryConstraint : AbstractConstraint
     {
       if (Strength.Stronger(V1.WalkStrength))
       {
-        direction = Direction.Backward;
-        return direction;
+        Direction = Benchmarks.Direction.Backward;
+        return Direction;
       }
       else
       {
-        direction = null;
-        return direction;
+        Direction = null;
+        return Direction;
       }
     }
     else
     {
       if (Strength.Stronger(V2.WalkStrength))
       {
-        direction = Direction.Forward;
-        return direction;
+        Direction = Benchmarks.Direction.Forward;
+        return Direction;
       }
       else
       {
-        direction = null;
-        return direction;
+        Direction = null;
+        return Direction;
       }
     }
   }
 
   public override void InputsDo(ForEach<Variable> fn)
   {
-    if (direction == Direction.Forward)
+    if (Direction == Benchmarks.Direction.Forward)
     {
       fn.Invoke(V1);
     }
@@ -778,7 +778,7 @@ abstract class BinaryConstraint : AbstractConstraint
 
   public override bool InputsHasOne(Test<Variable> fn)
   {
-    if (direction == Direction.Forward)
+    if (Direction == Benchmarks.Direction.Forward)
     {
       return fn.Invoke(V1);
     }
@@ -791,14 +791,14 @@ abstract class BinaryConstraint : AbstractConstraint
   // Record the fact that I am unsatisfied.
   public override void MarkUnsatisfied()
   {
-    direction = null;
+    Direction = null;
   }
 
 
   // Answer my current output variable.
   public override Variable GetOutput()
   {
-    return direction == Direction.Forward ? V2 : V1;
+    return Direction == Benchmarks.Direction.Forward ? V2 : V1;
   }
 
   // Calculate the walkabout strength, the stay flag, and, if it is
@@ -810,7 +810,7 @@ abstract class BinaryConstraint : AbstractConstraint
     Variable input;
     Variable output;
 
-    if (direction == Direction.Forward)
+    if (Direction == Benchmarks.Direction.Forward)
     {
       input = V1;
       output = V2;
@@ -946,7 +946,7 @@ sealed class EqualityConstraint : BinaryConstraint
   // Enforce this constraint. Assume that it is satisfied.
   public override void Execute()
   {
-    if (direction == Direction.Forward)
+    if (Direction == Benchmarks.Direction.Forward)
     {
       V2.Value = V1.Value;
     }
@@ -982,7 +982,7 @@ sealed class ScaleConstraint : BinaryConstraint
     V2.AddConstraint(this);
     scale.AddConstraint(this);
     offset.AddConstraint(this);
-    direction = null;
+    Direction = null;
   }
 
   // Remove myself from the constraint graph.
@@ -1008,13 +1008,13 @@ sealed class ScaleConstraint : BinaryConstraint
       offset.RemoveConstraint(this);
     }
 
-    direction = null;
+    Direction = null;
   }
 
   // Enforce this constraint. Assume that it is satisfied.
   public override void Execute()
   {
-    if (direction == Direction.Forward)
+    if (Direction == Benchmarks.Direction.Forward)
     {
       V2.Value = V1.Value * scale.Value + offset.Value;
     }
@@ -1026,7 +1026,7 @@ sealed class ScaleConstraint : BinaryConstraint
 
   public override void InputsDo(ForEach<Variable> fn)
   {
-    if (direction == Direction.Forward)
+    if (Direction == Benchmarks.Direction.Forward)
     {
       fn.Invoke(V1);
       fn.Invoke(scale);
@@ -1048,7 +1048,7 @@ sealed class ScaleConstraint : BinaryConstraint
     Variable input;
     Variable output;
 
-    if (direction == Direction.Forward)
+    if (Direction == Benchmarks.Direction.Forward)
     {
       input = V1;
       output = V2;
