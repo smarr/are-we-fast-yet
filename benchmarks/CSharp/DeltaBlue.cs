@@ -148,23 +148,6 @@ sealed class Planner
     return plan;
   }
 
-  // The given variable has changed. Propagate new values downstream.
-  public void PropagateFrom(Variable v)
-  {
-    Vector<AbstractConstraint> todo = new Vector<AbstractConstraint>();
-    AddConstraintsConsumingTo(v, todo);
-
-    while (!todo.IsEmpty())
-    {
-      AbstractConstraint? c = todo.RemoveFirst();
-      if (c != null)
-      {
-        c.Execute();
-        AddConstraintsConsumingTo(c.GetOutput(), todo);
-      }
-    }
-  }
-
   private void AddConstraintsConsumingTo(Variable v, Vector<AbstractConstraint> coll)
   {
     AbstractConstraint? determiningC = v.DeterminedBy;
