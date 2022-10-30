@@ -138,7 +138,7 @@ public class Json : Benchmark {
     * @return <code>true</code> if this value represents either the JSON literal <code>true</code> or
     *         <code>false</code>
     */
-    public virtual bool Isbool() {
+    public virtual bool IsBool() {
       return false;
     }
 
@@ -304,7 +304,7 @@ public class Json : Benchmark {
       return isFalse;
     }
 
-    public override bool Isbool() {
+    public override bool IsBool() {
       return isTrue || isFalse;
     }
   }
