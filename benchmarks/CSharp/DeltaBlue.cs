@@ -216,7 +216,7 @@ sealed class Planner
 
   private void Change(Variable var, int newValue)
   {
-    EditConstraint editC = new EditConstraint(var, Strength.PREFERRED, this);
+    EditConstraint editC = new EditConstraint(var, Strength.PreferredSym, this);
 
     Vector<AbstractConstraint> editV = Vector<AbstractConstraint>.With(editC);
     Plan plan = ExtractPlanFromConstraints(editV);
@@ -256,7 +256,7 @@ sealed class Planner
     Vector<AbstractConstraint> unsatisfied = new Vector<AbstractConstraint>();
 
     output.DeterminedBy = null;
-    output.SetWalkStrength(Strength.AbsoluteWeakest());
+    output.WalkStrength = Strength.AbsoluteWeakest();
     output.Stay = true;
 
     Vector<Variable> todo = Vector<Variable>.With(output);
@@ -313,11 +313,11 @@ sealed class Planner
     {
       Variable v1 = vars[i];
       Variable v2 = vars[i + 1];
-      new EqualityConstraint(v1, v2, Strength.REQUIRED, planner);
+      new EqualityConstraint(v1, v2, Strength.RequiredSym, planner);
     }
 
-    new StayConstraint(vars[n], Strength.STRONG_DEFAULT, planner);
-    AbstractConstraint editC = new EditConstraint(vars[0], Strength.PREFERRED, planner);
+    new StayConstraint(vars[n], Strength.StrongDefaultSym, planner);
+    AbstractConstraint editC = new EditConstraint(vars[0], Strength.PreferredSym, planner);
 
     Vector<AbstractConstraint> editV = Vector<AbstractConstraint>.With(editC);
     Plan plan = planner.ExtractPlanFromConstraints(editV);
@@ -355,8 +355,8 @@ sealed class Planner
       src = Variable.WithValue(i);
       dst = Variable.WithValue(i);
       dests.Append(dst);
-      new StayConstraint(src, Strength.DEFAULT, planner);
-      new ScaleConstraint(src, scale, offset, dst, Strength.REQUIRED, planner);
+      new StayConstraint(src, Strength.DefaultSym, planner);
+      new ScaleConstraint(src, scale, offset, dst, Strength.RequiredSym, planner);
     }
 
     if (src == null || dst == null)
@@ -419,14 +419,14 @@ sealed class Sym : ICustomHash
  */
 sealed class Strength
 {
-  public static readonly Sym AbsoluteStrongest = new Sym(0);
-  public static readonly Sym REQUIRED = new Sym(1);
-  public static readonly Sym STRONG_PREFERRED = new Sym(2);
-  public static readonly Sym PREFERRED = new Sym(3);
-  public static readonly Sym STRONG_DEFAULT = new Sym(4);
-  public static readonly Sym DEFAULT = new Sym(5);
-  public static readonly Sym WEAK_DEFAULT = new Sym(6);
-  public static readonly Sym ABSOLUTE_WEAKEST = new Sym(7);
+  public static readonly Sym AbsoluteStrongestSym = new Sym(0);
+  public static readonly Sym RequiredSym = new Sym(1);
+  public static readonly Sym StrongPreferredSym = new Sym(2);
+  public static readonly Sym PreferredSym = new Sym(3);
+  public static readonly Sym StrongDefaultSym = new Sym(4);
+  public static readonly Sym DefaultSym = new Sym(5);
+  public static readonly Sym WeakDefaultSym = new Sym(6);
+  public static readonly Sym AbsoluteWeakestSym = new Sym(7);
 
   public int ArithmeticValue { get; }
 
@@ -469,24 +469,24 @@ sealed class Strength
     return s.Weaker(this) ? s : this;
   }
 
-  private static Strength undefined = new Strength(false);
+  private static Strength _undefined = new Strength(false);
 
   public static Strength Of(Sym strength)
   {
-    return strengthConstant.At(strength) ?? undefined;
+    return strengthConstant.At(strength) ?? _undefined;
   }
 
   private static IdentityDictionary<Sym, object> CreateStrengthTable()
   {
     IdentityDictionary<Sym, object> strengthTable = new IdentityDictionary<Sym, object>();
-    strengthTable.AtPut(AbsoluteStrongest, -10000);
-    strengthTable.AtPut(REQUIRED, -800);
-    strengthTable.AtPut(STRONG_PREFERRED, -600);
-    strengthTable.AtPut(PREFERRED, -400);
-    strengthTable.AtPut(STRONG_DEFAULT, -200);
-    strengthTable.AtPut(DEFAULT, 0);
-    strengthTable.AtPut(WEAK_DEFAULT, 500);
-    strengthTable.AtPut(ABSOLUTE_WEAKEST, 10000);
+    strengthTable.AtPut(AbsoluteStrongestSym, -10000);
+    strengthTable.AtPut(RequiredSym, -800);
+    strengthTable.AtPut(StrongPreferredSym, -600);
+    strengthTable.AtPut(PreferredSym, -400);
+    strengthTable.AtPut(StrongDefaultSym, -200);
+    strengthTable.AtPut(DefaultSym, 0);
+    strengthTable.AtPut(WeakDefaultSym, 500);
+    strengthTable.AtPut(AbsoluteWeakestSym, 10000);
     return strengthTable;
   }
 
@@ -512,14 +512,14 @@ sealed class Strength
   private static readonly IdentityDictionary<Sym, object> strengthTable = CreateStrengthTable();
   private static readonly IdentityDictionary<Sym, Strength> strengthConstant = CreateStrengthConstants();
 
-  private static readonly Strength _absoluteWeakest = Of(ABSOLUTE_WEAKEST);
-  private static readonly Strength _required = Of(REQUIRED);
+  private static readonly Strength _absoluteWeakest = Of(AbsoluteWeakestSym);
+  private static readonly Strength _required = Of(RequiredSym);
 }
 
 enum Direction
 {
-  FORWARD,
-  BACKWARD
+  Forward,
+  Backward
 }
 
 // ------------------------ constraints ------------------------------------
@@ -659,15 +659,15 @@ abstract class AbstractConstraint
 // output variables.
 abstract class BinaryConstraint : AbstractConstraint
 {
-  protected Variable v1;
-  protected Variable v2; // possible output variables
+  protected Variable V1;
+  protected Variable V2; // possible output variables
   protected Direction? direction; // one of the following...
 
   public BinaryConstraint(Variable var1, Variable var2,
     Sym strength, Planner planner) : base(strength)
   {
-    v1 = var1;
-    v2 = var2;
+    V1 = var1;
+    V2 = var2;
     direction = null;
   }
 
@@ -680,22 +680,22 @@ abstract class BinaryConstraint : AbstractConstraint
   // Add myself to the constraint graph.
   public override void AddToGraph()
   {
-    v1.AddConstraint(this);
-    v2.AddConstraint(this);
+    V1.AddConstraint(this);
+    V2.AddConstraint(this);
     direction = null;
   }
 
   // Remove myself from the constraint graph.
   public override void RemoveFromGraph()
   {
-    if (v1 != null)
+    if (V1 != null)
     {
-      v1.RemoveConstraint(this);
+      V1.RemoveConstraint(this);
     }
 
-    if (v2 != null)
+    if (V2 != null)
     {
-      v2.RemoveConstraint(this);
+      V2.RemoveConstraint(this);
     }
 
     direction = null;
@@ -707,11 +707,11 @@ abstract class BinaryConstraint : AbstractConstraint
   //
   protected override Direction? ChooseMethod(int mark)
   {
-    if (v1.Mark == mark)
+    if (V1.Mark == mark)
     {
-      if (v2.Mark != mark && Strength.Stronger(v2.GetWalkStrength()))
+      if (V2.Mark != mark && Strength.Stronger(V2.WalkStrength))
       {
-        direction = Direction.FORWARD;
+        direction = Direction.Forward;
         return direction;
       }
       else
@@ -721,11 +721,11 @@ abstract class BinaryConstraint : AbstractConstraint
       }
     }
 
-    if (v2.Mark == mark)
+    if (V2.Mark == mark)
     {
-      if (v1.Mark != mark && Strength.Stronger(v1.GetWalkStrength()))
+      if (V1.Mark != mark && Strength.Stronger(V1.WalkStrength))
       {
-        direction = Direction.BACKWARD;
+        direction = Direction.Backward;
         return direction;
       }
       else
@@ -736,11 +736,11 @@ abstract class BinaryConstraint : AbstractConstraint
     }
 
     // If we get here, neither variable is marked, so we have a choice.
-    if (v1.GetWalkStrength().Weaker(v2.GetWalkStrength()))
+    if (V1.WalkStrength.Weaker(V2.WalkStrength))
     {
-      if (Strength.Stronger(v1.GetWalkStrength()))
+      if (Strength.Stronger(V1.WalkStrength))
       {
-        direction = Direction.BACKWARD;
+        direction = Direction.Backward;
         return direction;
       }
       else
@@ -751,9 +751,9 @@ abstract class BinaryConstraint : AbstractConstraint
     }
     else
     {
-      if (Strength.Stronger(v2.GetWalkStrength()))
+      if (Strength.Stronger(V2.WalkStrength))
       {
-        direction = Direction.FORWARD;
+        direction = Direction.Forward;
         return direction;
       }
       else
@@ -766,25 +766,25 @@ abstract class BinaryConstraint : AbstractConstraint
 
   public override void InputsDo(ForEach<Variable> fn)
   {
-    if (direction == Direction.FORWARD)
+    if (direction == Direction.Forward)
     {
-      fn.Invoke(v1);
+      fn.Invoke(V1);
     }
     else
     {
-      fn.Invoke(v2);
+      fn.Invoke(V2);
     }
   }
 
   public override bool InputsHasOne(Test<Variable> fn)
   {
-    if (direction == Direction.FORWARD)
+    if (direction == Direction.Forward)
     {
-      return fn.Invoke(v1);
+      return fn.Invoke(V1);
     }
     else
     {
-      return fn.Invoke(v2);
+      return fn.Invoke(V2);
     }
   }
 
@@ -798,7 +798,7 @@ abstract class BinaryConstraint : AbstractConstraint
   // Answer my current output variable.
   public override Variable GetOutput()
   {
-    return direction == Direction.FORWARD ? v2 : v1;
+    return direction == Direction.Forward ? V2 : V1;
   }
 
   // Calculate the walkabout strength, the stay flag, and, if it is
@@ -810,18 +810,18 @@ abstract class BinaryConstraint : AbstractConstraint
     Variable input;
     Variable output;
 
-    if (direction == Direction.FORWARD)
+    if (direction == Direction.Forward)
     {
-      input = v1;
-      output = v2;
+      input = V1;
+      output = V2;
     }
     else
     {
-      input = v2;
-      output = v1;
+      input = V2;
+      output = V1;
     }
 
-    output.SetWalkStrength(Strength.Weakest(input.GetWalkStrength()));
+    output.WalkStrength = Strength.Weakest(input.WalkStrength);
     output.Stay = input.Stay;
     if (output.Stay)
     {
@@ -871,7 +871,7 @@ abstract class UnaryConstraint : AbstractConstraint
   protected override Direction? ChooseMethod(int mark)
   {
     satisfied = output.Mark != mark
-                && Strength.Stronger(output.GetWalkStrength());
+                && Strength.Stronger(output.WalkStrength);
     return null;
   }
 
@@ -904,7 +904,7 @@ abstract class UnaryConstraint : AbstractConstraint
   // constraint. Assume this constraint is satisfied."
   public override void Recalculate()
   {
-    output.SetWalkStrength(Strength);
+    output.WalkStrength = Strength;
     output.Stay = !IsInput();
     if (output.Stay)
     {
@@ -946,13 +946,13 @@ sealed class EqualityConstraint : BinaryConstraint
   // Enforce this constraint. Assume that it is satisfied.
   public override void Execute()
   {
-    if (direction == Direction.FORWARD)
+    if (direction == Direction.Forward)
     {
-      v2.Value = v1.Value;
+      V2.Value = V1.Value;
     }
     else
     {
-      v1.Value = v2.Value;
+      V1.Value = V2.Value;
     }
   }
 }
@@ -978,8 +978,8 @@ sealed class ScaleConstraint : BinaryConstraint
   // Add myself to the constraint graph.
   public override void AddToGraph()
   {
-    v1.AddConstraint(this);
-    v2.AddConstraint(this);
+    V1.AddConstraint(this);
+    V2.AddConstraint(this);
     scale.AddConstraint(this);
     offset.AddConstraint(this);
     direction = null;
@@ -988,14 +988,14 @@ sealed class ScaleConstraint : BinaryConstraint
   // Remove myself from the constraint graph.
   public override void RemoveFromGraph()
   {
-    if (v1 != null)
+    if (V1 != null)
     {
-      v1.RemoveConstraint(this);
+      V1.RemoveConstraint(this);
     }
 
-    if (v2 != null)
+    if (V2 != null)
     {
-      v2.RemoveConstraint(this);
+      V2.RemoveConstraint(this);
     }
 
     if (scale != null)
@@ -1014,27 +1014,27 @@ sealed class ScaleConstraint : BinaryConstraint
   // Enforce this constraint. Assume that it is satisfied.
   public override void Execute()
   {
-    if (direction == Direction.FORWARD)
+    if (direction == Direction.Forward)
     {
-      v2.Value = v1.Value * scale.Value + offset.Value;
+      V2.Value = V1.Value * scale.Value + offset.Value;
     }
     else
     {
-      v1.Value = (v2.Value - offset.Value) / scale.Value;
+      V1.Value = (V2.Value - offset.Value) / scale.Value;
     }
   }
 
   public override void InputsDo(ForEach<Variable> fn)
   {
-    if (direction == Direction.FORWARD)
+    if (direction == Direction.Forward)
     {
-      fn.Invoke(v1);
+      fn.Invoke(V1);
       fn.Invoke(scale);
       fn.Invoke(offset);
     }
     else
     {
-      fn.Invoke(v2);
+      fn.Invoke(V2);
       fn.Invoke(scale);
       fn.Invoke(offset);
     }
@@ -1048,18 +1048,18 @@ sealed class ScaleConstraint : BinaryConstraint
     Variable input;
     Variable output;
 
-    if (direction == Direction.FORWARD)
+    if (direction == Direction.Forward)
     {
-      input = v1;
-      output = v2;
+      input = V1;
+      output = V2;
     }
     else
     {
-      output = v1;
-      input = v2;
+      output = V1;
+      input = V2;
     }
 
-    output.SetWalkStrength(Strength.Weakest(input.GetWalkStrength()));
+    output.WalkStrength = Strength.Weakest(input.WalkStrength);
     output.Stay = input.Stay && scale.Stay && offset.Stay;
     if (output.Stay)
     {
@@ -1101,7 +1101,7 @@ sealed class Variable
 
   // my value (or null if there isn't one)
   public int Mark { get; set; } // used by the planner to mark constraints
-  private Strength walkStrength; // my walkabout strength
+  public Strength WalkStrength { get; set; } // my walkabout strength
   public bool Stay { get; set; } // true if I am a planning-time constant
 
   public static Variable WithValue(int aValue)
@@ -1116,7 +1116,7 @@ sealed class Variable
     Value = 0;
     Constraints = new Vector<AbstractConstraint>(2);
     DeterminedBy = null;
-    walkStrength = Strength.AbsoluteWeakest();
+    WalkStrength = Strength.AbsoluteWeakest();
     Stay = true;
     Mark = 0;
   }
@@ -1135,15 +1135,5 @@ sealed class Variable
     {
       DeterminedBy = null;
     }
-  }
-
-  public Strength GetWalkStrength()
-  {
-    return walkStrength;
-  }
-
-  public void SetWalkStrength(Strength strength)
-  {
-    walkStrength = strength;
   }
 }

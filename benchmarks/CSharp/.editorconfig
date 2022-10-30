@@ -122,3 +122,6 @@ resharper_virtual_member_never_overridden_global_highlighting = none
 resharper_virtual_member_never_overridden_local_highlighting = none
 resharper_auto_property_can_be_made_get_only_global_highlighting = none
 resharper_auto_property_can_be_made_get_only_local_highlighting = none
+
+[DeltaBlue.cs]
+resharper_object_creation_as_statement_highlighting = none
