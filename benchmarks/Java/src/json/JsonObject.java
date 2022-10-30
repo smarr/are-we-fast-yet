@@ -45,7 +45,7 @@ public final class JsonObject extends JsonValue {
 
   private final Vector<String> names;
   private final Vector<JsonValue> values;
-  private transient HashIndexTable table;
+  private final transient HashIndexTable table;
 
   /**
    * Creates a new empty JsonObject.
