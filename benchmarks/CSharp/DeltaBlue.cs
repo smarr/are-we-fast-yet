@@ -577,7 +577,7 @@ abstract class AbstractConstraint
   // constraint.
   public bool InputsKnown(int mark)
   {
-    return !InputsHasOne(v => { return !(v.Mark == mark || v.Stay || v.DeterminedBy == null); });
+    return !InputsHasOne(v => !(v.Mark == mark || v.Stay || v.DeterminedBy == null));
   }
 
   // Record the fact that I am unsatisfied.
@@ -817,44 +817,44 @@ abstract class BinaryConstraint : AbstractConstraint
 // possible output variable.
 abstract class UnaryConstraint : AbstractConstraint
 {
-  protected readonly Variable output; // possible output variable
-  protected bool satisfied; // true if I am currently satisfied
+  protected readonly Variable Output; // possible output variable
+  protected bool Satisfied; // true if I am currently satisfied
 
   public UnaryConstraint(Variable v, Sym strength, Planner planner) : base(strength)
   {
-    this.output = v;
+    this.Output = v;
     AddConstraint(planner);
   }
 
   // Answer true if this constraint is satisfied in the current solution.
   public override bool IsSatisfied()
   {
-    return satisfied;
+    return Satisfied;
   }
 
   // Add myself to the constraint graph.
   public override void AddToGraph()
   {
-    output.AddConstraint(this);
-    satisfied = false;
+    Output.AddConstraint(this);
+    Satisfied = false;
   }
 
   // Remove myself from the constraint graph.
   public override void RemoveFromGraph()
   {
-    if (output != null)
+    if (Output != null)
     {
-      output.RemoveConstraint(this);
+      Output.RemoveConstraint(this);
     }
 
-    satisfied = false;
+    Satisfied = false;
   }
 
   // Decide if I can be satisfied and record that decision.
   protected override Direction? ChooseMethod(int mark)
   {
-    satisfied = output.Mark != mark
-                && Strength.Stronger(output.WalkStrength);
+    Satisfied = Output.Mark != mark
+                && Strength.Stronger(Output.WalkStrength);
     return null;
   }
 
@@ -873,13 +873,13 @@ abstract class UnaryConstraint : AbstractConstraint
   // Record the fact that I am unsatisfied.
   public override void MarkUnsatisfied()
   {
-    satisfied = false;
+    Satisfied = false;
   }
 
   // Answer my current output variable.
   public override Variable GetOutput()
   {
-    return output;
+    return Output;
   }
 
   // Calculate the walkabout strength, the stay flag, and, if it is
@@ -887,9 +887,9 @@ abstract class UnaryConstraint : AbstractConstraint
   // constraint. Assume this constraint is satisfied."
   public override void Recalculate()
   {
-    output.WalkStrength = Strength;
-    output.Stay = !IsInput();
-    if (output.Stay)
+    Output.WalkStrength = Strength;
+    Output.Stay = !IsInput();
+    if (Output.Stay)
     {
       Execute(); // stay optimization
     }
