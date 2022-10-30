@@ -10,34 +10,34 @@ jobs:
       matrix:
         include:
           - name: Java
-            id:   java
+            id:   Java
 
           - name: SOM
-            id:   som
+            id:   SOM
 
           - name: Crystal
-            id:   crystal
+            id:   Crystal
 
           - name: JavaScript
-            id:   js
+            id:   JavaScript
 
           - name: SOMns
-            id:   somns
+            id:   SOMns
 
           - name: Pharo
             id:   pharo
 
           - name: Squeak 64-bit
-            id:   squeak64
+            id:   Smalltalk
 
           - name: Ruby
-            id:   ruby
+            id:   Ruby
 
           - name: Lua 5.2
-            id:   lua52
+            id:   Lua
 
           - name: Python
-            id:   python
+            id:   Python
 
     name: ${{ matrix.name }}
     steps:
@@ -53,11 +53,11 @@ jobs:
           python -m pip install ReBench
 
       - name: Install Crystal
-        if: matrix.id == 'crystal'
+        if: matrix.id == 'Crystal'
         uses: oprypin/install-crystal@v1
 
       - name: Install JS
-        if: matrix.id == 'js'
+        if: matrix.id == 'JavaScript'
         run: |
           (cd benchmarks/JavaScript; npm install .)
 
@@ -68,7 +68,7 @@ jobs:
           smalltalk-image: Pharo64-7.0
 
       - name: Install Squeak64
-        if: matrix.id == 'squeak64'
+        if: matrix.id == 'Smalltalk'
         uses: hpi-swa/setup-smalltalkCI@v1
         with:
           smalltalk-image: Squeak64-5.2
@@ -80,7 +80,7 @@ jobs:
           smalltalk-image: Squeak32-5.2
 
       - name: Install Ruby
-        if: matrix.id == 'ruby'
+        if: matrix.id == 'Ruby'
         run: |
           sudo gem install rubocop
 
@@ -88,33 +88,33 @@ jobs:
         uses: leafo/gh-actions-lua@v8
         with:
             luaVersion: 5.2
-        if: matrix.id == 'lua52'
+        if: matrix.id == 'Lua'
 
       - name: Install LuaRocks
         uses: leafo/gh-actions-luarocks@v4
-        if: matrix.id == 'lua52'
+        if: matrix.id == 'Lua'
 
       - name: Install LuaCheck and lua5.2 symlink
         run: |
           luarocks install luacheck
           sudo ln -s "`which lua`" "`which lua`5.2"
-        if: matrix.id == 'lua52'
+        if: matrix.id == 'Lua'
 
       - name: Install Python
         run: |
           python -m pip install pylint
-        if: matrix.id == 'python'
+        if: matrix.id == 'Python'
 
       - name: Python Black Style Check
         uses: psf/black@stable
         with:
           options: "--check --diff ."
           src: "./benchmarks/Python"
-        if: matrix.id == 'python'
+        if: matrix.id == 'Python'
 
       - name: Build
         run: |
-          implementations/build-${{ matrix.id }}.sh
+          benchmarks/${{ matrix.id }}/build.sh
 
       - name: ReBench Test Run
         run: |
@@ -122,4 +122,4 @@ jobs:
 
       - name: Style Check
         run: |
-          implementations/build-${{ matrix.id }}.sh style skip-black-for-python
+          benchmarks/${{ matrix.id }}/style.sh skip-black-for-python
