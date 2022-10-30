@@ -122,10 +122,10 @@ sealed class Planner {
     while (!todo.IsEmpty()) {
       AbstractConstraint? c = todo.RemoveFirst();
 
-      if (c != null && c.GetOutput().GetMark() != mark && c.InputsKnown(mark)) {
+      if (c != null && c.GetOutput().Mark != mark && c.InputsKnown(mark)) {
         // not in plan already and eligible for inclusion
         plan.Append(c);
-        c.GetOutput().SetMark(mark);
+        c.GetOutput().Mark = mark;
         AddConstraintsConsumingTo(c.GetOutput(), todo);
       }
     }
@@ -147,9 +147,9 @@ sealed class Planner {
   }
 
   private void AddConstraintsConsumingTo(Variable v, Vector<AbstractConstraint> coll) {
-    AbstractConstraint? determiningC = v.GetDeterminedBy();
+    AbstractConstraint? determiningC = v.DeterminedBy;
 
-    v.GetConstraints().ForEach(c => {
+    v.Constraints.ForEach(c => {
       if (c != determiningC && c.IsSatisfied()) {
         coll.Append(c);
       }
@@ -175,7 +175,7 @@ sealed class Planner {
       AbstractConstraint? d = todo.RemoveFirst();
 
       if (d != null) {
-        if (d.GetOutput().GetMark() == mark) {
+        if (d.GetOutput().Mark == mark) {
           IncrementalRemove(c);
           return false;
         }
@@ -192,15 +192,15 @@ sealed class Planner {
     Vector<AbstractConstraint> editV = Vector<AbstractConstraint>.With(editC);
     Plan plan = ExtractPlanFromConstraints(editV);
     for (int i = 0; i < 10; i++) {
-      var.SetValue(newValue);
+      var.Value = newValue;
       plan.Execute();
     }
     editC.DestroyConstraint(this);
   }
 
   private void ConstraintsConsuming(Variable? v, ForEach<AbstractConstraint> fn) {
-    AbstractConstraint? determiningC = v?.GetDeterminedBy();
-    v?.GetConstraints().ForEach(c => {
+    AbstractConstraint? determiningC = v?.DeterminedBy;
+    v?.Constraints.ForEach(c => {
       if (c != determiningC && c.IsSatisfied()) {
         fn.Invoke(c);
       }
@@ -219,16 +219,16 @@ sealed class Planner {
   private Vector<AbstractConstraint> RemovePropagateFrom(Variable output) {
     Vector<AbstractConstraint> unsatisfied = new Vector<AbstractConstraint>();
 
-    output.SetDeterminedBy(null);
+    output.DeterminedBy = null;
     output.SetWalkStrength(Strength.AbsoluteWeakest());
-    output.SetStay(true);
+    output.Stay = true;
 
     Vector<Variable> todo = Vector<Variable>.With(output);
 
     while (!todo.IsEmpty()) {
       Variable? v = todo.RemoveFirst();
 
-      v?.GetConstraints().ForEach(c => {
+      v?.Constraints.ForEach(c => {
         if (!c.IsSatisfied()) { unsatisfied.Append(c); }});
 
       ConstraintsConsuming(v, c => {
@@ -276,9 +276,9 @@ for (int i = 0; i < n + 1; i++) {
     Vector<AbstractConstraint> editV = Vector<AbstractConstraint>.With(editC);
     Plan plan = planner.ExtractPlanFromConstraints(editV);
     for (int i = 0; i < 100; i++) {
-      vars[0].SetValue(i);
+      vars[0].Value = i;
       plan.Execute();
-      if (vars[n].GetValue() != i) {
+      if (vars[n].Value != i) {
         throw new Exception("Chain test failed!");
       }
     }
@@ -313,25 +313,25 @@ for (int i = 0; i < n + 1; i++) {
     }
 
     planner.Change(src, 17);
-    if (dst.GetValue() != 1170) {
+    if (dst.Value != 1170) {
       throw new Exception("Projection test 1 failed!");
     }
 
     planner.Change(dst, 1050);
-    if (src.GetValue() != 5) {
+    if (src.Value != 5) {
       throw new Exception("Projection test 2 failed!");
     }
 
     planner.Change(scale, 5);
     for (int i = 0; i < n - 1; ++i) {
-      if (dests.At(i)?.GetValue() != (i + 1) * 5 + 1000) {
+      if (dests.At(i)?.Value != (i + 1) * 5 + 1000) {
         throw new Exception("Projection test 3 failed!");
       }
     }
 
     planner.Change(offset, 2000);
     for (int i = 0; i < n - 1; ++i) {
-      if (dests.At(i)?.GetValue() != (i + 1) * 5 + 2000) {
+      if (dests.At(i)?.Value != (i + 1) * 5 + 2000) {
         throw new Exception("Projection test 4 failed!");
       }
     }
@@ -514,7 +514,7 @@ abstract class AbstractConstraint {
   // constraint.
   public bool InputsKnown(int mark) {
     return !InputsHasOne(v => {
-        return !(v.GetMark() == mark || v.GetStay() || v.GetDeterminedBy() == null);
+        return !(v.Mark == mark || v.Stay || v.DeterminedBy == null);
     });
   }
 
@@ -544,18 +544,18 @@ abstract class AbstractConstraint {
     if (IsSatisfied()) {
       // constraint can be satisfied
       // mark inputs to allow cycle detection in addPropagate
-      InputsDo(input => input.SetMark(mark));
+      InputsDo(input => input.Mark = mark);
 
       Variable output = GetOutput();
-      overridden = output.GetDeterminedBy();
+      overridden = output.DeterminedBy;
       if (overridden != null) {
         overridden.MarkUnsatisfied();
       }
-      output.SetDeterminedBy(this);
+      output.DeterminedBy = this;
       if (!planner.AddPropagate(this, mark)) {
         throw new Exception("Cycle encountered");
       }
-      output.SetMark(mark);
+      output.Mark = mark;
     } else {
       overridden = null;
       if (Strength.SameAs(Strength.Required())) {
@@ -610,8 +610,8 @@ abstract class BinaryConstraint : AbstractConstraint {
   // decision.
   //
   protected override Direction? ChooseMethod(int mark) {
-    if (v1.GetMark() == mark) {
-      if (v2.GetMark() != mark && Strength.Stronger(v2.GetWalkStrength())) {
+    if (v1.Mark == mark) {
+      if (v2.Mark != mark && Strength.Stronger(v2.GetWalkStrength())) {
         direction = Direction.FORWARD;
         return direction;
       } else {
@@ -620,8 +620,8 @@ abstract class BinaryConstraint : AbstractConstraint {
       }
     }
 
-    if (v2.GetMark() == mark) {
-      if (v1.GetMark() != mark && Strength.Stronger(v1.GetWalkStrength())) {
+    if (v2.Mark == mark) {
+      if (v1.Mark != mark && Strength.Stronger(v1.GetWalkStrength())) {
         direction = Direction.BACKWARD;
         return direction;
       } else {
@@ -692,8 +692,8 @@ abstract class BinaryConstraint : AbstractConstraint {
     }
 
     output.SetWalkStrength(Strength.Weakest(input.GetWalkStrength()));
-    output.SetStay(input.GetStay());
-    if (output.GetStay()) {
+    output.Stay = input.Stay;
+    if (output.Stay) {
       Execute();
     }
   }
@@ -733,7 +733,7 @@ abstract class UnaryConstraint : AbstractConstraint {
 
   // Decide if I can be satisfied and record that decision.
   protected override Direction? ChooseMethod(int mark) {
-    satisfied = output.GetMark() != mark
+    satisfied = output.Mark != mark
         && Strength.Stronger(output.GetWalkStrength());
     return null;
   }
@@ -763,8 +763,8 @@ abstract class UnaryConstraint : AbstractConstraint {
   // constraint. Assume this constraint is satisfied."
   public override void Recalculate() {
     output.SetWalkStrength(Strength);
-    output.SetStay(!IsInput());
-    if (output.GetStay()) {
+    output.Stay = !IsInput();
+    if (output.Stay) {
       Execute(); // stay optimization
     }
   }
@@ -800,9 +800,9 @@ sealed class EqualityConstraint : BinaryConstraint {
   // Enforce this constraint. Assume that it is satisfied.
   public override void Execute() {
     if (direction == Direction.FORWARD) {
-      v2.SetValue(v1.GetValue());
+      v2.Value = v1.Value;
     } else {
-      v1.SetValue(v2.GetValue());
+      v1.Value = v2.Value;
     }
   }
 }
@@ -845,9 +845,9 @@ sealed class ScaleConstraint : BinaryConstraint {
   // Enforce this constraint. Assume that it is satisfied.
   public override void Execute() {
     if (direction == Direction.FORWARD) {
-      v2.SetValue(v1.GetValue() * scale.GetValue() + offset.GetValue());
+      v2.Value = v1.Value * scale.Value + offset.Value;
     } else {
-      v1.SetValue((v2.GetValue() - offset.GetValue()) / scale.GetValue());
+      v1.Value = (v2.Value - offset.Value) / scale.Value;
     }
   }
 
@@ -877,8 +877,8 @@ sealed class ScaleConstraint : BinaryConstraint {
     }
 
     output.SetWalkStrength(Strength.Weakest(input.GetWalkStrength()));
-    output.SetStay(input.GetStay() && scale.GetStay() && offset.GetStay());
-    if (output.GetStay()) {
+    output.Stay = input.Stay && scale.Stay && offset.Stay;
+    if (output.Stay) {
       Execute(); // stay optimization
     }
   }
@@ -909,76 +909,40 @@ sealed class StayConstraint : UnaryConstraint {
 // incremental constraint solver.
 sealed class Variable {
 
-  private int value;       // my value; changed by constraints
-  private readonly Vector<AbstractConstraint> constraints; // normal constraints that reference me
-  private AbstractConstraint? determinedBy; // the constraint that currently determines
+  public int Value { get; set; }       // my value; changed by constraints
+  public Vector<AbstractConstraint> Constraints { get; } // normal constraints that reference me
+  public AbstractConstraint? DeterminedBy { get; set; } // the constraint that currently determines
   // my value (or null if there isn't one)
-  private int mark;        // used by the planner to mark constraints
+  public int Mark { get; set; }        // used by the planner to mark constraints
   private Strength walkStrength; // my walkabout strength
-  private bool  stay;        // true if I am a planning-time constant
+  public bool Stay { get; set; }        // true if I am a planning-time constant
 
   public static Variable WithValue(int aValue) {
     Variable v = new Variable();
-    v.SetValue(aValue);
+    v.Value = aValue;
     return v;
   }
 
   public Variable() {
-    value = 0;
-    constraints = new Vector<AbstractConstraint>(2);
-    determinedBy = null;
+    Value = 0;
+    Constraints = new Vector<AbstractConstraint>(2);
+    DeterminedBy = null;
     walkStrength = Strength.AbsoluteWeakest();
-    stay = true;
-    mark = 0;
+    Stay = true;
+    Mark = 0;
   }
 
   // Add the given constraint to the set of all constraints that refer to me.
   public void AddConstraint(AbstractConstraint c) {
-    constraints.Append(c);
-  }
-
-  public Vector<AbstractConstraint> GetConstraints() {
-    return constraints;
-  }
-
-  public AbstractConstraint? GetDeterminedBy() {
-    return determinedBy;
-  }
-
-  public void SetDeterminedBy(AbstractConstraint? c) {
-    determinedBy = c;
-  }
-
-  public int GetMark() {
-    return mark;
-  }
-
-  public void SetMark(int markValue) {
-    mark = markValue;
+    Constraints.Append(c);
   }
 
   // Remove all traces of c from this variable.
   public void RemoveConstraint(AbstractConstraint c) {
-    constraints.Remove(c);
-    if (determinedBy == c) {
-      determinedBy = null;
+    Constraints.Remove(c);
+    if (DeterminedBy == c) {
+      DeterminedBy = null;
     }
-  }
-
-  public bool GetStay() {
-    return stay;
-  }
-
-  public void SetStay(bool v) {
-    stay = v;
-  }
-
-  public int GetValue() {
-    return value;
-  }
-
-  public void SetValue(int value) {
-    this.value = value;
   }
 
   public Strength GetWalkStrength() {
