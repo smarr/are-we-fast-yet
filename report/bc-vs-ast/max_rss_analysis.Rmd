@@ -1,0 +1,133 @@
+# Max RSS
+
+```{r load-scripts, echo=FALSE, include=FALSE}
+# load libraries, the data, and prepare it
+if (Sys.getenv("RSTUDIO") == "1") { setwd("/home/octavel/PhD_Programs/my_programs/are-we-fast-yet/report/bc-vs-ast") }
+source("scripts/libraries.R", chdir=TRUE)
+source("scripts/data-processing2.R")
+
+#extrafont::font_import()
+#print(extrafont::fonts())
+#extrafont::loadfonts()
+#extrafont::loadfonts(device = "postscript")
+
+get_data_rss <- function() {
+  # iteration is always 1 so we remove it. unit is always kb
+  remove_unneeded_data <- function(df) {
+    df <- df %>% 
+      filter(criterion == "MaxRSS") %>% 
+      subset(select = -c(commitid, cmdline, expid, varvalue, cores, inputsize, iteration, criterion, envid, unit))
+    
+    # group the data by runid and trialid, and keep only the first row of each group
+    #df <- df %>%
+    #  group_by(runid, trialid) %>%
+    #  slice_head(n = 1) %>%
+    #  mutate(invocation = NA, value = max(value)) %>%
+    #  ungroup() %>%
+    #  select(-invocation)
+    
+    df
+  }
+
+#  79, 80
+  data_rss_tsom <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2597") %>% remove_unneeded_data()
+  data_rss_pysom <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2596")%>% remove_unneeded_data()
+  
+  data_rss <- rbind(data_rss_tsom, data_rss_pysom)
+  
+  data_rss
+}
+
+get_comparison_table <- function(all_data, exe_bc_name, exe_ast_name, only_with_warmup=FALSE) {
+  df_filtered <- all_data %>%
+  filter(exe %in% c(exe_bc_name, exe_ast_name))
+
+  df_new <- df_filtered %>%
+   group_by(bench) %>%
+    summarize(bc_value = mean(value[exe == exe_bc_name]),
+             ast_value = mean(value[exe == exe_ast_name]))
+
+  df_new
+}
+
+box_plot_rss <- function(data) {
+  x_breaks <- c(0.5, 0.8, 1, 2, 3, 5, 10, 15, 30)
+  
+  breaks <- levels(droplevels(data)$exe)
+  #vm_colors <- rainbow(255)
+  col_values <- rainbow(10)
+#  col_values <- c("red", "green", "yellow", "blue")
+
+  plot <- ggplot(data, aes(x=ratio, y=reorder(exe, -ratio, FUN = median), fill = exe))
+  plot <- plot + geom_boxplot(outlier.size = 0.5) +
+    scale_x_log10(breaks = x_breaks) +
+    scale_fill_manual(values = col_values) +
+    theme_bw() + theme_simple(font_size = 8) +
+    theme(
+      axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1),
+      axis.title.x  = element_text(size = 8, family="Arial"),
+      legend.position="none") +
+    #scale_y_log10(breaks=c(1,2,3,10,20,30,50,100,200,300,500,1000)) + #limit=c(0,30), breaks=seq(0,100,5), expand = c(0,0)
+    ylab("") +
+    xlab("")
+  
+  plot
+}
+
+get_data_for_box_plot <- function(all_data, exe_names, baseline_name) {
+  df <- data_rss %>% filter(exe %in% exe_names)
+  
+  df_baseline <- df %>% filter(exe == baseline_name)
+  df2 <- df %>% left_join(
+        df_baseline,
+        by = c("bench", "extraargs", "invocation", "warmup"))
+  
+  colnames(df2)[which(colnames(df2) == "exe.x")] <- "exe"
+  df2$ratio <- df2$value.x / df2$value.y
+  
+  df2
+}
+
+
+data_rss <- get_data_rss() 
+```
+
+## Debug
+```{r debug, results='asis', echo=FALSE}
+#print(kable(data_rss), type="latex", comment=FALSE)
+```
+
+## BCvsAST - interpreter only
+
+```{r rss-interp, fig.width=8, fig.height=2.2}
+box_plot_data <- get_data_for_box_plot(data_rss, 
+                                       c("TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast"),
+                                        "TruffleSOM-native-interp-bc")
+
+box_plot_data <- get_data_for_box_plot(data_rss, 
+                                       c("RPySOM-bc-interp", "RPySOM-ast-interp"),
+                                        "RPySOM-bc-interp")
+
+box_plot_data <- get_data_for_box_plot(data_rss, 
+                                       c("RPySOM-bc-interp", "RPySOM-ast-interp",
+                                         "TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast"),
+                                        "RPySOM-bc-interp")
+
+#print(kable(df2), type="latex", comment=FALSE)
+plot <- box_plot_rss(box_plot_data)
+#ggsave("rss-interp.pdf", plot, dpi = 300, device="pdf", fonts = c("Arial"))
+#ggsave(plot, device= cairo_pdf, path=".",filename=paste("osef","plot", sep="_"), height =300, width = 500, units="mm", family="Arial")
+
+plot
+```
+
+## BCvsAST - JIT
+
+```{r rss-jit, fig.width=8, fig.height=2.2}
+box_plot_data <- get_data_for_box_plot(data_rss, 
+                                       c("RPySOM-bc-jit", "RPySOM-ast-jit", "TruffleSOM-graal", "TruffleSOM-graal-bc"),
+                                       "RPySOM-bc-jit")
+#print(kable(df2), type="latex", comment=FALSE)
+plot <- box_plot_rss(box_plot_data)
+plot
+```

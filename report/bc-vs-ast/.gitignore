@@ -1,0 +1,7 @@
+.RData
+.Rhistory
+figures/
+*.html
+*.md
+*.qs
+*.tex
