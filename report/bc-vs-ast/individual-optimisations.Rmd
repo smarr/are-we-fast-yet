@@ -34,11 +34,12 @@ box_plot_optim <- function(data) {
   plot
 }
 
-get_data_for_box_plot_optim <- function(input_data, baseline_name) {
-  df_baseline <- input_data %>% filter(optim == "baseline") # %>% filter(exe %in% exe_names)
+get_data_for_box_plot_optim <- function(input_data, exe_name, baseline_name) {
+  df_baseline <- input_data %>% filter(optim == "baseline")
   df2 <- input_data %>% left_join(
         df_baseline,
         by = c("exe", "bench", "extraargs", "invocation", "iteration", "warmup"))
+  df2 <- df2 %>% filter(exe == exe_name)
   
   colnames(df2)[which(colnames(df2) == "optim.x")] <- "optim"
   df2$ratio <- df2$value.x / df2$value.y
@@ -49,7 +50,7 @@ get_data_for_box_plot_optim <- function(input_data, baseline_name) {
 
 # TruffleSOM - AST interp
 
-```{r optim, fig.width=8, fig.height=2.2, echo=FALSE}
+```{r optim-tsom-int, fig.width=8, fig.height=2.2, echo=FALSE}
 
 ## TSOM data
 based_on_what <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% mutate(optim = "baseline")
@@ -61,7 +62,43 @@ no_blocks_without_context <- load_data_url("https://rebench.stefan-marr.de/Truff
 
 data_optim <- rbind(based_on_what, no_localnonlocal_vars, no_ast_inline_caching, no_ast_global_caching, no_node_inlining, no_blocks_without_context) %>% filter(criterion == "total")
 
-box_plot_data <- get_data_for_box_plot_optim(data_optim, baseline)
+box_plot_data <- get_data_for_box_plot_optim(data_optim, "TruffleSOM-native-interp-ast", baseline)
+
+plot <- box_plot_optim(box_plot_data)
+plot
+```
+
+# TruffleSOM - AST JIT
+
+```{r optim-tsom-jit, fig.width=8, fig.height=2.2, echo=FALSE}
+
+## TSOM data
+based_on_what <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% mutate(optim = "baseline")
+no_localnonlocal_vars <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2626") %>% mutate(optim = "no local/nonlocal vars")
+no_ast_inline_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2624") %>% mutate(optim = "no inline caching")
+no_ast_global_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2623") %>% mutate(optim = "no global caching")
+no_node_inlining <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2627") %>% mutate(optim = "no node inlining")
+no_blocks_without_context <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2625") %>% mutate(optim = "no blocks without context")
+
+data_optim <- rbind(based_on_what, no_localnonlocal_vars, no_ast_inline_caching, no_ast_global_caching, no_node_inlining, no_blocks_without_context) %>% filter(criterion == "total")
+
+box_plot_data <- get_data_for_box_plot_optim(data_optim, "TruffleSOM-graal", baseline)
+
+plot <- box_plot_optim(box_plot_data)
+plot
+```
+
+# TruffleSOM - BC interp
+
+```{r optim, fig.width=8, fig.height=2.2, echo=FALSE}
+
+## TSOM data
+based_on_what <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% mutate(optim = "baseline")
+#no_ast_inline_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/TODOTODO") %>% mutate(optim = "no inline caching")
+
+data_optim <- rbind(based_on_what) %>% filter(criterion == "total")
+
+box_plot_data <- get_data_for_box_plot_optim(data_optim, "TruffleSOM-native-interp-bc", baseline)
 
 plot <- box_plot_optim(box_plot_data)
 plot
