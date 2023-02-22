@@ -1,0 +1,68 @@
+# Impact of individual optimisations
+
+```{r load-scripts, echo=FALSE, include=FALSE}
+# load libraries, the data, and prepare it
+if (Sys.getenv("RSTUDIO") == "1") { setwd("/home/octavel/PhD_Programs/my_programs/are-we-fast-yet/report/bc-vs-ast") }
+source("scripts/libraries.R", chdir=TRUE)
+source("scripts/data-processing2.R")
+
+#extrafont::font_import()
+#print(extrafont::fonts())
+#extrafont::loadfonts()
+#extrafont::loadfonts(device = "postscript")
+
+box_plot_optim <- function(data) {
+  x_breaks <- c(0.5, 0.8, 1, 2, 3, 5, 10, 15, 30)
+  
+#  breaks <- levels(droplevels(data)$optim)
+  #vm_colors <- rainbow(255)
+  col_values <- rainbow(10)
+
+  plot <- ggplot(data, aes(x=ratio, y=reorder(factor(optim), -ratio, FUN = median), fill = optim))
+  plot <- plot + geom_boxplot(outlier.size = 0.5) +
+    scale_x_log10(breaks = x_breaks) +
+    scale_fill_manual(values = col_values) +
+    theme_bw() + theme_simple(font_size = 8) +
+    theme(
+      axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1),
+      axis.title.x  = element_text(size = 8, family="Arial"),
+      legend.position="none") +
+    #scale_y_log10(breaks=c(1,2,3,10,20,30,50,100,200,300,500,1000)) + #limit=c(0,30), breaks=seq(0,100,5), expand = c(0,0)
+    ylab("") +
+    xlab("")
+  
+  plot
+}
+
+get_data_for_box_plot_optim <- function(input_data, baseline_name) {
+  df_baseline <- input_data %>% filter(optim == "baseline") # %>% filter(exe %in% exe_names)
+  df2 <- input_data %>% left_join(
+        df_baseline,
+        by = c("exe", "bench", "extraargs", "invocation", "iteration", "warmup"))
+  
+  colnames(df2)[which(colnames(df2) == "optim.x")] <- "optim"
+  df2$ratio <- df2$value.x / df2$value.y
+  
+  df2
+}
+```
+
+# TruffleSOM - AST interp
+
+```{r optim, fig.width=8, fig.height=2.2, echo=FALSE}
+
+## TSOM data
+based_on_what <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% mutate(optim = "baseline")
+no_localnonlocal_vars <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2626") %>% mutate(optim = "no local/nonlocal vars")
+no_ast_inline_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2624") %>% mutate(optim = "no inline caching")
+no_ast_global_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2623") %>% mutate(optim = "no global caching")
+no_node_inlining <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2627") %>% mutate(optim = "no node inlining")
+no_blocks_without_context <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2625") %>% mutate(optim = "no blocks without context")
+
+data_optim <- rbind(based_on_what, no_localnonlocal_vars, no_ast_inline_caching, no_ast_global_caching, no_node_inlining, no_blocks_without_context) %>% filter(criterion == "total")
+
+box_plot_data <- get_data_for_box_plot_optim(data_optim, baseline)
+
+plot <- box_plot_optim(box_plot_data)
+plot
+```
