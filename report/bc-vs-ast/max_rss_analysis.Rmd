@@ -127,7 +127,7 @@ plot
 ## BCvsAST - JIT
 
 ```{r rss-jit, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_rss(data_rss, 
+box_plot_data2 <- get_data_for_box_plot_rss(data_rss, 
                                        c("RPySOM-bc-jit", "RPySOM-ast-jit"),
                                        "RPySOM-bc-jit")
 
