@@ -35,21 +35,33 @@ box_plot_optim <- function(data) {
 }
 
 get_data_for_box_plot_optim <- function(input_data, exe_name, baseline_optim_name="baseline", optim_names=NULL) {
-  df_baseline <- input_data %>% filter(optim == baseline_optim_name)
-  df2 <- input_data %>% left_join(
-        df_baseline,
-        by = c("exe", "bench", "extraargs", "invocation", "iteration", "warmup"))
-  df2 <- df2 %>% filter(exe == exe_name)
-  df2$ratio <- df2$value.x / df2$value.y
+  input_data <- data_optim
+  grouped_iterations_data <- input_data %>%
+    group_by(commitid, cmdline) %>%
+    mutate(median_runtime = median(value)) %>%
+    slice(1)
   
+  df_baseline <- input_data %>% filter(optim == baseline_optim_name) %>%
+    group_by(commitid, cmdline) %>%
+    mutate(median_runtime = median(value)) %>%
+    slice(1)
+  
+  box_plot_data <- grouped_iterations_data %>% left_join(
+        df_baseline,
+        by = c("exe", "bench", "extraargs", "iteration", "invocation", "warmup"))
+  box_plot_data <- box_plot_data %>% filter(exe == exe_name)
+
+  box_plot_data$ratio <- box_plot_data$median_runtime.x / box_plot_data$median_runtime.y
+  #box_plot_data$ratio <- box_plot_data$value.x / box_plot_data$value.y
+    
   # Renaming
-  colnames(df2)[which(colnames(df2) == "optim.x")] <- "optim"
+  colnames(box_plot_data)[which(colnames(box_plot_data) == "optim.x")] <- "optim"
   
   
   if (!is.null(optim_names))
-    df2 <- df2 %>% filter(optim %in% optim_names)
+    box_plot_data <- box_plot_data %>% filter(optim %in% optim_names)
   
-  df2
+  box_plot_data
 }
 ```
 
@@ -90,7 +102,7 @@ data_optim <- rbind(based_on_what, no_localnonlocal_vars, no_ast_inline_caching,
 # debug data
 box_plot_data <- get_data_for_box_plot_optim(data_optim, "TruffleSOM-graal", optim_names=c("no node inlining"))
 
-#box_plot_data <- get_data_for_box_plot_optim(data_optim, "TruffleSOM-graal")
+box_plot_data <- get_data_for_box_plot_optim(data_optim, "TruffleSOM-graal")
 
 plot <- box_plot_optim(box_plot_data)
 plot
