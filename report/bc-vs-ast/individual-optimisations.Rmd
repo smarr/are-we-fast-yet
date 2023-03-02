@@ -1,5 +1,7 @@
 # Impact of individual optimisations
 
+## AST
+
 ```{r load-scripts, echo=FALSE, include=FALSE}
 # load libraries, the data, and prepare it
 if (Sys.getenv("RSTUDIO") == "1") { setwd("/home/octavel/PhD_Programs/my_programs/are-we-fast-yet/report/bc-vs-ast") }
@@ -34,7 +36,7 @@ box_plot_optim <- function(data) {
   plot
 }
 
-get_data_for_box_plot_optim <- function(input_data, exe_name, baseline_optim_name="baseline", optim_names=NULL) {
+get_data_for_box_plot_optim <- function(input_data, exe_name, baseline_optim_name="every optimisation", optim_names=NULL) {
   input_data <- data_optim
   grouped_iterations_data <- input_data %>%
     group_by(commitid, cmdline) %>%
@@ -65,12 +67,12 @@ get_data_for_box_plot_optim <- function(input_data, exe_name, baseline_optim_nam
 }
 ```
 
-# TruffleSOM - AST interp
+### TruffleSOM - AST interp
 
-```{r optim-tsom-int, fig.width=8, fig.height=2.2, echo=FALSE}
+```{r optim-tsom-ast-int, fig.width=8, fig.height=2.2, echo=FALSE}
 
 ## TSOM data
-based_on_what <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% mutate(optim = "baseline")
+based_on_what <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% mutate(optim = "every optimisation")
 no_localnonlocal_vars <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2626") %>% mutate(optim = "no local/nonlocal vars")
 no_ast_inline_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2624") %>% mutate(optim = "no inline caching")
 no_ast_global_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2623") %>% mutate(optim = "no global caching")
@@ -82,15 +84,39 @@ data_optim <- rbind(based_on_what, no_localnonlocal_vars, no_ast_inline_caching,
 box_plot_data <- get_data_for_box_plot_optim(data_optim, "TruffleSOM-native-interp-ast")
 
 plot <- box_plot_optim(box_plot_data)
+
+ggsave(plot, device= cairo_pdf, path=".", filename="optim-ast-tsom-interp.pdf", dpi=300, height=100, width=200, units="mm", family="Arial")
+
 plot
 ```
 
-# TruffleSOM - AST JIT
+### PySOM - AST interp
 
-```{r optim-tsom-jit, fig.width=8, fig.height=2.2, echo=FALSE}
+```{r optim-pysom-ast-int, fig.width=8, fig.height=2.2, echo=FALSE}
+
+based_on_what <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2662") %>% mutate(optim = "every optimisation")
+no_localnonlocal_vars <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2665") %>% mutate(optim = "no local/nonlocal vars")
+no_ast_inline_caching <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2657") %>% mutate(optim = "no inline caching")
+no_ast_global_caching <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2656") %>% mutate(optim = "no global caching")
+no_lowered_control_structs <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2663") %>% mutate(optim = "no lowered control structures")
+no_blocks_without_context <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2658") %>% mutate(optim = "no blocks without context")
+
+data_optim <- rbind(based_on_what, no_localnonlocal_vars, no_ast_inline_caching, no_ast_global_caching, no_lowered_control_structs, no_blocks_without_context) %>% filter(criterion == "total")
+
+box_plot_data <- get_data_for_box_plot_optim(data_optim, "RPySOM-ast-interp")
+
+plot <- box_plot_optim(box_plot_data)
+#ggsave(plot, device= cairo_pdf, path=".", filename="optim-ast-pysom-interp.pdf", dpi=300, height=100, width=200, units="mm", family="Arial")
+
+plot
+```
+
+### TruffleSOM - AST JIT
+
+```{r optim-tsom-ast-jit, fig.width=8, fig.height=2.2, echo=FALSE}
 
 ## TSOM data
-based_on_what <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% mutate(optim = "baseline")
+based_on_what <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% mutate(optim = "every optimisation")
 no_localnonlocal_vars <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2626") %>% mutate(optim = "no local/nonlocal vars")
 no_ast_inline_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2624") %>% mutate(optim = "no inline caching")
 no_ast_global_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2623") %>% mutate(optim = "no global caching")
@@ -100,20 +126,45 @@ no_blocks_without_context <- load_data_url("https://rebench.stefan-marr.de/Truff
 data_optim <- rbind(based_on_what, no_localnonlocal_vars, no_ast_inline_caching, no_ast_global_caching, no_node_inlining, no_blocks_without_context) %>% filter(criterion == "total")
 
 # debug data
-box_plot_data <- get_data_for_box_plot_optim(data_optim, "TruffleSOM-graal", optim_names=c("no node inlining"))
+#box_plot_data <- get_data_for_box_plot_optim(data_optim, "TruffleSOM-graal", optim_names=c("no node inlining"))
 
 box_plot_data <- get_data_for_box_plot_optim(data_optim, "TruffleSOM-graal")
 
 plot <- box_plot_optim(box_plot_data)
+ggsave(plot, device= cairo_pdf, path=".", filename="optim-ast-tsom-jit.pdf", dpi=300, height=100, width=200, units="mm", family="Arial")
+
 plot
 ```
 
-# TruffleSOM - BC interp
+### PySOM - AST JIT
+
+```{r optim-pysom-ast-jit, fig.width=8, fig.height=2.2, echo=FALSE}
+
+based_on_what <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2662") %>% mutate(optim = "every optimisation")
+no_localnonlocal_vars <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2665") %>% mutate(optim = "no local/nonlocal vars")
+no_ast_inline_caching <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2657") %>% mutate(optim = "no inline caching")
+no_ast_global_caching <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2656") %>% mutate(optim = "no global caching")
+no_lowered_control_structs <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2663") %>% mutate(optim = "no lowered control structures")
+no_blocks_without_context <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2658") %>% mutate(optim = "no blocks without context")
+
+data_optim <- rbind(based_on_what, no_localnonlocal_vars, no_ast_inline_caching, no_ast_global_caching, no_lowered_control_structs, no_blocks_without_context) %>% filter(criterion == "total")
+
+box_plot_data <- get_data_for_box_plot_optim(data_optim, "RPySOM-ast-jit")
+
+plot <- box_plot_optim(box_plot_data)
+#ggsave(plot, device= cairo_pdf, path=".", filename="optim-ast-pysom-interp.pdf", dpi=300, height=100, width=200, units="mm", family="Arial")
+
+plot
+```
+
+## BC
+
+### TruffleSOM - BC interp
 
 ```{r optim, fig.width=8, fig.height=2.2, echo=FALSE}
 
 ## TSOM data
-based_on_what <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% mutate(optim = "baseline")
+based_on_what <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% mutate(optim = "every optimisation")
 no_bc_inline_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2632") %>% mutate(optim = "no inline caching")
 
 data_optim <- rbind(based_on_what, no_bc_inline_caching) %>% filter(criterion == "total")
