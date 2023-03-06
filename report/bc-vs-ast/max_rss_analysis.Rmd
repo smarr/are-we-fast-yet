@@ -119,7 +119,7 @@ box_plot_data <- get_data_for_box_plot_rss(data_rss,
 #print(kable(df2), type="latex", comment=FALSE)
 plot <- box_plot_rss(box_plot_data)
 #ggsave("rss-interp.pdf", plot, dpi = 300, height = 200, width = 400, units="mm", device="pdf")
-ggsave(plot, device= cairo_pdf, path=".", filename="rss-interp.pdf", dpi=300, height=100, width=200, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename="rss-interp.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
 
 plot
 ```
@@ -136,7 +136,7 @@ box_plot_data <- get_data_for_box_plot_rss(data_rss,
                                        "RPySOM-bc-jit")
 #print(kable(df2), type="latex", comment=FALSE)
 plot <- box_plot_rss(box_plot_data)
-ggsave(plot, device= cairo_pdf, path=".", filename="rss-jit.pdf", dpi=300, height=100, width=200, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename="rss-jit.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
 #ggsave(plot, device= cairo_pdf, path=".", filename="rss-jit.pdf", dpi=300, height=4, width=8.5, units="in", family="Arial")
 
 plot

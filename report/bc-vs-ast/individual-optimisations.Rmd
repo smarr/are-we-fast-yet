@@ -8,13 +8,19 @@ if (Sys.getenv("RSTUDIO") == "1") { setwd("/home/octavel/PhD_Programs/my_program
 source("scripts/libraries.R", chdir=TRUE)
 source("scripts/data-processing2.R")
 
+OPTIM_GRAPH_HEIGHT <- 50
+OPTIM_GRAPH_WIDTH <- 100
+
 #extrafont::font_import()
 #print(extrafont::fonts())
 #extrafont::loadfonts()
 #extrafont::loadfonts(device = "postscript")
 
-box_plot_optim <- function(data) {
-  x_breaks <- c(0.5, 0.8, 1, 2, 3, 5, 10, 15, 30)
+box_plot_optim <- function(data, custom_x_breaks=NULL) {
+  if (is.null(custom_x_breaks))
+    x_breaks <- c(0.5, 0.8, 1, 1.5, 2, 3, 5, 10, 15, 30)
+  else
+    x_breaks <- custom_x_breaks
   
 #  breaks <- levels(droplevels(data)$optim)
   #vm_colors <- rainbow(255)
@@ -69,26 +75,26 @@ get_data_for_box_plot_optim <- function(input_data, exe_name, baseline_optim_nam
 get_tsom_ast_data <- function() {
   based_on_what <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% mutate(optim = "every optimisation")
   no_localnonlocal_vars <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2626") %>% mutate(optim = "no local/nonlocal vars")
-  no_ast_inline_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2624") %>% mutate(optim = "no inline caching")
-  no_ast_global_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2623") %>% mutate(optim = "no global caching")
-  no_node_inlining <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2627") %>% mutate(optim = "no node inlining")
+  no_inline_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2624") %>% mutate(optim = "no inline caching")
+  no_global_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2623") %>% mutate(optim = "no global caching")
+  no_lower_prims <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2669") %>% mutate(optim = "no lowered control structs")
   no_blocks_without_context <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2625") %>% mutate(optim = "no blocks without context")
   
-  data_optim <- rbind(based_on_what, no_localnonlocal_vars, no_ast_inline_caching, 
-                               no_ast_global_caching, no_node_inlining, no_blocks_without_context) %>% filter(criterion == "total")
+  data_optim <- rbind(based_on_what, no_localnonlocal_vars, no_inline_caching, 
+                               no_global_caching, no_lower_prims, no_blocks_without_context) %>% filter(criterion == "total")
   data_optim
 }
 
 get_pysom_ast_data <- function() {
   based_on_what <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2662") %>% mutate(optim = "every optimisation")
   no_localnonlocal_vars <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2665") %>% mutate(optim = "no local/nonlocal vars")
-  no_ast_inline_caching <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2657") %>% mutate(optim = "no inline caching")
-  no_ast_global_caching <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2656") %>% mutate(optim = "no global caching")
-  no_lowered_control_structs <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2663") %>% mutate(optim = "no lowered control structures")
+  no_inline_caching <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2657") %>% mutate(optim = "no inline caching")
+  no_global_caching <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2656") %>% mutate(optim = "no global caching")
+  no_lowered_control_structs <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2663") %>% mutate(optim = "no lowered control structs")
   no_blocks_without_context <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2658") %>% mutate(optim = "no blocks without context")
   
-  data_optim <- rbind(based_on_what, no_localnonlocal_vars, no_ast_inline_caching,
-                                no_ast_global_caching, no_lowered_control_structs, no_blocks_without_context) %>% filter(criterion == "total")
+  data_optim <- rbind(based_on_what, no_localnonlocal_vars, no_inline_caching,
+                                no_global_caching, no_lowered_control_structs, no_blocks_without_context) %>% filter(criterion == "total")
   data_optim
 }
 
@@ -101,7 +107,7 @@ data_optim_pysom_ast <- get_pysom_ast_data()
 ```{r optim-tsom-ast-int, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_ast, "TruffleSOM-native-interp-ast")
 plot <- box_plot_optim(box_plot_data)
-#ggsave(plot, device= cairo_pdf, path=".", filename="optim-ast-tsom-interp.pdf", dpi=300, height=100, width=200, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename="optim-tsom-ast-int.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
 plot
 ```
 
@@ -110,9 +116,8 @@ plot
 ```{r optim-pysom-ast-int, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_ast, "RPySOM-ast-interp")
 
-plot <- box_plot_optim(box_plot_data)
-#ggsave(plot, device= cairo_pdf, path=".", filename="optim-ast-pysom-interp.pdf", dpi=300, height=100, width=200, units="mm", family="Arial")
-
+plot <- box_plot_optim(box_plot_data, custom_x_breaks=c(1, 1.5, 1.8))
+ggsave(plot, device= cairo_pdf, path=".", filename="optim-pysom-ast-int.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
 plot
 ```
 
@@ -122,8 +127,7 @@ plot
 box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_ast, "TruffleSOM-graal")
 
 plot <- box_plot_optim(box_plot_data)
-ggsave(plot, device= cairo_pdf, path=".", filename="optim-ast-tsom-jit.pdf", dpi=300, height=100, width=200, units="mm", family="Arial")
-
+ggsave(plot, device= cairo_pdf, path=".", filename="optim-tsom-ast-jit.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
 plot
 ```
 
@@ -132,8 +136,7 @@ plot
 ```{r optim-pysom-ast-jit, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_ast, "RPySOM-ast-jit")
 plot <- box_plot_optim(box_plot_data)
-#ggsave(plot, device= cairo_pdf, path=".", filename="optim-ast-pysom-interp.pdf", dpi=300, height=100, width=200, units="mm", family="Arial")
-
+ggsave(plot, device= cairo_pdf, path=".", filename="optim-pysom-ast-jit.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
 plot
 ```
 
