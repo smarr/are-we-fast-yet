@@ -4,7 +4,7 @@ This report was generated on `r Sys.time()`.
 
 ```{r load-scripts, echo=FALSE, include=FALSE}
 # load libraries, the data, and prepare it
-if (Sys.getenv("RSTUDIO") == "1") { setwd("/home/octavel/PhD_Programs/my_programs/are-we-fast-yet/report/bc-vs-ast") }
+if (Sys.getenv("RSTUDIO") == "1") { setwd("/home/octavel/PhD/papers/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast") }
 source("scripts/libraries.R", chdir=TRUE)
 
 load_and_install_if_necessary("ragg")

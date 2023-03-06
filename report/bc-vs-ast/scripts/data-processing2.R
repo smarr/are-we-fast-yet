@@ -9,6 +9,11 @@ load_data_file <- function(filename) {
 load_data_url <- function(url) {
   # url <- "https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1518"
   safe_name <- str_replace_all(url, "[:/.]", "-")
+  
+  if (!file.exists("data")) {
+    dir.create("data")
+  }
+  
   cache_file <- paste0("data/", str_replace_all(safe_name, "-+", "-"), ".qs")
   
   if(!file.exists(cache_file)) {
