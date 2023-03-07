@@ -64,7 +64,7 @@ box_plot_rss <- function(data) {
   plot <- ggplot(data, aes(x=ratio, y=reorder(exe, -ratio, FUN = median), fill = exe))
   plot <- plot + geom_boxplot(outlier.size = 0.5) +
     scale_x_log10(breaks = x_breaks) +
-    scale_fill_manual(values = col_values) +
+    scale_fill_viridis_d() +
     theme_bw() + theme_simple(font_size = 8) +
     theme(
       axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1),
