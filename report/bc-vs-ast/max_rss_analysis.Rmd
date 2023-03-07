@@ -58,7 +58,7 @@ box_plot_rss <- function(data) {
   
   breaks <- levels(droplevels(data)$exe)
   #vm_colors <- rainbow(255)
-  col_values <- rainbow(10)
+  col_values <- get_safe_color_palette(4)
 #  col_values <- c("red", "green", "yellow", "blue")
 
   plot <- ggplot(data, aes(x=ratio, y=reorder(exe, -ratio, FUN = median), fill = exe))

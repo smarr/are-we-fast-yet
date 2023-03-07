@@ -29,7 +29,7 @@ box_plot_optim <- function(data, custom_x_breaks=NULL) {
   plot <- ggplot(data, aes(x=ratio, y=reorder(factor(optim), -ratio, FUN = median), fill = optim))
   plot <- plot + geom_boxplot(outlier.size = 0.5) +
     scale_x_log10(breaks = x_breaks) +
-    scale_fill_manual(values = col_values) +
+    scale_fill_manual(values = get_safe_color_palette(4)) +
     theme_bw() + theme_simple(font_size = 8) +
     theme(
       axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1),

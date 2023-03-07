@@ -3,7 +3,7 @@ writeLines("[INFO] Loading Libraries")
 load_and_install_if_necessary <- function(package_name) {
   if (!suppressPackageStartupMessages(library(package_name, character.only=TRUE, logical.return=TRUE))) {
     cat(paste0("Package ", package_name, " not found. Will install it."))
-    install.packages(package_name)
+    install.packages(package_name, repos='http://cran.us.r-project.org')
     library(package_name, character.only=TRUE)
   }
 }
@@ -23,6 +23,7 @@ load_and_install_if_necessary("ggrepel")   # make sure labels don't overlap
 load_and_install_if_necessary("qs")
 load_and_install_if_necessary("knitr")
 load_and_install_if_necessary("markdown")
+load_and_install_if_necessary("ragg")
 
 source("data-processing2.R")
 source("plots.R")

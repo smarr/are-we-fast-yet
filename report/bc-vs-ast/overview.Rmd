@@ -7,9 +7,6 @@ This report was generated on `r Sys.time()`.
 if (Sys.getenv("RSTUDIO") == "1") { setwd("/home/octavel/PhD/papers/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast") }
 source("scripts/libraries.R", chdir=TRUE)
 
-load_and_install_if_necessary("ragg")
-library(ragg)
-
 # data <- rbind(
 #   # main run, one invocation of everything
 #   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1518"),
