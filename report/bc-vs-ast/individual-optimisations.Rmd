@@ -98,8 +98,32 @@ get_pysom_ast_data <- function() {
   data_optim
 }
 
+get_tsom_bc_data <- function() {
+  based_on_what <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% mutate(optim = "every optimisation")
+  no_bc_inline_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2632") %>% mutate(optim = "no inline caching")
+  no_lowered_control_structs <- "TODO"
+  no_global_caching <- "TODO"
+  no_superinstructions <- "TODO"
+  
+  data_optim <- rbind(based_on_what, no_bc_inline_caching) %>% filter(criterion == "total")
+  data_optim
+}
+
+get_pysom_bc_data <- function() {
+  based_on_what <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2662") %>% mutate(optim = "every optimisation")
+  no_bc_inline_caching <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2657") %>% mutate(optim = "no inline caching")
+  no_lowered_control_structs <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2668") %>% mutate(optim = "no lowered control structs")
+  no_global_caching <- "TODO"
+  no_superinstructions <- "TODO"
+  
+  data_optim <- rbind(based_on_what, no_bc_inline_caching, no_lowered_control_structs) %>% filter(criterion == "total")
+  data_optim
+}
+
 data_optim_tsom_ast <- get_tsom_ast_data()
+data_optim_tsom_bc <- get_tsom_bc_data()
 data_optim_pysom_ast <- get_pysom_ast_data()
+data_optim_pysom_bc <- get_pysom_bc_data()
 ```
 
 ### TruffleSOM - AST interp
@@ -144,16 +168,32 @@ plot
 
 ### TruffleSOM - BC interp
 
-```{r optim, fig.width=8, fig.height=2.2, echo=FALSE}
+```{r optim-tsom-bc-interp, fig.width=8, fig.height=2.2, echo=FALSE}
+box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_bc, "TruffleSOM-native-interp-bc")
+plot <- box_plot_optim(box_plot_data)
+plot
+```
 
-## TSOM data
-based_on_what <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% mutate(optim = "every optimisation")
-no_bc_inline_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2632") %>% mutate(optim = "no inline caching")
+### PySOM - BC interp
 
-data_optim <- rbind(based_on_what, no_bc_inline_caching) %>% filter(criterion == "total")
+```{r optim-pysom-bc-interp, fig.width=8, fig.height=2.2, echo=FALSE}
+box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_bc, "RPySOM-bc-interp")
+plot <- box_plot_optim(box_plot_data)
+plot
+```
 
-box_plot_data <- get_data_for_box_plot_optim(data_optim, "TruffleSOM-native-interp-bc")
+### TruffleSOM - BC JIT
 
+```{r optim-tsom-bc-jit, fig.width=8, fig.height=2.2, echo=FALSE}
+box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_bc, "TruffleSOM-graal-bc")
+plot <- box_plot_optim(box_plot_data)
+plot
+```
+
+### PySOM - BC JIT
+
+```{r optim-pysom-bc-jit, fig.width=8, fig.height=2.2, echo=FALSE}
+box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_bc, "RPySOM-bc-jit")
 plot <- box_plot_optim(box_plot_data)
 plot
 ```
