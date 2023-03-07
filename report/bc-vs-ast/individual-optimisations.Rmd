@@ -121,9 +121,10 @@ get_tsom_ast_data <- function() {
   no_global_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2623") %>% mutate(optim = "no global caching")
   no_lower_prims <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2669") %>% mutate(optim = "no lowered control structs")
   no_blocks_without_context <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2625") %>% mutate(optim = "no blocks without context")
+  no_supernodes <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2684") %>% mutate(optim = "no supernodes")
   
   data_optim <- rbind(based_on_what, no_localnonlocal_vars, no_inline_caching, 
-                               no_global_caching, no_lower_prims, no_blocks_without_context) %>% filter(criterion == "total")
+                               no_global_caching, no_lower_prims, no_blocks_without_context, no_supernodes) %>% filter(criterion == "total")
   data_optim
 }
 
@@ -171,7 +172,7 @@ data_optim_pysom_ast <- get_pysom_ast_data()
 data_optim_pysom_bc <- get_pysom_bc_data()
 ```
 
-### Unified graph attempt
+### Unified graph first attempt
 ```{r yeah-mr-white-science, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data_ast <- get_data_for_box_plot_optim(data_optim_tsom_ast, "TruffleSOM-native-interp-ast") 
 #%>% mutate(type = "BC")
