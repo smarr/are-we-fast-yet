@@ -101,11 +101,12 @@ get_pysom_ast_data <- function() {
 get_tsom_bc_data <- function() {
   based_on_what <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% mutate(optim = "every optimisation")
   no_bc_inline_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2632") %>% mutate(optim = "no inline caching")
+  no_quickening <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2678") %>% mutate(optim = "no quickening")
+  no_global_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2631") %>% mutate(optim = "no global caching")
   no_lowered_control_structs <- "TODO"
-  no_global_caching <- "TODO"
   no_superinstructions <- "TODO"
   
-  data_optim <- rbind(based_on_what, no_bc_inline_caching) %>% filter(criterion == "total")
+  data_optim <- rbind(based_on_what, no_bc_inline_caching, no_quickening, no_global_caching) %>% filter(criterion == "total")
   data_optim
 }
 
@@ -113,10 +114,11 @@ get_pysom_bc_data <- function() {
   based_on_what <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2662") %>% mutate(optim = "every optimisation")
   no_bc_inline_caching <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2657") %>% mutate(optim = "no inline caching")
   no_lowered_control_structs <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2668") %>% mutate(optim = "no lowered control structs")
-  no_global_caching <- "TODO"
+  no_global_caching <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2679") %>% mutate(optim = "no global caching")
+  no_quickening <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2682") %>% mutate(optim = "no quickening")
   no_superinstructions <- "TODO"
   
-  data_optim <- rbind(based_on_what, no_bc_inline_caching, no_lowered_control_structs) %>% filter(criterion == "total")
+  data_optim <- rbind(based_on_what, no_bc_inline_caching, no_lowered_control_structs, no_global_caching, no_quickening) %>% filter(criterion == "total")
   data_optim
 }
 
