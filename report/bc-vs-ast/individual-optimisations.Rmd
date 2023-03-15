@@ -106,49 +106,43 @@ load_data_for_experiment <- function(experiment_ref, optim_name, project_name) {
 get_tsom_ast_data <- function() {
   project_name <- "TruffleSOM"
   rbind(load_data_for_experiment(2622, "every optimisation", project_name), 
-                      load_data_for_experiment(2626, "no local/nonlocal vars", project_name),
-                      load_data_for_experiment(2695, "no inline caching", project_name),
-                      load_data_for_experiment(2694, "no global caching", project_name),
-                      load_data_for_experiment(2669, "no lowered control structs", project_name),
-                      load_data_for_experiment(2625, "no blocks without context", project_name),
-                      load_data_for_experiment(2684, "no supernodes", project_name)) %>% filter(criterion == "total")
+        load_data_for_experiment(2626, "no local/nonlocal vars", project_name),
+        load_data_for_experiment(2695, "no inline caching", project_name),
+        load_data_for_experiment(2694, "no global caching", project_name),
+        load_data_for_experiment(2669, "no lowered control structs", project_name),
+        load_data_for_experiment(2625, "no blocks without context", project_name),
+        load_data_for_experiment(2684, "no supernodes", project_name)) %>% filter(criterion == "total")
 }
 
 get_pysom_ast_data <- function() {
-  based_on_what <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2662") %>% mutate(optim = "every optimisation")
-  no_localnonlocal_vars <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2665") %>% mutate(optim = "no local/nonlocal vars")
-  no_inline_caching <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2657") %>% mutate(optim = "no inline caching")
-  no_global_caching <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2656") %>% mutate(optim = "no global caching")
-  no_lowered_control_structs <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2663") %>% mutate(optim = "no lowered control structs")
-  no_blocks_without_context <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2658") %>% mutate(optim = "no blocks without context")
-  
-  data_optim <- rbind(based_on_what, no_localnonlocal_vars, no_inline_caching,
-                                no_global_caching, no_lowered_control_structs, no_blocks_without_context) %>% filter(criterion == "total")
-  data_optim
+  project_name <- "RPySOM"
+  rbind(load_data_for_experiment(2662, "every optimisation", project_name), 
+        load_data_for_experiment(2665, "no local/nonlocal vars", project_name),
+        load_data_for_experiment(2657, "no inline caching", project_name),
+        load_data_for_experiment(2656, "no global caching", project_name),
+        load_data_for_experiment(2663, "no lowered control structs", project_name),
+        load_data_for_experiment(2658, "no blocks without context", project_name)) %>% filter(criterion == "total")
 }
 
 get_tsom_bc_data <- function() {
-  based_on_what <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% mutate(optim = "every optimisation")
-  no_bc_inline_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2632") %>% mutate(optim = "no inline caching")
-  no_quickening <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2678") %>% mutate(optim = "no quickening")
-  no_global_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2686") %>% mutate(optim = "no global caching")
-  no_lowered_control_structs <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2703") %>% mutate(optim = "no lowered control structs")
-  no_superinstructions <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2715") %>% mutate(optim = "no superinstructions")
-  
-  data_optim <- rbind(based_on_what, no_bc_inline_caching, no_quickening, no_global_caching, no_lowered_control_structs, no_superinstructions) %>% filter(criterion == "total")
-  data_optim
+  project_name <- "TruffleSOM"
+  rbind(load_data_for_experiment(2622, "every optimisation", project_name), 
+        load_data_for_experiment(2632, "no inline caching", project_name),
+        load_data_for_experiment(2678, "no quickening", project_name),
+        load_data_for_experiment(2686, "no global caching", project_name),
+        load_data_for_experiment(2703, "no lowered control structs", project_name),
+        load_data_for_experiment(2715, "no superinstructions", project_name)) %>% filter(criterion == "total")
 }
 
 get_pysom_bc_data <- function() {
-  based_on_what <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2662") %>% mutate(optim = "every optimisation")
-  no_bc_inline_caching <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2657") %>% mutate(optim = "no inline caching")
-  no_global_caching <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2679") %>% mutate(optim = "no global caching")
-  no_quickening <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2682") %>% mutate(optim = "no quickening")
-  no_superinstructions <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2702") %>% mutate(optim = "no superinstructions")
-  no_lowered_control_structs <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2709") %>% mutate(optim = "no lowered control structs")
-  
-  data_optim <- rbind(based_on_what, no_bc_inline_caching, no_global_caching, no_quickening, no_superinstructions, no_lowered_control_structs) %>% filter(criterion == "total")
-  data_optim
+  project_name <- "RPySOM"
+  rbind(load_data_for_experiment(2662, "every optimisation", project_name), 
+        load_data_for_experiment(2657, "no inline caching", project_name),
+        load_data_for_experiment(2679, "no global caching", project_name),
+        load_data_for_experiment(2682, "no quickening", project_name),
+        load_data_for_experiment(2702, "no superinstructions", project_name),
+        load_data_for_experiment(2709, "no lowered control structs", project_name)) %>% 
+    filter(criterion == "total")
 }
 
 data_optim_tsom_ast <- get_tsom_ast_data()
