@@ -99,18 +99,19 @@ box_plot_optim_unified <- function(data, custom_x_breaks=NULL) {
   plot
 }
 
+load_data_for_experiment <- function(experiment_ref, optim_name, project_name) {
+  load_data_url(paste0("https://rebench.stefan-marr.de/", project_name, "/data/", experiment_ref)) %>% mutate(optim = optim_name)
+}
+
 get_tsom_ast_data <- function() {
-  based_on_what <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% mutate(optim = "every optimisation")
-  no_localnonlocal_vars <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2626") %>% mutate(optim = "no local/nonlocal vars")
-  no_inline_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2695") %>% mutate(optim = "no inline caching")
-  no_global_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2694") %>% mutate(optim = "no global caching")
-  no_lowered_control_structs <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2669") %>% mutate(optim = "no lowered control structs")
-  no_blocks_without_context <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2625") %>% mutate(optim = "no blocks without context")
-  no_supernodes <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2684") %>% mutate(optim = "no supernodes")
-  
-  data_optim <- rbind(based_on_what, no_localnonlocal_vars, no_inline_caching, 
-                               no_global_caching, no_lowered_control_structs, no_blocks_without_context, no_supernodes) %>% filter(criterion == "total")
-  data_optim
+  project_name <- "TruffleSOM"
+  rbind(load_data_for_experiment(2622, "every optimisation", project_name), 
+                      load_data_for_experiment(2626, "no local/nonlocal vars", project_name),
+                      load_data_for_experiment(2695, "no inline caching", project_name),
+                      load_data_for_experiment(2694, "no global caching", project_name),
+                      load_data_for_experiment(2669, "no lowered control structs", project_name),
+                      load_data_for_experiment(2625, "no blocks without context", project_name),
+                      load_data_for_experiment(2684, "no supernodes", project_name)) %>% filter(criterion == "total")
 }
 
 get_pysom_ast_data <- function() {
