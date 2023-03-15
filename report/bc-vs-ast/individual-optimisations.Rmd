@@ -25,7 +25,7 @@ box_plot_optim <- function(data, custom_x_breaks=NULL) {
 #  breaks <- levels(droplevels(data)$optim)
   #vm_colors <- rainbow(255)
   col_values <- rainbow(10)
-
+  
   plot <- ggplot(data, aes(x=ratio, y=reorder(factor(optim), -ratio, FUN = median), fill = optim))
   plot <- plot + geom_boxplot(outlier.size = 0.5) +
     scale_x_log10(breaks = x_breaks) +
@@ -117,14 +117,14 @@ get_data_for_box_plot_optim <- function(input_data, exe_name, baseline_optim_nam
 get_tsom_ast_data <- function() {
   based_on_what <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% mutate(optim = "every optimisation")
   no_localnonlocal_vars <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2626") %>% mutate(optim = "no local/nonlocal vars")
-  no_inline_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2624") %>% mutate(optim = "no inline caching")
-  no_global_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2623") %>% mutate(optim = "no global caching")
-  no_lower_prims <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2669") %>% mutate(optim = "no lowered control structs")
+  no_inline_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2695") %>% mutate(optim = "no inline caching")
+  no_global_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2694") %>% mutate(optim = "no global caching")
+  no_lowered_control_structs <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2669") %>% mutate(optim = "no lowered control structs")
   no_blocks_without_context <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2625") %>% mutate(optim = "no blocks without context")
   no_supernodes <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2684") %>% mutate(optim = "no supernodes")
   
   data_optim <- rbind(based_on_what, no_localnonlocal_vars, no_inline_caching, 
-                               no_global_caching, no_lower_prims, no_blocks_without_context, no_supernodes) %>% filter(criterion == "total")
+                               no_global_caching, no_lowered_control_structs, no_blocks_without_context, no_supernodes) %>% filter(criterion == "total")
   data_optim
 }
 
@@ -145,24 +145,23 @@ get_tsom_bc_data <- function() {
   based_on_what <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% mutate(optim = "every optimisation")
   no_bc_inline_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2632") %>% mutate(optim = "no inline caching")
   no_quickening <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2678") %>% mutate(optim = "no quickening")
-  no_global_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2631") %>% mutate(optim = "no global caching")
-  no_global_caching_2 <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2683") %>% mutate(optim = "no global caching, second approach")
-  no_lowered_control_structs <- "TODO"
-  no_superinstructions <- "TODO"
+  no_global_caching <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2686") %>% mutate(optim = "no global caching")
+  no_lowered_control_structs <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2703") %>% mutate(optim = "no lowered control structs")
+  no_superinstructions <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2715") %>% mutate(optim = "no superinstructions")
   
-  data_optim <- rbind(based_on_what, no_bc_inline_caching, no_quickening, no_global_caching, no_global_caching_2) %>% filter(criterion == "total")
+  data_optim <- rbind(based_on_what, no_bc_inline_caching, no_quickening, no_global_caching, no_lowered_control_structs, no_superinstructions) %>% filter(criterion == "total")
   data_optim
 }
 
 get_pysom_bc_data <- function() {
   based_on_what <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2662") %>% mutate(optim = "every optimisation")
   no_bc_inline_caching <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2657") %>% mutate(optim = "no inline caching")
-  no_lowered_control_structs <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2668") %>% mutate(optim = "no lowered control structs")
   no_global_caching <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2679") %>% mutate(optim = "no global caching")
   no_quickening <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2682") %>% mutate(optim = "no quickening")
-  no_superinstructions <- "TODO"
+  no_superinstructions <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2702") %>% mutate(optim = "no superinstructions")
+  no_lowered_control_structs <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2709") %>% mutate(optim = "no lowered control structs")
   
-  data_optim <- rbind(based_on_what, no_bc_inline_caching, no_lowered_control_structs, no_global_caching, no_quickening) %>% filter(criterion == "total")
+  data_optim <- rbind(based_on_what, no_bc_inline_caching, no_global_caching, no_quickening, no_superinstructions, no_lowered_control_structs) %>% filter(criterion == "total")
   data_optim
 }
 
