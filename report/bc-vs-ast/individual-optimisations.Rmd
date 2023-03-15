@@ -16,74 +16,6 @@ OPTIM_GRAPH_WIDTH <- 100
 #extrafont::loadfonts()
 #extrafont::loadfonts(device = "postscript")
 
-box_plot_optim <- function(data, custom_x_breaks=NULL) {
-  if (is.null(custom_x_breaks))
-    x_breaks <- c(0.5, 0.8, 1, 1.5, 2, 3, 5, 10, 15, 30, 50, 100, 300)
-  else
-    x_breaks <- custom_x_breaks
-  
-#  breaks <- levels(droplevels(data)$optim)
-  #vm_colors <- rainbow(255)
-  col_values <- rainbow(10)
-  
-  plot <- ggplot(data, aes(x=ratio, y=reorder(factor(optim), -ratio, FUN = median), fill = optim))
-  plot <- plot + geom_boxplot(outlier.size = 0.5) +
-    scale_x_log10(breaks = x_breaks) +
-    scale_fill_viridis_d() +
-    theme_bw() + theme_simple(font_size = 8) +
-    theme(
-      axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1),
-      axis.title.x  = element_text(size = 8, family="Arial"),
-      legend.position="none") +
-    #scale_y_log10(breaks=c(1,2,3,10,20,30,50,100,200,300,500,1000)) + #limit=c(0,30), breaks=seq(0,100,5), expand = c(0,0)
-    ylab("") +
-    xlab("")
-  
-  plot
-}
-
-# not deleting this as it's a reminder i want to make this graph. the idea was AST+BC data in a single graph for a given system, first the BC optimisations, then a horizontal line, then the AST optimisations
-box_plot_optim_chatgpt_which_sucks <- function(data, custom_x_breaks=NULL) {
-  if (is.null(custom_x_breaks))
-    x_breaks <- c(0.5, 0.8, 1, 1.5, 2, 3, 5, 10, 15, 30)
-  else
-    x_breaks <- custom_x_breaks
-  
-  col_values <- rainbow(10)
-  
-  # Subset data by type "BC"
-  data_bc <- subset(data, type == "BC")
-  # Add random jitter to ratio values to avoid identical values
-  data_bc$ratio <- jitter(data_bc$ratio, factor = 100)
-  # Order data by ratio column
-  data_bc <- data_bc[order(data_bc$ratio), ]
-  
-  # Subset data by type "AST"
-  data_ast <- subset(data, type == "AST")
-  # Add random jitter to ratio values to avoid identical values
-  data_ast$ratio <- jitter(data_ast$ratio, factor = 100)
-  # Order data by ratio column
-  data_ast <- data_ast[order(data_ast$ratio), ]
-  
-  # Combine data with horizontal line
-  data_combined <- rbind(data_bc, data.frame(ratio=c(0, 0), optim=unique(data$optim)[1], type=c("BC", "AST")))
-  data_combined <- rbind(data_combined, data_ast)
-  
-  plot <- ggplot(data_combined, aes(x=ratio, y=reorder(factor(optim), -ratio, FUN = median), fill = optim))
-  plot <- plot + geom_boxplot(outlier.size = 0.5) +
-    scale_x_log10(breaks = x_breaks) +
-    scale_fill_manual(values = get_safe_color_palette(4)) +
-    theme_bw() + theme_simple(font_size = 8) +
-    theme(
-      axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1),
-      axis.title.x  = element_text(size = 8, family="Arial"),
-      legend.position="none") +
-    ylab("") +
-    xlab("")
-  
-  plot
-}
-
 get_data_for_box_plot_optim <- function(input_data, exe_name, baseline_optim_name="every optimisation", optim_names=NULL) {
   grouped_iterations_data <- input_data %>%
     group_by(commitid, cmdline) %>%
@@ -113,6 +45,59 @@ get_data_for_box_plot_optim <- function(input_data, exe_name, baseline_optim_nam
   box_plot_data
 }
 
+
+box_plot_optim <- function(data, custom_x_breaks=NULL) {
+  if (is.null(custom_x_breaks))
+    x_breaks <- c(0.5, 0.8, 1, 1.5, 2, 3, 5, 10, 15, 30, 50, 100, 300)
+  else
+    x_breaks <- custom_x_breaks
+  
+#  breaks <- levels(droplevels(data)$optim)
+  #vm_colors <- rainbow(255)
+  col_values <- rainbow(10)
+  
+  plot <- ggplot(data, aes(x=ratio, y=reorder(factor(optim), -ratio, FUN = median), fill = optim))
+  plot <- plot + geom_boxplot(outlier.size = 0.5) +
+    scale_x_log10(breaks = x_breaks) +
+    scale_fill_viridis_d() +
+    theme_bw() + theme_simple(font_size = 8) +
+    theme(
+      axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1),
+      axis.title.x  = element_text(size = 8, family="Arial"),
+      legend.position="none") +
+    #scale_y_log10(breaks=c(1,2,3,10,20,30,50,100,200,300,500,1000)) + #limit=c(0,30), breaks=seq(0,100,5), expand = c(0,0)
+    ylab("") +
+    xlab("")
+  
+  plot
+}
+
+box_plot_optim_unified <- function(data, custom_x_breaks=NULL) {
+  if (is.null(custom_x_breaks))
+    x_breaks <- c(0.5, 0.8, 1, 1.5, 2, 3, 5, 10, 15, 30, 50, 100, 300)
+  else
+    x_breaks <- custom_x_breaks
+  
+#  breaks <- levels(droplevels(data)$optim)
+  #vm_colors <- rainbow(255)
+  col_values <- rainbow(10)
+  
+  plot <- ggplot(data, aes(x=ratio, y=optim, fill = optim))
+  plot <- plot + geom_boxplot(outlier.size = 0.5) +
+    scale_x_log10(breaks = x_breaks) +
+    scale_fill_viridis_d() +
+    theme_bw() + theme_simple(font_size = 8) +
+    theme(
+      axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1),
+      axis.title.x  = element_text(size = 8, family="Arial"),
+      legend.position="none") +
+    #scale_y_log10(breaks=c(1,2,3,10,20,30,50,100,200,300,500,1000)) + #limit=c(0,30), breaks=seq(0,100,5), expand = c(0,0)
+    ylab("") +
+    xlab("") + 
+    geom_hline(yintercept = 7.5, linetype = "dotted")
+  
+  plot
+}
 
 get_tsom_ast_data <- function() {
   based_on_what <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% mutate(optim = "every optimisation")
@@ -173,13 +158,14 @@ data_optim_pysom_bc <- get_pysom_bc_data()
 
 ### Unified graph first attempt
 ```{r yeah-mr-white-science, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data_ast <- get_data_for_box_plot_optim(data_optim_tsom_ast, "TruffleSOM-native-interp-ast") 
-#%>% mutate(type = "BC")
-box_plot_data_bc <- get_data_for_box_plot_optim(data_optim_tsom_bc, "TruffleSOM-native-interp-bc") 
-#%>% mutate(type = "AST")
+box_plot_data_ast <- get_data_for_box_plot_optim(data_optim_tsom_ast, "TruffleSOM-native-interp-ast") %>% mutate(optim = paste0(optim, "-AST"))
+box_plot_data_bc <- get_data_for_box_plot_optim(data_optim_tsom_bc, "TruffleSOM-native-interp-bc") %>% mutate(optim = paste0(optim, "-BC"))
+
+box_plot_data_bc$optim <- reorder(factor(box_plot_data_bc$optim), -box_plot_data_bc$ratio, FUN = median)
+box_plot_data_ast$optim <- reorder(factor(box_plot_data_ast$optim), -box_plot_data_ast$ratio, FUN = median)
 
 box_plot_data <- rbind(box_plot_data_ast, box_plot_data_bc)
-plot <- box_plot_optim(box_plot_data)
+plot <- box_plot_optim_unified(box_plot_data)
 #ggsave(plot, device= cairo_pdf, path=".", filename="optim-tsom-ast-int.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
 plot
 ```
