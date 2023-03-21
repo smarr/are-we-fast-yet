@@ -94,7 +94,7 @@ box_plot_optim_unified <- function(data, custom_x_breaks=NULL) {
     #scale_y_log10(breaks=c(1,2,3,10,20,30,50,100,200,300,500,1000)) + #limit=c(0,30), breaks=seq(0,100,5), expand = c(0,0)
     ylab("") +
     xlab("") + 
-    geom_hline(yintercept = 7.5, linetype = "dotted")
+    geom_hline(yintercept = 8.5, linetype = "dotted")
   
   plot
 }
@@ -111,7 +111,9 @@ get_tsom_ast_data <- function() {
         load_data_for_experiment(2694, "no global caching", project_name),
         load_data_for_experiment(2669, "no lowered control structs", project_name),
         load_data_for_experiment(2625, "no blocks without context", project_name),
-        load_data_for_experiment(2684, "no supernodes", project_name)) %>% filter(criterion == "total")
+        load_data_for_experiment(2684, "no supernodes", project_name),
+        load_data_for_experiment(2666, "no lowering of prims", project_name)  # not very good commit, or final
+        ) %>% filter(criterion == "total")
 }
 
 get_pysom_ast_data <- function() {
@@ -121,7 +123,9 @@ get_pysom_ast_data <- function() {
         load_data_for_experiment(2657, "no inline caching", project_name),
         load_data_for_experiment(2656, "no global caching", project_name),
         load_data_for_experiment(2663, "no lowered control structs", project_name),
-        load_data_for_experiment(2658, "no blocks without context", project_name)) %>% filter(criterion == "total")
+        load_data_for_experiment(2658, "no blocks without context", project_name),
+        load_data_for_experiment(2740, "no lowering of prims", project_name)
+        ) %>% filter(criterion == "total")
 }
 
 get_tsom_bc_data <- function() {
@@ -131,7 +135,9 @@ get_tsom_bc_data <- function() {
         load_data_for_experiment(2678, "no quickening", project_name),
         load_data_for_experiment(2686, "no global caching", project_name),
         load_data_for_experiment(2703, "no lowered control structs", project_name),
-        load_data_for_experiment(2715, "no superinstructions", project_name)) %>% filter(criterion == "total")
+        load_data_for_experiment(2715, "no superinstructions", project_name),
+        load_data_for_experiment(2666, "no lowering of prims", project_name)  # not very good commit, or final
+        ) %>% filter(criterion == "total")
 }
 
 get_pysom_bc_data <- function() {
@@ -141,8 +147,9 @@ get_pysom_bc_data <- function() {
         load_data_for_experiment(2679, "no global caching", project_name),
         load_data_for_experiment(2682, "no quickening", project_name),
         load_data_for_experiment(2702, "no superinstructions", project_name),
-        load_data_for_experiment(2709, "no lowered control structs", project_name)) %>% 
-    filter(criterion == "total")
+        load_data_for_experiment(2709, "no lowered control structs", project_name),
+        load_data_for_experiment(2740, "no lowering of prims", project_name)
+        ) %>% filter(criterion == "total")
 }
 
 data_optim_tsom_ast <- get_tsom_ast_data()
