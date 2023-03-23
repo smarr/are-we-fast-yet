@@ -33,11 +33,23 @@ get_data_rss <- function() {
   data_rss_tsom <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2597") %>% remove_unneeded_data()
   #data_rss_pysom <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2596") %>% remove_unneeded_data()
   data_rss_pysom <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2615") %>% remove_unneeded_data()
+  
 #  towers <- data_rss_pysom %>% filter(bench == "Towers") %>% subset(select = -c(commitid, cmdline, expid, varvalue, cores, inputsize, iteration, envid))
   
   data_rss <- rbind(data_rss_tsom, data_rss_pysom)
   
   data_rss
+}
+
+get_data_program_representation <- function(data) {
+  data_repr_tsom <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% filter(criterion == "Allocated")
+  data_repr_pysom <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2750")
+  pysom_unique <- distinct(data_repr_pysom, exe, runid, cmdline, cores, extraargs, envid, .keep_all = TRUE)
+  tsom_unique <- distinct(data_repr_tsom, exe, runid, cmdline, cores, extraargs, envid, .keep_all = TRUE)  
+  
+  data_repr <- rbind(pysom_unique, tsom_unique)
+  
+  data_repr
 }
 
 # Unused.
@@ -77,9 +89,13 @@ box_plot_rss <- function(data) {
   plot
 }
 
-get_data_for_box_plot_rss <- function(all_data, exe_names, baseline_name) {
-  df <- data_rss %>% filter(exe %in% exe_names)
-  
+get_data_for_box_plot_rss <- function(all_data, baseline_name, exe_names=NULL) {
+  if (!is.null(exe_names)) {
+    df <- data_rss %>% filter(exe %in% exe_names)
+  } else {
+    df <- data_rss
+  }
+    
   df_baseline <- df %>% filter(exe == baseline_name)
   df2 <- df %>% left_join(
         df_baseline,
@@ -91,30 +107,44 @@ get_data_for_box_plot_rss <- function(all_data, exe_names, baseline_name) {
   df2
 }
 
+get_data_for_box_plot_repr <- function(all_data, baseline_name, exe_names=NULL) {
+  if (!is.null(exe_names)) {
+    df <- data_repr %>% filter(exe %in% exe_names)
+  } else {
+    df <- data_repr
+  }
+    
+  df_baseline <- df %>% filter(exe == baseline_name)
+  df2 <- df %>% left_join(
+        df_baseline,
+        by = c("bench", "extraargs", "invocation", "warmup"))
+  
+  colnames(df2)[which(colnames(df2) == "exe.x")] <- "exe"
+  df2$ratio <- df2$value.x / df2$value.y
+  
+  df2
+}
 
 data_rss <- get_data_rss() 
-```
-
-## Debug
-```{r debug, results='asis', echo=FALSE}
-#print(kable(data_rss), type="latex", comment=FALSE)
+data_repr <- get_data_program_representation()
 ```
 
 ## BCvsAST - interpreter only
 
 ```{r rss-interp, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_rss(data_rss, 
-                                       c("TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast"),
-                                        "TruffleSOM-native-interp-bc")
+#box_plot_data <- get_data_for_box_plot_rss(data_rss, 
+#                                           "TruffleSOM-native-interp-bc",
+#                                           c("TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast"))
+
+#box_plot_data <- get_data_for_box_plot_rss(data_rss, 
+#                                           "RPySOM-bc-interp",
+#                                           c("RPySOM-bc-interp", "RPySOM-ast-interp"))
 
 box_plot_data <- get_data_for_box_plot_rss(data_rss, 
-                                       c("RPySOM-bc-interp", "RPySOM-ast-interp"),
-                                        "RPySOM-bc-interp")
+                                           "RPySOM-bc-interp",
+                                           c("RPySOM-bc-interp", "RPySOM-ast-interp",
+                                             "TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast"))
 
-box_plot_data <- get_data_for_box_plot_rss(data_rss, 
-                                       c("RPySOM-bc-interp", "RPySOM-ast-interp",
-                                         "TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast"),
-                                        "RPySOM-bc-interp")
 
 #print(kable(df2), type="latex", comment=FALSE)
 plot <- box_plot_rss(box_plot_data)
@@ -124,20 +154,49 @@ ggsave(plot, device= cairo_pdf, path=".", filename="rss-interp.pdf", dpi=300, he
 plot
 ```
 
+
 ## BCvsAST - JIT
 
 ```{r rss-jit, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data2 <- get_data_for_box_plot_rss(data_rss, 
-                                       c("RPySOM-bc-jit", "RPySOM-ast-jit"),
-                                       "RPySOM-bc-jit")
+#box_plot_data2 <- get_data_for_box_plot_rss(data_rss,
+#                                      "RPySOM-bc-jit",
+#                                       c("RPySOM-bc-jit", "RPySOM-ast-jit"))
 
 box_plot_data <- get_data_for_box_plot_rss(data_rss,
-                                       c("RPySOM-bc-jit", "RPySOM-ast-jit", "TruffleSOM-graal", "TruffleSOM-graal-bc"),
-                                       "RPySOM-bc-jit")
+                                           "RPySOM-bc-jit",
+                                           c("RPySOM-bc-jit", "RPySOM-ast-jit", "TruffleSOM-graal", "TruffleSOM-graal-bc"))
+
+
 #print(kable(df2), type="latex", comment=FALSE)
 plot <- box_plot_rss(box_plot_data)
 ggsave(plot, device= cairo_pdf, path=".", filename="rss-jit.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
 #ggsave(plot, device= cairo_pdf, path=".", filename="rss-jit.pdf", dpi=300, height=4, width=8.5, units="in", family="Arial")
+
+plot
+```
+
+# Program representation
+
+## BCvsAST - Interp
+```{r program-repr-memory-int, fig.width=8, fig.height=2.2, echo=FALSE}
+data <- get_data_for_box_plot_repr(data_repr, 
+                                   "RPySOM-bc-interp",
+                                   c("RPySOM-bc-interp", "RPySOM-ast-interp","TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast"))
+
+plot <- box_plot_rss(data)
+ggsave(plot, device= cairo_pdf, path=".", filename="program-repr-interp.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+
+plot
+```
+
+## BCvsAST - JIT
+```{r program-repr-memory-jit, fig.width=8, fig.height=2.2, echo=FALSE}
+data <- get_data_for_box_plot_repr(data_repr, 
+                                   "RPySOM-bc-jit",
+                                   c("RPySOM-bc-jit", "RPySOM-ast-jit", "TruffleSOM-graal", "TruffleSOM-graal-bc"))
+
+plot <- box_plot_rss(data)
+ggsave(plot, device= cairo_pdf, path=".", filename="program-repr-jit.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
 
 plot
 ```

@@ -112,7 +112,7 @@ get_tsom_ast_data <- function() {
         load_data_for_experiment(2669, "no lowered control structs", project_name),
         load_data_for_experiment(2625, "no blocks without context", project_name),
         load_data_for_experiment(2684, "no supernodes", project_name),
-        load_data_for_experiment(2666, "no lowering of prims", project_name)  # not very good commit, or final
+        load_data_for_experiment(2741, "no lowering of prims", project_name)  # not final commit
         ) %>% filter(criterion == "total")
 }
 
@@ -136,7 +136,7 @@ get_tsom_bc_data <- function() {
         load_data_for_experiment(2686, "no global caching", project_name),
         load_data_for_experiment(2703, "no lowered control structs", project_name),
         load_data_for_experiment(2715, "no superinstructions", project_name),
-        load_data_for_experiment(2666, "no lowering of prims", project_name)  # not very good commit, or final
+        load_data_for_experiment(2741, "no lowering of prims", project_name)  # not final commit
         ) %>% filter(criterion == "total")
 }
 
