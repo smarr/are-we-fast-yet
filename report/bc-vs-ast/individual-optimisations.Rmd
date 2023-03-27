@@ -16,7 +16,7 @@ OPTIM_GRAPH_WIDTH <- 100
 #extrafont::loadfonts()
 #extrafont::loadfonts(device = "postscript")
 
-get_data_for_box_plot_optim <- function(input_data, exe_name, baseline_optim_name="every optimisation", optim_names=NULL) {
+get_data_for_box_plot_optim <- function(input_data, exe_name, baseline_optim_name="every optimization", optim_names=NULL) {
   grouped_iterations_data <- input_data %>%
     group_by(commitid, cmdline) %>%
     mutate(median_runtime = median(value)) %>%
@@ -103,52 +103,54 @@ load_data_for_experiment <- function(experiment_ref, optim_name, project_name) {
   load_data_url(paste0("https://rebench.stefan-marr.de/", project_name, "/data/", experiment_ref)) %>% mutate(optim = optim_name)
 }
 
+# (*) means AST/BC specific optim
 get_tsom_ast_data <- function() {
   project_name <- "TruffleSOM"
-  rbind(load_data_for_experiment(2622, "every optimisation", project_name), 
-        load_data_for_experiment(2626, "no local/nonlocal vars", project_name),
-        load_data_for_experiment(2695, "no inline caching", project_name),
-        load_data_for_experiment(2694, "no global caching", project_name),
-        load_data_for_experiment(2669, "no lowered control structs", project_name),
-        load_data_for_experiment(2625, "no blocks without context", project_name),
-        load_data_for_experiment(2684, "no supernodes", project_name),
-        load_data_for_experiment(2741, "no lowering of prims", project_name)  # not final commit
+  rbind(load_data_for_experiment(2762, "every optimization", project_name), # YURIA1'D
+        load_data_for_experiment(2759, "no local/nonlocal vars", project_name), # YURIA1'D
+        load_data_for_experiment(2753, "no inline caching", project_name), # YURIA1'D
+        load_data_for_experiment(2752, "no global caching", project_name), # YURIA1'D
+        load_data_for_experiment(2751, "no lowered control structs", project_name), # YURIA1'D
+#        load_data_for_experiment(2625, "no blocks without context", project_name),
+        load_data_for_experiment(2761, "no supernodes (*)", project_name), # YURIA1'D
+        load_data_for_experiment(2741, "no lowering of unneces. prims", project_name)  # not final commit
         ) %>% filter(criterion == "total")
 }
 
 get_pysom_ast_data <- function() {
   project_name <- "RPySOM"
-  rbind(load_data_for_experiment(2662, "every optimisation", project_name), 
-        load_data_for_experiment(2665, "no local/nonlocal vars", project_name),
-        load_data_for_experiment(2657, "no inline caching", project_name),
-        load_data_for_experiment(2656, "no global caching", project_name),
-        load_data_for_experiment(2663, "no lowered control structs", project_name),
-        load_data_for_experiment(2658, "no blocks without context", project_name),
-        load_data_for_experiment(2740, "no lowering of prims", project_name)
+  rbind(load_data_for_experiment(2780, "every optimization", project_name), # YURIA1'D
+        load_data_for_experiment(2771, "no local/nonlocal vars", project_name), # YURIA1'D
+        load_data_for_experiment(2764, "no inline caching", project_name), # YURIA1'D
+        load_data_for_experiment(2770, "no global caching", project_name), # YURIA1'D
+        load_data_for_experiment(2781, "no lowered control structs", project_name), # YURIA1'D
+#        load_data_for_experiment(2658, "no blocks without context", project_name),
+        load_data_for_experiment(2768, "no lowering of unneces. prims", project_name) # YURIA1'D
         ) %>% filter(criterion == "total")
 }
 
 get_tsom_bc_data <- function() {
   project_name <- "TruffleSOM"
-  rbind(load_data_for_experiment(2622, "every optimisation", project_name), 
-        load_data_for_experiment(2632, "no inline caching", project_name),
-        load_data_for_experiment(2678, "no quickening", project_name),
-        load_data_for_experiment(2686, "no global caching", project_name),
-        load_data_for_experiment(2703, "no lowered control structs", project_name),
-        load_data_for_experiment(2715, "no superinstructions", project_name),
-        load_data_for_experiment(2741, "no lowering of prims", project_name)  # not final commit
+  rbind(load_data_for_experiment(2762, "every optimization", project_name), # YURIA1'D
+        load_data_for_experiment(2632, "no inline caching", project_name), # YURIA1'D - should be noted Test is disabled in this one, which is a tad dirty...
+        load_data_for_experiment(2759, "no local/nonlocal vars", project_name), # YURIA1'D
+        load_data_for_experiment(2756, "no quickening (*)", project_name), # YURIA1'D
+        load_data_for_experiment(2754, "no global caching", project_name), # YURIA1'D
+        load_data_for_experiment(2751, "no lowered control structs", project_name), # YURIA1'D
+        load_data_for_experiment(2757, "no superinstructions (*)", project_name), # YURIA1'D
+        load_data_for_experiment(2741, "no lowering of unneces. prims", project_name)  # not final commit.
         ) %>% filter(criterion == "total")
 }
 
 get_pysom_bc_data <- function() {
   project_name <- "RPySOM"
-  rbind(load_data_for_experiment(2662, "every optimisation", project_name), 
-        load_data_for_experiment(2657, "no inline caching", project_name),
-        load_data_for_experiment(2679, "no global caching", project_name),
-        load_data_for_experiment(2682, "no quickening", project_name),
-        load_data_for_experiment(2702, "no superinstructions", project_name),
-        load_data_for_experiment(2709, "no lowered control structs", project_name),
-        load_data_for_experiment(2740, "no lowering of prims", project_name)
+  rbind(load_data_for_experiment(2780, "every optimization", project_name), # YURIA1'D 
+        load_data_for_experiment(2764, "no inline caching", project_name), # YURIA1'D
+        load_data_for_experiment(2772, "no global caching", project_name), # YURIA1'D
+        load_data_for_experiment(2774, "no quickening (*)", project_name), # YURIA1'D
+        load_data_for_experiment(2775, "no superinstructions (*)", project_name), # YURIA1'D
+        load_data_for_experiment(2773, "no lowered control structs", project_name), # YURIA1'D
+        load_data_for_experiment(2776, "no lowering of unneces. prims", project_name) # YURIA1'D
         ) %>% filter(criterion == "total")
 }
 
@@ -218,6 +220,7 @@ plot
 ```{r optim-tsom-bc-interp, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_bc, "TruffleSOM-native-interp-bc")
 plot <- box_plot_optim(box_plot_data)
+ggsave(plot, device= cairo_pdf, path=".", filename="optim-tsom-bc-int.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
 plot
 ```
 
@@ -226,6 +229,7 @@ plot
 ```{r optim-pysom-bc-interp, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_bc, "RPySOM-bc-interp")
 plot <- box_plot_optim(box_plot_data)
+ggsave(plot, device= cairo_pdf, path=".", filename="optim-pysom-bc-int.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
 plot
 ```
 
@@ -234,6 +238,7 @@ plot
 ```{r optim-tsom-bc-jit, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_bc, "TruffleSOM-graal-bc")
 plot <- box_plot_optim(box_plot_data)
+ggsave(plot, device= cairo_pdf, path=".", filename="optim-tsom-bc-jit.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
 plot
 ```
 
@@ -242,5 +247,6 @@ plot
 ```{r optim-pysom-bc-jit, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_bc, "RPySOM-bc-jit")
 plot <- box_plot_optim(box_plot_data)
+ggsave(plot, device= cairo_pdf, path=".", filename="optim-pysom-bc-jit.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
 plot
 ```
