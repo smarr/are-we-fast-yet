@@ -89,6 +89,31 @@ box_plot_rss <- function(data) {
   plot
 }
 
+box_plot_in_kb <- function(data) {
+#  x_breaks <- c(0.5, 0.8, 1, 2, 3, 5, 10, 15, 30)
+  
+  breaks <- levels(droplevels(data)$exe)
+  #vm_colors <- rainbow(255)
+  col_values <- get_safe_color_palette(4)
+#  col_values <- c("red", "green", "yellow", "blue")
+
+  plot <- ggplot(data, aes(x=value.x, y=reorder(exe, -ratio, FUN = median), fill = exe))
+  plot <- plot + geom_boxplot(outlier.size = 0.5) +
+#    scale_x_log10(breaks = x_breaks) +
+#    scale_fill_viridis_d() +
+    theme(legend.position="none") + 
+    theme_bw() + theme_simple(font_size = 8) +
+    theme(
+      axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1),
+      axis.title.x  = element_text(size = 8, family="Arial"),
+      legend.position="none") +
+    #scale_y_log10(breaks=c(1,2,3,10,20,30,50,100,200,300,500,1000)) + #limit=c(0,30), breaks=seq(0,100,5), expand = c(0,0)
+    ylab("") +
+    xlab("")
+  
+  plot
+}
+
 get_data_for_box_plot_rss <- function(all_data, baseline_name, exe_names=NULL) {
   if (!is.null(exe_names)) {
     df <- data_rss %>% filter(exe %in% exe_names)
@@ -131,7 +156,7 @@ data_repr <- get_data_program_representation()
 
 ## BCvsAST - interpreter only
 
-```{r rss-interp, fig.width=8, fig.height=2.2, echo=FALSE}
+```{r rss-interp, fig.width=8, fig.height=2.2, echo=FALSE, eval=FALSE}
 #box_plot_data <- get_data_for_box_plot_rss(data_rss, 
 #                                           "TruffleSOM-native-interp-bc",
 #                                           c("TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast"))
@@ -157,7 +182,7 @@ plot
 
 ## BCvsAST - JIT
 
-```{r rss-jit, fig.width=8, fig.height=2.2, echo=FALSE}
+```{r rss-jit, fig.width=8, fig.height=2.2, echo=FALSE, eval=FALSE}
 #box_plot_data2 <- get_data_for_box_plot_rss(data_rss,
 #                                      "RPySOM-bc-jit",
 #                                       c("RPySOM-bc-jit", "RPySOM-ast-jit"))
@@ -175,10 +200,63 @@ ggsave(plot, device= cairo_pdf, path=".", filename="rss-jit.pdf", dpi=300, heigh
 plot
 ```
 
+## BCvsAST - PySOM int
+
+```{r rss-pysom-int, fig.width=8, fig.height=2.2, echo=FALSE}
+box_plot_data <- get_data_for_box_plot_rss(data_rss, 
+                                           "RPySOM-bc-interp",
+                                           c("RPySOM-bc-interp", "RPySOM-ast-interp"))
+
+plot <- box_plot_in_kb(box_plot_data)
+ggsave(plot, device= cairo_pdf, path=".", filename="rss-interp-pysom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+
+plot
+```
+
+## BCvsAST - TruffleSOM int
+
+```{r rss-tsom-int, fig.width=8, fig.height=2.2, echo=FALSE}
+box_plot_data <- get_data_for_box_plot_rss(data_rss, 
+                                           "TruffleSOM-native-interp-bc",
+                                           c("TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast"))
+
+plot <- box_plot_in_kb(box_plot_data)
+ggsave(plot, device= cairo_pdf, path=".", filename="rss-interp-tsom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+
+plot
+```
+
+## BCvsAST - PySOM JIT
+
+```{r rss-pysom-jit, fig.width=8, fig.height=2.2, echo=FALSE}
+box_plot_data <- get_data_for_box_plot_rss(data_rss, 
+                                           "RPySOM-bc-jit",
+                                           c("RPySOM-bc-jit", "RPySOM-ast-jit"))
+
+plot <- box_plot_in_kb(box_plot_data)
+ggsave(plot, device= cairo_pdf, path=".", filename="rss-jit-pysom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+
+plot
+```
+
+## BCvsAST - TruffleSOM JIT
+
+```{r rss-tsom-jit, fig.width=8, fig.height=2.2, echo=FALSE}
+box_plot_data <- get_data_for_box_plot_rss(data_rss, 
+                                           "TruffleSOM-graal-bc",
+                                           c("TruffleSOM-graal", "TruffleSOM-graal-bc"))
+
+plot <- box_plot_in_kb(box_plot_data)
+ggsave(plot, device= cairo_pdf, path=".", filename="rss-jit-tsom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+
+plot
+```
+
+
 # Program representation
 
 ## BCvsAST - Interp
-```{r program-repr-memory-int, fig.width=8, fig.height=2.2, echo=FALSE}
+```{r program-repr-memory-int, fig.width=8, fig.height=2.2, echo=FALSE, eval=FALSE}
 data <- get_data_for_box_plot_repr(data_repr, 
                                    "RPySOM-bc-interp",
                                    c("RPySOM-bc-interp", "RPySOM-ast-interp","TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast"))
@@ -190,7 +268,7 @@ plot
 ```
 
 ## BCvsAST - JIT
-```{r program-repr-memory-jit, fig.width=8, fig.height=2.2, echo=FALSE}
+```{r program-repr-memory-jit, fig.width=8, fig.height=2.2, echo=FALSE, eval=FALSE}
 data <- get_data_for_box_plot_repr(data_repr, 
                                    "RPySOM-bc-jit",
                                    c("RPySOM-bc-jit", "RPySOM-ast-jit", "TruffleSOM-graal", "TruffleSOM-graal-bc"))
