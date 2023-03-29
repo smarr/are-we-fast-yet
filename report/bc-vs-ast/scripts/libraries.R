@@ -24,6 +24,7 @@ load_and_install_if_necessary("qs")
 load_and_install_if_necessary("knitr")
 load_and_install_if_necessary("markdown")
 load_and_install_if_necessary("ragg")
+load_and_install_if_necessary("viridis")
 
 load_and_install_if_necessary("gcookbook")
 
