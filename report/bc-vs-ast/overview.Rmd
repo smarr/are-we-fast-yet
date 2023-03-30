@@ -40,6 +40,7 @@ data <- rbind(
   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/2275"),
   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/2277"),
   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/2280"),
+  load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2800"), # JDK20
   load_data_url("https://rebench.dev/Are-We-Fast-Yet/data/2545")
   ,supernodes_data
   ) |>
@@ -270,6 +271,9 @@ overview_box_plot <- function(stats, vms = NULL, prepare_data = NULL, pre_plot =
 #  }
 #}
   
+  # Only two decimal places
+  x_breaks <- round(x_breaks, 2)
+  
   plot <- ggplot(vm_stats, aes(x=ratio, y=reorder(exe, -ratio, FUN = median_fn), fill = exe))
   if (!is.null(pre_plot)) {
     plot <- pre_plot(plot)
@@ -328,9 +332,9 @@ Comparing TruffleSOM, PySOM, Node-int and Java-Int. Using `r vm_names[baseline_v
 ```{r tsom-pysom-int, fig.width=8, fig.height=1.5}
 plot <- overview_box_plot(results_int$stats$bench,
                   c("PySOM-ast-int", "PySOM-bc-int",
-                    "TruffleSOM-ast-NativeEE-int-super",
+                    "TruffleSOM-ast-NativeEE-int-main", "TruffleSOM-bc-NativeEE-int-main",
                     "TruffleSOM-native-interp-bc-supernodes",
-                    "Java-int", "Java8-int", "Node-int"),
+                    "Java-int", "Node-int"),
                   x_breaks = c(0.41, 0.5, 0.75, 1, 1.33333, 2, 3, 5, 10))
 
 ggsave("tsom-pysom-interp-perf.pdf", plot, device= cairo_pdf)
