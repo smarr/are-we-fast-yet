@@ -174,7 +174,7 @@ box_plot_data <- get_data_for_box_plot_rss(data_rss,
 #print(kable(df2), type="latex", comment=FALSE)
 plot <- box_plot_rss(box_plot_data)
 #ggsave("rss-interp.pdf", plot, dpi = 300, height = 200, width = 400, units="mm", device="pdf")
-ggsave(plot, device= cairo_pdf, path=".", filename="rss-interp.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/rss-interp.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
 
 plot
 ```
@@ -194,7 +194,7 @@ box_plot_data <- get_data_for_box_plot_rss(data_rss,
 
 #print(kable(df2), type="latex", comment=FALSE)
 plot <- box_plot_rss(box_plot_data)
-ggsave(plot, device= cairo_pdf, path=".", filename="rss-jit.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/rss-jit.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
 #ggsave(plot, device= cairo_pdf, path=".", filename="rss-jit.pdf", dpi=300, height=4, width=8.5, units="in", family="Arial")
 
 plot
@@ -208,7 +208,7 @@ box_plot_data <- get_data_for_box_plot_rss(data_rss,
                                            c("RPySOM-bc-interp", "RPySOM-ast-interp"))
 
 plot <- box_plot_in_kb(box_plot_data)
-ggsave(plot, device= cairo_pdf, path=".", filename="rss-interp-pysom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/rss-interp-pysom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
 
 plot
 ```
@@ -221,7 +221,7 @@ box_plot_data <- get_data_for_box_plot_rss(data_rss,
                                            c("TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast"))
 
 plot <- box_plot_in_kb(box_plot_data)
-ggsave(plot, device= cairo_pdf, path=".", filename="rss-interp-tsom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/rss-interp-tsom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
 
 plot
 ```
@@ -234,7 +234,7 @@ box_plot_data <- get_data_for_box_plot_rss(data_rss,
                                            c("RPySOM-bc-jit", "RPySOM-ast-jit"))
 
 plot <- box_plot_in_kb(box_plot_data)
-ggsave(plot, device= cairo_pdf, path=".", filename="rss-jit-pysom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/rss-jit-pysom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
 
 plot
 ```
@@ -247,7 +247,7 @@ box_plot_data <- get_data_for_box_plot_rss(data_rss,
                                            c("TruffleSOM-graal", "TruffleSOM-graal-bc"))
 
 plot <- box_plot_in_kb(box_plot_data)
-ggsave(plot, device= cairo_pdf, path=".", filename="rss-jit-tsom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/rss-jit-tsom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
 
 plot
 ```
@@ -262,7 +262,7 @@ data <- get_data_for_box_plot_repr(data_repr,
                                    c("RPySOM-bc-interp", "RPySOM-ast-interp","TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast"))
 
 plot <- box_plot_rss(data)
-ggsave(plot, device= cairo_pdf, path=".", filename="program-repr-interp.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/program-repr-interp.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
 
 plot
 ```
@@ -274,7 +274,7 @@ data <- get_data_for_box_plot_repr(data_repr,
                                    c("RPySOM-bc-jit", "RPySOM-ast-jit", "TruffleSOM-graal", "TruffleSOM-graal-bc"))
 
 plot <- box_plot_rss(data)
-ggsave(plot, device= cairo_pdf, path=".", filename="program-repr-jit.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/program-repr-jit.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
 
 plot
 ```
