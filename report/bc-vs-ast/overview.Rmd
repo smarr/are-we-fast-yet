@@ -31,6 +31,9 @@ supernodes_data <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data
   mutate(extraargs = ifelse(extraargs == "None", 42, extraargs)) %>%
   filter(criterion == "total")
 
+jdk20_data <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2800")
+jdk20_data$exe <- ifelse(grepl("Java-int", jdk20_data$exe), "Java20-int", "Java20-C2-jit")
+
 data <- rbind(
   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/2257") |>
     filter(exe != "CPython-int"),
@@ -40,9 +43,9 @@ data <- rbind(
   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/2275"),
   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/2277"),
   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/2280"),
-  load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2800"), # JDK20
-  load_data_url("https://rebench.dev/Are-We-Fast-Yet/data/2545")
-  ,supernodes_data
+  load_data_url("https://rebench.dev/Are-We-Fast-Yet/data/2545"),
+  jdk20_data,
+  supernodes_data
   ) |>
   factorize_result()
 
@@ -62,7 +65,9 @@ opts_chunk$set(dev = 'png',
 #    cache=TRUE,
 
 vm_names <- c(
+  "Java20-C2-jit" = "Java JDK20 C2",
   "Java17-C2-jit" = "Java JDK17 C2",
+  "Java20-int"      = "Java JDK20 Int", 
   "Java-int"      = "Java JDK17 Int", 
   "Java8-C2-jit"  = "Java JDK8 C2",
   "Java8-int"     = "Java JDK8 Int", 
@@ -112,6 +117,7 @@ vm_names <- c(
 vms_all <- names(vm_names)
 vms_int <- c(
   "Java-int",
+  "Java20-int",
   "Java8-int",
   "Node-int",
   "GraalJS-NativeEE-int",
@@ -139,6 +145,7 @@ vms_int <- c(
   "ykSOM-int")
 
 vms_jit <- c(
+  "Java20-C2-jit",
   "Java17-C2-jit",
   "Java8-C2-jit",
   "Java-native",
@@ -170,9 +177,9 @@ names(vm_colors) <- vm_names
 names(vm_colors_light) <- vm_names
 
 warmup_jit_iteration <- 100
-baseline_vm_peak <- "Java17-C2-jit"
-baseline_vm_int <- "Node-int"
-baseline_vm_first <- "Java17-C2-jit"
+baseline_vm_peak <- "Java20-C2-jit"
+baseline_vm_int <- "Java20-int"
+baseline_vm_first <- "Java20-C2-jit"
 
 results_peak <- data %>%
   compute_all(
@@ -319,7 +326,7 @@ Results are normalized either to `r vm_names[baseline_vm_peak]`.
 plot <- overview_box_plot(results_peak$stats$bench,
                   c("PySOM-ast-jit", "PySOM-bc-jit", 
                     "TruffleSOM-ast-HotspotCE-jit-main",
-                    "TruffleSOM-bc-HotspotCE-jit-main", "Java17-C2-jit", "Node-jit"),
+                    "TruffleSOM-bc-HotspotCE-jit-main", "Java20-C2-jit", "Node-jit"),
                   x_breaks = c(0.5, 0.75, 1, 1.33333, 2, 3, 5, 10, 20))
 ggsave("tsom-pysom-peak-perf.pdf", plot, device= cairo_pdf)
 plot
@@ -334,7 +341,7 @@ plot <- overview_box_plot(results_int$stats$bench,
                   c("PySOM-ast-int", "PySOM-bc-int",
                     "TruffleSOM-ast-NativeEE-int-main", "TruffleSOM-bc-NativeEE-int-main",
                     "TruffleSOM-native-interp-bc-supernodes",
-                    "Java-int", "Node-int"),
+                    "Java20-int", "Node-int"),
                   x_breaks = c(0.41, 0.5, 0.75, 1, 1.33333, 2, 3, 5, 10))
 
 ggsave("tsom-pysom-interp-perf.pdf", plot, device= cairo_pdf)
