@@ -114,29 +114,11 @@ box_plot_in_kb <- function(data) {
   plot
 }
 
-get_data_for_box_plot_rss <- function(all_data, baseline_name, exe_names=NULL) {
+get_data_for_box_plot <- function(all_data, baseline_name, exe_names=NULL) {
   if (!is.null(exe_names)) {
-    df <- data_rss %>% filter(exe %in% exe_names)
+    df <- all_data %>% filter(exe %in% exe_names)
   } else {
-    df <- data_rss
-  }
-    
-  df_baseline <- df %>% filter(exe == baseline_name)
-  df2 <- df %>% left_join(
-        df_baseline,
-        by = c("bench", "extraargs", "invocation", "warmup"))
-  
-  colnames(df2)[which(colnames(df2) == "exe.x")] <- "exe"
-  df2$ratio <- df2$value.x / df2$value.y
-  
-  df2
-}
-
-get_data_for_box_plot_repr <- function(all_data, baseline_name, exe_names=NULL) {
-  if (!is.null(exe_names)) {
-    df <- data_repr %>% filter(exe %in% exe_names)
-  } else {
-    df <- data_repr
+    df <- all_data
   }
     
   df_baseline <- df %>% filter(exe == baseline_name)
@@ -165,7 +147,7 @@ data_repr <- get_data_program_representation()
 #                                           "RPySOM-bc-interp",
 #                                           c("RPySOM-bc-interp", "RPySOM-ast-interp"))
 
-box_plot_data <- get_data_for_box_plot_rss(data_rss, 
+box_plot_data <- get_data_for_box_plot(data_rss,
                                            "RPySOM-bc-interp",
                                            c("RPySOM-bc-interp", "RPySOM-ast-interp",
                                              "TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast"))
@@ -187,7 +169,7 @@ plot
 #                                      "RPySOM-bc-jit",
 #                                       c("RPySOM-bc-jit", "RPySOM-ast-jit"))
 
-box_plot_data <- get_data_for_box_plot_rss(data_rss,
+box_plot_data <- get_data_for_box_plot(data_rss,
                                            "RPySOM-bc-jit",
                                            c("RPySOM-bc-jit", "RPySOM-ast-jit", "TruffleSOM-graal", "TruffleSOM-graal-bc"))
 
@@ -203,7 +185,7 @@ plot
 ## BCvsAST - PySOM int
 
 ```{r rss-pysom-int, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_rss(data_rss, 
+box_plot_data <- get_data_for_box_plot(data_rss,
                                            "RPySOM-bc-interp",
                                            c("RPySOM-bc-interp", "RPySOM-ast-interp"))
 
@@ -216,7 +198,7 @@ plot
 ## BCvsAST - TruffleSOM int
 
 ```{r rss-tsom-int, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_rss(data_rss, 
+box_plot_data <- get_data_for_box_plot(data_rss,
                                            "TruffleSOM-native-interp-bc",
                                            c("TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast"))
 
@@ -229,7 +211,7 @@ plot
 ## BCvsAST - PySOM JIT
 
 ```{r rss-pysom-jit, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_rss(data_rss, 
+box_plot_data <- get_data_for_box_plot(data_rss,
                                            "RPySOM-bc-jit",
                                            c("RPySOM-bc-jit", "RPySOM-ast-jit"))
 
@@ -242,7 +224,7 @@ plot
 ## BCvsAST - TruffleSOM JIT
 
 ```{r rss-tsom-jit, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_rss(data_rss, 
+box_plot_data <- get_data_for_box_plot(data_rss,
                                            "TruffleSOM-graal-bc",
                                            c("TruffleSOM-graal", "TruffleSOM-graal-bc"))
 
@@ -257,7 +239,7 @@ plot
 
 ## BCvsAST - Interp
 ```{r program-repr-memory-int, fig.width=8, fig.height=2.2, echo=FALSE, eval=FALSE}
-data <- get_data_for_box_plot_repr(data_repr, 
+data <- get_data_for_box_plot(data_repr,
                                    "RPySOM-bc-interp",
                                    c("RPySOM-bc-interp", "RPySOM-ast-interp","TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast"))
 
@@ -269,7 +251,7 @@ plot
 
 ## BCvsAST - JIT
 ```{r program-repr-memory-jit, fig.width=8, fig.height=2.2, echo=FALSE, eval=FALSE}
-data <- get_data_for_box_plot_repr(data_repr, 
+data <- get_data_for_box_plot(data_repr,
                                    "RPySOM-bc-jit",
                                    c("RPySOM-bc-jit", "RPySOM-ast-jit", "TruffleSOM-graal", "TruffleSOM-graal-bc"))
 
