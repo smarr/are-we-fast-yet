@@ -137,6 +137,7 @@ get_data_for_box_plot <- function(all_data, baseline_name, exe_names=NULL) {
   colnames(df2)[which(colnames(df2) == "exe.x")] <- "exe"
   df2$ratio <- df2$value.x / df2$value.y
 
+  suppressMessages(df2$exe <- revalue(df2$exe, unify_overview_memory_data) %>% droplevels())
   suppressMessages(df2$exe <- revalue(df2$exe, vm_names) %>% droplevels())
   df2
 }
