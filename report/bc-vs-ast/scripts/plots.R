@@ -18,3 +18,34 @@ theme_simple <- function(font_size = 12) {
 }
 
 element90 <- function() { element_text(angle = 90, hjust = 1, vjust=0.5) }
+
+vm_names <- c(
+  "TruffleSOM-native-interp-bc" = "TruffleSOM BC Native CE Int", 
+  "RPySOM-bc-interp" = "PySOM BC Int",
+  "Java8-C2-jit"  = "Java JDK8 C2",
+  "Java8-int"     = "Java JDK8 Int", 
+  "Java-native"   = "GraalVM Native EE 22.3",
+  "TruffleSOM-native-interp-ast" = "TruffleSOM AST Native CE Int",
+  "Node-jit"      = "Node.js 17.9",
+  "RPySOM-bc-jit" = "PySOM BC JIT",
+  "Node-int"      = "Node.js 17.9 jitless", 
+  "RPySOM-ast-interp" = "PySOM AST Int",
+  "GraalJS-HotspotEE-jit" = "Graal.js EE 22.3 Hotspot", 
+  "TruffleSOM-graal" = "TruffleSOM AST Hotspot CE JIT",
+  "GraalJS-NativeEE-int"  = "Graal.js EE 22.3 Native Int", 
+  "RPySOM-ast-jit" = "PySOM AST JIT",
+  "TruffleSOM-graal-bc" = "TruffleSOM BC Hotspot CE JIT",
+    "Java17-C2-jit" = "Java JDK17 C2",
+  "Java-int"      = "Java JDK17 Int"
+)
+
+compute_color_bindings_for_plots <- function(unique_variables, viridis_fn) {
+  num_variables = length(unique_variables)
+  color_set = viridis_fn(num_variables)
+  names(color_set) <- unique_variables
+  
+  return(color_set)
+}
+
+# a binding vm -> color shared for all R scripts (colorblind friendly)
+color_set_vms <- compute_color_bindings_for_plots(unname(vm_names), viridis::inferno)
