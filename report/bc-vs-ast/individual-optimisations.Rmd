@@ -191,7 +191,7 @@ plot
 ```{r optim-tsom-ast-int, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_ast, "TruffleSOM-native-interp-ast")
 plot <- box_plot_optim(box_plot_data, colors=color_set_optims)
-ggsave(plot, device= cairo_pdf, path=".", filename="optim-tsom-ast-int.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/optim-tsom-ast-int.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
 plot
 ```
 
