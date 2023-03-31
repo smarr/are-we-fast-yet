@@ -2,7 +2,7 @@
 
 ```{r load-scripts, echo=FALSE, include=FALSE}
 # load libraries, the data, and prepare it
-if (Sys.getenv("RSTUDIO") == "1") { setwd("/home/sopi/Documents/Writing/2023/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast/") }
+if (Sys.getenv("RSTUDIO") == "1") { setwd("/home/octavel/PhD/papers/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast") }
 source("scripts/libraries.R", chdir=TRUE)
 source("scripts/data-processing2.R")
 
@@ -10,63 +10,6 @@ source("scripts/data-processing2.R")
 #print(extrafont::fonts())
 #extrafont::loadfonts()
 #extrafont::loadfonts(device = "postscript")
-
-vm_names <- c(
-  "Java17-C2-jit" = "Java JDK17 C2",
-  "Java-int"      = "Java JDK17 Int", 
-  "Java8-C2-jit"  = "Java JDK8 C2",
-  "Java8-int"     = "Java JDK8 Int", 
-  "Java-native"   = "GraalVM Native EE 22.3",
-  
-  "CSharp-jit"    = "C# .NET 6.0.200",
- 
-  "Node-jit"      = "Node.js 17.9",
-  "Node-int"      = "Node.js 17.9 jitless", 
-  "GraalJS-HotspotEE-jit" = "Graal.js EE 22.3 Hotspot", 
-  "GraalJS-NativeEE-int"  = "Graal.js EE 22.3 Native Int", 
-  
-  "PyPy-jit" = "PyPy 3.8 7.3.9",
-  "PyPy-int" = "PyPy 3.8 7.3.9 Int",
-  "CPython-int" = "CPython 3.11",
-  "GraalPython-HotspotEE-jit" = "GraalPython EE 22.3 Hotspot",
-  "GraalPython-NativeEE-int"  = "GraalPython EE 22.3 Native Int",
-  
-  "CRuby-int" = "Ruby 3.1.0",
-  "CRuby-y-jit" = "Ruby 3.1.0 yjit",
-  "TruffleRuby-HotspotEE-jit" = "TruffleRuby EE 22.3 Hotspot",
-  "TruffleRuby-NativeEE-int"  = "TruffleRuby EE 22.3 Native Int",
-  
-  "PySOM-ast-jit" = "PySOM AST JIT",
-  "PySOM-ast-int" = "PySOM AST Int",
-  "PySOM-bc-jit"  = "PySOM BC JIT",
-  "PySOM-bc-int"  = "PySOM BC Int",
-
-  "RPySOM-bc-interp" = "PySOM BC Int",
-  "RPySOM-ast-interp" = "PySOM AST Int",
-  "RPySOM-bc-jit" = "PySOM BC JIT",
-  "RPySOM-ast-jit" = "PySOM AST JIT",
-
-  "TruffleSOM-native-interp-bc" = "TruffleSOM BC Native CE Int", 
-  "TruffleSOM-native-interp-ast" = "TruffleSOM AST Native CE Int",
-  "TruffleSOM-graal" = "TruffleSOM AST Hotspot CE JIT",
-  "TruffleSOM-graal-bc" = "TruffleSOM BC Hotspot CE JIT",
-
-  "TruffleSOM-ast-HotspotCE-jit-main" = "TruffleSOM AST Hotspot CE base", 
-  "TruffleSOM-ast-HotspotEE-jit-main" = "TruffleSOM AST Hotspot EE base", 
-  "TruffleSOM-ast-NativeEE-int-main"  = "TruffleSOM AST Native Int EE base",
-  "TruffleSOM-ast-NativeEE-int-super" = "TruffleSOM AST Native Int EE super", 
-  "TruffleSOM-ast-NativeEE-int-uber"  = "TruffleSOM AST Native Int EE uber",
-  "TruffleSOM-bc-HotspotCE-jit-main"  = "TruffleSOM BC Hotspot CE base",
-  "TruffleSOM-bc-HotspotEE-jit-main"  = "TruffleSOM BC Hotspot EE base",
-  "TruffleSOM-bc-NativeEE-int-main"   = "TruffleSOM BC Native Int EE base",
-  
-  "SOMpp-int" = "SOM++ Int",
-  "CSOM-int" = "CSOM Int",
-  "SOM-RS-ast-int" = "SOM-RS AST Int",
-  "SOM-RS-bc-int" = "SOM-RS BC Int",
-  "ykSOM-int" = "ykSOM Int"
-)
-
 
 get_data_rss <- function() {
   # iteration is always 1 so we remove it. unit is always kb
@@ -122,18 +65,25 @@ get_comparison_table <- function(all_data, exe_bc_name, exe_ast_name, only_with_
   df_new
 }
 
-box_plot_rss <- function(data) {
+box_plot_rss <- function(data, colors = color_set_vms) {
   x_breaks <- c(0.5, 0.8, 1, 2, 3, 5, 10, 15, 30)
   
   breaks <- levels(droplevels(data)$exe)
-  #vm_colors <- rainbow(255)
-  col_values <- get_safe_color_palette(4)
-#  col_values <- c("red", "green", "yellow", "blue")
 
-  plot <- ggplot(data, aes(x=ratio, y=reorder(exe, -ratio, FUN = median), fill = exe))
-  plot <- plot + geom_boxplot(outlier.size = 0.5) +
+  plot <- ggplot(data, aes(x=ratio, y=reorder(exe, -ratio, FUN = median)))
+  plot <- plot + 
+    geom_vline(aes(xintercept=1),    colour="#999999", linetype="solid") +
+    geom_vline(aes(xintercept=2), colour="#999999", linetype="dotted") +
+    geom_vline(aes(xintercept=10), colour="#999999", linetype="dotted")
+  plot <- plot + geom_boxplot(outlier.size = 0.9,
+                              outlier.alpha = 0.6,
+                              width=0.5,
+                              outlier.shape = 22,
+                              aes(colour = exe, fill = exe), 
+                              alpha=0.4) +
     scale_x_log10(breaks = x_breaks) +
-    scale_fill_viridis_d() +
+    scale_color_manual(values = colors) +
+    scale_fill_manual(values = colors) +
     theme_bw() + theme_simple(font_size = 8) +
     theme(
       axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1),
@@ -146,19 +96,20 @@ box_plot_rss <- function(data) {
   plot
 }
 
-box_plot_in_kb <- function(data) {
+box_plot_in_kb <- function(data, colors = color_set_vms) {
 #  x_breaks <- c(0.5, 0.8, 1, 2, 3, 5, 10, 15, 30)
   
   breaks <- levels(droplevels(data)$exe)
-  #vm_colors <- rainbow(255)
-  col_values <- get_safe_color_palette(4)
-#  col_values <- c("red", "green", "yellow", "blue")
 
-  plot <- ggplot(data, aes(x=value.x, y=reorder(exe, -ratio, FUN = median), fill = exe))
-  plot <- plot + geom_boxplot(outlier.size = 0.5) +
-#    scale_x_log10(breaks = x_breaks) +
-#    scale_fill_viridis_d() +
-    theme(legend.position="none") + 
+  plot <- ggplot(data, aes(x=value.x, y=reorder(exe, -ratio, FUN = median)))
+  plot <- plot + geom_boxplot(outlier.size = 0.9,
+                              outlier.alpha = 0.6,
+                              width=0.5,
+                              outlier.shape = 22,
+                              aes(colour = exe, fill = exe), 
+                              alpha=0.4) +
+    scale_color_manual(values = colors) +
+    scale_fill_manual(values = colors) +
     theme_bw() + theme_simple(font_size = 8) +
     theme(
       axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1),
@@ -192,12 +143,11 @@ get_data_for_box_plot <- function(all_data, baseline_name, exe_names=NULL) {
 
 data_rss <- get_data_rss() 
 data_repr <- get_data_program_representation()
-
 ```
 
 ## BCvsAST - interpreter only
 
-```{r rss-interp, fig.width=8, fig.height=2.2, echo=FALSE, eval=FALSE}
+```{r rss-interp, fig.width=8, fig.height=2.2, echo=FALSE}
 #box_plot_data <- get_data_for_box_plot_rss(data_rss, 
 #                                           "TruffleSOM-native-interp-bc",
 #                                           c("TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast"))
@@ -223,7 +173,7 @@ plot
 
 ## BCvsAST - JIT
 
-```{r rss-jit, fig.width=8, fig.height=2.2, echo=FALSE, eval=FALSE}
+```{r rss-jit, fig.width=8, fig.height=2.2, echo=FALSE}
 #box_plot_data2 <- get_data_for_box_plot_rss(data_rss,
 #                                      "RPySOM-bc-jit",
 #                                       c("RPySOM-bc-jit", "RPySOM-ast-jit"))
@@ -297,7 +247,7 @@ plot
 # Program representation
 
 ## BCvsAST - Interp
-```{r program-repr-memory-int, fig.width=8, fig.height=2.2, echo=FALSE, eval=FALSE}
+```{r program-repr-memory-int, fig.width=8, fig.height=2.2, echo=FALSE}
 data <- get_data_for_box_plot(data_repr,
                                    "RPySOM-bc-interp",
                                    c("RPySOM-bc-interp", "RPySOM-ast-interp","TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast"))
@@ -309,7 +259,7 @@ plot
 ```
 
 ## BCvsAST - JIT
-```{r program-repr-memory-jit, fig.width=8, fig.height=2.2, echo=FALSE, eval=FALSE}
+```{r program-repr-memory-jit, fig.width=8, fig.height=2.2, echo=FALSE}
 data <- get_data_for_box_plot(data_repr,
                                    "RPySOM-bc-jit",
                                    c("RPySOM-bc-jit", "RPySOM-ast-jit", "TruffleSOM-graal", "TruffleSOM-graal-bc"))
