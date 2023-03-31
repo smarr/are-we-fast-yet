@@ -181,7 +181,7 @@ box_plot_data_ast$optim <- reorder(factor(box_plot_data_ast$optim), -box_plot_da
 
 box_plot_data <- rbind(box_plot_data_ast, box_plot_data_bc)
 plot <- box_plot_optim_unified(box_plot_data)
-ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/optim-tsom-ast-int.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/optim-unified.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
 plot
 ```
 
