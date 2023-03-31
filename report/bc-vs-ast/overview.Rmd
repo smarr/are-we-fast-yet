@@ -65,7 +65,6 @@ opts_chunk$set(dev = 'png',
 #    cache=TRUE,
 
 # dput(levels(data$bench))
-
 vms_all <- names(vm_names)
 vms_int <- c(
   "Java-int",
@@ -81,7 +80,6 @@ vms_int <- c(
   "CRuby-int",
   "TruffleRuby-NativeEE-int",
  
-     
   "PySOM-ast-int",
   "PySOM-bc-int", 
   
@@ -121,13 +119,6 @@ vms_jit <- c(
 
 assert_that(all(sort(c(vms_int, vms_jit)) == sort(vms_all))) ## sanity check
 
-# vm_colors <- brewer.pal(length(vms_all), "Paired")  # to replace scale_fill_brewer(type = "qual", palette = "Paired")
-vm_colors <- rainbow(length(vms_all))
-vm_colors_light <- rainbow(length(vms_all), s = 0.8, v = 0.8)
-
-names(vm_colors) <- vm_names
-names(vm_colors_light) <- vm_names
-
 warmup_jit_iteration <- 100
 baseline_vm_peak <- "Java20-C2-jit"
 baseline_vm_int <- "Java20-int"
@@ -156,7 +147,7 @@ plot_benchmarks_speedup_for_vms <- function(
   # vm_norm$exe <- reorder(vm_norm$exe, X=vm_norm$exe_ratio)
 
   breaks <- levels(droplevels(vm_norm)$exe)
-  col_values <- sapply(breaks, function(x) vm_colors[[x]])
+  col_values <- sapply(breaks, function(x) color_set_vms[[x]])
   
   for (b in levels(vm_norm$bench)) {
     # b <- "Bounce"
@@ -164,15 +155,16 @@ plot_benchmarks_speedup_for_vms <- function(
 
     p <- ggplot(data_b, aes(y = exe, x = ratio_median, fill = exe)) +
       geom_vline(aes(xintercept=1), colour="#333333", linetype="solid") +
-      geom_boxplot(aes(color = exe),
+      geom_boxplot(aes(color = exe, fill = exe),
+                    alpha=0.4,
                    outlier.size = 0.9,
                    outlier.alpha = 0.6,
                    lwd=0.2) +
       geom_jitter(aes(color = exe, y = exe), size=0.3, alpha=0.3) +
       scale_x_log10() +
       scale_y_discrete(limits = rev) +
-      scale_color_manual(values = vm_colors) +
-      scale_fill_manual(values = vm_colors_light) +
+      scale_color_manual(values = color_set_vms) +
+      scale_fill_manual(values = color_set_vms) +
       theme_simple() + # scale_fill_manual(values=col) +
       theme(legend.position="none",
             axis.title.x = element_text(
@@ -211,7 +203,7 @@ overview_box_plot <- function(stats, vms = NULL, prepare_data = NULL, pre_plot =
   if (new_colors) {
     col_values <- brewer.pal(length(breaks), "Paired")
   } else {
-    col_values <- sapply(breaks, function(x) vm_colors[[x]])
+    col_values <- sapply(breaks, function(x) color_set_vms[[x]])
   }
 
   median_fn <- median
@@ -233,7 +225,7 @@ overview_box_plot <- function(stats, vms = NULL, prepare_data = NULL, pre_plot =
   # Only two decimal places
   x_breaks <- round(x_breaks, 2)
   
-  plot <- ggplot(vm_stats, aes(x=ratio, y=reorder(exe, -ratio, FUN = median_fn), fill = exe))
+  plot <- ggplot(vm_stats, aes(x=ratio, y=reorder(exe, -ratio, FUN = median_fn)))
   if (!is.null(pre_plot)) {
     plot <- pre_plot(plot)
   }
@@ -245,11 +237,18 @@ overview_box_plot <- function(stats, vms = NULL, prepare_data = NULL, pre_plot =
                                 colour="#cccccc", linetype="dashed")
     }
   }
-  
+  plot <- plot + 
+    geom_vline(aes(xintercept=1),    colour="#999999", linetype="solid") +
+    geom_vline(aes(xintercept=2), colour="#999999", linetype="dotted") +
+    geom_vline(aes(xintercept=10), colour="#999999", linetype="dotted")
+    
   plot <- plot +
-    geom_boxplot(outlier.size = 0.5) + #fill=get_color(5, 7)
+    geom_boxplot(outlier.size = 0.5,
+                 aes(colour = exe, fill = exe), 
+                  alpha=0.4) + #fill=get_color(5, 7)
     scale_x_log10(breaks = x_breaks) +
-    scale_fill_manual(values = col_values) +
+    scale_color_manual(values = color_set_vms) +
+    scale_fill_manual(values = color_set_vms) +
     theme_bw() + theme_simple(font_size = 8) +
     theme(
       axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1),
