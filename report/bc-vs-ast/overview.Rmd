@@ -65,9 +65,7 @@ opts_chunk$set(dev = 'png',
 #    cache=TRUE,
 
 vm_names <- c(
-  "Java20-C2-jit" = "Java JDK20 C2",
   "Java17-C2-jit" = "Java JDK17 C2",
-  "Java20-int"      = "Java JDK20 Int", 
   "Java-int"      = "Java JDK17 Int", 
   "Java8-C2-jit"  = "Java JDK8 C2",
   "Java8-int"     = "Java JDK8 Int", 
@@ -95,6 +93,16 @@ vm_names <- c(
   "PySOM-ast-int" = "PySOM AST Int",
   "PySOM-bc-jit"  = "PySOM BC JIT",
   "PySOM-bc-int"  = "PySOM BC Int",
+
+  "RPySOM-bc-interp" = "PySOM BC Int",
+  "RPySOM-ast-interp" = "PySOM AST Int",
+  "RPySOM-bc-jit" = "PySOM BC JIT",
+  "RPySOM-ast-jit" = "PySOM AST JIT",
+
+  "TruffleSOM-native-interp-bc" = "TruffleSOM BC Native CE Int", 
+  "TruffleSOM-native-interp-ast" = "TruffleSOM AST Native CE Int",
+  "TruffleSOM-graal" = "TruffleSOM AST Hotspot CE JIT",
+  "TruffleSOM-graal-bc" = "TruffleSOM BC Hotspot CE JIT",
 
   "TruffleSOM-ast-HotspotCE-jit-main" = "TruffleSOM AST Hotspot CE base", 
   "TruffleSOM-ast-HotspotEE-jit-main" = "TruffleSOM AST Hotspot EE base", 
