@@ -137,7 +137,6 @@ get_data_for_box_plot <- function(all_data, baseline_name, exe_names=NULL) {
   colnames(df2)[which(colnames(df2) == "exe.x")] <- "exe"
   df2$ratio <- df2$value.x / df2$value.y
 
-  suppressMessages(df2$exe <- revalue(df2$exe, unify_overview_memory_data) %>% droplevels())
   suppressMessages(df2$exe <- revalue(df2$exe, vm_names) %>% droplevels())
   df2
 }
@@ -247,26 +246,52 @@ plot
 
 # Program representation
 
-## BCvsAST - Interp
-```{r program-repr-memory-int, fig.width=8, fig.height=2.2, echo=FALSE}
+## BCvsAST - TruffleSOM Int
+```{r program-repr-memory-int-tsom, fig.width=8, fig.height=2.2, echo=FALSE}
 data <- get_data_for_box_plot(data_repr,
-                                   "RPySOM-bc-interp",
-                                   c("RPySOM-bc-interp", "RPySOM-ast-interp","TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast"))
+                                   "TruffleSOM-native-interp-ast",
+                                   c("TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast"))
 
-plot <- box_plot_rss(data)
-ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/program-repr-interp.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+plot <- box_plot_in_kb(data)
+ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/program-repr-interp-tsom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
 
 plot
 ```
 
-## BCvsAST - JIT
-```{r program-repr-memory-jit, fig.width=8, fig.height=2.2, echo=FALSE}
+
+## BCvsAST - PySOM Int
+```{r program-repr-memory-int-pysom, fig.width=8, fig.height=2.2, echo=FALSE}
+data <- get_data_for_box_plot(data_repr,
+                                   "RPySOM-bc-interp",
+                                   c("RPySOM-bc-interp", "RPySOM-ast-interp"))
+
+plot <- box_plot_in_kb(data)
+ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/program-repr-interp-pysom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+
+plot
+```
+
+
+## BCvsAST - TruffleSOM JIT
+```{r program-repr-memory-jit-tsom, fig.width=8, fig.height=2.2, echo=FALSE}
+data <- get_data_for_box_plot(data_repr,
+                                   "TruffleSOM-graal",
+                                   c("TruffleSOM-graal", "TruffleSOM-graal-bc"))
+
+plot <- box_plot_in_kb(data)
+ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/program-repr-jit-tsom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+
+plot
+```
+
+## BCvsAST - PySOM JIT
+```{r program-repr-memory-jit-pysom, fig.width=8, fig.height=2.2, echo=FALSE}
 data <- get_data_for_box_plot(data_repr,
                                    "RPySOM-bc-jit",
-                                   c("RPySOM-bc-jit", "RPySOM-ast-jit", "TruffleSOM-graal", "TruffleSOM-graal-bc"))
+                                   c("RPySOM-bc-jit", "RPySOM-ast-jit"))
 
-plot <- box_plot_rss(data)
-ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/program-repr-jit.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+plot <- box_plot_in_kb(data)
+ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/program-repr-jit-pysom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
 
 plot
 ```

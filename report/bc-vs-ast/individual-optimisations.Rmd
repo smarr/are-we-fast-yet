@@ -55,8 +55,8 @@ box_plot_optim <- function(data, custom_x_breaks=NULL, colors = color_set_optims
   plot <- plot + 
     geom_vline(aes(xintercept=1),    colour="#999999", linetype="solid") +
     geom_vline(aes(xintercept=1.5),  colour="#999999", linetype="dotted") +
-    geom_vline(aes(xintercept=2), colour="#999999", linetype="dotted") +
-    geom_vline(aes(xintercept=10), colour="#999999", linetype="dotted")
+    geom_vline(aes(xintercept=2), colour="#999999", linetype="dotted") #+
+#    geom_vline(aes(xintercept=10), colour="#999999", linetype="dotted")
   plot <- plot + geom_boxplot(outlier.size = 0.9,
                               outlier.alpha = 0.6,
                               width=0.5,
@@ -119,7 +119,7 @@ get_tsom_ast_data <- function() {
         load_data_for_experiment(2751, "no lowered control structs", project_name), # YURIA1'D
 #        load_data_for_experiment(2625, "no blocks without context", project_name),
         load_data_for_experiment(2761, "no supernodes (*)", project_name), # YURIA1'D
-        load_data_for_experiment(2741, "no lowering of unneces. prims", project_name)  # not final commit
+        load_data_for_experiment(2816, "no lowering of unneces. prims", project_name)  # YURIA1'D
         ) %>% filter(criterion == "total")
 }
 
@@ -129,9 +129,9 @@ get_pysom_ast_data <- function() {
         load_data_for_experiment(2771, "no local/nonlocal vars", project_name), # YURIA1'D
         load_data_for_experiment(2764, "no inline caching", project_name), # YURIA1'D
         load_data_for_experiment(2770, "no global caching", project_name), # YURIA1'D
-        load_data_for_experiment(2781, "no lowered control structs", project_name), # YURIA1'D
+        load_data_for_experiment(2811, "no lowered control structs", project_name), # YURIA1'D
 #        load_data_for_experiment(2658, "no blocks without context", project_name),
-        load_data_for_experiment(2768, "no lowering of unneces. prims", project_name) # YURIA1'D
+        load_data_for_experiment(2812, "no lowering of unneces. prims", project_name) # YURIA1'D
         ) %>% filter(criterion == "total")
 }
 
@@ -144,7 +144,7 @@ get_tsom_bc_data <- function() {
         load_data_for_experiment(2754, "no global caching", project_name), # YURIA1'D
         load_data_for_experiment(2751, "no lowered control structs", project_name), # YURIA1'D
         load_data_for_experiment(2757, "no superinstructions (*)", project_name), # YURIA1'D
-        load_data_for_experiment(2741, "no lowering of unneces. prims", project_name)  # not final commit.
+        load_data_for_experiment(2816, "no lowering of unneces. prims", project_name)  # YURIA1'D.
         ) %>% filter(criterion == "total")
 }
 
@@ -155,8 +155,8 @@ get_pysom_bc_data <- function() {
         load_data_for_experiment(2772, "no global caching", project_name), # YURIA1'D
         load_data_for_experiment(2774, "no quickening (*)", project_name), # YURIA1'D
         load_data_for_experiment(2775, "no superinstructions (*)", project_name), # YURIA1'D
-        load_data_for_experiment(2773, "no lowered control structs", project_name), # YURIA1'D
-        load_data_for_experiment(2776, "no lowering of unneces. prims", project_name) # YURIA1'D
+        load_data_for_experiment(2811, "no lowered control structs", project_name), # YURIA1'D
+        load_data_for_experiment(2812, "no lowering of unneces. prims", project_name) # YURIA1'D
         ) %>% filter(criterion == "total")
 }
 
@@ -200,7 +200,7 @@ plot
 ```{r optim-pysom-ast-int, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_ast, "RPySOM-ast-interp")
 
-plot <- box_plot_optim(box_plot_data, custom_x_breaks=c(1, 1.5, 1.8), colors=color_set_optims)
+plot <- box_plot_optim(box_plot_data, colors=color_set_optims)
 ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/optim-pysom-ast-int.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
 plot
 ```
