@@ -112,51 +112,51 @@ load_data_for_experiment <- function(experiment_ref, optim_name, project_name) {
 # (*) means AST/BC specific optim
 get_tsom_ast_data <- function() {
   project_name <- "TruffleSOM"
-  rbind(load_data_for_experiment(2762, "every optimization", project_name), # YURIA1'D
-        load_data_for_experiment(2759, "no local/nonlocal vars", project_name), # YURIA1'D
-        load_data_for_experiment(2753, "no inline caching", project_name), # YURIA1'D
-        load_data_for_experiment(2752, "no global caching", project_name), # YURIA1'D
-        load_data_for_experiment(2751, "no lowered control structs", project_name), # YURIA1'D
+  rbind(load_data_for_experiment(2762, "every optimization", project_name),
+        load_data_for_experiment(2759, "no local/nonlocal vars", project_name),
+        load_data_for_experiment(2753, "no inline caching", project_name),
+        load_data_for_experiment(2752, "no global caching", project_name),
+        load_data_for_experiment(2751, "no lowered control structs", project_name),
 #        load_data_for_experiment(2625, "no blocks without context", project_name),
-        load_data_for_experiment(2761, "no supernodes (*)", project_name), # YURIA1'D
-        load_data_for_experiment(2816, "no lowering of unneces. prims", project_name)  # YURIA1'D
+        load_data_for_experiment(2761, "no supernodes (*)", project_name),
+        load_data_for_experiment(2816, "no lowering of unneces. prims", project_name) 
         ) %>% filter(criterion == "total")
 }
 
 get_pysom_ast_data <- function() {
   project_name <- "RPySOM"
-  rbind(load_data_for_experiment(2780, "every optimization", project_name), # YURIA1'D
-        load_data_for_experiment(2771, "no local/nonlocal vars", project_name), # YURIA1'D
-        load_data_for_experiment(2764, "no inline caching", project_name), # YURIA1'D
-        load_data_for_experiment(2770, "no global caching", project_name), # YURIA1'D
-        load_data_for_experiment(2811, "no lowered control structs", project_name), # YURIA1'D
+  rbind(load_data_for_experiment(2780, "every optimization", project_name),
+        load_data_for_experiment(2771, "no local/nonlocal vars", project_name),
+        load_data_for_experiment(2764, "no inline caching", project_name),
+        load_data_for_experiment(2770, "no global caching", project_name),
+        load_data_for_experiment(2811, "no lowered control structs", project_name),
 #        load_data_for_experiment(2658, "no blocks without context", project_name),
-        load_data_for_experiment(2812, "no lowering of unneces. prims", project_name) # YURIA1'D
+        load_data_for_experiment(2812, "no lowering of unneces. prims", project_name)
         ) %>% filter(criterion == "total")
 }
 
 get_tsom_bc_data <- function() {
   project_name <- "TruffleSOM"
-  rbind(load_data_for_experiment(2762, "every optimization", project_name), # YURIA1'D
-        load_data_for_experiment(2785, "no inline caching", project_name), # YURIA1'D -Test is disabled in that one, which is a tad dirty... results are shit, anyway, needs more work
-        load_data_for_experiment(2759, "no local/nonlocal vars", project_name), # YURIA1'D
-        load_data_for_experiment(2756, "no quickening (*)", project_name), # YURIA1'D
-        load_data_for_experiment(2754, "no global caching", project_name), # YURIA1'D
-        load_data_for_experiment(2751, "no lowered control structs", project_name), # YURIA1'D
-        load_data_for_experiment(2757, "no superinstructions (*)", project_name), # YURIA1'D
-        load_data_for_experiment(2816, "no lowering of unneces. prims", project_name)  # YURIA1'D.
+  rbind(load_data_for_experiment(2762, "every optimization", project_name),
+        load_data_for_experiment(2785, "no inline caching", project_name), # -Test is disabled in that one, which is a tad dirty... results are shit, anyway, needs more work
+        load_data_for_experiment(2759, "no local/nonlocal vars", project_name),
+        load_data_for_experiment(2756, "no quickening (*)", project_name),
+        load_data_for_experiment(2754, "no global caching", project_name),
+        load_data_for_experiment(2751, "no lowered control structs", project_name),
+        load_data_for_experiment(2757, "no superinstructions (*)", project_name),
+        load_data_for_experiment(2816, "no lowering of unneces. prims", project_name)
         ) %>% filter(criterion == "total")
 }
 
 get_pysom_bc_data <- function() {
   project_name <- "RPySOM"
-  rbind(load_data_for_experiment(2780, "every optimization", project_name), # YURIA1'D 
-        load_data_for_experiment(2764, "no inline caching", project_name), # YURIA1'D
-        load_data_for_experiment(2772, "no global caching", project_name), # YURIA1'D
-        load_data_for_experiment(2774, "no quickening (*)", project_name), # YURIA1'D
-        load_data_for_experiment(2775, "no superinstructions (*)", project_name), # YURIA1'D
-        load_data_for_experiment(2811, "no lowered control structs", project_name), # YURIA1'D
-        load_data_for_experiment(2812, "no lowering of unneces. prims", project_name) # YURIA1'D
+  rbind(load_data_for_experiment(2780, "every optimization", project_name), 
+        load_data_for_experiment(2764, "no inline caching", project_name),
+        load_data_for_experiment(2772, "no global caching", project_name),
+        load_data_for_experiment(2774, "no quickening (*)", project_name),
+        load_data_for_experiment(2775, "no superinstructions (*)", project_name),
+        load_data_for_experiment(2811, "no lowered control structs", project_name),
+        load_data_for_experiment(2812, "no lowering of unneces. prims", project_name)
         ) %>% filter(criterion == "total")
 }
 
