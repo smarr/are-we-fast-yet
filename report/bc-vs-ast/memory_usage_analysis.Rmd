@@ -41,11 +41,16 @@ get_data_rss <- function() {
   data_rss
 }
 
+# Unused for now.
 get_data_program_representation <- function(data) {
   data_repr_tsom <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% filter(criterion == "Allocated")
   data_repr_pysom <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2763")
   pysom_unique <- distinct(data_repr_pysom, exe, runid, cmdline, cores, extraargs, envid, .keep_all = TRUE)
-  tsom_unique <- distinct(data_repr_tsom, exe, runid, cmdline, cores, extraargs, envid, .keep_all = TRUE)  
+  
+  tsom_unique <- data_repr_tsom %>%
+    group_by(expid, runid, trialid, bench, exe, cmdline, extraargs, invocation) %>%
+    summarize(iteration = 1, value = sum(value))
+#  tsom_unique <- distinct(data_repr_tsom, exe, runid, cmdline, cores, extraargs, envid, .keep_all = TRUE)  
   
   data_repr <- rbind(pysom_unique, tsom_unique)
   
@@ -108,6 +113,7 @@ box_plot_in_kb <- function(data, colors = color_set_vms) {
                               outlier.shape = 22,
                               aes(colour = exe, fill = exe), 
                               alpha=0.4) +
+    scale_x_log10() +
     scale_color_manual(values = colors) +
     scale_fill_manual(values = colors) +
     theme_bw() + theme_simple(font_size = 8) +
@@ -142,7 +148,15 @@ get_data_for_box_plot <- function(all_data, baseline_name, exe_names=NULL) {
 }
 
 data_rss <- get_data_rss() 
-data_repr <- get_data_program_representation()
+#data_repr <- get_data_program_representation()
+
+data_repr_tsom <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% 
+    filter(criterion == "Allocated") %>%
+    group_by(expid, runid, trialid, bench, exe, cmdline, extraargs, invocation) %>%
+    summarize(iteration = 1, value = sum(value))
+
+data_repr_pysom <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2763")
+data_repr_pysom <- distinct(data_repr_pysom, exe, runid, cmdline, cores, extraargs, envid, .keep_all = TRUE)
 ```
 
 ## BCvsAST - interpreter only
@@ -248,9 +262,8 @@ plot
 
 ## BCvsAST - TruffleSOM Int
 ```{r program-repr-memory-int-tsom, fig.width=8, fig.height=2.2, echo=FALSE}
-data <- get_data_for_box_plot(data_repr,
-                                   "TruffleSOM-native-interp-ast",
-                                   c("TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast"))
+data <- data_repr_tsom %>% filter(exe %in% c("TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast"))
+data <- data %>% rename(value.x = value) %>% mutate(ratio = 1) # bad code to make it work with the previous boxplot function...
 
 plot <- box_plot_in_kb(data)
 ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/program-repr-interp-tsom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
@@ -261,9 +274,8 @@ plot
 
 ## BCvsAST - PySOM Int
 ```{r program-repr-memory-int-pysom, fig.width=8, fig.height=2.2, echo=FALSE}
-data <- get_data_for_box_plot(data_repr,
-                                   "RPySOM-bc-interp",
-                                   c("RPySOM-bc-interp", "RPySOM-ast-interp"))
+data <- data_repr_pysom %>% filter(exe %in% c("RPySOM-bc-interp", "RPySOM-ast-interp"))
+data <- data %>% rename(value.x = value) %>% mutate(ratio = 1) # bad code to make it work with the previous boxplot function...
 
 plot <- box_plot_in_kb(data)
 ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/program-repr-interp-pysom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
@@ -274,9 +286,8 @@ plot
 
 ## BCvsAST - TruffleSOM JIT
 ```{r program-repr-memory-jit-tsom, fig.width=8, fig.height=2.2, echo=FALSE}
-data <- get_data_for_box_plot(data_repr,
-                                   "TruffleSOM-graal",
-                                   c("TruffleSOM-graal", "TruffleSOM-graal-bc"))
+data <- data_repr_tsom %>% filter(exe %in% c("TruffleSOM-graal", "TruffleSOM-graal-bc"))
+data <- data %>% rename(value.x = value) %>% mutate(ratio = 1) # bad code to make it work with the previous boxplot function...
 
 plot <- box_plot_in_kb(data)
 ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/program-repr-jit-tsom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
@@ -286,9 +297,8 @@ plot
 
 ## BCvsAST - PySOM JIT
 ```{r program-repr-memory-jit-pysom, fig.width=8, fig.height=2.2, echo=FALSE}
-data <- get_data_for_box_plot(data_repr,
-                                   "RPySOM-bc-jit",
-                                   c("RPySOM-bc-jit", "RPySOM-ast-jit"))
+data <- data_repr_pysom %>% filter(exe %in% c("RPySOM-bc-jit", "RPySOM-ast-jit"))
+data <- data %>% rename(value.x = value) %>% mutate(ratio = 1) # bad code to make it work with the previous boxplot function...
 
 plot <- box_plot_in_kb(data)
 ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/program-repr-jit-pysom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
