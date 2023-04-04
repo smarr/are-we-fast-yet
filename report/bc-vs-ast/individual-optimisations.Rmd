@@ -160,10 +160,32 @@ get_pysom_bc_data <- function() {
         ) %>% filter(criterion == "total")
 }
 
-data_optim_tsom_ast <- get_tsom_ast_data()
-data_optim_tsom_bc <- get_tsom_bc_data()
-data_optim_pysom_ast <- get_pysom_ast_data()
-data_optim_pysom_bc <- get_pysom_bc_data()
+only_keep_last_peak_perf_iters <- function(df) {
+  LAST_PEAK_ITERS_NBR <- 10
+  
+  group_cols <- c("bench", "suite", "invocation", "trialid", "optim")
+
+  # define the exe values to group by
+  exe_vals <- c("RPySOM-bc-jit", "RPySOM-ast-jit", "TruffleSOM-graal", "TruffleSOM-graal-bc")
+  
+  # group the data frame by group_cols and exe_vals and find the max iteration number for each group
+  max_iters <- df %>%
+    filter(exe %in% exe_vals) %>%
+    group_by(across(all_of(group_cols)), exe) %>%
+    summarize(max_iter = max(iteration))
+  
+  df_filtered <- df %>%
+    left_join(max_iters, by = c(group_cols, "exe")) %>% # join with max_iters to get the max iteration number for each group
+    mutate(max_iter = ifelse(is.na(max_iter), 0, max_iter)) %>% # replace NA values in max_iter with 0
+    filter(iteration >= (max_iter - LAST_PEAK_ITERS_NBR) | !(exe %in% exe_vals)) # keep only iterations >= max_iter - 10
+
+  df_filtered
+}
+
+data_optim_tsom_ast <- get_tsom_ast_data() %>% only_keep_last_peak_perf_iters()
+data_optim_tsom_bc <- get_tsom_bc_data() %>% only_keep_last_peak_perf_iters()
+data_optim_pysom_ast <- get_pysom_ast_data() %>% only_keep_last_peak_perf_iters()
+data_optim_pysom_bc <- get_pysom_bc_data() %>% only_keep_last_peak_perf_iters()
 
 all_optims <- rbind(data_optim_tsom_ast, data_optim_tsom_bc, data_optim_pysom_ast, data_optim_pysom_bc)
 unique_optims <- unique(all_optims$optim)
@@ -171,8 +193,8 @@ color_set_optims <- compute_color_bindings_for_plots(unique_optims, viridis::vir
 
 ```
 
-### Unified graph first attempt
-```{r yeah-mr-white-science, fig.width=8, fig.height=2.2, echo=FALSE}
+[comment]: ### Unified graph first attempt
+```{r yeah-mr-white-science, fig.width=8, fig.height=2.2, echo=FALSE, eval=FALSE}
 box_plot_data_ast <- get_data_for_box_plot_optim(data_optim_tsom_ast, "TruffleSOM-native-interp-ast") %>% mutate(optim = paste0(optim, "-AST"))
 box_plot_data_bc <- get_data_for_box_plot_optim(data_optim_tsom_bc, "TruffleSOM-native-interp-bc") %>% mutate(optim = paste0(optim, "-BC"))
 
