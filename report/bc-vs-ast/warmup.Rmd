@@ -29,35 +29,35 @@ sorted_benchmarks <- c(
 )
 
 sorted_exe <- c(
-  "Java17-C2-jit",
-  "Java-int", 
- 
-  "Node-jit",
-  "Node-int", 
-  "GraalJS-HotspotEE-jit", 
-  "GraalJS-NativeEE-int", 
-  
-  "PyPy-jit",
-  "CPython-int",
-  "GraalPython-HotspotEE-jit",
-  "GraalPython-NativeEE-int", 
-  
-  "CRuby-int",
-  "CRuby-y-jit",
-  "TruffleRuby-HotspotEE-jit",
-  "TruffleRuby-NativeEE-int",
+# "Java17-C2-jit",
+# "Java-int", 
+#
+# "Node-jit",
+# "Node-int", 
+# "GraalJS-HotspotEE-jit", 
+# "GraalJS-NativeEE-int", 
+# 
+# "PyPy-jit",
+# "CPython-int",
+# "GraalPython-HotspotEE-jit",
+#  "GraalPython-NativeEE-int", 
+#  
+#  "CRuby-int",
+#  "CRuby-y-jit",
+#  "TruffleRuby-HotspotEE-jit",
+#  "TruffleRuby-NativeEE-int",
   
   "PySOM-ast-jit",
-  "PySOM-ast-int",
+#  "PySOM-ast-int",
   "PySOM-bc-jit",
-  "PySOM-bc-int",
+#  "PySOM-bc-int",
 
   "TruffleSOM-ast-HotspotCE-jit-main", 
-  "TruffleSOM-ast-NativeEE-int-main",
-  "TruffleSOM-ast-NativeEE-int-super", 
-  "TruffleSOM-ast-NativeEE-int-uber",
-  "TruffleSOM-bc-HotspotCE-jit-main", 
-  "TruffleSOM-bc-NativeEE-int-main"
+#  "TruffleSOM-ast-NativeEE-int-main",
+#  "TruffleSOM-ast-NativeEE-int-super", 
+#  "TruffleSOM-ast-NativeEE-int-uber",
+  "TruffleSOM-bc-HotspotCE-jit-main"
+#  "TruffleSOM-bc-NativeEE-int-main"
 )
 
 # data_ea is expected to have only a single configuration,
@@ -114,7 +114,9 @@ for (b in sorted_benchmarks) { data_b <- data %>% filter(bench == b) %>% droplev
     if (length(levels(data_c$inputsize)) > 1) { args <- paste0(args, i) }
     if (length(levels(data_i$extraargs)) > 1) { args <- paste0(args, ea) }
     
-    print(warmup_plot(data_ea, b, e))
+    plot <- warmup_plot(data_ea, b, e)
+    print(plot)
+    ggsave(plot, device= cairo_pdf, path=".", filename=paste0("output_graphs_warmup/", b, e, ".pdf"), dpi=300, height=50, width=50, units="mm", family="Arial")
     } } } }
 } }
 

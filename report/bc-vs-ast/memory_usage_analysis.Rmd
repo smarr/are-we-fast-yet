@@ -144,6 +144,7 @@ get_data_for_box_plot <- function(all_data, baseline_name, exe_names=NULL) {
   colnames(df2)[which(colnames(df2) == "exe.x")] <- "exe"
   df2$ratio <- df2$value.x / df2$value.y
 
+  suppressMessages(df2$exe <- revalue(df2$exe, unify_overview_memory_data) %>% droplevels())
   suppressMessages(df2$exe <- revalue(df2$exe, vm_names) %>% droplevels())
   df2
 }
@@ -266,10 +267,6 @@ plot
 # TSOM - program repr.
 
 TSOM int: sum of any iteration above 10. TSOM JIT: sum of any iteration above 100 (not very scientific, overview for now)
-
-runtime allocation and not program representation, to be more accurate
-
-get data for the very first iteration as well
 
 ## BCvsAST - TruffleSOM Int
 ```{r program-repr-memory-int-tsom, fig.width=8, fig.height=2.2, echo=FALSE}
