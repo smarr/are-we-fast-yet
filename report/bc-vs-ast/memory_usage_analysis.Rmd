@@ -42,7 +42,6 @@ get_data_rss <- function() {
   data_rss
 }
 
-# Unused for now.
 get_data_program_representation <- function(data) {
   data_repr_tsom <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% filter(criterion == "Allocated")
   data_repr_pysom <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2763")
@@ -51,7 +50,7 @@ get_data_program_representation <- function(data) {
   tsom_unique <- data_repr_tsom %>%
     group_by(expid, runid, trialid, bench, exe, cmdline, extraargs, invocation) %>%
     summarize(iteration = 1, value = sum(value))
-#  tsom_unique <- distinct(data_repr_tsom, exe, runid, cmdline, cores, extraargs, envid, .keep_all = TRUE)  
+  tsom_unique <- distinct(data_repr_tsom, exe, runid, cmdline, cores, extraargs, envid, .keep_all = TRUE)  
   
   data_repr <- rbind(pysom_unique, tsom_unique)
   
@@ -150,7 +149,7 @@ get_data_for_box_plot <- function(all_data, baseline_name, exe_names=NULL) {
 }
 
 data_rss <- get_data_rss() 
-#data_repr <- get_data_program_representation()
+data_repr_from_old_function <- get_data_program_representation()
 
 #data_repr_tsom_old <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% 
 #    filter(criterion == "Allocated") %>%
@@ -264,7 +263,7 @@ plot
 ```
 
 
-# TSOM - program repr.
+# TSOM - runtime allocations
 
 TSOM int: sum of any iteration above 10. TSOM JIT: sum of any iteration above 100 (not very scientific, overview for now)
 
@@ -284,6 +283,14 @@ ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/program-repr-i
 plot
 ```
 
+## BCvsAST - TruffleSOM Int (ratio)
+```{r program-repr-memory-int-tsom-ratio, fig.width=8, fig.height=2.2, echo=FALSE}
+df2 <- get_data_for_box_plot(data_repr_from_old_function,
+                             "TruffleSOM-native-interp-bc",
+                             c("TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast"))
+plot <- box_plot_rss(df2)
+plot
+```
 
 
 ## BCvsAST - TruffleSOM JIT
@@ -303,7 +310,16 @@ plot
 
 ```
 
-# PySOM - program repr.
+## BCvsAST - TruffleSOM JIT (ratio)
+```{r tsom-ratio-jit, fig.width=8, fig.height=2.2, echo=FALSE}
+df2 <- get_data_for_box_plot(data_repr_from_old_function,
+                             "TruffleSOM-graal-bc",
+                             c("TruffleSOM-graal", "TruffleSOM-graal-bc"))
+plot <- box_plot_rss(df2)
+plot
+```
+
+# PySOM - runtime allocation.
 
 ### BCvsAST - PySOM Int
 ```{r program-repr-memory-int-pysom, fig.width=8, fig.height=2.2, echo=FALSE}
@@ -316,6 +332,15 @@ ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/program-repr-i
 plot
 ```
 
+## BCvsAST - PySOM Int (ratio)
+```{r pysom-ratio-int, fig.width=8, fig.height=2.2, echo=FALSE}
+df2 <- get_data_for_box_plot(data_repr_from_old_function,
+                             "RPySOM-bc-interp",
+                             c("RPySOM-bc-interp", "RPySOM-ast-interp"))
+plot <- box_plot_rss(df2)
+plot
+```
+
 ### BCvsAST - PySOM JIT
 ```{r program-repr-memory-jit-pysom, fig.width=8, fig.height=2.2, echo=FALSE}
 data <- data_repr_pysom %>% filter(exe %in% c("RPySOM-bc-jit", "RPySOM-ast-jit"))
@@ -325,4 +350,72 @@ plot <- box_plot_in_kb(data)
 ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/program-repr-jit-pysom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
 
 plot
+```
+
+## BCvsAST - PySOM JIT (ratio)
+```{r pysom-ratio-jit, fig.width=8, fig.height=2.2, echo=FALSE}
+df2 <- get_data_for_box_plot(data_repr_from_old_function,
+                             "RPySOM-bc-jit",
+                             c("RPySOM-bc-jit", "RPySOM-ast-jit"))
+plot <- box_plot_rss(df2)
+plot
+```
+
+# TSOM - program repr., first iteration
+
+## BCvsAST - TruffleSOM Int
+```{r program-repr-1st-iter-memory-int-tsom, fig.width=8, fig.height=2.2, echo=FALSE}
+data <- data_repr_tsom %>%
+  filter(exe %in% c("TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast")) %>%
+  filter(iteration == 1)
+
+data <- data %>%
+    group_by(expid, runid, trialid, bench, exe, cmdline, extraargs, invocation, ratio) %>%
+    summarize(iteration = 1, value.x = sum(value.x))
+
+plot <- box_plot_in_kb(data)
+#ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/program-repr-interp-tsom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+
+plot
+```
+
+## BCvsAST - TruffleSOM JIT
+
+```{r program-repr-1st-iter-memory-jit-tsom, fig.width=8, fig.height=2.2, echo=FALSE}
+data <- data_repr_tsom %>%
+  filter(exe %in% c("TruffleSOM-graal", "TruffleSOM-graal-bc")) %>%
+  filter(iteration == 1)
+
+data <- data %>%
+    group_by(expid, runid, trialid, bench, exe, cmdline, extraargs, invocation, ratio) %>%
+    summarize(iteration = 1, value.x = sum(value.x))
+
+plot <- box_plot_in_kb(data)
+#ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/program-repr-jit-tsom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+
+plot
+
+```
+
+# Test benchmark
+
+```{r test-bench-tsom, fig.width=8, fig.height=2.2, echo=FALSE}
+data_tsom <- data_repr_tsom %>%
+    filter(bench == "Test") %>%
+    group_by(expid, runid, trialid, bench, exe, cmdline, extraargs, invocation, ratio) %>%
+    summarize(iteration = 1, value.x = sum(value.x))
+
+plot_tsom <- box_plot_in_kb(data_tsom)
+#ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/program-repr-jit-tsom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+
+plot_tsom
+```
+
+```{r test-bench-pysom, fig.width=8, fig.height=2.2, echo=FALSE}
+data_pysom <- data_repr_pysom %>%
+    filter(bench == "Test") %>% rename(value.x = value) %>% mutate(ratio = 1)
+
+plot_pysom <- box_plot_in_kb(data_pysom)
+
+plot_pysom
 ```
