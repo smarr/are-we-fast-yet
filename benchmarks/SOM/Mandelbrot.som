@@ -56,6 +56,7 @@ Mandelbrot = Benchmark (
   verify: result inner: innerIterations = (
     innerIterations = 500 ifTrue: [ ^ result = 191 ].
     innerIterations = 750 ifTrue: [ ^ result = 50  ].
+    innerIterations = 50  ifTrue: [ ^ result = 15  ].
     innerIterations = 1   ifTrue: [ ^ result = 128 ].
 
     ('No verification result for ' + innerIterations + ' found') println.
