@@ -10,8 +10,8 @@ source("scripts/libraries.R", chdir=TRUE)
 source("scripts/data-processing2.R")
 
 raw_data <- rbind(
-  load_rebench_data_file("../../../paper/data/max-rss-test-testgc-tsom.002.data"),
-  load_rebench_data_file("../../../paper/data/max-rss-test-testgc.003.data"))
+  load_rebench_data_file("../../../paper/data/max-rss-test-testgc-tsom.002.data.bz2"),
+  load_rebench_data_file("../../../paper/data/max-rss-test-testgc.003.data.bz2"))
 
 raw_data <- factorize_result(raw_data)
 
@@ -59,9 +59,45 @@ ggplot(med_diff, aes(x=inputsize, y=diff, group=exe.bench, color=exe.bench)) + g
 stats <- med_diff |>
   group_by(bench, exe, criterion, unit, exe.bench) |>
   summarise(median.diff = median(diff),
-            .groups = "drop")
-tabular(
-  bench*exe ~ median.diff*median,
-  data=stats)
+            .groups = "drop") |>
+  mutate(is.pysom = str_detect(exe, "PySOM"))
+
+base <- stats |>
+  filter(grepl("BC", exe)) |>
+  mutate(base = median.diff) |>
+  select(!c(exe.bench, median.diff, exe))
+
+norm <- stats |>
+  left_join(base, by = c("bench", "criterion", "unit", "is.pysom")) |>
+  mutate(ratio = median.diff / base)
+
+id <- function(x) { x }
+
+tabular(bench*exe ~ (median.diff + ratio) * id, data=norm)
 ```
+
+## Write to text file
+
+```{r write-file}
+X2 <- function(num) {
+  format(num, digits=2, nsmall = 2)
+}
+
+tex.file <- file("../../../paper/gen/program-rep.tex")
+
+macros = c(
+  paste0("\\newcommand{\\progRepAstOverheadPySomWOExec}{",
+         X2((norm |> filter(exe == "PySOM AST", bench == "TestGC"))$ratio), "\\xspace}"),
+  paste0("\\newcommand{\\progRepAstOverheadPySomWithExec}{",
+         X2((norm |> filter(exe == "PySOM AST", bench == "Test"))$ratio), "\\xspace}"),
+  paste0("\\newcommand{\\progRepAstOverheadTrSomWOExec}{",
+         X2((norm |> filter(exe == "TrSOM AST", bench == "TestGC"))$ratio), "\\xspace}"),
+  paste0("\\newcommand{\\progRepAstOverheadTrSomWithExec}{",
+         X2((norm |> filter(exe == "TrSOM AST", bench == "Test"))$ratio), "\\xspace}")
+)
+
+writeLines(macros, tex.file)
+close(tex.file)
+```
+
 
