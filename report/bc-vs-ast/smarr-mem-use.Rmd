@@ -1,0 +1,67 @@
+---
+title: "Stefan: Looking at MaxRSS for Test1-100 and TestGC1-100"
+output: html_document
+date: "2023-04-07"
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+if (Sys.getenv("USER") == "smarr") { setwd("/Users/smarr/Projects/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast") } else { setwd("/home/octavel/PhD/papers/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast") }
+source("scripts/libraries.R", chdir=TRUE)
+source("scripts/data-processing2.R")
+
+raw_data <- rbind(
+  load_rebench_data_file("../../../paper/data/max-rss-test-testgc-tsom.002.data"),
+  load_rebench_data_file("../../../paper/data/max-rss-test-testgc.003.data"))
+
+raw_data <- factorize_result(raw_data)
+
+data <- raw_data |>
+  select(!c(suite, cores, extraargs, varvalue, machine)) |>
+  filter(criterion == "MaxRSS") |>
+  droplevels()
+
+data$exe <- revalue(data$exe,
+                    c("RPySOM-bc-interp"="PySOM BC",
+                      "RPySOM-ast-interp"="PySOM AST",
+                      "TruffleSOM-native-interp-ast" = "TrSOM AST",
+                      "TruffleSOM-native-interp-bc" = "TrSOM BC"))
+
+data <- data |>
+  mutate(exe.bench = paste(exe, bench))
+data$exe.bench <- factor(data$exe.bench)
+
+med <- data |>
+  group_by(bench, exe, inputsize, criterion, unit, exe.bench) |>
+  summarise(median = median(value),
+            .groups = "drop")
+```
+
+## MaxRSS Increase
+
+
+```{r maxrss-increase}
+ggplot(med, aes(x=inputsize, y=median, group=exe.bench, color=exe.bench)) + geom_line()
+```
+
+## Per Iteration Increase
+
+```{r per-iter-increase}
+med_diff <- med |>
+  group_by(bench, exe, criterion, unit, exe.bench) |>
+  mutate(diff = median - lag(median)) |>
+  na.omit()
+ggplot(med_diff, aes(x=inputsize, y=diff, group=exe.bench, color=exe.bench)) + geom_line()
+```
+
+## Stats
+
+```{r stats}
+stats <- med_diff |>
+  group_by(bench, exe, criterion, unit, exe.bench) |>
+  summarise(median.diff = median(diff),
+            .groups = "drop")
+tabular(
+  bench*exe ~ median.diff*median,
+  data=stats)
+```
+
