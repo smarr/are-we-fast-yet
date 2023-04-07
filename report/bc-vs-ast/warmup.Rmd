@@ -18,6 +18,15 @@ data <- rbind(
   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1523")) %>%
   factorize_result()
 
+data <- rbind(
+  load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2848"), # tsom
+  load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2851") # pysom
+) %>% 
+  subset(!(exe %in% c("TruffleSOM-native-interp-ast", "TruffleSOM-native-interp-bc", "RPySOM-bc-interp", "RPySOM-ast-interp"))) %>%
+  subset(iteration <= 500)
+
+data <- data[!(data$exe %in% c("RPySOM-bc-jit", "RPySOM-ast-jit") & data$suite %in% c("macro-startup", "micro-startup")),] # those were ran by mistake
+
 # summary(data)
 # dput(levels(data$bench))
 # dput(levels(data$exe))
@@ -47,28 +56,39 @@ sorted_exe <- c(
 #  "TruffleRuby-HotspotEE-jit",
 #  "TruffleRuby-NativeEE-int",
   
-  "PySOM-ast-jit",
+#  "PySOM-ast-jit",
 #  "PySOM-ast-int",
-  "PySOM-bc-jit",
+#  "PySOM-bc-jit",
 #  "PySOM-bc-int",
 
-  "TruffleSOM-ast-HotspotCE-jit-main", 
+  "RPySOM-ast-jit",
+  "RPySOM-bc-jit",
+  "RPySOM-ast-interp",
+  "RPySOM-bc-interp",
+  
+  "TruffleSOM-graal",
+  "TruffleSOM-graal-bc",
+
+  "TruffleSOM-native-interp-ast",
+  "TruffleSOM-native-interp-bc"
+
+#  "TruffleSOM-ast-HotspotCE-jit-main", 
 #  "TruffleSOM-ast-NativeEE-int-main",
 #  "TruffleSOM-ast-NativeEE-int-super", 
 #  "TruffleSOM-ast-NativeEE-int-uber",
-  "TruffleSOM-bc-HotspotCE-jit-main"
+#  "TruffleSOM-bc-HotspotCE-jit-main"
 #  "TruffleSOM-bc-NativeEE-int-main"
 )
-
+    
 # data_ea is expected to have only a single configuration,
 # and perhaps multiple invocations, but no other variation
 warmup_plot <- function (data_ea, b, e) {
   ## First take the medians over the values for each VM separated
   data_ea_stats <- data_ea %>%
-    summarise(
-      median = median(value),
-      max = max(value),
-      .groups = "drop")
+      summarise(
+        median = median(value),
+        max = max(value),
+        .groups = "drop")
   
   # summary(data_ea)
   
@@ -97,27 +117,16 @@ warmup_plot <- function (data_ea, b, e) {
 # b <- sorted_benchmarks[1]
 # e <- sorted_exe[2]
 for (b in sorted_benchmarks) { data_b <- data %>% filter(bench == b) %>% droplevels()
-  for (e in sorted_exe) { data_e <- data_b %>% filter(exe == e) %>% droplevels()
+  for (e in sorted_exe) { 
     
-    # v <- levels(data_b$varvalue)[1]
-    for (v in levels(data_b$varvalue)) {   data_v  <- data_e %>% filter(varvalue == v)   %>% droplevels()
-    # c <- levels(data_v$cores)[1]
-    for (c in levels(data_v$cores)) {      data_c  <- data_v %>% filter(cores == c)      %>% droplevels()
-    # i <- levels(data_c$inputsize)[1]
-    for (i in levels(data_c$inputsize)) {  data_i  <- data_c %>% filter(inputsize == i)  %>% droplevels()
-    # ea <- levels(data_i$extraargs)[1]
-    for (ea in levels(data_i$extraargs)) { data_ea <- data_i %>% filter(extraargs == ea) %>% droplevels()
-
-    args <- ""
-    if (length(levels(data_b$varvalue))  > 1) { args <- paste0(args, v) }
-    if (length(levels(data_v$cores))     > 1) { args <- paste0(args, c) }
-    if (length(levels(data_c$inputsize)) > 1) { args <- paste0(args, i) }
-    if (length(levels(data_i$extraargs)) > 1) { args <- paste0(args, ea) }
+    data_e <- data_b %>% filter(exe == e) %>% droplevels()
+  
+    for (ea in levels(data_e$extraargs)) { data_ea <- data_e %>% filter(extraargs == ea) %>% droplevels()
     
     plot <- warmup_plot(data_ea, b, e)
     print(plot)
-    ggsave(plot, device= cairo_pdf, path=".", filename=paste0("output_graphs_warmup/", b, e, ".pdf"), dpi=300, height=50, width=50, units="mm", family="Arial")
-    } } } }
+    #ggsave(plot, device= cairo_pdf, path=".", filename=paste0("output_graphs_warmup/", b, e, ".pdf"), dpi=300, height=50, width=50, units="mm", family="Arial")
+    }
 } }
 
 ```
