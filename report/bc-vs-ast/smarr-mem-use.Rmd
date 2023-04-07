@@ -75,12 +75,26 @@ id <- function(x) { x }
 
 tabular(bench*exe ~ (median.diff + ratio) * id, data=norm)
 ```
+## Code Stats
+
+```{r code-stats}
+code_stats <- read.csv("../../../paper/data/program-rep.cloc.csv")
+code_stats$language <- factor(code_stats$language)
+tabular(
+  language ~ (files + blank + comment + code) * id,
+  data=code_stats)
+```
+
 
 ## Write to text file
 
 ```{r write-file}
 X2 <- function(num) {
   format(num, digits=2, nsmall = 2)
+}
+
+WithT <- function(num) {
+  format(num, big.mark = ",")
 }
 
 tex.file <- file("../../../paper/gen/program-rep.tex")
@@ -93,7 +107,14 @@ macros = c(
   paste0("\\newcommand{\\progRepAstOverheadTrSomWOExec}{",
          X2((norm |> filter(exe == "TrSOM AST", bench == "TestGC"))$ratio), "\\xspace}"),
   paste0("\\newcommand{\\progRepAstOverheadTrSomWithExec}{",
-         X2((norm |> filter(exe == "TrSOM AST", bench == "Test"))$ratio), "\\xspace}")
+         X2((norm |> filter(exe == "TrSOM AST", bench == "Test"))$ratio), "\\xspace}"),
+  
+  paste0("\\newcommand{\\progRepNumFiles}{",
+         WithT((code_stats |> filter(language == "Smalltalk"))$files),
+         "\\xspace}"),
+  paste0("\\newcommand{\\progRepNumLOC}{",
+         WithT((code_stats |> filter(language == "Smalltalk"))$code),
+         "\\xspace}")
 )
 
 writeLines(macros, tex.file)
