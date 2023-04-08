@@ -72,6 +72,9 @@ vm_names <- c(
   "TruffleSOM-bc-HotspotEE-jit-main"  = "TruffleSOM BC Hotspot EE base",
   "TruffleSOM-bc-NativeEE-int-main"   = "TruffleSOM BC Native Int EE base",
   
+  "TruffleSOM-ast-NativeCE-int-astvsbc" = "TruffleSOM AST Native Int CE",
+  "TruffleSOM-bc-NativeCE-int-astvsbc" = "TruffleSOM BC Native Int CE",
+  
   "SOMpp-int" = "SOM++ Int",
   "CSOM-int" = "CSOM Int",
   "SOM-RS-ast-int" = "SOM-RS AST Int",
