@@ -49,6 +49,11 @@ data <- rbind(
   ) |>
   factorize_result()
 
+data <- rbind(
+  load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2858"),
+  jdk20_data
+)
+
 # ragg_png = function(..., res = 192) {
 #   ragg::agg_png(..., res = res, units = "in")
 # }
@@ -88,6 +93,9 @@ vms_int <- c(
   "TruffleSOM-ast-NativeEE-int-uber", 
   "TruffleSOM-bc-NativeEE-int-main",
   
+  "TruffleSOM-ast-NativeCE-int-astvsbc",
+  "TruffleSOM-bc-NativeCE-int-astvsbc",
+  
   "SOMpp-int",
   "CSOM-int",
   "SOM-RS-ast-int",
@@ -119,7 +127,7 @@ vms_jit <- c(
 
 assert_that(all(sort(c(vms_int, vms_jit)) == sort(vms_all))) ## sanity check
 
-warmup_jit_iteration <- 100
+warmup_jit_iteration <- 500
 baseline_vm_peak <- "Java20-C2-jit"
 baseline_vm_int <- "Java20-int"
 baseline_vm_first <- "Java20-C2-jit"
@@ -290,7 +298,7 @@ Comparing TruffleSOM, PySOM, Node-int and Java-Int. Using `r vm_names[baseline_v
 ```{r tsom-pysom-int, fig.width=8, fig.height=1.5}
 plot <- overview_box_plot(results_int$stats$bench,
                   c("PySOM-ast-int", "PySOM-bc-int",
-                    "TruffleSOM-ast-NativeEE-int-main", "TruffleSOM-bc-NativeEE-int-main",
+                    "TruffleSOM-ast-NativeCE-int-astvsbc", "TruffleSOM-bc-NativeCE-int-astvsbc",
                     "TruffleSOM-native-interp-bc-supernodes",
                     "Java20-int", "Node-int"),
                   x_breaks = c(0.41, 0.5, 0.75, 1, 1.33333, 2, 3, 5, 10))
