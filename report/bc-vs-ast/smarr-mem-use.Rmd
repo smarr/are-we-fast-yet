@@ -11,7 +11,9 @@ source("scripts/data-processing2.R")
 
 raw_data <- rbind(
   load_rebench_data_file("../../../paper/data/max-rss-test-testgc-tsom.002.data.bz2"),
-  load_rebench_data_file("../../../paper/data/max-rss-test-testgc.003.data.bz2"))
+  load_rebench_data_file("../../../paper/data/max-rss-test-testgc.003.data.bz2") |>
+    filter(str_detect(exe, "RPySOM-bc-interp", negate=TRUE)),
+  load_rebench_data_file("../../../paper/data/max-rss-test-testgc-fix-pysom.data.bz2"))
 
 raw_data <- factorize_result(raw_data)
 
@@ -63,7 +65,7 @@ stats <- med_diff |>
   mutate(is.pysom = str_detect(exe, "PySOM"))
 
 base <- stats |>
-  filter(grepl("BC", exe)) |>
+  filter(str_detect(exe, "BC")) |>
   mutate(base = median.diff) |>
   select(!c(exe.bench, median.diff, exe))
 
