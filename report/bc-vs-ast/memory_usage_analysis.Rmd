@@ -5,7 +5,6 @@
 if (Sys.getenv("RSTUDIO") == "1") { if (Sys.getenv("USER") == "smarr") { setwd("/Users/smarr/Projects/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast") } else { setwd("/home/octavel/PhD/papers/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast") } }
 source("scripts/libraries.R", chdir=TRUE)
 source("scripts/data-processing2.R")
-options(dplyr.summarise.inform = FALSE) # TODO REMOVE THAT
 
 #extrafont::font_import()
 #print(extrafont::fonts())
@@ -156,11 +155,11 @@ data_repr_from_old_function <- get_data_program_representation()
 #    group_by(expid, runid, trialid, bench, exe, cmdline, extraargs, invocation) %>%
 #    summarize(iteration = 1, value = sum(value))
 
-data_repr_tsom <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2818") %>% 
+data_repr_tsom <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2838") %>% 
     filter(criterion == "Allocated") %>% 
     rename(value.x = value) %>% mutate(ratio = 1) # bad code to make it work with the previous boxplot function...
 
-data_repr_pysom <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2763")
+data_repr_pysom <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2860")
 data_repr_pysom <- distinct(data_repr_pysom, exe, runid, cmdline, cores, extraargs, envid, .keep_all = TRUE)
 ```
 

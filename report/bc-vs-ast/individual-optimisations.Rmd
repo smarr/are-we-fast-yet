@@ -170,6 +170,7 @@ get_tsom_ast_data <- function() {
   project_name <- "TruffleSOM"
   rbind(load_data_for_experiment(2848, "every optimization", project_name),
         load_data_for_experiment(2862, "no global caching", project_name),
+        load_data_for_experiment(2874, "no local/nonlocal vars", project_name),
         load_data_for_experiment(2863, "no lowering of unneces. prims", project_name)
         ) %>% filter(criterion == "total")
 }
@@ -180,19 +181,20 @@ get_tsom_bc_data <- function() {
         load_data_for_experiment(2869, "no superinstructions (*)", project_name),
         load_data_for_experiment(2868, "no quickening (*)", project_name),
         load_data_for_experiment(2863, "no lowering of unneces. prims", project_name),
+        load_data_for_experiment(2874, "no local/nonlocal vars", project_name),
         load_data_for_experiment(2861, "no global caching", project_name)
         ) %>% filter(criterion == "total")
 }
 
 get_pysom_ast_data <- function() {
   project_name <- "RPySOM"
-  rbind(load_data_for_experiment(2851, "every optimization", project_name)
+  rbind(load_data_for_experiment(2873, "every optimization", project_name)
         ) %>% filter(criterion == "total")
 }
 
 get_pysom_bc_data <- function() {
   project_name <- "RPySOM"
-  rbind(load_data_for_experiment(2851, "every optimization", project_name)
+  rbind(load_data_for_experiment(2873, "every optimization", project_name)
         ) %>% filter(criterion == "total")
 }
 
