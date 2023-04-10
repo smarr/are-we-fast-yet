@@ -19,7 +19,7 @@ data <- rbind(
   factorize_result()
 
 data <- rbind(
-  load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2848"), # tsom
+  load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2867"), # tsom
   load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2851") # pysom
 ) %>% 
   subset(!(exe %in% c("TruffleSOM-native-interp-ast", "TruffleSOM-native-interp-bc", "RPySOM-bc-interp", "RPySOM-ast-interp"))) %>%
@@ -32,7 +32,7 @@ data <- data[!(data$exe %in% c("RPySOM-bc-jit", "RPySOM-ast-jit") & data$suite %
 # dput(levels(data$exe))
 
 sorted_benchmarks <- c(
-  "CD", "DeltaBlue", "Havlak", "Json", "NBody", "Richards", 
+  "DeltaBlue", "Json", "NBody", "Richards", 
   "Bounce", "List", "Mandelbrot", "Permute",
   "Queens", "Sieve", "Storage", "Towers"
 )
@@ -63,14 +63,17 @@ sorted_exe <- c(
 
   "RPySOM-ast-jit",
   "RPySOM-bc-jit",
-  "RPySOM-ast-interp",
-  "RPySOM-bc-interp",
+#  "RPySOM-ast-interp",
+#  "RPySOM-bc-interp",
   
   "TruffleSOM-graal",
   "TruffleSOM-graal-bc",
+  
+  "TruffleSOM-native-ast",
+  "TruffleSOM-native-bc"
 
-  "TruffleSOM-native-interp-ast",
-  "TruffleSOM-native-interp-bc"
+#  "TruffleSOM-native-interp-ast",
+#  "TruffleSOM-native-interp-bc"
 
 #  "TruffleSOM-ast-HotspotCE-jit-main", 
 #  "TruffleSOM-ast-NativeEE-int-main",
@@ -116,17 +119,24 @@ warmup_plot <- function (data_ea, b, e) {
 ```{r warmup-plots, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
 # b <- sorted_benchmarks[1]
 # e <- sorted_exe[2]
-for (b in sorted_benchmarks) { data_b <- data %>% filter(bench == b) %>% droplevels()
+for (b in sorted_benchmarks) { 
+  data_b <- data %>% filter(bench == b) %>% droplevels()
+
   for (e in sorted_exe) { 
-    
     data_e <- data_b %>% filter(exe == e) %>% droplevels()
   
-    for (ea in levels(data_e$extraargs)) { data_ea <- data_e %>% filter(extraargs == ea) %>% droplevels()
+#    for (ea in levels(data_e$extraargs)) { 
+      #data_ea <- data_e %>% filter(extraargs == ea) %>% droplevels()
     
-    plot <- warmup_plot(data_ea, b, e)
+      # print out contents of data_e for each group of extraargs
+      
+    plot <- warmup_plot(data_e, b, e)
+  
+    
     print(plot)
-    #ggsave(plot, device= cairo_pdf, path=".", filename=paste0("output_graphs_warmup/", b, e, ".pdf"), dpi=300, height=50, width=50, units="mm", family="Arial")
-    }
-} }
+      #ggsave(plot, device= cairo_pdf, path=".", filename=paste0("output_graphs_warmup/", b, e, ".pdf"), dpi=300, height=50, width=50, units="mm", family="Arial")
+ #   }
+  } 
+}
 
 ```
