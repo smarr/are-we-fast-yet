@@ -6,9 +6,9 @@ If the data set contains multiple invocations, they are shown on the same plot.
 
 Plots are sorted by benchmark, and then as second order concern the VM.
 
-```{r prepare-data, echo=TRUE, message=TRUE, warning=TRUE, dev='svg'}
+```{r prepare-data, echo=FALSE, message=TRUE, warning=TRUE, dev='svg'}
 # load libraries, the data, and prepare it
-if (Sys.getenv("RSTUDIO") == "1") { setwd("/home/sopi/Documents/Writing/2023/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast/") }
+if (Sys.getenv("RSTUDIO") == "1") { setwd("/home/octavel/PhD/papers/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast/") }
 
 source("scripts/libraries.R", chdir=TRUE)
 data <- rbind(
@@ -131,9 +131,7 @@ for (b in sorted_benchmarks) {
       # print out contents of data_e for each group of extraargs
       
     plot <- warmup_plot(data_e, b, e)
-  
-    
-    print(plot)
+#    print(plot)
       #ggsave(plot, device= cairo_pdf, path=".", filename=paste0("output_graphs_warmup/", b, e, ".pdf"), dpi=300, height=50, width=50, units="mm", family="Arial")
  #   }
   } 
@@ -147,7 +145,9 @@ norm <- all_data %>%
    iteration <= 500 & (exe %in% sorted_exe  | exe == "Java-C2-jit"),
     "Java-C2-jit")
 
-all_plots <- ggplot(norm$normalized %>% filter(exe != "Java-C2-jit"), aes(x=iteration, y=ratio_median)) +
+all_plots <- ggplot(norm$normalized %>% filter(exe != "Java-C2-jit"), aes(x=iteration, y=value)) +
   geom_line(aes(colour = exe))+
   facet_wrap(~ bench, scales = "free_y")
+
+all_plots
 ```
