@@ -16,7 +16,9 @@ OPTIM_GRAPH_WIDTH <- 100
 #extrafont::loadfonts()
 #extrafont::loadfonts(device = "postscript")
 
-get_data_for_box_plot_optim <- function(input_data, exe_name, baseline_optim_name="every optimization", optim_names=NULL) {
+MIN_JIT_ITERATION <- 1000
+    
+get_data_for_box_plot_optim <- function(input_data, exe_name, baseline_optim_name="every optimization", optim_names=NULL, is_jit_data=FALSE) {
   grouped_iterations_data <- input_data %>%
     group_by(commitid, cmdline) %>%
     mutate(median_runtime = median(value)) %>%
@@ -31,16 +33,20 @@ get_data_for_box_plot_optim <- function(input_data, exe_name, baseline_optim_nam
         df_baseline,
         by = c("exe", "bench", "extraargs", "iteration", "invocation", "warmup"))
   box_plot_data <- box_plot_data %>% filter(exe == exe_name)
-
+  
+  if (is_jit_data) {
+    box_plot_data <- box_plot_data %>% filter(iteration >= MIN_JIT_ITERATION)
+  }
+  
   box_plot_data$ratio <- box_plot_data$median_runtime.x / box_plot_data$median_runtime.y
   #box_plot_data$ratio <- box_plot_data$value.x / box_plot_data$value.y
     
   # Renaming
   colnames(box_plot_data)[which(colnames(box_plot_data) == "optim.x")] <- "optim"
   
-  
-  if (!is.null(optim_names))
+  if (!is.null(optim_names)) {
     box_plot_data <- box_plot_data %>% filter(optim %in% optim_names)
+  }
   
   box_plot_data
 }
@@ -110,7 +116,7 @@ load_data_for_experiment <- function(experiment_ref, optim_name, project_name) {
 }
 
 # (*) means AST/BC specific optim
-get_tsom_ast_data <- function() {
+get_tsom_ast_data_no2k <- function() {
   project_name <- "TruffleSOM"
   rbind(load_data_for_experiment(2762, "every optimization", project_name),
         load_data_for_experiment(2759, "no local/nonlocal vars", project_name),
@@ -123,7 +129,7 @@ get_tsom_ast_data <- function() {
         ) %>% filter(criterion == "total")
 }
 
-get_pysom_ast_data <- function() {
+get_pysom_ast_data_no2k <- function() {
   project_name <- "RPySOM"
   rbind(load_data_for_experiment(2780, "every optimization", project_name),
         load_data_for_experiment(2771, "no local/nonlocal vars", project_name),
@@ -135,7 +141,7 @@ get_pysom_ast_data <- function() {
         ) %>% filter(criterion == "total")
 }
 
-get_tsom_bc_data <- function() {
+get_tsom_bc_data_no2k <- function() {
   project_name <- "TruffleSOM"
   rbind(load_data_for_experiment(2762, "every optimization", project_name),
         load_data_for_experiment(2785, "no inline caching", project_name), # -Test is disabled in that one, which is a tad dirty... results are shit, anyway, needs more work
@@ -148,7 +154,7 @@ get_tsom_bc_data <- function() {
         ) %>% filter(criterion == "total")
 }
 
-get_pysom_bc_data <- function() {
+get_pysom_bc_data_no2k <- function() {
   project_name <- "RPySOM"
   rbind(load_data_for_experiment(2780, "every optimization", project_name), 
         load_data_for_experiment(2764, "no inline caching", project_name),
@@ -157,6 +163,36 @@ get_pysom_bc_data <- function() {
         load_data_for_experiment(2775, "no superinstructions (*)", project_name),
         load_data_for_experiment(2811, "no lowered control structs", project_name),
         load_data_for_experiment(2812, "no lowering of unneces. prims", project_name)
+        ) %>% filter(criterion == "total")
+}
+
+get_tsom_ast_data <- function() {
+  project_name <- "TruffleSOM"
+  rbind(load_data_for_experiment(2848, "every optimization", project_name),
+        load_data_for_experiment(2862, "no global caching", project_name),
+        load_data_for_experiment(2863, "no lowering of unneces. prims", project_name)
+        ) %>% filter(criterion == "total")
+}
+
+get_tsom_bc_data <- function() {
+  project_name <- "TruffleSOM"
+  rbind(load_data_for_experiment(2848, "every optimization", project_name),
+        load_data_for_experiment(2869, "no superinstructions (*)", project_name),
+        load_data_for_experiment(2868, "no quickening (*)", project_name),
+        load_data_for_experiment(2863, "no lowering of unneces. prims", project_name),
+        load_data_for_experiment(2861, "no global caching", project_name)
+        ) %>% filter(criterion == "total")
+}
+
+get_pysom_ast_data <- function() {
+  project_name <- "RPySOM"
+  rbind(load_data_for_experiment(2851, "every optimization", project_name)
+        ) %>% filter(criterion == "total")
+}
+
+get_pysom_bc_data <- function() {
+  project_name <- "RPySOM"
+  rbind(load_data_for_experiment(2851, "every optimization", project_name)
         ) %>% filter(criterion == "total")
 }
 
@@ -230,7 +266,7 @@ plot
 ### TruffleSOM - AST JIT
 
 ```{r optim-tsom-ast-jit, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_ast, "TruffleSOM-graal")
+box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_ast, "TruffleSOM-graal", is_jit_data = TRUE)
 
 plot <- box_plot_optim(box_plot_data, colors=color_set_optims)
 ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/optim-tsom-ast-jit.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
@@ -240,7 +276,7 @@ plot
 ### PySOM - AST JIT
 
 ```{r optim-pysom-ast-jit, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_ast, "RPySOM-ast-jit")
+box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_ast, "RPySOM-ast-jit", is_jit_data = TRUE)
 plot <- box_plot_optim(box_plot_data, colors=color_set_optims)
 ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/optim-pysom-ast-jit.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
 plot
@@ -269,7 +305,7 @@ plot
 ### TruffleSOM - BC JIT
 
 ```{r optim-tsom-bc-jit, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_bc, "TruffleSOM-graal-bc")
+box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_bc, "TruffleSOM-graal-bc", is_jit_data = TRUE)
 plot <- box_plot_optim(box_plot_data, colors=color_set_optims)
 ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/optim-tsom-bc-jit.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
 plot
@@ -278,7 +314,7 @@ plot
 ### PySOM - BC JIT
 
 ```{r optim-pysom-bc-jit, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_bc, "RPySOM-bc-jit")
+box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_bc, "RPySOM-bc-jit", is_jit_data = TRUE)
 plot <- box_plot_optim(box_plot_data, colors=color_set_optims)
 ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/optim-pysom-bc-jit.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
 plot
