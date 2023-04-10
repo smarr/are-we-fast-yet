@@ -8,7 +8,7 @@ Plots are sorted by benchmark, and then as second order concern the VM.
 
 ```{r prepare-data, echo=TRUE, message=TRUE, warning=TRUE, dev='svg'}
 # load libraries, the data, and prepare it
-if (Sys.getenv("RSTUDIO") == "1") { setwd("/home/octavel/PhD/papers/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast") }
+if (Sys.getenv("RSTUDIO") == "1") { setwd("/home/sopi/Documents/Writing/2023/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast/") }
 
 source("scripts/libraries.R", chdir=TRUE)
 data <- rbind(
@@ -138,5 +138,16 @@ for (b in sorted_benchmarks) {
  #   }
   } 
 }
+# to normalize:
+# rbind
+data_java <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2858")
+all_data <- rbind(data, data_java)
+norm <- all_data %>%
+  compute_all(
+   iteration <= 500 & (exe %in% sorted_exe  | exe == "Java-C2-jit"),
+    "Java-C2-jit")
 
+all_plots <- ggplot(norm$normalized %>% filter(exe != "Java-C2-jit"), aes(x=iteration, y=ratio_median)) +
+  geom_line(aes(colour = exe))+
+  facet_wrap(~ bench, scales = "free_y")
 ```
