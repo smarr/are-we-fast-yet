@@ -116,7 +116,7 @@ warmup_plot <- function (data_ea, b, e) {
 
 # Plots
 
-```{r warmup-plots, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
+```{r warmup-plot, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
 #for (b in sorted_benchmarks) { 
 #  data_b <- data %>% filter(bench == b) %>% droplevels()
 #  for (e in sorted_exe) { 
@@ -130,31 +130,53 @@ warmup_plot <- function (data_ea, b, e) {
 # to normalize:
 # rbind
 
+MAX_ITER <- 100
+
 data_java <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2858") %>% filter(exe=="Java-C2-jit")
 all_data <- rbind(data, data_java)
 all_data$exe <- revalue(all_data$exe, c("TruffleSOM-graal"="TruffleSOM-graal-ast"))
+  
+get_warmup_plots <- function(data, baseline_name) {
+  filtered <- data %>% select_data(iteration <= MAX_ITER)
+  
+  base <- filtered %>%
+    compute_baseline(baseline_name)
+  
+  norm <- filtered %>%
+            left_join(
+              base,
+              by = c("bench")) %>%
+             group_by(bench) %>%
+             transform(ratio_median = value / base_median)
+  
+  plots <- ggplot(norm %>% filter(exe %in% sorted_exe), aes(x=iteration, y=ratio_median)) +
+    geom_line(aes(colour = exe), linewidth=0.3)+
+    scale_y_log10() +
+    ylab("Runtime factor compared to Java") +
+    facet_wrap(~ bench, scales = "free_y")
+  
+  plots
+}
 
-data <- all_data
-baseline <- "Java-C2-jit"
+plot_all <- get_warmup_plots(all_data, "Java-C2-jit")
 
-filtered <- data %>%
-  select_data(iteration <= 100 & (exe %in% sorted_exe | exe == "Java-C2-jit"))
+graal_data <- rbind(all_data %>% filter(exe %in% c("TruffleSOM-graal-ast", "TruffleSOM-graal-bc")), data_java)
+plot_graal <- get_warmup_plots(graal_data, "Java-C2-jit")
 
-base <- filtered %>%
-  compute_baseline(baseline)
+native_image_data <- rbind(all_data %>% filter(exe %in% c("TruffleSOM-native-ast", "TruffleSOM-native-bc")), data_java)
+plot_native <- get_warmup_plots(native_image_data, "Java-C2-jit")
 
-norm <- filtered %>%
-          left_join(
-            base,
-            by = c("bench")) %>%
-           group_by(bench) %>%
-           transform(ratio_median = value / base_median)
+pysom_data <- rbind(all_data %>% filter(exe %in% c("RPySOM-ast-jit", "RPySOM-bc-jit")), data_java)
+plot_pysom <- get_warmup_plots(pysom_data, "Java-C2-jit")
 
-all_plots <- ggplot(norm %>% filter(exe %in% sorted_exe), aes(x=iteration, y=ratio_median)) +
-  geom_line(aes(colour = exe), linewidth=0.3)+
-  scale_y_log10() +
-  ylab("Runtime factor normalized to Java") +
-  facet_wrap(~ bench, scales = "free_y")
+print(plot_all)
+print(plot_graal)
+print(plot_native)
+print(plot_pysom)
 
-all_plots
+OUTPUT_WIDTH <- 250
+OUTPUT_HEIGHT <- 150
+ggsave(plot_graal, device= cairo_pdf, path=".", filename=paste0("output_graphs_warmup/", "warmup_graal.pdf"), dpi=300, height=OUTPUT_HEIGHT, width=OUTPUT_WIDTH, units="mm", family="Arial")
+ggsave(plot_native, device= cairo_pdf, path=".", filename=paste0("output_graphs_warmup/", "warmup_native.pdf"), dpi=300, height=OUTPUT_HEIGHT, width=OUTPUT_WIDTH, units="mm", family="Arial")
+ggsave(plot_pysom, device= cairo_pdf, path=".", filename=paste0("output_graphs_warmup/", "warmup_pysom.pdf"), dpi=300, height=OUTPUT_HEIGHT, width=OUTPUT_WIDTH, units="mm", family="Arial")
 ```
