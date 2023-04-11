@@ -66,7 +66,7 @@ sorted_exe <- c(
 #  "RPySOM-ast-interp",
 #  "RPySOM-bc-interp",
   
-  "TruffleSOM-graal",
+  "TruffleSOM-graal-ast",
   "TruffleSOM-graal-bc",
   
   "TruffleSOM-native-ast",
@@ -117,36 +117,43 @@ warmup_plot <- function (data_ea, b, e) {
 # Plots
 
 ```{r warmup-plots, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
-# b <- sorted_benchmarks[1]
-# e <- sorted_exe[2]
-for (b in sorted_benchmarks) { 
-  data_b <- data %>% filter(bench == b) %>% droplevels()
-
-  for (e in sorted_exe) { 
-    data_e <- data_b %>% filter(exe == e) %>% droplevels()
-  
-#    for (ea in levels(data_e$extraargs)) { 
-      #data_ea <- data_e %>% filter(extraargs == ea) %>% droplevels()
-    
-      # print out contents of data_e for each group of extraargs
-      
-    plot <- warmup_plot(data_e, b, e)
+#for (b in sorted_benchmarks) { 
+#  data_b <- data %>% filter(bench == b) %>% droplevels()
+#  for (e in sorted_exe) { 
+#    data_e <- data_b %>% filter(exe == e) %>% droplevels()
+#    plot <- warmup_plot(data_e, b, e)
 #    print(plot)
       #ggsave(plot, device= cairo_pdf, path=".", filename=paste0("output_graphs_warmup/", b, e, ".pdf"), dpi=300, height=50, width=50, units="mm", family="Arial")
  #   }
-  } 
-}
+#  } 
+#}
 # to normalize:
 # rbind
-data_java <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2858")
-all_data <- rbind(data, data_java)
-norm <- all_data %>%
-  compute_all(
-   iteration <= 500 & (exe %in% sorted_exe  | exe == "Java-C2-jit"),
-    "Java-C2-jit")
 
-all_plots <- ggplot(norm$normalized %>% filter(exe != "Java-C2-jit"), aes(x=iteration, y=value)) +
-  geom_line(aes(colour = exe))+
+data_java <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2858") %>% filter(exe=="Java-C2-jit")
+all_data <- rbind(data, data_java)
+all_data$exe <- revalue(all_data$exe, c("TruffleSOM-graal"="TruffleSOM-graal-ast"))
+
+data <- all_data
+baseline <- "Java-C2-jit"
+
+filtered <- data %>%
+  select_data(iteration <= 100 & (exe %in% sorted_exe | exe == "Java-C2-jit"))
+
+base <- filtered %>%
+  compute_baseline(baseline)
+
+norm <- filtered %>%
+          left_join(
+            base,
+            by = c("bench")) %>%
+           group_by(bench) %>%
+           transform(ratio_median = value / base_median)
+
+all_plots <- ggplot(norm %>% filter(exe %in% sorted_exe), aes(x=iteration, y=ratio_median)) +
+  geom_line(aes(colour = exe), linewidth=0.3)+
+  scale_y_log10() +
+  ylab("Runtime factor normalized to Java") +
   facet_wrap(~ bench, scales = "free_y")
 
 all_plots
