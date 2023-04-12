@@ -4,7 +4,7 @@ This report was generated on `r Sys.time()`.
 
 ```{r load-scripts, echo=FALSE, include=FALSE}
 # load libraries, the data, and prepare it
-if (Sys.getenv("RSTUDIO") == "1") { setwd("/home/octavel/PhD/papers/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast") }
+if (Sys.getenv("RSTUDIO") == "1") { setwd("/home/sopi/Documents/Writing/2023/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast/") }
 source("scripts/libraries.R", chdir=TRUE)
 
 # data <- rbind(
@@ -268,6 +268,7 @@ overview_box_plot <- function(stats, vms = NULL, prepare_data = NULL, pre_plot =
     #xlab("Runtime Factor, normalized to Java (lower is better)")
   plot
 }
+
 ```
 
 For VMs with just-in-time compilation, we report results based on
@@ -305,4 +306,91 @@ plot <- overview_box_plot(results_int$stats$bench,
 
 ggsave("output_graphs/tsom-pysom-interp-perf.pdf", plot, device= cairo_pdf)
 plot
+```
+
+
+## Write to text file
+
+```{r write-file}
+X2 <- function(num) {
+  format(num, digits=2, nsmall = 2)
+}
+
+WithT <- function(num) {
+  format(num, big.mark = ",")
+}
+
+tex.file <- file("../../../paper/gen/overview.tex")
+
+# Numbers for part 5.1
+min_row = results_int$stats$exe[which.min(results_int$stats$exe$min_ratio),]
+min_exe <- min_row$exe
+speedup <- (min_row$min_ratio - 1) * 100
+
+macros = c(
+  paste0("\\newcommand{\\LowestRatioIntJava}{",
+        X2(abs(speedup)), "\\xspace}"),
+  paste0("\\newcommand{\\SpeediestExeInt}{",
+        X2(min_exe), "\\xspace}"),
+  paste0("\\newcommand{\\PySOMastMedian}{",
+        X2((results_int$stats$exe |> filter(exe == "PySOM-ast-int"))$median_ratio), "\\xspace}"),
+  paste0("\\newcommand{\\PySOMbcMedian}{",
+        X2((results_int$stats$exe |> filter(exe == "PySOM-bc-int"))$median_ratio), "\\xspace}"),
+  paste0("\\newcommand{\\slowestPySOMast}{",
+        X2((results_int$stats$exe |> filter(exe == "PySOM-ast-int"))$max_ratio), "\\xspace}"),
+  paste0("\\newcommand{\\slowestPySOMbc}{",
+        X2((results_int$stats$exe |> filter(exe == "PySOM-bc-int"))$max_ratio), "\\xspace}"),
+  paste0("\\newcommand{\\fastestTSOMast}{",
+        X2((results_int$stats$exe |> filter(exe == "TruffleSOM-ast-NativeCE-int-astvsbc"))$min_ratio), "\\xspace}"),
+  paste0("\\newcommand{\\fastestTSOMbc}{",
+        X2((results_int$stats$exe |> filter(exe == "TruffleSOM-bc-NativeCE-int-astvsbc"))$min_ratio), "\\xspace}"),
+  paste0("\\newcommand{\\TSOMastMedian}{",
+        X2((results_int$stats$exe |> filter(exe == "TruffleSOM-ast-NativeCE-int-astvsbc"))$median_ratio), "\\xspace}"),
+  paste0("\\newcommand{\\TSOMbcMedian}{",
+        X2((results_int$stats$exe |> filter(exe == "TruffleSOM-bc-NativeCE-int-astvsbc"))$median_ratio), "\\xspace}")
+)
+
+# Numbers for part 5.2
+only_soms_jit <- results_peak$stats$exe |> filter(grepl('SOM', exe), grepl('jit', exe)) |> arrange(median_ratio)
+min_row_jit = only_soms_jit[which.min(only_soms_jit$median_ratio),]
+max_row_jit = only_soms_jit[which.max(only_soms_jit$median_ratio),]
+
+macros = c(macros,
+  paste0("\\newcommand{\\SpeediestSOMjitMedianFirst}{",
+        X2(min_row_jit$median_ratio), "\\xspace}"),
+  paste0("\\newcommand{\\SpeediestSOMjitExeFirst}{",
+        X2(min_row_jit$exe), "\\xspace}"),
+  paste0("\\newcommand{\\SpeediestSOMjitMedianSecond}{",
+        X2(only_soms_jit[2,]$median_ratio), "\\xspace}"),
+  paste0("\\newcommand{\\SpeediestSOMjitExeSecond}{",
+        X2(only_soms_jit[2,]$exe), "\\xspace}"),
+  paste0("\\newcommand{\\SlowliestSOMjitMedianThird}{",
+        X2(only_soms_jit[3,]$median_ratio), "\\xspace}"),
+  paste0("\\newcommand{\\SlowliestSOMjitExeThird}{",
+        X2(only_soms_jit[3,]$exe), "\\xspace}"),
+  paste0("\\newcommand{\\SlowliestSOMjitMedianFourth}{",
+        X2(max_row_jit$median_ratio), "\\xspace}"),
+  paste0("\\newcommand{\\SlowliestSOMjitExeFourth}{",
+        X2(max_row_jit$exe), "\\xspace}"),
+  paste0("\\newcommand{\\PySOMastLowerBound}{",
+        X2((only_soms_jit |> filter(exe == "PySOM-ast-jit"))$min_ratio), "\\xspace}"),
+  paste0("\\newcommand{\\PySOMastUpperBound}{",
+        X2((only_soms_jit |> filter(exe == "PySOM-ast-jit"))$max_ratio), "\\xspace}"),
+  paste0("\\newcommand{\\PySOMbcLowerBound}{",
+        X2((only_soms_jit |> filter(exe == "PySOM-bc-jit"))$min_ratio), "\\xspace}"),
+  paste0("\\newcommand{\\PySOMbcUpperBound}{",
+        X2((only_soms_jit |> filter(exe == "PySOM-bc-jit"))$max_ratio), "\\xspace}"),
+  paste0("\\newcommand{\\TSOMastLowerBound}{",
+        X2((only_soms_jit |> filter(exe == "TruffleSOM-ast-HotspotCE-jit-main"))$min_ratio), "\\xspace}"),
+  paste0("\\newcommand{\\TSOMastUpperBound}{",
+        X2((only_soms_jit |> filter(exe == "TruffleSOM-ast-HotspotCE-jit-main"))$max_ratio), "\\xspace}"),
+  paste0("\\newcommand{\\TSOMbcLowerBound}{",
+        X2((only_soms_jit |> filter(exe == "TruffleSOM-bc-HotspotCE-jit-main"))$min_ratio), "\\xspace}"),
+  paste0("\\newcommand{\\TSOMbcUpperBound}{",
+        X2((only_soms_jit |> filter(exe == "TruffleSOM-bc-HotspotCE-jit-main"))$max_ratio), "\\xspace}")
+)
+
+
+writeLines(macros, tex.file)
+close(tex.file)
 ```
