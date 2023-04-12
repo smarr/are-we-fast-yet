@@ -171,6 +171,7 @@ get_tsom_ast_data <- function() {
   rbind(load_data_for_experiment(2848, "every optimization", project_name),
         load_data_for_experiment(2862, "no global caching", project_name),
         load_data_for_experiment(2874, "no local/nonlocal vars", project_name),
+        load_data_for_experiment(2884, "no lowered control structs", project_name),
         load_data_for_experiment(2863, "no lowering of unneces. prims", project_name)
         ) %>% filter(criterion == "total")
 }
@@ -181,6 +182,7 @@ get_tsom_bc_data <- function() {
         load_data_for_experiment(2869, "no superinstructions (*)", project_name),
         load_data_for_experiment(2868, "no quickening (*)", project_name),
         load_data_for_experiment(2863, "no lowering of unneces. prims", project_name),
+        load_data_for_experiment(2884, "no lowered control structs", project_name),
         load_data_for_experiment(2874, "no local/nonlocal vars", project_name),
         load_data_for_experiment(2861, "no global caching", project_name)
         ) %>% filter(criterion == "total")
@@ -188,34 +190,23 @@ get_tsom_bc_data <- function() {
 
 get_pysom_ast_data <- function() {
   project_name <- "RPySOM"
-  rbind(load_data_for_experiment(2873, "every optimization", project_name)
+  rbind(load_data_for_experiment(2873, "every optimization", project_name),
+        load_data_for_experiment(2877, "no global caching", project_name)
         ) %>% filter(criterion == "total")
 }
 
 get_pysom_bc_data <- function() {
   project_name <- "RPySOM"
-  rbind(load_data_for_experiment(2873, "every optimization", project_name)
+  rbind(load_data_for_experiment(2873, "every optimization", project_name),
+        load_data_for_experiment(2876, "no global caching", project_name)
         ) %>% filter(criterion == "total")
 }
 
 only_keep_last_peak_perf_iters <- function(df) {
-  LAST_PEAK_ITERS_NBR <- 10
-  
-  group_cols <- c("bench", "suite", "invocation", "trialid", "optim")
+  MIN_PEAK_ITER <- 1000
+  jit_exe_vals <- c("RPySOM-bc-jit", "RPySOM-ast-jit", "TruffleSOM-graal", "TruffleSOM-graal-bc")
 
-  # define the exe values to group by
-  exe_vals <- c("RPySOM-bc-jit", "RPySOM-ast-jit", "TruffleSOM-graal", "TruffleSOM-graal-bc")
-  
-  # group the data frame by group_cols and exe_vals and find the max iteration number for each group
-  max_iters <- df %>%
-    filter(exe %in% exe_vals) %>%
-    group_by(across(all_of(group_cols)), exe) %>%
-    summarize(max_iter = max(iteration))
-  
-  df_filtered <- df %>%
-    left_join(max_iters, by = c(group_cols, "exe")) %>% # join with max_iters to get the max iteration number for each group
-    mutate(max_iter = ifelse(is.na(max_iter), 0, max_iter)) %>% # replace NA values in max_iter with 0
-    filter(iteration >= (max_iter - LAST_PEAK_ITERS_NBR) | !(exe %in% exe_vals)) # keep only iterations >= max_iter - 10
+  df_filtered <- df %>% filter(!(exe %in% jit_exe_vals & iteration < MIN_PEAK_ITER))
 
   df_filtered
 }
@@ -228,23 +219,7 @@ data_optim_pysom_bc <- get_pysom_bc_data() %>% only_keep_last_peak_perf_iters()
 all_optims <- rbind(data_optim_tsom_ast, data_optim_tsom_bc, data_optim_pysom_ast, data_optim_pysom_bc)
 unique_optims <- unique(all_optims$optim)
 color_set_optims <- compute_color_bindings_for_plots(unique_optims, viridis::viridis)
-
 ```
-
-[comment]: ### Unified graph first attempt
-```{r yeah-mr-white-science, fig.width=8, fig.height=2.2, echo=FALSE, eval=FALSE}
-box_plot_data_ast <- get_data_for_box_plot_optim(data_optim_tsom_ast, "TruffleSOM-native-interp-ast") %>% mutate(optim = paste0(optim, "-AST"))
-box_plot_data_bc <- get_data_for_box_plot_optim(data_optim_tsom_bc, "TruffleSOM-native-interp-bc") %>% mutate(optim = paste0(optim, "-BC"))
-
-box_plot_data_bc$optim <- reorder(factor(box_plot_data_bc$optim), -box_plot_data_bc$ratio, FUN = median)
-box_plot_data_ast$optim <- reorder(factor(box_plot_data_ast$optim), -box_plot_data_ast$ratio, FUN = median)
-
-box_plot_data <- rbind(box_plot_data_ast, box_plot_data_bc)
-plot <- box_plot_optim_unified(box_plot_data)
-ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/optim-unified.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
-plot
-```
-
 
 ### TruffleSOM - AST interp
 
