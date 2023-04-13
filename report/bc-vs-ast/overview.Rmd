@@ -321,7 +321,7 @@ plot <- overview_box_plot(results_int$stats$bench,
                     "TruffleSOM-ast-NativeCE-int-astvsbc", "TruffleSOM-bc-NativeCE-int-astvsbc",
                     "TruffleSOM-native-interp-bc-supernodes",
                     "Java20-int", "Node-int"),
-                  x_breaks = c(0.2, 0.5, 0.75, 1, 1.33333, 2, 3, 5, 10),
+                  x_breaks = c(0.3, 0.5, 0.75, 1, 1.33333, 2, 3, 5, 10),
                   x_lab = "lower is better")
 
 ggsave("../../../paper/images/tsom-pysom-interp-perf.pdf", plot, device=cairo_pdf)
@@ -332,8 +332,16 @@ plot
 ## Write to text file
 
 ```{r write-file}
+Cmd <- function(name, value) {
+  paste0("\\newcommand{\\", name, "}{", value, "\\xspace}")
+}
+
 X2 <- function(num) {
-  format(num, digits=2, nsmall = 2)
+  paste0(format(num, digits=2, nsmall = 2), "\\texttimes")
+}
+
+Per <- function(num) {
+  paste0(format(num * 100, digits=2, nsmall = 0), "\\%")
 }
 
 WithT <- function(num) {
@@ -345,29 +353,50 @@ tex.file <- file("../../../paper/gen/overview.tex")
 # Numbers for part 5.1
 min_row = results_int$stats$exe[which.min(results_int$stats$exe$min_ratio),]
 min_exe <- min_row$exe
-speedup <- (min_row$min_ratio - 1) * 100
+# speedup <- (min_row$min_ratio - 1) * 100
+
+fastest_bench <- results_int$stats$bench |> filter(exe == min_row$exe, ratio == min_row$min_ratio)
+
+
 
 macros = c(
-  paste0("\\newcommand{\\LowestRatioIntJava}{",
-        X2(abs(speedup)), "\\xspace}"),
-  paste0("\\newcommand{\\SpeediestExeInt}{",
-        X2(min_exe), "\\xspace}"),
-  paste0("\\newcommand{\\PySOMastMedian}{",
-        X2((results_int$stats$exe |> filter(exe == "PySOM-ast-int"))$median_ratio), "\\xspace}"),
-  paste0("\\newcommand{\\PySOMbcMedian}{",
-        X2((results_int$stats$exe |> filter(exe == "PySOM-bc-int"))$median_ratio), "\\xspace}"),
-  paste0("\\newcommand{\\slowestPySOMast}{",
-        X2((results_int$stats$exe |> filter(exe == "PySOM-ast-int"))$max_ratio), "\\xspace}"),
-  paste0("\\newcommand{\\slowestPySOMbc}{",
-        X2((results_int$stats$exe |> filter(exe == "PySOM-bc-int"))$max_ratio), "\\xspace}"),
-  paste0("\\newcommand{\\fastestTSOMast}{",
-        X2((results_int$stats$exe |> filter(exe == "TruffleSOM-ast-NativeCE-int-astvsbc"))$min_ratio), "\\xspace}"),
-  paste0("\\newcommand{\\fastestTSOMbc}{",
-        X2((results_int$stats$exe |> filter(exe == "TruffleSOM-bc-NativeCE-int-astvsbc"))$min_ratio), "\\xspace}"),
-  paste0("\\newcommand{\\TSOMastMedian}{",
-        X2((results_int$stats$exe |> filter(exe == "TruffleSOM-ast-NativeCE-int-astvsbc"))$median_ratio), "\\xspace}"),
-  paste0("\\newcommand{\\TSOMbcMedian}{",
-        X2((results_int$stats$exe |> filter(exe == "TruffleSOM-bc-NativeCE-int-astvsbc"))$median_ratio), "\\xspace}")
+  Cmd("LowestRatioIntJavaPer",       Per(min_row$min_ratio)),
+  Cmd("LowestRatioIntJavaBenchmark", fastest_bench$bench),
+  
+  Cmd("SpeediestExeInt", min_exe),
+  Cmd("PySOMastMedianX", X2((results_int$stats$exe
+                             |> filter(exe == "PySOM-ast-int"))$median_ratio)),
+  Cmd("PySOMbcMedianX", X2((results_int$stats$exe
+                            |> filter(exe == "PySOM-bc-int"))$median_ratio)),
+  
+  Cmd("TSOMastMedianX",
+      X2((results_int$stats$exe
+          |> filter(exe == "TruffleSOM-ast-NativeCE-int-astvsbc"))$median_ratio)),
+  Cmd("TSOMbcMedianX",
+      X2((results_int$stats$exe |>
+            filter(exe == "TruffleSOM-bc-NativeCE-int-astvsbc"))$median_ratio)),
+  
+  Cmd("PySOMastMinX",
+        X2((results_int$stats$exe |> filter(exe == "PySOM-ast-int"))$min_ratio)),
+  Cmd("PySOMastMaxX",
+        X2((results_int$stats$exe |> filter(exe == "PySOM-ast-int"))$max_ratio)),
+  Cmd("PySOMbcMinX",
+        X2((results_int$stats$exe |> filter(exe == "PySOM-bc-int"))$min_ratio)),
+  Cmd("PySOMbcMaxX",
+        X2((results_int$stats$exe |> filter(exe == "PySOM-bc-int"))$max_ratio)),
+  
+  Cmd("TSOMastMinX",
+        X2((results_int$stats$exe |>
+              filter(exe == "TruffleSOM-ast-NativeCE-int-astvsbc"))$min_ratio)),
+  Cmd("TSOMastMaxX",
+        X2((results_int$stats$exe |>
+              filter(exe == "TruffleSOM-ast-NativeCE-int-astvsbc"))$max_ratio)),
+  Cmd("TSOMbcMinX",
+        X2((results_int$stats$exe |>
+              filter(exe == "TruffleSOM-bc-NativeCE-int-astvsbc"))$min_ratio)),
+  Cmd("TSOMbcMaxX",
+        X2((results_int$stats$exe |>
+              filter(exe == "TruffleSOM-bc-NativeCE-int-astvsbc"))$max_ratio))
 )
 
 # Numbers for part 5.2
