@@ -32,18 +32,18 @@ unify_overview_memory_data <- c(
 )
 
 vm_names <- c(
-  "Java20-C2-jit" = "Java JDK20 C2",
-  "Java17-C2-jit" = "Java JDK17 C2",
-  "Java20-int"      = "Java JDK20 Int", 
-  "Java-int"      = "Java JDK17 Int", 
+  "Java20-C2-jit" = "Java", # JDK20 C2",
+  "Java17-C2-jit" = "Java", # JDK17 C2",
+  "Java20-int"    = "Java", # "JDK~20~`-Xint`", 
+  "Java-int"      = "JDK17", # -Xint", 
   "Java8-C2-jit"  = "Java JDK8 C2",
   "Java8-int"     = "Java JDK8 Int", 
   "Java-native"   = "GraalVM Native EE 22.3",
   
   "CSharp-jit"    = "C# .NET 6.0.200",
  
-  "Node-jit"      = "Node.js 17.9",
-  "Node-int"      = "Node.js 17.9 jitless", 
+  "Node-jit"      = "Node.js",# 17.9",
+  "Node-int"      = "Node.js", # "Node.js~17.9~`--jitless`", 
   "GraalJS-HotspotEE-jit" = "Graal.js EE 22.3 Hotspot", 
   "GraalJS-NativeEE-int"  = "Graal.js EE 22.3 Native Int", 
   
@@ -58,22 +58,22 @@ vm_names <- c(
   "TruffleRuby-HotspotEE-jit" = "TruffleRuby EE 22.3 Hotspot",
   "TruffleRuby-NativeEE-int"  = "TruffleRuby EE 22.3 Native Int",
   
-  "PySOM-ast-jit" = "PySOM AST JIT",
-  "PySOM-ast-int" = "PySOM AST Int",
-  "PySOM-bc-jit"  = "PySOM BC JIT",
-  "PySOM-bc-int"  = "PySOM BC Int",
+  "PySOM-ast-jit" = "PySOM[AST]",
+  "PySOM-ast-int" = "PySOM[AST]",
+  "PySOM-bc-jit"  = "PySOM[BC]", # BC JIT",
+  "PySOM-bc-int"  = "PySOM[BC]", # BC Int",
 
-  "TruffleSOM-ast-HotspotCE-jit-main" = "TruffleSOM AST Hotspot CE base", 
-  "TruffleSOM-ast-HotspotEE-jit-main" = "TruffleSOM AST Hotspot EE base", 
-  "TruffleSOM-ast-NativeEE-int-main"  = "TruffleSOM AST Native Int EE base",
-  "TruffleSOM-ast-NativeEE-int-super" = "TruffleSOM AST Native Int EE super", 
-  "TruffleSOM-ast-NativeEE-int-uber"  = "TruffleSOM AST Native Int EE uber",
-  "TruffleSOM-bc-HotspotCE-jit-main"  = "TruffleSOM BC Hotspot CE base",
-  "TruffleSOM-bc-HotspotEE-jit-main"  = "TruffleSOM BC Hotspot EE base",
-  "TruffleSOM-bc-NativeEE-int-main"   = "TruffleSOM BC Native Int EE base",
+  "TruffleSOM-ast-HotspotCE-jit-main" = "TSOM[AST]", # AST Hotspot CE base", 
+  "TruffleSOM-ast-HotspotEE-jit-main" = "TSOM[AST]", # AST Hotspot EE base", 
+  "TruffleSOM-ast-NativeEE-int-main"  = "TSOM[AST]", # AST Native Int EE base",
+  "TruffleSOM-ast-NativeEE-int-super" = "TSOM[AST]", # AST Native Int EE super", 
+  "TruffleSOM-ast-NativeEE-int-uber"  = "TSOM[AST]", # AST Native Int EE uber",
+  "TruffleSOM-bc-HotspotCE-jit-main"  = "TSOM[BC]", # BC Hotspot CE base",
+  "TruffleSOM-bc-HotspotEE-jit-main"  = "TSOM[BC]", # BC Hotspot EE base",
+  "TruffleSOM-bc-NativeEE-int-main"   = "TSOM[BC]", # BC Native Int EE base",
   
-  "TruffleSOM-ast-NativeCE-int-astvsbc" = "TruffleSOM AST Native Int CE",
-  "TruffleSOM-bc-NativeCE-int-astvsbc" = "TruffleSOM BC Native Int CE",
+  "TruffleSOM-ast-NativeCE-int-astvsbc" = "TSOM[AST]", # AST Native Int CE",
+  "TruffleSOM-bc-NativeCE-int-astvsbc" = "TSOM[BC]", # BC Native Int CE",
   
   "SOMpp-int" = "SOM++ Int",
   "CSOM-int" = "CSOM Int",

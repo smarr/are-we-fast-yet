@@ -261,6 +261,7 @@ overview_box_plot <- function(stats, vms = NULL, prepare_data = NULL, pre_plot =
                  aes(colour = exe, fill = exe), 
                   alpha=0.4) + #fill=get_color(5, 7)
     scale_x_log10(breaks = x_breaks) +
+    scale_y_discrete(label = function (x) parse(text=x)) +
     scale_color_manual(values = color_set_vms) +
     scale_fill_manual(values = color_set_vms) +
     theme_bw() + theme_simple(font_size = 8) +
@@ -294,7 +295,7 @@ plot <- overview_box_plot(results_peak$stats$bench,
                     "TruffleSOM-ast-HotspotCE-jit-main",
                     "TruffleSOM-bc-HotspotCE-jit-main", "Java20-C2-jit", "Node-jit"),
                   x_breaks = c(0.5, 0.75, 1, 1.33333, 2, 3, 5, 10, 20))
-ggsave("output_graphs/tsom-pysom-peak-perf.pdf", plot, device= cairo_pdf)
+ggsave("../../../paper/images/tsom-pysom-peak-perf.pdf", plot, device= cairo_pdf)
 plot
 ```
 
@@ -302,7 +303,7 @@ plot
 
 Comparing TruffleSOM, PySOM, Node-int and Java-Int. Using `r vm_names[baseline_vm_int]` as a baseline.
 
-```{r tsom-pysom-int, fig.width=8, fig.height=1.5}
+```{r tsom-pysom-int, fig.width=8, fig.height=1.5, cache=FALSE}
 plot <- overview_box_plot(results_int$stats$bench,
                   c("PySOM-ast-int", "PySOM-bc-int",
                     "TruffleSOM-ast-NativeCE-int-astvsbc", "TruffleSOM-bc-NativeCE-int-astvsbc",
@@ -310,7 +311,7 @@ plot <- overview_box_plot(results_int$stats$bench,
                     "Java20-int", "Node-int"),
                   x_breaks = c(0.41, 0.5, 0.75, 1, 1.33333, 2, 3, 5, 10))
 
-ggsave("output_graphs/tsom-pysom-interp-perf.pdf", plot, device= cairo_pdf)
+ggsave("../../../paper/images/tsom-pysom-interp-perf.pdf", plot, device= cairo_pdf)
 plot
 ```
 
