@@ -421,22 +421,48 @@ macros = c(macros,
         X2(max_row_jit$median_ratio), "\\xspace}"),
   paste0("\\newcommand{\\SlowliestSOMjitExeFourth}{",
         X2(max_row_jit$exe), "\\xspace}"),
-  paste0("\\newcommand{\\PySOMastLowerBound}{",
-        X2((only_soms_jit |> filter(exe == "PySOM-ast-jit"))$min_ratio), "\\xspace}"),
-  paste0("\\newcommand{\\PySOMastUpperBound}{",
-        X2((only_soms_jit |> filter(exe == "PySOM-ast-jit"))$max_ratio), "\\xspace}"),
-  paste0("\\newcommand{\\PySOMbcLowerBound}{",
-        X2((only_soms_jit |> filter(exe == "PySOM-bc-jit"))$min_ratio), "\\xspace}"),
-  paste0("\\newcommand{\\PySOMbcUpperBound}{",
-        X2((only_soms_jit |> filter(exe == "PySOM-bc-jit"))$max_ratio), "\\xspace}"),
-  paste0("\\newcommand{\\TSOMastLowerBound}{",
-        X2((only_soms_jit |> filter(exe == "TruffleSOM-ast-HotspotCE-jit-main"))$min_ratio), "\\xspace}"),
-  paste0("\\newcommand{\\TSOMastUpperBound}{",
-        X2((only_soms_jit |> filter(exe == "TruffleSOM-ast-HotspotCE-jit-main"))$max_ratio), "\\xspace}"),
-  paste0("\\newcommand{\\TSOMbcLowerBound}{",
-        X2((only_soms_jit |> filter(exe == "TruffleSOM-bc-HotspotCE-jit-main"))$min_ratio), "\\xspace}"),
-  paste0("\\newcommand{\\TSOMbcUpperBound}{",
-        X2((only_soms_jit |> filter(exe == "TruffleSOM-bc-HotspotCE-jit-main"))$max_ratio), "\\xspace}")
+  
+  
+  Cmd("NodeJitMedianX", X2((results_peak$stats$exe
+                             |> filter(exe == "Node-jit"))$median_ratio)),
+  Cmd("NodeJitMinX", X2((results_peak$stats$exe
+                            |> filter(exe == "Node-jit"))$min_ratio)),
+  Cmd("NodeJitMaxX", X2((results_peak$stats$exe
+                             |> filter(exe == "Node-jit"))$max_ratio)),
+  
+  Cmd("PySOMastJitMedianX", X2((results_peak$stats$exe
+                             |> filter(exe == "PySOM-ast-jit"))$median_ratio)),
+  Cmd("PySOMbcJitMedianX", X2((results_peak$stats$exe
+                            |> filter(exe == "PySOM-bc-jit"))$median_ratio)),
+  
+  Cmd("TSOMastJitMedianX",
+      X2((results_peak$stats$exe
+          |> filter(exe == "TruffleSOM-ast-HotspotCE-jit-main"))$median_ratio)),
+  Cmd("TSOMbcJitMedianX",
+      X2((results_peak$stats$exe |>
+            filter(exe == "TruffleSOM-bc-HotspotCE-jit-main"))$median_ratio)),
+  
+  Cmd("PySOMastJitMinX",
+        X2((results_peak$stats$exe |> filter(exe == "PySOM-ast-jit"))$min_ratio)),
+  Cmd("PySOMastJitMaxX",
+        X2((results_peak$stats$exe |> filter(exe == "PySOM-ast-jit"))$max_ratio)),
+  Cmd("PySOMbcJitMinX",
+        X2((results_peak$stats$exe |> filter(exe == "PySOM-bc-jit"))$min_ratio)),
+  Cmd("PySOMbcJitMaxX",
+        X2((results_peak$stats$exe |> filter(exe == "PySOM-bc-jit"))$max_ratio)),
+  
+  Cmd("TSOMastJitMinX",
+        X2((results_peak$stats$exe |>
+              filter(exe == "TruffleSOM-ast-HotspotCE-jit-main"))$min_ratio)),
+  Cmd("TSOMastJitMaxX",
+        X2((results_peak$stats$exe |>
+              filter(exe == "TruffleSOM-ast-HotspotCE-jit-main"))$max_ratio)),
+  Cmd("TSOMbcJitMinX",
+        X2((results_peak$stats$exe |>
+              filter(exe == "TruffleSOM-bc-HotspotCE-jit-main"))$min_ratio)),
+  Cmd("TSOMbcJitMaxX",
+        X2((results_peak$stats$exe |>
+              filter(exe == "TruffleSOM-bc-HotspotCE-jit-main"))$max_ratio))
 )
 
 
