@@ -62,6 +62,9 @@ vm_names <- c(
   "PySOM-ast-int" = "PySOM[AST]",
   "PySOM-bc-jit"  = "PySOM[BC]", # BC JIT",
   "PySOM-bc-int"  = "PySOM[BC]", # BC Int",
+  
+  "RPySOM-ast-jit" = "PySOM[AST]",
+  "RPySOM-bc-jit"  = "PySOM[BC]",
 
   "TruffleSOM-ast-HotspotCE-jit-main" = "TSOM[AST]", # AST Hotspot CE base", 
   "TruffleSOM-ast-HotspotEE-jit-main" = "TSOM[AST]", # AST Hotspot EE base", 
@@ -74,6 +77,11 @@ vm_names <- c(
   
   "TruffleSOM-ast-NativeCE-int-astvsbc" = "TSOM[AST]", # AST Native Int CE",
   "TruffleSOM-bc-NativeCE-int-astvsbc" = "TSOM[BC]", # BC Native Int CE",
+  
+  "TruffleSOM-graal-ast" = "TSOM[AST]",
+  "TruffleSOM-graal-bc" = "TSOM[BC]",
+  "TruffleSOM-native-ast" = "TSOM[AST]",
+  "TruffleSOM-native-bc" = "TSOM[BC]",
   
   "SOMpp-int" = "SOM++ Int",
   "CSOM-int" = "CSOM Int",

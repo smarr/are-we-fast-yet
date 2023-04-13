@@ -307,7 +307,7 @@ plot <- overview_box_plot(results_peak$stats$bench,
                     "TruffleSOM-bc-HotspotCE-jit-main", "Java20-C2-jit", "Node-jit"),
                   x_breaks = c(0.5, 0.75, 1, 1.33333, 2, 3, 5, 10, 20),
                   x_lab = "lower is better")
-ggsave("../../../paper/images/tsom-pysom-peak-perf.pdf", plot, device= cairo_pdf)
+ggsave("../../../paper/images/tsom-pysom-peak-perf.pdf", plot, device=cairo_pdf)
 plot
 ```
 
