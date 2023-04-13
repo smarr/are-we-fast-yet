@@ -125,11 +125,15 @@ get_warmup_plots <- function(data, baseline_name, y_lab, dont_rename = FALSE) {
     suppressMessages(norm$exe <- revalue(norm$exe, vm_names))
   }
   
+  vms <- levels(droplevels(norm)$exe)
+  # col_values <- sapply(vms, function(x) color_set_vms[[x]])
+  
   # norm %>% filter(exe %in% sorted_exe)
   plots <- ggplot(norm, aes(x=iteration, y=ratio_median)) +
     geom_line(aes(colour = exe), linewidth=0.3)+
     scale_y_log10() +
-    scale_color_discrete(label = function (x) parse(text=x)) +
+    # scale_color_manual(values = col_values) +
+    scale_color_discrete(label = function (x) parse(text=x), col) +
     theme_simple(8) +
     theme(
       legend.title = element_blank(),
