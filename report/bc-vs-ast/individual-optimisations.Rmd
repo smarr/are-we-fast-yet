@@ -4,51 +4,59 @@
 
 ```{r load-scripts, echo=FALSE, include=FALSE}
 # load libraries, the data, and prepare it
-if (Sys.getenv("RSTUDIO") == "1") { setwd("/home/octavel/PhD/papers/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast") }
+if (Sys.getenv("USER") == "smarr") {
+  setwd("/Users/smarr/Projects/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast")
+  } else if (Sys.getenv("USER") == "sopi") {
+  setwd("/home/sopi/Documents/Writing/2023/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast/" )
+  } else {
+  setwd("/home/octavel/PhD/papers/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast")
+  }
 source("scripts/libraries.R", chdir=TRUE)
 source("scripts/data-processing2.R")
 
 OPTIM_GRAPH_HEIGHT <- 50
 OPTIM_GRAPH_WIDTH <- 100
-
-#extrafont::font_import()
-#print(extrafont::fonts())
-#extrafont::loadfonts()
-#extrafont::loadfonts(device = "postscript")
-
 MIN_JIT_ITERATION <- 1000
-    
-get_data_for_box_plot_optim <- function(input_data, exe_name, baseline_optim_name="every optimization", optim_names=NULL, is_jit_data=FALSE) {
-  grouped_iterations_data <- input_data %>%
-    group_by(commitid, cmdline) %>%
-    mutate(median_runtime = median(value)) %>%
+
+compute_stats <- function(data, exe_name, iteration_threshold = 0, baseline_optim="every optimization") {
+  data <- data %>% 
+    filter(exe == exe_name) %>%
+    filter(iteration >= iteration_threshold)
+  
+  base <- data %>% 
+    filter(optim == baseline_optim) %>%
+    transform(base_value = value)
+  
+  norm <- data %>% left_join(
+        base,
+        by = c("exe", "bench", "invocation", "iteration")) %>%
+    rename("optim" = "optim.x", 
+           "base_optim" = "optim.y",
+           "value" = "value.x") %>%
+    group_by(optim, exe, bench, iteration) %>%
+    transform(ratio = value / base_value)
+
+  stats <- norm %>%
+    group_by(optim, exe) %>%
+    reframe(
+      unit = unit.x,
+      min = min(ratio),
+      max = max(ratio),
+      sd = sd(ratio),
+      mean = mean(ratio),
+      median = median(ratio),
+      samples = length(ratio)) %>%
     slice(1)
-  
-  df_baseline <- input_data %>% filter(optim == baseline_optim_name) %>%
-    group_by(commitid, cmdline) %>%
-    mutate(median_runtime = median(value)) %>%
-    slice(1)
-  
-  box_plot_data <- grouped_iterations_data %>% left_join(
-        df_baseline,
-        by = c("exe", "bench", "extraargs", "iteration", "invocation", "warmup"))
-  box_plot_data <- box_plot_data %>% filter(exe == exe_name)
-  
-  if (is_jit_data) {
-    box_plot_data <- box_plot_data %>% filter(iteration >= MIN_JIT_ITERATION)
-  }
-  
-  box_plot_data$ratio <- box_plot_data$median_runtime.x / box_plot_data$median_runtime.y
-  #box_plot_data$ratio <- box_plot_data$value.x / box_plot_data$value.y
-    
-  # Renaming
-  colnames(box_plot_data)[which(colnames(box_plot_data) == "optim.x")] <- "optim"
-  
-  if (!is.null(optim_names)) {
-    box_plot_data <- box_plot_data %>% filter(optim %in% optim_names)
-  }
-  
-  box_plot_data
+
+  list(
+    base = base,
+    norm = norm,
+    stats = stats)
+}
+
+get_data_for_box_plot_optim <- function(input_data, exe_name, baseline_optim_name="every optimization", iteration_threshold=0) {
+  all <- compute_stats(input_data, exe_name, iteration_threshold)
+  all$norm
 }
 
 box_plot_optim <- function(data, custom_x_breaks=NULL, colors = color_set_optims) {
@@ -222,12 +230,15 @@ data_optim_pysom_bc <- get_pysom_bc_data() %>% only_keep_last_peak_perf_iters()
 all_optims <- rbind(data_optim_tsom_ast, data_optim_tsom_bc, data_optim_pysom_ast, data_optim_pysom_bc)
 unique_optims <- unique(all_optims$optim)
 color_set_optims <- compute_color_bindings_for_plots(unique_optims, viridis::viridis)
+
+box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_ast, "TruffleSOM-native-interp-ast")
 ```
 
 ### TruffleSOM - AST interp
 
 ```{r optim-tsom-ast-int, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_ast, "TruffleSOM-native-interp-ast")
+
 plot <- box_plot_optim(box_plot_data, colors=color_set_optims)
 ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/optim-tsom-ast-int.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
 plot
@@ -246,7 +257,7 @@ plot
 ### TruffleSOM - AST JIT
 
 ```{r optim-tsom-ast-jit, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_ast, "TruffleSOM-graal", is_jit_data = TRUE)
+box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_ast, "TruffleSOM-graal", iteration_threshold = MIN_JIT_ITERATION)
 
 plot <- box_plot_optim(box_plot_data, colors=color_set_optims)
 ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/optim-tsom-ast-jit.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
@@ -256,7 +267,7 @@ plot
 ### PySOM - AST JIT
 
 ```{r optim-pysom-ast-jit, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_ast, "RPySOM-ast-jit", is_jit_data = TRUE)
+box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_ast, "RPySOM-ast-jit", iteration_threshold = MIN_JIT_ITERATION)
 plot <- box_plot_optim(box_plot_data, colors=color_set_optims)
 ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/optim-pysom-ast-jit.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
 plot
@@ -285,7 +296,7 @@ plot
 ### TruffleSOM - BC JIT
 
 ```{r optim-tsom-bc-jit, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_bc, "TruffleSOM-graal-bc", is_jit_data = TRUE)
+box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_bc, "TruffleSOM-graal-bc", iteration_threshold = MIN_JIT_ITERATION)
 plot <- box_plot_optim(box_plot_data, colors=color_set_optims)
 ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/optim-tsom-bc-jit.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
 plot
@@ -294,8 +305,19 @@ plot
 ### PySOM - BC JIT
 
 ```{r optim-pysom-bc-jit, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_bc, "RPySOM-bc-jit", is_jit_data = TRUE)
+box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_bc, "RPySOM-bc-jit", iteration_threshold = MIN_JIT_ITERATION)
 plot <- box_plot_optim(box_plot_data, colors=color_set_optims)
 ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/optim-pysom-bc-jit.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
 plot
+```
+
+## Stats
+```{r stats}
+#TODO Sophie - Here, fetch statistics for all executors, int and jit
+```
+
+## Write to text file
+
+```{r write-file}
+#TODO Sophie - Here, generate the macros
 ```
