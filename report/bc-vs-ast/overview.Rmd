@@ -4,7 +4,13 @@ This report was generated on `r Sys.time()`.
 
 ```{r load-scripts, echo=FALSE, include=FALSE}
 # load libraries, the data, and prepare it
-if (Sys.getenv("RSTUDIO") == "1") { setwd("/home/sopi/Documents/Writing/2023/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast/") }
+if (Sys.getenv("USER") == "smarr") {
+  setwd("/Users/smarr/Projects/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast")
+  } else if (Sys.getenv("USER") == "sopi") {
+  setwd("/home/sopi/Documents/Writing/2023/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast/" )
+  } else {
+  setwd("/home/octavel/PhD/papers/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast")
+  }
 source("scripts/libraries.R", chdir=TRUE)
 
 # data <- rbind(
