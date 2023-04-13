@@ -103,42 +103,58 @@ warmup_plot <- function (data_ea, b, e) {
 
 MAX_ITER <- 100
 
-data_java <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2858") %>% filter(exe=="Java-C2-jit")
-all_data <- rbind(data, data_java)
+# SM: Let's no use Java as baseline.
+# I hope the plots are more clear when we just pick TSOMast as baseline (TruffleSOM-graal-ast)
+# data_java <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2858") %>% filter(exe=="Java-C2-jit")
+# all_data <- rbind(data, data_java)
+all_data <- data
 all_data$exe <- revalue(all_data$exe, c("TruffleSOM-graal"="TruffleSOM-graal-ast"))
   
-get_warmup_plots <- function(data, baseline_name) {
+get_warmup_plots <- function(data, baseline_name, y_lab, dont_rename = FALSE) {
   filtered <- data %>% select_data(iteration <= MAX_ITER)
   
   base <- filtered %>%
     compute_baseline(baseline_name)
   
   norm <- filtered %>%
-            left_join(
-              base,
-              by = c("bench")) %>%
-             group_by(bench) %>%
-             transform(ratio_median = value / base_median)
+            left_join(base, by = c("bench")) %>%
+            group_by(bench) %>%
+            transform(ratio_median = value / base_median)
+
+  if (!dont_rename) {
+    suppressMessages(norm$exe <- revalue(norm$exe, vm_names))
+  }
   
-  plots <- ggplot(norm %>% filter(exe %in% sorted_exe), aes(x=iteration, y=ratio_median)) +
+  # norm %>% filter(exe %in% sorted_exe)
+  plots <- ggplot(norm, aes(x=iteration, y=ratio_median)) +
     geom_line(aes(colour = exe), linewidth=0.3)+
     scale_y_log10() +
-    ylab("Runtime factor compared to Java") +
+    scale_color_discrete(label = function (x) parse(text=x)) +
+    theme_simple(8) +
+    theme(
+      legend.title = element_blank(),
+      legend.text.align = 0,
+      legend.background = element_blank(),
+      legend.position = c(0.9, 0.5)) +
+    ylab(y_lab) +
     facet_wrap(~ bench, scales = "free_y")
   
   plots
 }
 
-plot_all <- get_warmup_plots(all_data, "Java-C2-jit")
+plot_all <- get_warmup_plots(all_data, "TruffleSOM-graal-ast", expression(Normalized~to~median(TSOM[AST])), TRUE) # "Java-C2-jit")
 
-graal_data <- rbind(all_data %>% filter(exe %in% c("TruffleSOM-graal-ast", "TruffleSOM-graal-bc")), data_java)
-plot_graal <- get_warmup_plots(graal_data, "Java-C2-jit")
+# graal_data <- rbind(all_data %>% filter(exe %in% c("TruffleSOM-graal-ast", "TruffleSOM-graal-bc")), data_java)
+graal_data <- all_data %>% filter(exe %in% c("TruffleSOM-graal-ast", "TruffleSOM-graal-bc"))
+plot_graal <- get_warmup_plots(graal_data, "TruffleSOM-graal-ast", expression(Normalized~to~median(TSOM[AST]))) # "Java-C2-jit")
 
-native_image_data <- rbind(all_data %>% filter(exe %in% c("TruffleSOM-native-ast", "TruffleSOM-native-bc")), data_java)
-plot_native <- get_warmup_plots(native_image_data, "Java-C2-jit")
+# native_image_data <- rbind(all_data %>% filter(exe %in% c("TruffleSOM-native-ast", "TruffleSOM-native-bc")), data_java)
+native_image_data <- all_data %>% filter(exe %in% c("TruffleSOM-native-ast", "TruffleSOM-native-bc"))
+plot_native <- get_warmup_plots(native_image_data, "TruffleSOM-native-ast", expression(Normalized~to~median(TSOM[AST]))) # "Java-C2-jit")
 
-pysom_data <- rbind(all_data %>% filter(exe %in% c("RPySOM-ast-jit", "RPySOM-bc-jit")), data_java)
-plot_pysom <- get_warmup_plots(pysom_data, "Java-C2-jit")
+# pysom_data <- rbind(all_data %>% filter(exe %in% c("RPySOM-ast-jit", "RPySOM-bc-jit")), data_java)
+pysom_data <- all_data %>% filter(exe %in% c("RPySOM-ast-jit", "RPySOM-bc-jit"))
+plot_pysom <- get_warmup_plots(pysom_data, "RPySOM-ast-jit", expression(Normalized~to~median(PySOM[AST]))) # "Java-C2-jit")
 
 print(plot_all)
 print(plot_graal)
