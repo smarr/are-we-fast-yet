@@ -145,9 +145,11 @@ print(plot_graal)
 print(plot_native)
 print(plot_pysom)
 
-OUTPUT_WIDTH <- 250
-OUTPUT_HEIGHT <- 150
-ggsave(plot_graal, device= cairo_pdf, path=".", filename=paste0("output_graphs_warmup/", "warmup_graal.pdf"), dpi=300, height=OUTPUT_HEIGHT, width=OUTPUT_WIDTH, units="mm", family="Arial")
-ggsave(plot_native, device= cairo_pdf, path=".", filename=paste0("output_graphs_warmup/", "warmup_native.pdf"), dpi=300, height=OUTPUT_HEIGHT, width=OUTPUT_WIDTH, units="mm", family="Arial")
-ggsave(plot_pysom, device= cairo_pdf, path=".", filename=paste0("output_graphs_warmup/", "warmup_pysom.pdf"), dpi=300, height=OUTPUT_HEIGHT, width=OUTPUT_WIDTH, units="mm", family="Arial")
+OUTPUT_WIDTH <- 5.5
+OUTPUT_HEIGHT <- 3.3
+output_folder <- "../../../paper/images/"
+
+ggsave(plot_graal, device= cairo_pdf, path=".", filename=paste0(output_folder, "warmup_graal.pdf"), dpi=300, height=OUTPUT_HEIGHT, width=OUTPUT_WIDTH, units="in", family="Arial")
+ggsave(plot_native, device= cairo_pdf, path=".", filename=paste0(output_folder, "warmup_native.pdf"), dpi=300, height=OUTPUT_HEIGHT, width=OUTPUT_WIDTH, units="in", family="Arial")
+ggsave(plot_pysom, device= cairo_pdf, path=".", filename=paste0(output_folder, "warmup_pysom.pdf"), dpi=300, height=OUTPUT_HEIGHT, width=OUTPUT_WIDTH, units="in", family="Arial")
 ```
