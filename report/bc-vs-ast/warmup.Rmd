@@ -44,49 +44,14 @@ sorted_benchmarks <- c(
 )
 
 sorted_exe <- c(
-# "Java17-C2-jit",
-# "Java-int", 
-#
-# "Node-jit",
-# "Node-int", 
-# "GraalJS-HotspotEE-jit", 
-# "GraalJS-NativeEE-int", 
-# 
-# "PyPy-jit",
-# "CPython-int",
-# "GraalPython-HotspotEE-jit",
-#  "GraalPython-NativeEE-int", 
-#  
-#  "CRuby-int",
-#  "CRuby-y-jit",
-#  "TruffleRuby-HotspotEE-jit",
-#  "TruffleRuby-NativeEE-int",
-  
-#  "PySOM-ast-jit",
-#  "PySOM-ast-int",
-#  "PySOM-bc-jit",
-#  "PySOM-bc-int",
-
   "RPySOM-ast-jit",
   "RPySOM-bc-jit",
-#  "RPySOM-ast-interp",
-#  "RPySOM-bc-interp",
   
   "TruffleSOM-graal-ast",
   "TruffleSOM-graal-bc",
   
   "TruffleSOM-native-ast",
   "TruffleSOM-native-bc"
-
-#  "TruffleSOM-native-interp-ast",
-#  "TruffleSOM-native-interp-bc"
-
-#  "TruffleSOM-ast-HotspotCE-jit-main", 
-#  "TruffleSOM-ast-NativeEE-int-main",
-#  "TruffleSOM-ast-NativeEE-int-super", 
-#  "TruffleSOM-ast-NativeEE-int-uber",
-#  "TruffleSOM-bc-HotspotCE-jit-main"
-#  "TruffleSOM-bc-NativeEE-int-main"
 )
     
 # data_ea is expected to have only a single configuration,
