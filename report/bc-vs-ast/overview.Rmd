@@ -289,7 +289,7 @@ it gives us relatively stable results for most language implementations.
 
 Results are normalized either to `r vm_names[baseline_vm_peak]`.
 
-```{r tsom-pysom-jit, fig.width=8, fig.height=2.2}
+```{r tsom-pysom-jit, fig.width=5.5, fig.height=1.2}
 plot <- overview_box_plot(results_peak$stats$bench,
                   c("PySOM-ast-jit", "PySOM-bc-jit", 
                     "TruffleSOM-ast-HotspotCE-jit-main",
@@ -303,7 +303,7 @@ plot
 
 Comparing TruffleSOM, PySOM, Node-int and Java-Int. Using `r vm_names[baseline_vm_int]` as a baseline.
 
-```{r tsom-pysom-int, fig.width=8, fig.height=1.5, cache=FALSE}
+```{r tsom-pysom-int, fig.width=5.5, fig.height=1.2, cache=FALSE}
 plot <- overview_box_plot(results_int$stats$bench,
                   c("PySOM-ast-int", "PySOM-bc-int",
                     "TruffleSOM-ast-NativeCE-int-astvsbc", "TruffleSOM-bc-NativeCE-int-astvsbc",
@@ -311,7 +311,7 @@ plot <- overview_box_plot(results_int$stats$bench,
                     "Java20-int", "Node-int"),
                   x_breaks = c(0.41, 0.5, 0.75, 1, 1.33333, 2, 3, 5, 10))
 
-ggsave("../../../paper/images/tsom-pysom-interp-perf.pdf", plot, device= cairo_pdf)
+ggsave("../../../paper/images/tsom-pysom-interp-perf.pdf", plot, device=cairo_pdf)
 plot
 ```
 
