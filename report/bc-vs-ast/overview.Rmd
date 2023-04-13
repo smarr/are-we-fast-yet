@@ -364,37 +364,37 @@ macros = c(
   Cmd("LowestRatioIntJavaBenchmark", fastest_bench$bench),
   
   Cmd("SpeediestExeInt", min_exe),
-  Cmd("PySOMastMedianX", X2((results_int$stats$exe
+  Cmd("PySOMastIntMedianX", X2((results_int$stats$exe
                              |> filter(exe == "PySOM-ast-int"))$median_ratio)),
-  Cmd("PySOMbcMedianX", X2((results_int$stats$exe
+  Cmd("PySOMbcIntMedianX", X2((results_int$stats$exe
                             |> filter(exe == "PySOM-bc-int"))$median_ratio)),
   
-  Cmd("TSOMastMedianX",
+  Cmd("TSOMastIntMedianX",
       X2((results_int$stats$exe
           |> filter(exe == "TruffleSOM-ast-NativeCE-int-astvsbc"))$median_ratio)),
-  Cmd("TSOMbcMedianX",
+  Cmd("TSOMbcIntMedianX",
       X2((results_int$stats$exe |>
             filter(exe == "TruffleSOM-bc-NativeCE-int-astvsbc"))$median_ratio)),
   
-  Cmd("PySOMastMinX",
+  Cmd("PySOMastIntMinX",
         X2((results_int$stats$exe |> filter(exe == "PySOM-ast-int"))$min_ratio)),
-  Cmd("PySOMastMaxX",
+  Cmd("PySOMastIntMaxX",
         X2((results_int$stats$exe |> filter(exe == "PySOM-ast-int"))$max_ratio)),
-  Cmd("PySOMbcMinX",
+  Cmd("PySOMbcIntMinX",
         X2((results_int$stats$exe |> filter(exe == "PySOM-bc-int"))$min_ratio)),
-  Cmd("PySOMbcMaxX",
+  Cmd("PySOMbcIntMaxX",
         X2((results_int$stats$exe |> filter(exe == "PySOM-bc-int"))$max_ratio)),
   
-  Cmd("TSOMastMinX",
+  Cmd("TSOMastIntMinX",
         X2((results_int$stats$exe |>
               filter(exe == "TruffleSOM-ast-NativeCE-int-astvsbc"))$min_ratio)),
-  Cmd("TSOMastMaxX",
+  Cmd("TSOMastIntMaxX",
         X2((results_int$stats$exe |>
               filter(exe == "TruffleSOM-ast-NativeCE-int-astvsbc"))$max_ratio)),
-  Cmd("TSOMbcMinX",
+  Cmd("TSOMbcIntMinX",
         X2((results_int$stats$exe |>
               filter(exe == "TruffleSOM-bc-NativeCE-int-astvsbc"))$min_ratio)),
-  Cmd("TSOMbcMaxX",
+  Cmd("TSOMbcIntMaxX",
         X2((results_int$stats$exe |>
               filter(exe == "TruffleSOM-bc-NativeCE-int-astvsbc"))$max_ratio))
 )
