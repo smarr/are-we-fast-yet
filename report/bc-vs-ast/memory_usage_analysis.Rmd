@@ -4,13 +4,15 @@
 # load libraries, the data, and prepare it
 if (Sys.getenv("USER") == "smarr") {
   setwd("/Users/smarr/Projects/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast")
-  } else if (Sys.getenv("USER") == "sopi") {
+} else if (Sys.getenv("USER") == "sopi") {
   setwd("/home/sopi/Documents/Writing/2023/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast/" )
-  } else {
+} else {
   setwd("/home/octavel/PhD/papers/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast")
-  }
+}
 source("scripts/libraries.R", chdir=TRUE)
 source("scripts/data-processing2.R")
+
+output_folder <- "../../../paper/images/"
 
 #extrafont::font_import()
 #print(extrafont::fonts())
@@ -22,7 +24,7 @@ get_data_rss <- function() {
   remove_unneeded_data <- function(df) {
     df <- df %>% 
       filter(criterion == "MaxRSS") %>% 
-      subset(select = -c(commitid, cmdline, expid, varvalue, cores, inputsize, iteration, criterion, envid, unit))
+      subset(select = -c(commitid, cmdline, expid, varvalue, cores, inputsize, iteration, criterion, envid))
     
     # group the data by runid and trialid, and keep only the first row of each group
     #df <- df %>%
@@ -92,6 +94,7 @@ box_plot_rss <- function(data, colors = color_set_vms) {
                               aes(colour = exe, fill = exe), 
                               alpha=0.4) +
     scale_x_log10(breaks = x_breaks) +
+    scale_y_discrete(label = function (x) parse(text=x)) +
     scale_color_manual(values = colors) +
     scale_fill_manual(values = colors) +
     theme_bw() + theme_simple(font_size = 8) +
@@ -104,9 +107,30 @@ box_plot_rss <- function(data, colors = color_set_vms) {
     xlab("")
   
   plot
+} 
+
+as_human_mem <- function(x, digits = 3) {
+  if (length(x) > 1) {
+    return(sapply(x, as_human_mem))
+  }
+  
+  if (is.na(x) || length(x) == 0) {
+    return("")
+  }
+  
+
+  m <- x * 1000
+  mem <- c(" b", " kb", " MB", " GB")
+  i <- 1
+  while (i <= 3 && m >= 1000) {
+    m <- m / 1000
+    i <- i + 1
+  }
+  paste0(format(m, digits = digits), mem[[i]])
 }
 
-box_plot_in_kb <- function(data, colors = color_set_vms) {
+
+box_plot_in_kb <- function(data, colors = color_set_vms, parse_y_labels = FALSE) {
 #  x_breaks <- c(0.5, 0.8, 1, 2, 3, 5, 10, 15, 30)
   
   breaks <- levels(droplevels(data)$exe)
@@ -118,7 +142,7 @@ box_plot_in_kb <- function(data, colors = color_set_vms) {
                               outlier.shape = 22,
                               aes(colour = exe, fill = exe), 
                               alpha=0.4) +
-    scale_x_log10() +
+    scale_x_log10(labels = as_human_mem) +
     scale_color_manual(values = colors) +
     scale_fill_manual(values = colors) +
     theme_bw() + theme_simple(font_size = 8) +
@@ -129,6 +153,11 @@ box_plot_in_kb <- function(data, colors = color_set_vms) {
     #scale_y_log10(breaks=c(1,2,3,10,20,30,50,100,200,300,500,1000)) + #limit=c(0,30), breaks=seq(0,100,5), expand = c(0,0)
     ylab("") +
     xlab("")
+  
+  if (parse_y_labels) {
+    plot <- plot +
+      scale_y_discrete(label = function (x) parse(text=x))
+  }
   
   plot
 }
@@ -189,7 +218,7 @@ box_plot_data <- get_data_for_box_plot(data_rss,
 #print(kable(df2), type="latex", comment=FALSE)
 plot <- box_plot_rss(box_plot_data)
 #ggsave("rss-interp.pdf", plot, dpi = 300, height = 200, width = 400, units="mm", device="pdf")
-ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/rss-interp.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/rss-interp.pdf"), dpi=300, height=50, width=100, units="mm", family="Arial")
 
 plot
 ```
@@ -209,7 +238,7 @@ box_plot_data <- get_data_for_box_plot(data_rss,
 
 #print(kable(df2), type="latex", comment=FALSE)
 plot <- box_plot_rss(box_plot_data)
-ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/rss-jit.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "rss-jit.pdf"), dpi=300, height=50, width=100, units="mm", family="Arial")
 #ggsave(plot, device= cairo_pdf, path=".", filename="rss-jit.pdf", dpi=300, height=4, width=8.5, units="in", family="Arial")
 
 plot
@@ -222,8 +251,8 @@ box_plot_data <- get_data_for_box_plot(data_rss,
                                            "RPySOM-bc-interp",
                                            c("RPySOM-bc-interp", "RPySOM-ast-interp"))
 
-plot <- box_plot_in_kb(box_plot_data)
-ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/rss-interp-pysom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+plot <- box_plot_in_kb(box_plot_data, parse_y_labels = TRUE)
+ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/rss-interp-pysom.pdf"), dpi=300, height=1.3, width=2.6, units="in", family="Arial")
 
 plot
 ```
@@ -235,8 +264,8 @@ box_plot_data <- get_data_for_box_plot(data_rss,
                                            "TruffleSOM-native-interp-bc",
                                            c("TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast"))
 
-plot <- box_plot_in_kb(box_plot_data)
-ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/rss-interp-tsom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+plot <- box_plot_in_kb(box_plot_data, parse_y_labels = TRUE)
+ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/rss-interp-tsom.pdf"), dpi=300, height=1.3, width=2.6, units="in", family="Arial")
 
 plot
 ```
@@ -248,8 +277,8 @@ box_plot_data <- get_data_for_box_plot(data_rss,
                                            "RPySOM-bc-jit",
                                            c("RPySOM-bc-jit", "RPySOM-ast-jit"))
 
-plot <- box_plot_in_kb(box_plot_data)
-ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/rss-jit-pysom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+plot <- box_plot_in_kb(box_plot_data, parse_y_labels = TRUE)
+ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/rss-jit-pysom.pdf"), dpi=300, height=1.3, width=2.6, units="in", family="Arial")
 
 plot
 ```
@@ -261,8 +290,8 @@ box_plot_data <- get_data_for_box_plot(data_rss,
                                            "TruffleSOM-graal-bc",
                                            c("TruffleSOM-graal", "TruffleSOM-graal-bc"))
 
-plot <- box_plot_in_kb(box_plot_data)
-ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/rss-jit-tsom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+plot <- box_plot_in_kb(box_plot_data, parse_y_labels = TRUE)
+ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/rss-jit-tsom.pdf"), dpi=300, height=1.3, width=2.6, units="in", family="Arial")
 
 plot
 ```
@@ -283,7 +312,7 @@ data <- data %>%
     summarize(iteration = 1, value.x = sum(value.x))
 
 plot <- box_plot_in_kb(data)
-ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/program-repr-interp-tsom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/program-repr-interp-tsom.pdf"), dpi=300, height=50, width=100, units="mm", family="Arial")
 
 plot
 ```
@@ -309,7 +338,7 @@ data <- data %>%
     summarize(iteration = 1, value.x = sum(value.x))
 
 plot <- box_plot_in_kb(data)
-ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/program-repr-jit-tsom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/program-repr-jit-tsom.pdf"), dpi=300, height=50, width=100, units="mm", family="Arial")
 
 plot
 
@@ -332,7 +361,7 @@ data <- data_repr_pysom %>% filter(exe %in% c("RPySOM-bc-interp", "RPySOM-ast-in
 data <- data %>% rename(value.x = value) %>% mutate(ratio = 1) # bad code to make it work with the previous boxplot function...
 
 plot <- box_plot_in_kb(data)
-ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/program-repr-interp-pysom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/program-repr-interp-pysom.pdf"), dpi=300, height=50, width=100, units="mm", family="Arial")
 
 plot
 ```
@@ -352,7 +381,7 @@ data <- data_repr_pysom %>% filter(exe %in% c("RPySOM-bc-jit", "RPySOM-ast-jit")
 data <- data %>% rename(value.x = value) %>% mutate(ratio = 1) # bad code to make it work with the previous boxplot function...
 
 plot <- box_plot_in_kb(data)
-ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/program-repr-jit-pysom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/program-repr-jit-pysom.pdf"), dpi=300, height=50, width=100, units="mm", family="Arial")
 
 plot
 ```
@@ -379,7 +408,7 @@ data <- data %>%
     summarize(iteration = 1, value.x = sum(value.x))
 
 plot <- box_plot_in_kb(data)
-#ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/program-repr-interp-tsom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+#ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/program-repr-interp-tsom.pdf"), dpi=300, height=50, width=100, units="mm", family="Arial")
 
 plot
 ```
@@ -396,7 +425,7 @@ data <- data %>%
     summarize(iteration = 1, value.x = sum(value.x))
 
 plot <- box_plot_in_kb(data)
-#ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/program-repr-jit-tsom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+#ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/program-repr-jit-tsom.pdf"), dpi=300, height=50, width=100, units="mm", family="Arial")
 
 plot
 
@@ -411,7 +440,7 @@ data_tsom <- data_repr_tsom %>%
     summarize(iteration = 1, value.x = sum(value.x))
 
 plot_tsom <- box_plot_in_kb(data_tsom)
-#ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/program-repr-jit-tsom.pdf", dpi=300, height=50, width=100, units="mm", family="Arial")
+#ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/program-repr-jit-tsom.pdf"), dpi=300, height=50, width=100, units="mm", family="Arial")
 
 plot_tsom
 ```
