@@ -94,6 +94,7 @@ box_plot_rss <- function(data, colors = color_set_vms) {
                               aes(colour = exe, fill = exe), 
                               alpha=0.4) +
     scale_x_log10(breaks = x_breaks) +
+    scale_y_discrete(label = function (x) parse(text=x)) +
     scale_color_manual(values = colors) +
     scale_fill_manual(values = colors) +
     theme_bw() + theme_simple(font_size = 8) +
@@ -108,7 +109,8 @@ box_plot_rss <- function(data, colors = color_set_vms) {
   plot
 }
 
-box_plot_in_kb <- function(data, colors = color_set_vms) {
+
+box_plot_in_kb <- function(data, colors = color_set_vms, parse_y_labels = FALSE) {
 #  x_breaks <- c(0.5, 0.8, 1, 2, 3, 5, 10, 15, 30)
   
   breaks <- levels(droplevels(data)$exe)
@@ -131,6 +133,11 @@ box_plot_in_kb <- function(data, colors = color_set_vms) {
     #scale_y_log10(breaks=c(1,2,3,10,20,30,50,100,200,300,500,1000)) + #limit=c(0,30), breaks=seq(0,100,5), expand = c(0,0)
     ylab("") +
     xlab("")
+  
+  if (parse_y_labels) {
+    plot <- plot +
+      scale_y_discrete(label = function (x) parse(text=x))
+  }
   
   plot
 }
@@ -224,7 +231,7 @@ box_plot_data <- get_data_for_box_plot(data_rss,
                                            "RPySOM-bc-interp",
                                            c("RPySOM-bc-interp", "RPySOM-ast-interp"))
 
-plot <- box_plot_in_kb(box_plot_data)
+plot <- box_plot_in_kb(box_plot_data, parse_y_labels = TRUE)
 ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/rss-interp-pysom.pdf"), dpi=300, height=50, width=100, units="mm", family="Arial")
 
 plot
@@ -237,7 +244,7 @@ box_plot_data <- get_data_for_box_plot(data_rss,
                                            "TruffleSOM-native-interp-bc",
                                            c("TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast"))
 
-plot <- box_plot_in_kb(box_plot_data)
+plot <- box_plot_in_kb(box_plot_data, parse_y_labels = TRUE)
 ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/rss-interp-tsom.pdf"), dpi=300, height=50, width=100, units="mm", family="Arial")
 
 plot
@@ -250,7 +257,7 @@ box_plot_data <- get_data_for_box_plot(data_rss,
                                            "RPySOM-bc-jit",
                                            c("RPySOM-bc-jit", "RPySOM-ast-jit"))
 
-plot <- box_plot_in_kb(box_plot_data)
+plot <- box_plot_in_kb(box_plot_data, parse_y_labels = TRUE)
 ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/rss-jit-pysom.pdf"), dpi=300, height=50, width=100, units="mm", family="Arial")
 
 plot
@@ -263,7 +270,7 @@ box_plot_data <- get_data_for_box_plot(data_rss,
                                            "TruffleSOM-graal-bc",
                                            c("TruffleSOM-graal", "TruffleSOM-graal-bc"))
 
-plot <- box_plot_in_kb(box_plot_data)
+plot <- box_plot_in_kb(box_plot_data, parse_y_labels = TRUE)
 ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/rss-jit-tsom.pdf"), dpi=300, height=50, width=100, units="mm", family="Arial")
 
 plot
