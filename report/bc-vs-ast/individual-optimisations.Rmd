@@ -19,7 +19,7 @@ OPTIM_GRAPH_WIDTH <- 2.6
 MIN_JIT_ITERATION <- 1000
 MIN_JIT_ITERATION_FOR_OLD_DATA <- 50
 
-compute_stats <- function(data, exe_name, iteration_threshold = 0, baseline_optim="every optimization") {
+compute_stats <- function(data, exe_name, iteration_threshold = 0, baseline_optim="all optimizations") {
   base <- data %>% 
     filter(optim == baseline_optim) %>%
     transform(base_value = value)
@@ -65,7 +65,7 @@ compute_stats <- function(data, exe_name, iteration_threshold = 0, baseline_opti
     stats = stats)
 }
 
-get_data_for_box_plot_optim <- function(input_data, exe_name, baseline_optim_name="every optimization", iteration_threshold=0) {
+get_data_for_box_plot_optim <- function(input_data, exe_name, baseline_optim_name="all optimizations", iteration_threshold=0) {
   all <- compute_stats(input_data, exe_name, iteration_threshold)
   all$norm %>% filter(!is.na(expid.y))
 }
@@ -137,98 +137,98 @@ load_data_for_experiment <- function(experiment_ref, optim_name, project_name) {
 # (*) means AST/BC specific optim
 get_tsom_ast_data_no2k <- function() {
   project_name <- "TruffleSOM"
-  rbind(load_data_for_experiment(2762, "every optimization", project_name),
-        load_data_for_experiment(2759, "no local/nonlocal vars", project_name),
-        load_data_for_experiment(2753, "no inline caching", project_name),
-        load_data_for_experiment(2752, "no global caching", project_name),
-        load_data_for_experiment(2751, "no lowered control structs", project_name),
-#        load_data_for_experiment(2625, "no blocks without context", project_name),
-        load_data_for_experiment(2761, "no supernodes (*)", project_name),
-        load_data_for_experiment(2816, "no lowering of unneces. prims", project_name) 
+  rbind(load_data_for_experiment(2762, "all optimizations", project_name),
+        load_data_for_experiment(2759, "local/nonlocal vars", project_name),
+        load_data_for_experiment(2753, "inline caching", project_name),
+        load_data_for_experiment(2752, "global caching", project_name),
+        load_data_for_experiment(2751, "lowered control struc.", project_name),
+#        load_data_for_experiment(2625, "blocks without context", project_name),
+        load_data_for_experiment(2761, "supernodes (*)", project_name),
+        load_data_for_experiment(2816, "lowering of unneces. prims", project_name) 
         ) %>% filter(criterion == "total")
 }
 
 get_pysom_ast_data_no2k <- function() {
   project_name <- "RPySOM"
-  rbind(load_data_for_experiment(2780, "every optimization", project_name),
-        load_data_for_experiment(2771, "no local/nonlocal vars", project_name),
-        load_data_for_experiment(2764, "no inline caching", project_name),
-        load_data_for_experiment(2770, "no global caching", project_name),
-        load_data_for_experiment(2811, "no lowered control structs", project_name),
-#        load_data_for_experiment(2658, "no blocks without context", project_name),
-        load_data_for_experiment(2812, "no lowering of unneces. prims", project_name)
+  rbind(load_data_for_experiment(2780, "all optimizations", project_name),
+        load_data_for_experiment(2771, "local/nonlocal vars", project_name),
+        load_data_for_experiment(2764, "inline caching", project_name),
+        load_data_for_experiment(2770, "global caching", project_name),
+        load_data_for_experiment(2811, "lowered control struc.", project_name),
+#        load_data_for_experiment(2658, "blocks without context", project_name),
+        load_data_for_experiment(2812, "lowering of unneces. prims", project_name)
         ) %>% filter(criterion == "total")
 }
 
 get_tsom_bc_data_no2k <- function() {
   project_name <- "TruffleSOM"
-  rbind(load_data_for_experiment(2762, "every optimization", project_name),
-        load_data_for_experiment(2785, "no inline caching", project_name), # -Test is disabled in that one, which is a tad dirty... results are bad, anyway, needs more work
-        load_data_for_experiment(2759, "no local/nonlocal vars", project_name),
-        load_data_for_experiment(2756, "no quickening (*)", project_name),
-        load_data_for_experiment(2754, "no global caching", project_name),
-        load_data_for_experiment(2751, "no lowered control structs", project_name),
-        load_data_for_experiment(2757, "no superinstructions (*)", project_name),
-        load_data_for_experiment(2816, "no lowering of unneces. prims", project_name)
+  rbind(load_data_for_experiment(2762, "all optimizations", project_name),
+        load_data_for_experiment(2785, "inline caching", project_name), # -Test is disabled in that one, which is a tad dirty... results are bad, anyway, needs more work
+        load_data_for_experiment(2759, "local/nonlocal vars", project_name),
+        load_data_for_experiment(2756, "quickening (*)", project_name),
+        load_data_for_experiment(2754, "global caching", project_name),
+        load_data_for_experiment(2751, "lowered control struc.", project_name),
+        load_data_for_experiment(2757, "superinstructions (*)", project_name),
+        load_data_for_experiment(2816, "lowering of unneces. prims", project_name)
         ) %>% filter(criterion == "total")
 }
 
 get_pysom_bc_data_no2k <- function() {
   project_name <- "RPySOM"
-  rbind(load_data_for_experiment(2780, "every optimization", project_name), 
-        load_data_for_experiment(2764, "no inline caching", project_name),
-        load_data_for_experiment(2772, "no global caching", project_name),
-        load_data_for_experiment(2774, "no quickening (*)", project_name),
-        load_data_for_experiment(2775, "no superinstructions (*)", project_name),
-        load_data_for_experiment(2811, "no lowered control structs", project_name),
-        load_data_for_experiment(2812, "no lowering of unneces. prims", project_name)
+  rbind(load_data_for_experiment(2780, "all optimizations", project_name), 
+        load_data_for_experiment(2764, "inline caching", project_name),
+        load_data_for_experiment(2772, "global caching", project_name),
+        load_data_for_experiment(2774, "quickening (*)", project_name),
+        load_data_for_experiment(2775, "superinstructions (*)", project_name),
+        load_data_for_experiment(2811, "lowered control struc.", project_name),
+        load_data_for_experiment(2812, "lowering of unneces. prims", project_name)
         ) %>% filter(criterion == "total")
 }
 
 get_tsom_ast_data <- function() {
   project_name <- "TruffleSOM"
-  rbind(load_data_for_experiment(2848, "every optimization", project_name),
-        load_data_for_experiment(2862, "no global caching", project_name),
-#        load_data_for_experiment(2874, "no local/nonlocal vars", project_name),
-        load_data_for_experiment(2884, "no inlining control structs", project_name),
-        load_data_for_experiment(2863, "no lowering of unneces. prims", project_name),
-        load_data_for_experiment(2886, "no inline caching", project_name),
-        load_data_for_experiment(2875, "no supernodes (*)", project_name)
+  rbind(load_data_for_experiment(2848, "all optimizations", project_name),
+        load_data_for_experiment(2862, "global caching", project_name),
+#        load_data_for_experiment(2874, "local/nonlocal vars", project_name),
+        load_data_for_experiment(2884, "inlining control struc.", project_name),
+        load_data_for_experiment(2863, "lowering of unneces. prims", project_name),
+        load_data_for_experiment(2886, "inline caching", project_name),
+        load_data_for_experiment(2875, "supernodes (*)", project_name)
         ) %>% filter(criterion == "total")
 }
 
 get_tsom_bc_data <- function() {
   project_name <- "TruffleSOM"
-  rbind(load_data_for_experiment(2848, "every optimization", project_name),
-        load_data_for_experiment(2869, "no superinstructions (*)", project_name),
-        load_data_for_experiment(2868, "no quickening (*)", project_name),
-        load_data_for_experiment(2863, "no lowering of unneces. prims", project_name),
-        load_data_for_experiment(2884, "no inlining control structs", project_name),
-#        load_data_for_experiment(2874, "no local/nonlocal vars", project_name),
-        load_data_for_experiment(2861, "no global caching", project_name),
-        load_data_for_experiment(2785, "no inline caching", project_name) # OLD DATA
+  rbind(load_data_for_experiment(2848, "all optimizations", project_name),
+        load_data_for_experiment(2869, "superinstructions (*)", project_name),
+        load_data_for_experiment(2868, "quickening (*)", project_name),
+        load_data_for_experiment(2863, "lowering of unneces. prims", project_name),
+        load_data_for_experiment(2884, "inlining control struc.", project_name),
+#        load_data_for_experiment(2874, "local/nonlocal vars", project_name),
+        load_data_for_experiment(2861, "global caching", project_name),
+        load_data_for_experiment(2785, "inline caching", project_name) # OLD DATA
         ) %>% filter(criterion == "total")
 }
 
 get_pysom_ast_data <- function() {
   project_name <- "RPySOM"
-  rbind(load_data_for_experiment(2873, "every optimization", project_name),
-        load_data_for_experiment(2877, "no global caching", project_name),
-        load_data_for_experiment(2891, "no inlining control structs", project_name),
-        load_data_for_experiment(2764, "no inline caching", project_name), # OLD DATA        
-        load_data_for_experiment(2891, "no lowering of unneces. prims", project_name)
+  rbind(load_data_for_experiment(2873, "all optimizations", project_name),
+        load_data_for_experiment(2877, "global caching", project_name),
+        load_data_for_experiment(2891, "inlining control struc.", project_name),
+        load_data_for_experiment(2764, "inline caching", project_name), # OLD DATA        
+        load_data_for_experiment(2891, "lowering of unneces. prims", project_name)
         ) %>% filter(criterion == "total")
 }
 
 get_pysom_bc_data <- function() {
   project_name <- "RPySOM"
-  rbind(load_data_for_experiment(2873, "every optimization", project_name),
-        load_data_for_experiment(2876, "no global caching", project_name),
-        load_data_for_experiment(2891, "no inlining control structs", project_name),
-        load_data_for_experiment(2892, "no superinstructions (*)", project_name),
-        load_data_for_experiment(2764, "no inline caching", project_name), # OLD DATA
-        load_data_for_experiment(2894, "no quickening (*)", project_name),
-        load_data_for_experiment(2891, "no lowering of unneces. prims", project_name)
+  rbind(load_data_for_experiment(2873, "all optimizations", project_name),
+        load_data_for_experiment(2876, "global caching", project_name),
+        load_data_for_experiment(2891, "inlining control struc.", project_name),
+        load_data_for_experiment(2892, "superinstructions (*)", project_name),
+        load_data_for_experiment(2764, "inline caching", project_name), # OLD DATA
+        load_data_for_experiment(2894, "quickening (*)", project_name),
+        load_data_for_experiment(2891, "lowering of unneces. prims", project_name)
         ) %>% filter(criterion == "total")
 }
 
@@ -347,45 +347,45 @@ tex.file <- file("../../../paper/gen/individual-optimisations.tex")
 # interpreter data for tsom
 macros = c(
     Cmd("TSOMastInlineStructMedianX",
-        X2((stats_tsom_ast_int |> filter(optim == "no inlining control structs"))$median)),
+        X2((stats_tsom_ast_int |> filter(optim == "inlining control struc."))$median)),
     Cmd("TSOMastInlineStructMaxX",
-        X2((stats_tsom_ast_int |> filter(optim == "no inlining control structs"))$max)),
+        X2((stats_tsom_ast_int |> filter(optim == "inlining control struc."))$max)),
     Cmd("TSOMastInlineStructMinX",
-        X2((stats_tsom_ast_int |> filter(optim == "no inlining control structs"))$min)),
+        X2((stats_tsom_ast_int |> filter(optim == "inlining control struc."))$min)),
     
     Cmd("PySOMastInlineStructMedianX",
-        X2((stats_pysom_ast_int |> filter(optim == "no inlining control structs"))$median)),
+        X2((stats_pysom_ast_int |> filter(optim == "inlining control struc."))$median)),
     Cmd("PySOMastInlineStructMaxX",
-        X2((stats_pysom_ast_int |> filter(optim == "no inlining control structs"))$max)),
+        X2((stats_pysom_ast_int |> filter(optim == "inlining control struc."))$max)),
     Cmd("PySOMastInlineStructMinX",
-        X2((stats_pysom_ast_int |> filter(optim == "no inlining control structs"))$min)),
+        X2((stats_pysom_ast_int |> filter(optim == "inlining control struc."))$min)),
     
     Cmd("TSOMbcInlineStructMedianX",
-        X2((stats_tsom_bc_int |> filter(optim == "no inlining control structs"))$median)),
+        X2((stats_tsom_bc_int |> filter(optim == "inlining control struc."))$median)),
     Cmd("TSOMbcInlineStructMaxX",
-        X2((stats_tsom_bc_int |> filter(optim == "no inlining control structs"))$max)),
+        X2((stats_tsom_bc_int |> filter(optim == "inlining control struc."))$max)),
     Cmd("TSOMbcInlineStructMinX",
-        X2((stats_tsom_bc_int |> filter(optim == "no inlining control structs"))$min)),
+        X2((stats_tsom_bc_int |> filter(optim == "inlining control struc."))$min)),
     
     Cmd("PySOMbcInlineStructMedianX",
-        X2((stats_pysom_bc_int |> filter(optim == "no inlining control structs"))$median)),
+        X2((stats_pysom_bc_int |> filter(optim == "inlining control struc."))$median)),
     Cmd("PySOMbcInlineStructMaxX",
-        X2((stats_pysom_bc_int |> filter(optim == "no inlining control structs"))$max)),
+        X2((stats_pysom_bc_int |> filter(optim == "inlining control struc."))$max)),
     Cmd("PySOMbcInlineStructMinX",
-        X2((stats_pysom_bc_int |> filter(optim == "no inlining control structs"))$min)),
+        X2((stats_pysom_bc_int |> filter(optim == "inlining control struc."))$min)),
     
     Cmd("TSOMbcInlineStructMedian",
-        X2((stats_tsom_bc_int |> filter(optim == "no inlining control structs"))$median)),
+        X2((stats_tsom_bc_int |> filter(optim == "inlining control struc."))$median)),
     Cmd("TSOMbcInlineStructSlowest",
-        X2((stats_tsom_bc_int |> filter(optim == "no inlining control structs"))$max)),
+        X2((stats_tsom_bc_int |> filter(optim == "inlining control struc."))$max)),
     Cmd("TSOMastInlineCacheMedian",
-        X2((stats_tsom_ast_int |> filter(optim == "no inline caching"))$median)),
+        X2((stats_tsom_ast_int |> filter(optim == "inline caching"))$median)),
     Cmd("TSOMastInlineCacheSlowest",
-        X2((stats_tsom_ast_int |> filter(optim == "no inline caching"))$max)),
+        X2((stats_tsom_ast_int |> filter(optim == "inline caching"))$max)),
     Cmd("TSOMbcInlineCacheMedian",
-        X2((stats_tsom_bc_int |> filter(optim == "no inline caching"))$median)),
+        X2((stats_tsom_bc_int |> filter(optim == "inline caching"))$median)),
     Cmd("TSOMbcInlineCacheSlowest",
-        X2((stats_tsom_bc_int |> filter(optim == "no inline caching"))$max))
+        X2((stats_tsom_bc_int |> filter(optim == "inline caching"))$max))
   )
 
 writeLines(macros, tex.file)
