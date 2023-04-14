@@ -252,7 +252,7 @@ box_plot_data <- get_data_for_box_plot(data_rss,
                                            c("RPySOM-bc-interp", "RPySOM-ast-interp"))
 
 plot <- box_plot_in_kb(box_plot_data, parse_y_labels = TRUE)
-ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/rss-interp-pysom.pdf"), dpi=300, height=50, width=100, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/rss-interp-pysom.pdf"), dpi=300, height=1.3, width=2.6, units="in", family="Arial")
 
 plot
 ```
@@ -265,7 +265,7 @@ box_plot_data <- get_data_for_box_plot(data_rss,
                                            c("TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast"))
 
 plot <- box_plot_in_kb(box_plot_data, parse_y_labels = TRUE)
-ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/rss-interp-tsom.pdf"), dpi=300, height=50, width=100, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/rss-interp-tsom.pdf"), dpi=300, height=1.3, width=2.6, units="in", family="Arial")
 
 plot
 ```
@@ -278,7 +278,7 @@ box_plot_data <- get_data_for_box_plot(data_rss,
                                            c("RPySOM-bc-jit", "RPySOM-ast-jit"))
 
 plot <- box_plot_in_kb(box_plot_data, parse_y_labels = TRUE)
-ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/rss-jit-pysom.pdf"), dpi=300, height=50, width=100, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/rss-jit-pysom.pdf"), dpi=300, height=1.3, width=2.6, units="in", family="Arial")
 
 plot
 ```
@@ -291,7 +291,7 @@ box_plot_data <- get_data_for_box_plot(data_rss,
                                            c("TruffleSOM-graal", "TruffleSOM-graal-bc"))
 
 plot <- box_plot_in_kb(box_plot_data, parse_y_labels = TRUE)
-ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/rss-jit-tsom.pdf"), dpi=300, height=50, width=100, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/rss-jit-tsom.pdf"), dpi=300, height=1.3, width=2.6, units="in", family="Arial")
 
 plot
 ```

@@ -1,4 +1,4 @@
-theme_simple <- function(font_size = 12) {
+theme_simple <- function(font_size = 8) {
     theme_bw() +
     theme(axis.text.x          = element_text(size = font_size, lineheight=0.7),
           axis.title.x         = element_blank(),
