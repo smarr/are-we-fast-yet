@@ -162,6 +162,8 @@ get_tsom_bc_data_no2k <- function() {
         ) %>% filter(criterion == "total")
 }
 
+lol <-get_tsom_bc_data_no2k()
+
 get_pysom_bc_data_no2k <- function() {
   project_name <- "RPySOM"
   rbind(load_data_for_experiment(2780, "every optimization", project_name), 
@@ -209,7 +211,8 @@ get_pysom_bc_data <- function() {
   project_name <- "RPySOM"
   rbind(load_data_for_experiment(2873, "every optimization", project_name),
         load_data_for_experiment(2876, "no global caching", project_name),
-        load_data_for_experiment(2891, "no inlining control structs", project_name)
+        load_data_for_experiment(2891, "no inlining control structs", project_name),
+        load_data_for_experiment(2892, "no superinstructions", project_name)
         ) %>% filter(criterion == "total")
 }
 
