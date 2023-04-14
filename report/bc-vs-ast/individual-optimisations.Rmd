@@ -88,7 +88,7 @@ box_plot_optim <- function(data, custom_x_breaks=NULL, colors = color_set_optims
       legend.position="none") +
     #scale_y_log10(breaks=c(1,2,3,10,20,30,50,100,200,300,500,1000)) + #limit=c(0,30), breaks=seq(0,100,5), expand = c(0,0)
     ylab("") +
-    xlab("")
+    xlab("normalized run time, lower is better")
   
   plot
 }
