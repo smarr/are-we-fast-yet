@@ -235,19 +235,10 @@ get_pysom_bc_data <- function() {
         ) %>% filter(criterion == "total")
 }
 
-only_keep_last_peak_perf_iters <- function(df) {
-  MIN_PEAK_ITER <- 1000
-  jit_exe_vals <- c("RPySOM-bc-jit", "RPySOM-ast-jit", "TruffleSOM-graal", "TruffleSOM-graal-bc")
-
-  df_filtered <- df %>% filter(!(exe %in% jit_exe_vals & iteration < MIN_PEAK_ITER))
-
-  df_filtered
-}
-
-data_optim_tsom_ast <- get_tsom_ast_data() %>% only_keep_last_peak_perf_iters()
-data_optim_tsom_bc <- get_tsom_bc_data() %>% only_keep_last_peak_perf_iters()
-data_optim_pysom_ast <- get_pysom_ast_data() %>% only_keep_last_peak_perf_iters()
-data_optim_pysom_bc <- get_pysom_bc_data() %>% only_keep_last_peak_perf_iters()
+data_optim_tsom_ast <- get_tsom_ast_data()
+data_optim_tsom_bc <- get_tsom_bc_data()
+data_optim_pysom_ast <- get_pysom_ast_data()
+data_optim_pysom_bc <- get_pysom_bc_data()
 
 all_optims <- rbind(data_optim_tsom_ast, data_optim_tsom_bc, data_optim_pysom_ast, data_optim_pysom_bc)
 unique_optims <- unique(all_optims$optim)
@@ -326,7 +317,6 @@ plot
 
 ```{r optim-pysom-bc-jit, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_bc, "RPySOM-bc-jit")
-
 plot <- box_plot_optim(box_plot_data, colors=color_set_optims)
 ggsave(plot, device= cairo_pdf, path=".", filename=output_folder_path("optim-pysom-bc-jit.pdf"), dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="in", family="Arial")
 plot
