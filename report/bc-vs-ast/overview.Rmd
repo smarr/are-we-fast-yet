@@ -6,11 +6,11 @@ This report was generated on `r Sys.time()`.
 # load libraries, the data, and prepare it
 if (Sys.getenv("USER") == "smarr") {
   setwd("/Users/smarr/Projects/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast")
-  } else if (Sys.getenv("USER") == "sopi") {
+} else if (Sys.getenv("USER") == "sopi") {
   setwd("/home/sopi/Documents/Writing/2023/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast/" )
-  } else {
+} else {
   setwd("/home/octavel/PhD/papers/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast")
-  }
+}
 source("scripts/libraries.R", chdir=TRUE)
 
 # data <- rbind(
@@ -107,31 +107,6 @@ vms_int <- c(
   "SOM-RS-ast-int",
   "SOM-RS-bc-int",
   "ykSOM-int")
-
-vms_jit <- c(
-  "Java20-C2-jit",
-  "Java17-C2-jit",
-  "Java8-C2-jit",
-  "Java-native",
-  "CSharp-jit",
-  "Node-jit",
-  "GraalJS-HotspotEE-jit",
-  
-  "PyPy-jit",
-  "GraalPython-HotspotEE-jit", 
-  
-  "CRuby-y-jit",
-  "TruffleRuby-HotspotEE-jit",
-  
-  "PySOM-ast-jit",
-  "PySOM-bc-jit", 
-  "TruffleSOM-ast-HotspotCE-jit-main", 
-  "TruffleSOM-bc-HotspotCE-jit-main",
-  "TruffleSOM-ast-HotspotEE-jit-main", 
-  "TruffleSOM-bc-HotspotEE-jit-main"
-)
-
-assert_that(all(sort(c(vms_int, vms_jit)) == sort(vms_all))) ## sanity check
 
 warmup_jit_iteration <- 500
 baseline_vm_peak <- "Java20-C2-jit"
