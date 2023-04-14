@@ -333,10 +333,34 @@ tex.file <- file("../../../paper/gen/individual-optimisations.tex")
 
 # interpreter data for tsom
 macros = c(
-    Cmd("TSOMastInlineStructMedian",
+    Cmd("TSOMastInlineStructMedianX",
         X2((stats_tsom_ast_int |> filter(optim == "no inlining control structs"))$median)),
-    Cmd("TSOMastInlineStructSlowest",
+    Cmd("TSOMastInlineStructMaxX",
         X2((stats_tsom_ast_int |> filter(optim == "no inlining control structs"))$max)),
+    Cmd("TSOMastInlineStructMinX",
+        X2((stats_tsom_ast_int |> filter(optim == "no inlining control structs"))$min)),
+    
+    Cmd("PySOMastInlineStructMedianX",
+        X2((stats_pysom_ast_int |> filter(optim == "no inlining control structs"))$median)),
+    Cmd("PySOMastInlineStructMaxX",
+        X2((stats_pysom_ast_int |> filter(optim == "no inlining control structs"))$max)),
+    Cmd("PySOMastInlineStructMinX",
+        X2((stats_pysom_ast_int |> filter(optim == "no inlining control structs"))$min)),
+    
+    Cmd("TSOMbcInlineStructMedianX",
+        X2((stats_tsom_bc_int |> filter(optim == "no inlining control structs"))$median)),
+    Cmd("TSOMbcInlineStructMaxX",
+        X2((stats_tsom_bc_int |> filter(optim == "no inlining control structs"))$max)),
+    Cmd("TSOMbcInlineStructMinX",
+        X2((stats_tsom_bc_int |> filter(optim == "no inlining control structs"))$min)),
+    
+    Cmd("PySOMbcInlineStructMedianX",
+        X2((stats_pysom_bc_int |> filter(optim == "no inlining control structs"))$median)),
+    Cmd("PySOMbcInlineStructMaxX",
+        X2((stats_pysom_bc_int |> filter(optim == "no inlining control structs"))$max)),
+    Cmd("PySOMbcInlineStructMinX",
+        X2((stats_pysom_bc_int |> filter(optim == "no inlining control structs"))$min)),
+    
     Cmd("TSOMbcInlineStructMedian",
         X2((stats_tsom_bc_int |> filter(optim == "no inlining control structs"))$median)),
     Cmd("TSOMbcInlineStructSlowest",
