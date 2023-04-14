@@ -163,7 +163,7 @@ get_pysom_ast_data_no2k <- function() {
 get_tsom_bc_data_no2k <- function() {
   project_name <- "TruffleSOM"
   rbind(load_data_for_experiment(2762, "every optimization", project_name),
-        load_data_for_experiment(2785, "no inline caching", project_name), # -Test is disabled in that one, which is a tad dirty... results are shit, anyway, needs more work
+        load_data_for_experiment(2785, "no inline caching", project_name), # -Test is disabled in that one, which is a tad dirty... results are bad, anyway, needs more work
         load_data_for_experiment(2759, "no local/nonlocal vars", project_name),
         load_data_for_experiment(2756, "no quickening (*)", project_name),
         load_data_for_experiment(2754, "no global caching", project_name),
@@ -193,7 +193,7 @@ get_tsom_ast_data <- function() {
         load_data_for_experiment(2884, "no inlining control structs", project_name),
         load_data_for_experiment(2863, "no lowering of unneces. prims", project_name),
         load_data_for_experiment(2886, "no inline caching", project_name),
-        load_data_for_experiment(2761, "no supernodes (*)", project_name) # OLD DATA
+        load_data_for_experiment(2875, "no supernodes (*)", project_name)
         ) %>% filter(criterion == "total")
 }
 
@@ -215,9 +215,8 @@ get_pysom_ast_data <- function() {
   rbind(load_data_for_experiment(2873, "every optimization", project_name),
         load_data_for_experiment(2877, "no global caching", project_name),
         load_data_for_experiment(2891, "no inlining control structs", project_name),
-        load_data_for_experiment(2771, "no local/nonlocal vars", project_name), # OLD DATA
         load_data_for_experiment(2764, "no inline caching", project_name), # OLD DATA        
-        load_data_for_experiment(2812, "no lowering of unneces. prims", project_name) # OLD DATA
+        load_data_for_experiment(2891, "no lowering of unneces. prims", project_name)
         ) %>% filter(criterion == "total")
 }
 
@@ -228,7 +227,8 @@ get_pysom_bc_data <- function() {
         load_data_for_experiment(2891, "no inlining control structs", project_name),
         load_data_for_experiment(2892, "no superinstructions (*)", project_name),
         load_data_for_experiment(2764, "no inline caching", project_name), # OLD DATA
-        load_data_for_experiment(2774, "no quickening (*)", project_name) # OLD DATA
+        load_data_for_experiment(2894, "no quickening (*)", project_name),
+        load_data_for_experiment(2891, "no lowering of unneces. prims", project_name)
         ) %>% filter(criterion == "total")
 }
 
