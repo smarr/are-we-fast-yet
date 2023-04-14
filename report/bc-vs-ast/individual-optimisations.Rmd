@@ -6,11 +6,11 @@
 # load libraries, the data, and prepare it
 if (Sys.getenv("USER") == "smarr") {
   setwd("/Users/smarr/Projects/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast")
-  } else if (Sys.getenv("USER") == "sopi") {
+} else if (Sys.getenv("USER") == "sopi") {
   setwd("/home/sopi/Documents/Writing/2023/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast/" )
-  } else {
+} else {
   setwd("/home/octavel/PhD/papers/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast")
-  }
+}
 source("scripts/libraries.R", chdir=TRUE)
 source("scripts/data-processing2.R")
 
@@ -242,7 +242,7 @@ color_set_optims <- compute_color_bindings_for_plots(unique_optims, viridis::vir
 box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_ast, "TruffleSOM-native-interp-ast")
 
 plot <- box_plot_optim(box_plot_data, colors=color_set_optims)
-ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/optim-tsom-ast-int.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename=output_folder_path("optim-tsom-ast-int.pdf"), dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
 plot
 ```
 
@@ -252,7 +252,7 @@ plot
 box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_ast, "RPySOM-ast-interp")
 
 plot <- box_plot_optim(box_plot_data, colors=color_set_optims)
-ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/optim-pysom-ast-int.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename=output_folder_path("optim-pysom-ast-int.pdf"), dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
 plot
 ```
 
@@ -262,7 +262,7 @@ plot
 box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_ast, "TruffleSOM-graal", iteration_threshold = MIN_JIT_ITERATION)
 
 plot <- box_plot_optim(box_plot_data, colors=color_set_optims)
-ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/optim-tsom-ast-jit.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename=output_folder_path("optim-tsom-ast-jit.pdf"), dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
 plot
 ```
 
@@ -271,7 +271,7 @@ plot
 ```{r optim-pysom-ast-jit, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_ast, "RPySOM-ast-jit", iteration_threshold = MIN_JIT_ITERATION)
 plot <- box_plot_optim(box_plot_data, colors=color_set_optims)
-ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/optim-pysom-ast-jit.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename=output_folder_path("optim-pysom-ast-jit.pdf"), dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
 plot
 ```
 
@@ -282,7 +282,7 @@ plot
 ```{r optim-tsom-bc-interp, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_bc, "TruffleSOM-native-interp-bc")
 plot <- box_plot_optim(box_plot_data, colors=color_set_optims)
-ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/optim-tsom-bc-int.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename=output_folder_path("optim-tsom-bc-int.pdf"), dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
 plot
 ```
 
@@ -291,7 +291,7 @@ plot
 ```{r optim-pysom-bc-interp, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_bc, "RPySOM-bc-interp")
 plot <- box_plot_optim(box_plot_data, colors=color_set_optims)
-ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/optim-pysom-bc-int.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename=output_folder_path("optim-pysom-bc-int.pdf"), dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
 plot
 ```
 
@@ -300,7 +300,7 @@ plot
 ```{r optim-tsom-bc-jit, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_bc, "TruffleSOM-graal-bc", iteration_threshold = MIN_JIT_ITERATION)
 plot <- box_plot_optim(box_plot_data, colors=color_set_optims)
-ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/optim-tsom-bc-jit.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename=output_folder_path("optim-tsom-bc-jit.pdf"), dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
 plot
 ```
 
@@ -309,7 +309,7 @@ plot
 ```{r optim-pysom-bc-jit, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_bc, "RPySOM-bc-jit", iteration_threshold = MIN_JIT_ITERATION)
 plot <- box_plot_optim(box_plot_data, colors=color_set_optims)
-ggsave(plot, device= cairo_pdf, path=".", filename="output_graphs/optim-pysom-bc-jit.pdf", dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
+ggsave(plot, device= cairo_pdf, path=".", filename=output_folder_path("optim-pysom-bc-jit.pdf"), dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="mm", family="Arial")
 plot
 ```
 

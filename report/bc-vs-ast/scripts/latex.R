@@ -13,3 +13,9 @@ Per <- function(num) {
 WithT <- function(num) {
   format(num, big.mark = ",")
 }
+
+
+output_folder_path <- function (filename) {
+  paste0("../../../paper/images/", filename)  
+}
+
