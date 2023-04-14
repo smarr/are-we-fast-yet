@@ -20,6 +20,10 @@ MIN_JIT_ITERATION <- 1000
 MIN_JIT_ITERATION_FOR_OLD_DATA <- 50
 
 compute_stats <- function(data, exe_name, iteration_threshold = 0, baseline_optim="every optimization") {
+  base <- data %>% 
+    filter(optim == baseline_optim) %>%
+    transform(base_value = value)
+  
   jit_exe_vals <- c("RPySOM-bc-jit", "RPySOM-ast-jit", "TruffleSOM-graal", "TruffleSOM-graal-bc")
   if (exe_name %in% jit_exe_vals) {
     data <- data %>% 
@@ -32,10 +36,6 @@ compute_stats <- function(data, exe_name, iteration_threshold = 0, baseline_opti
       filter(exe == exe_name) %>%
       filter(iteration >= iteration_threshold)    
   }
-  
-  base <- data %>% 
-    filter(optim == baseline_optim) %>%
-    transform(base_value = value)
   
   norm <- data %>% left_join(
         base,
