@@ -109,5 +109,21 @@ compute_color_bindings_for_plots <- function(unique_variables, viridis_fn) {
   return(color_set)
 }
 
+set_color_bindings_for_plots <- function(unique_variables, color_set_opti_vm) {
+  color_set = color_set_opti_vm
+  names(color_set) <- unique_variables
+  
+  return(color_set)
+}
+
 # a binding vm -> color shared for all R scripts (colorblind friendly)
 color_set_vms <- compute_color_bindings_for_plots(unname(vm_names), viridis::inferno)
+
+pick_from_viridis <- function(number_of_colors) {
+  color_set <- c()
+  full_viridis <- viridis::viridis(100)
+  for (i in seq(1, number_of_colors)) {
+      color_set <- c(color_set, full_viridis[i*10]) # just so the colors are not too close in the gradient
+  }
+  color_set
+}
