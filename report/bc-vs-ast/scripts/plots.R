@@ -1,4 +1,4 @@
-theme_simple <- function(font_size = 8) {
+theme_simple <- function(font_size = 6) {
     theme_bw() +
     theme(axis.text.x          = element_text(size = font_size, lineheight=0.7),
           axis.title.x         = element_blank(),
@@ -18,6 +18,14 @@ theme_simple <- function(font_size = 8) {
           strip.background     = element_blank(),
           strip.text           = element_text(size = font_size),
           plot.margin = unit(c(0,0,0,0), "cm")) 
+}
+
+theme_simple_axis_title <- function(font_size = 6) {
+  element_text(size = font_size, family="Arial")
+}
+
+theme_simple_font_size <- function() {
+  6
 }
 
 element90 <- function() { element_text(angle = 90, hjust = 1, vjust=0.5) }

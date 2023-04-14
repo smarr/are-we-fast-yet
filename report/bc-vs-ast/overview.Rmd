@@ -157,7 +157,7 @@ plot_benchmarks_speedup_for_vms <- function(
       theme_simple() + # scale_fill_manual(values=col) +
       theme(legend.position="none",
             axis.title.x = element_text(
-              size = 12,
+              size = theme_simple_font_size(),
               margin = margin(t = 0.1, unit = "cm"))) +
       ggtitle(b) +
       ylab(NULL) +
@@ -242,7 +242,7 @@ overview_box_plot <- function(stats, vms = NULL, prepare_data = NULL, pre_plot =
     theme_simple() +
     theme(
       axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1),
-      axis.title.x  = element_text(size = 8, family="Arial"),
+      axis.title.x = theme_simple_axis_title(),
       legend.position="none")
     #scale_y_log10(breaks=c(1,2,3,10,20,30,50,100,200,300,500,1000)) + #limit=c(0,30), breaks=seq(0,100,5), expand = c(0,0)
     #xlab("Runtime Factor, normalized to Java (lower is better)")
