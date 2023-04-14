@@ -229,7 +229,7 @@ get_pysom_bc_data <- function() {
   rbind(load_data_for_experiment(2873, "every optimization", project_name),
         load_data_for_experiment(2876, "no global caching", project_name),
         load_data_for_experiment(2891, "no inlining control structs", project_name),
-        load_data_for_experiment(2892, "no superinstructions", project_name),
+        load_data_for_experiment(2892, "no superinstructions (*)", project_name),
         load_data_for_experiment(2764, "no inline caching", project_name), # OLD DATA
         load_data_for_experiment(2774, "no quickening (*)", project_name) # OLD DATA
         ) %>% filter(criterion == "total")
