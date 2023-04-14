@@ -40,24 +40,29 @@ supernodes_data <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data
 jdk20_data <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2800")
 jdk20_data$exe <- ifelse(grepl("Java-int", jdk20_data$exe), "Java20-int", "Java20-C2-jit")
 
-data <- rbind(
-  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/2257") |>
-    filter(exe != "CPython-int"),
-  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/2258"),
-  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/2259"),
-  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/2260"),
-  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/2275"),
-  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/2277"),
-  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/2280"),
-  load_data_url("https://rebench.dev/Are-We-Fast-Yet/data/2545"),
-  jdk20_data,
-  supernodes_data
-  ) |>
-  factorize_result()
+# data <- rbind(
+#   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/2257") |>
+#     filter(exe != "CPython-int"),
+#   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/2258"),
+#   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/2259"),
+#   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/2260"),
+#   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/2275"),
+#   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/2277"),
+#   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/2280"),
+#   load_data_url("https://rebench.dev/Are-We-Fast-Yet/data/2545"),
+#   jdk20_data,
+#   supernodes_data
+#   ) |>
+#   factorize_result()
 
 data <- rbind(
   load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2858"),
   jdk20_data
+)
+
+interp_exes <- c("PySOM-bc-int", "Node-int", "PySOM-ast-int", "PyPy-int", "Java8-int", "Java-int", "TruffleSOM-bc-NativeCE-int-astvsbc", "TruffleSOM-ast-NativeCE-int-astvsbc", "Java20-int")
+data <- rbind(data %>% filter(!(exe %in% interp_exes)), 
+              load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2893") # interp data
 )
 
 # ragg_png = function(..., res = 192) {
@@ -291,6 +296,7 @@ plot
 Comparing TruffleSOM, PySOM, Node-int and Java-Int. Using `r vm_names[baseline_vm_int]` as a baseline.
 
 ```{r tsom-pysom-int, fig.width=5.5, fig.height=1.3, cache=FALSE}
+lol <- results_int$stats$bench
 plot <- overview_box_plot(results_int$stats$bench,
                   c("PySOM-ast-int", "PySOM-bc-int",
                     "TruffleSOM-ast-NativeCE-int-astvsbc", "TruffleSOM-bc-NativeCE-int-astvsbc",
