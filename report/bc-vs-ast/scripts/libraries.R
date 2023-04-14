@@ -33,6 +33,7 @@ load_and_install_if_necessary("gcookbook")
 source("data-processing2.R")
 source("plots.R")
 source("colors.R")
+source("latex.R")
 
 # avoid scientific notation for numbers, it's more readable to me
 options(scipen=999)

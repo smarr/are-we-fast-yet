@@ -97,32 +97,22 @@ tabular(
 ## Write to text file
 
 ```{r write-file}
-X2 <- function(num) {
-  format(num, digits=2, nsmall = 2)
-}
-
-WithT <- function(num) {
-  format(num, big.mark = ",")
-}
-
 tex.file <- file("../../../paper/gen/program-rep.tex")
 
 macros = c(
-  paste0("\\newcommand{\\progRepAstOverheadPySomWOExec}{",
-         X2((norm |> filter(exe == "PySOM AST", bench == "TestGC"))$ratio), "\\xspace}"),
-  paste0("\\newcommand{\\progRepAstOverheadPySomWithExec}{",
-         X2((norm |> filter(exe == "PySOM AST", bench == "Test"))$ratio), "\\xspace}"),
-  paste0("\\newcommand{\\progRepAstOverheadTrSomWOExec}{",
-         X2((norm |> filter(exe == "TrSOM AST", bench == "TestGC"))$ratio), "\\xspace}"),
-  paste0("\\newcommand{\\progRepAstOverheadTrSomWithExec}{",
-         X2((norm |> filter(exe == "TrSOM AST", bench == "Test"))$ratio), "\\xspace}"),
+  Cmd("progRepAstOverheadPySomWOExecX",
+         X2((norm |> filter(exe == "PySOM AST", bench == "TestGC"))$ratio)),
+  Cmd("progRepAstOverheadPySomWithExecX",
+         X2((norm |> filter(exe == "PySOM AST", bench == "Test"))$ratio)),
+  Cmd("progRepAstOverheadTrSomWOExecX",
+         X2((norm |> filter(exe == "TrSOM AST", bench == "TestGC"))$ratio)),
+  Cmd("progRepAstOverheadTrSomWithExecX",
+         X2((norm |> filter(exe == "TrSOM AST", bench == "Test"))$ratio)),
   
-  paste0("\\newcommand{\\progRepNumFiles}{",
-         WithT((code_stats |> filter(language == "Smalltalk"))$files),
-         "\\xspace}"),
-  paste0("\\newcommand{\\progRepNumLOC}{",
-         WithT((code_stats |> filter(language == "Smalltalk"))$code),
-         "\\xspace}")
+  Cmd("progRepNumFiles",
+         WithT((code_stats |> filter(language == "Smalltalk"))$files)),
+  Cmd("progRepNumLOC",
+         WithT((code_stats |> filter(language == "Smalltalk"))$code))
 )
 
 writeLines(macros, tex.file)
