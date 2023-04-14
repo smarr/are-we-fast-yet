@@ -79,7 +79,7 @@ warmup_plot <- function (data_ea, b, e) {
     geom_vline(
       xintercept = seq(0, max(data_ea$iteration), 50),
       linetype = "longdash", colour = "#cccccc") +
-    theme_simple(8) +
+    theme_simple() +
     theme(legend.position=c(0.85, .92))
   plot
 }
@@ -134,7 +134,7 @@ get_warmup_plots <- function(data, baseline_name, y_lab, dont_rename = FALSE) {
     scale_y_log10() +
     # scale_color_manual(values = col_values) +
     scale_color_discrete(label = function (x) parse(text=x), col) +
-    theme_simple(8) +
+    theme_simple() +
     theme(
       legend.title = element_blank(),
       legend.text.align = 0,
