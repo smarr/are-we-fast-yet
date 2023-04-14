@@ -194,11 +194,11 @@ overview_box_plot <- function(stats, vms = NULL, prepare_data = NULL, pre_plot =
   suppressMessages(vm_stats$exe <- revalue(vm_stats$exe, vm_names))
   breaks <- levels(vm_stats$exe)
 
-  if (new_colors) {
-    col_values <- brewer.pal(length(breaks), "Paired")
-  } else {
-    col_values <- sapply(breaks, function(x) color_set_vms[[x]])
-  }
+  # if (new_colors) {
+  #   col_values <- brewer.pal(length(breaks), "Paired")
+  # } else {
+  #   col_values <- sapply(breaks, function(x) color_set_vms[[x]])
+  # }
 
   median_fn <- median
   
@@ -429,7 +429,6 @@ macros = c(macros,
         X2((results_peak$stats$exe |>
               filter(exe == "TruffleSOM-bc-HotspotCE-jit-main"))$max_ratio))
 )
-
 
 writeLines(macros, tex.file)
 close(tex.file)

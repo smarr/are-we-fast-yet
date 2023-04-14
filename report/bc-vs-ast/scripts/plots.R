@@ -101,14 +101,6 @@ vm_names <- c(
   "ykSOM-int" = "ykSOM Int"
 )
 
-compute_color_bindings_for_plots <- function(unique_variables, viridis_fn) {
-  num_variables = length(unique_variables)
-  color_set = viridis_fn(num_variables)
-  names(color_set) <- unique_variables
-  
-  return(color_set)
-}
-
 set_color_bindings_for_plots <- function(unique_variables, color_set_opti_vm) {
   color_set = color_set_opti_vm
   names(color_set) <- unique_variables
@@ -116,14 +108,15 @@ set_color_bindings_for_plots <- function(unique_variables, color_set_opti_vm) {
   return(color_set)
 }
 
-# a binding vm -> color shared for all R scripts (colorblind friendly)
-color_set_vms <- compute_color_bindings_for_plots(unname(vm_names), viridis::inferno)
+sublist_vms_jit <- c("PySOM-ast-jit", "PySOM-bc-jit", 
+                    "TruffleSOM-ast-HotspotCE-jit-main",
+                    "TruffleSOM-bc-HotspotCE-jit-main", "Java20-C2-jit", "Node-jit")
+                
+sublist_vms_int <- c("PySOM-ast-int", "PySOM-bc-int",
+                    "TruffleSOM-ast-NativeCE-int-astvsbc", "TruffleSOM-bc-NativeCE-int-astvsbc",
+                    "TruffleSOM-native-interp-bc-supernodes",
+                    "Java20-int", "Node-int")
 
-pick_from_viridis <- function(number_of_colors) {
-  color_set <- c()
-  full_viridis <- viridis::viridis(100)
-  for (i in seq(1, number_of_colors)) {
-      color_set <- c(color_set, full_viridis[i*10]) # just so the colors are not too close in the gradient
-  }
-  color_set
-}
+color_palette_vm  = c("#FF6E3A", "#00C2F9","#009F81",  "#FF5AAF","#00FCCF","#9F0162",   "#8400CD", "#008DF9",  "#FFB2FD", "#E20134", "#A40122","#FFC33B", "#000000" )#from http://mkweb.bcgsc.ca/colorblind/palettes/12.color.blindness.palette.txt
+
+color_set_vms <- set_color_bindings_for_plots(unique(revalue(c(sublist_vms_int,sublist_vms_jit), vm_names)), color_palette_vm)

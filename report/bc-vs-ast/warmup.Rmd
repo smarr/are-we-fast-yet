@@ -71,7 +71,7 @@ warmup_plot <- function (data_ea, b, e) {
   
   plot <- ggplot(data_ea, aes(x=iteration, y=value)) +
     geom_line(aes(colour = invocation)) +
-    #scale_color_manual(values = colors) +
+    scale_color_manual(values = color_set_vms) +
     ggtitle(paste(b, e)) +
     ylab(levels(data_b$unit)) +
     # scale_x_continuous(breaks = seq(0, max(data_b$iteration), 10)) +
@@ -132,8 +132,8 @@ get_warmup_plots <- function(data, baseline_name, y_lab, dont_rename = FALSE) {
   plots <- ggplot(norm, aes(x=iteration, y=ratio_median)) +
     geom_line(aes(colour = exe), linewidth=0.3)+
     scale_y_log10() +
-    # scale_color_manual(values = col_values) +
-    scale_color_discrete(label = function (x) parse(text=x), col) +
+    scale_color_manual(values = color_set_vms, label = function (x) parse(text=x), col) +
+#    scale_color_discrete(label = function (x) parse(text=x), col) +
     theme_simple() +
     theme(
       legend.title = element_blank(),
