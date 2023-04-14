@@ -82,12 +82,12 @@ box_plot_optim <- function(data, custom_x_breaks=NULL, colors = color_set_optims
     geom_vline(aes(xintercept=1.5),  colour="#999999", linetype="dotted") +
     geom_vline(aes(xintercept=2), colour="#999999", linetype="dotted") #+
 #    geom_vline(aes(xintercept=10), colour="#999999", linetype="dotted")
-  plot <- plot + geom_boxplot(outlier.size = 0.9,
+  plot <- plot + geom_boxplot(outlier.size = 0.7,
                               outlier.alpha = 0.6,
                               width=0.5,
                               outlier.shape = 22,
                               aes(colour = optim, fill = optim), 
-                              alpha=0.4) +
+                              alpha=0.5) +
     scale_x_log10(breaks = x_breaks) +
     scale_color_manual(values = colors) +
     scale_fill_manual(values = colors) +
@@ -240,8 +240,8 @@ data_optim_pysom_bc <- get_pysom_bc_data()
 all_optims <- rbind(data_optim_tsom_ast, data_optim_tsom_bc, data_optim_pysom_ast, data_optim_pysom_bc)
 unique_optims <- unique(all_optims$optim)
 
-colors_from_viridis <- pick_from_viridis(length(unique_optims))
-color_set_optims <- set_color_bindings_for_plots(unique_optims, viridis::viridis(9))
+color_set_opti <- c('#081d58', '#AADC32FF','#472D7BFF','#3B528BFF','#FDE725FF','#440154FF','#1d91c0','#238b45','#ec7014')
+color_set_optims <- set_color_bindings_for_plots(unique_optims, color_set_opti)
 ```
 
 ### TruffleSOM - AST interp
@@ -277,7 +277,7 @@ plot
 ### PySOM - AST JIT
 
 ```{r optim-pysom-ast-jit, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_ast, "RPySOM-ast-jit", iteration_threshold = MIN_JIT_ITERATION)
+box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_ast, "RPySOM-ast-jit")
 
 plot <- box_plot_optim(box_plot_data)
 ggsave(plot, device= cairo_pdf, path=".", filename=output_folder_path("optim-pysom-ast-jit.pdf"), dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="in", family="Arial")
@@ -309,7 +309,7 @@ plot
 ### TruffleSOM - BC JIT
 
 ```{r optim-tsom-bc-jit, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_bc, "TruffleSOM-graal-bc", iteration_threshold = MIN_JIT_ITERATION)
+box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_bc, "TruffleSOM-graal-bc")
 
 plot <- box_plot_optim(box_plot_data)
 ggsave(plot, device= cairo_pdf, path=".", filename=output_folder_path("optim-tsom-bc-jit.pdf"), dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="in", family="Arial")
@@ -319,7 +319,7 @@ plot
 ### PySOM - BC JIT
 
 ```{r optim-pysom-bc-jit, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_bc, "RPySOM-bc-jit", iteration_threshold = MIN_JIT_ITERATION)
+box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_bc, "RPySOM-bc-jit")
 
 plot <- box_plot_optim(box_plot_data)
 ggsave(plot, device= cairo_pdf, path=".", filename=output_folder_path("optim-pysom-bc-jit.pdf"), dpi=300, height=OPTIM_GRAPH_HEIGHT, width=OPTIM_GRAPH_WIDTH, units="in", family="Arial")
@@ -330,13 +330,13 @@ plot
 ```{r stats}
 stats_tsom_ast_int <- compute_stats(data_optim_tsom_ast, "TruffleSOM-native-interp-ast")$stats
 stats_tsom_bc_int <- compute_stats(data_optim_tsom_bc, "TruffleSOM-native-interp-bc")$stats
-stats_tsom_ast_jit <- compute_stats(data_optim_tsom_ast, "TruffleSOM-graal", iteration_threshold = MIN_JIT_ITERATION)$stats
-stats_tsom_bc_jit <- compute_stats(data_optim_tsom_bc, "TruffleSOM-graal-bc", iteration_threshold = MIN_JIT_ITERATION)$stats
+stats_tsom_ast_jit <- compute_stats(data_optim_tsom_ast, "TruffleSOM-graal")$stats
+stats_tsom_bc_jit <- compute_stats(data_optim_tsom_bc, "TruffleSOM-graal-bc")$stats
 
 stats_pysom_ast_int <- compute_stats(data_optim_pysom_ast, "RPySOM-ast-interp")$stats
 stats_pysom_bc_int <- compute_stats(data_optim_pysom_bc, "RPySOM-bc-interp")$stats
-stats_pyson_ast_jit <- compute_stats(data_optim_pysom_ast, "RPySOM-ast-jit", iteration_threshold = MIN_JIT_ITERATION)$stats
-stats_pysom_bc_jit <- compute_stats(data_optim_pysom_bc, "RPySOM-bc-jit", iteration_threshold = MIN_JIT_ITERATION)$stats
+stats_pyson_ast_jit <- compute_stats(data_optim_pysom_ast, "RPySOM-ast-jit")$stats
+stats_pysom_bc_jit <- compute_stats(data_optim_pysom_bc, "RPySOM-bc-jit")$stats
 ```
 
 ## Write to text file
