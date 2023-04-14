@@ -97,7 +97,7 @@ box_plot_rss <- function(data, colors = color_set_vms) {
     scale_y_discrete(label = function (x) parse(text=x)) +
     scale_color_manual(values = colors) +
     scale_fill_manual(values = colors) +
-    theme_bw() + theme_simple(font_size = 8) +
+    theme_simple() +
     theme(
       axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1),
       axis.title.x  = element_text(size = 8, family="Arial"),
@@ -145,7 +145,7 @@ box_plot_in_kb <- function(data, colors = color_set_vms, parse_y_labels = FALSE)
     scale_x_log10(labels = as_human_mem) +
     scale_color_manual(values = colors) +
     scale_fill_manual(values = colors) +
-    theme_bw() + theme_simple(font_size = 8) +
+    theme_simple() +
     theme(
       axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1),
       axis.title.x  = element_text(size = 8, family="Arial"),

@@ -239,7 +239,7 @@ overview_box_plot <- function(stats, vms = NULL, prepare_data = NULL, pre_plot =
     scale_y_discrete(label = function (x) parse(text=x)) +
     scale_color_manual(values = color_set_vms) +
     scale_fill_manual(values = color_set_vms) +
-    theme_bw() + theme_simple(font_size = 8) +
+    theme_simple() +
     theme(
       axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1),
       axis.title.x  = element_text(size = 8, family="Arial"),

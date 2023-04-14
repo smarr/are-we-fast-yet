@@ -81,7 +81,7 @@ box_plot_optim <- function(data, custom_x_breaks=NULL, colors = color_set_optims
     scale_x_log10(breaks = x_breaks) +
     scale_color_manual(values = colors) +
     scale_fill_manual(values = colors) +
-    theme_bw() + theme_simple(font_size = 8) +
+    theme_simple() +
     theme(
       axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1),
       axis.title.x  = element_text(size = 8, family="Arial"),
@@ -107,7 +107,7 @@ box_plot_optim_unified <- function(data, custom_x_breaks=NULL) {
   plot <- plot + geom_boxplot(outlier.size = 0.5) +
     scale_x_log10(breaks = x_breaks) +
     scale_fill_viridis_d() +
-    theme_bw() + theme_simple(font_size = 8) +
+    theme_simple(font_size = 8) +
     theme(
       axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1),
       axis.title.x  = element_text(size = 8, family="Arial"),
