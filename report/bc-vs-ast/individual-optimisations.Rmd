@@ -20,9 +20,18 @@ MIN_JIT_ITERATION <- 1000
 MIN_JIT_ITERATION_FOR_OLD_DATA <- 50
 
 compute_stats <- function(data, exe_name, iteration_threshold = 0, baseline_optim="every optimization") {
-  data <- data %>% 
-    filter(exe == exe_name) %>%
-    filter(iteration >= iteration_threshold)
+  jit_exe_vals <- c("RPySOM-bc-jit", "RPySOM-ast-jit", "TruffleSOM-graal", "TruffleSOM-graal-bc")
+  if (exe_name %in% jit_exe_vals) {
+    data <- data %>% 
+      filter(exe == exe_name) %>%
+      group_by(optim) %>%
+      filter(iteration >= ifelse(max(iteration) == 2000, MIN_JIT_ITERATION, MIN_JIT_ITERATION_FOR_OLD_DATA))
+  }
+  else {
+    data <- data %>% 
+      filter(exe == exe_name) %>%
+      filter(iteration >= iteration_threshold)    
+  }
   
   base <- data %>% 
     filter(optim == baseline_optim) %>%
@@ -57,19 +66,7 @@ compute_stats <- function(data, exe_name, iteration_threshold = 0, baseline_opti
 }
 
 get_data_for_box_plot_optim <- function(input_data, exe_name, baseline_optim_name="every optimization", iteration_threshold=0) {
-  all <- compute_stats(input_data, exe_name, 0)
-
-  # so, we're running out of time to run all the experiments, therefore we also use the old data which uses the TSOM/PySOM AWFY benchmarks
-  # and more importantly, doesn't run peak perf for 2k iterations. so, lots of NAs in the final grid, which we remove
-  # if all the data was present these filters would be unnecessary
-  jit_exe_vals <- c("RPySOM-bc-jit", "RPySOM-ast-jit", "TruffleSOM-graal", "TruffleSOM-graal-bc")
-  if (exe_name %in% jit_exe_vals) {
-    all$norm <- all$norm %>%
-      group_by(optim) %>%
-      filter(iteration >= ifelse(max(iteration) == 2000, MIN_JIT_ITERATION, MIN_JIT_ITERATION_FOR_OLD_DATA)) %>%
-      ungroup()
-  }
-
+  all <- compute_stats(input_data, exe_name, iteration_threshold)
   all$norm %>% filter(!is.na(expid.y))
 }
 
@@ -244,7 +241,7 @@ all_optims <- rbind(data_optim_tsom_ast, data_optim_tsom_bc, data_optim_pysom_as
 unique_optims <- unique(all_optims$optim)
 
 colors_from_viridis <- pick_from_viridis(length(unique_optims))
-color_set_optims <- set_color_bindings_for_plots(unique_optims, colors_from_viridis)
+color_set_optims <- set_color_bindings_for_plots(unique_optims, viridis::viridis(9))
 ```
 
 ### TruffleSOM - AST interp
