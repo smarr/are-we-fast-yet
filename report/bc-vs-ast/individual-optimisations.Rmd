@@ -373,7 +373,7 @@ stats_tsom_bc_jit <- compute_stats(data_optim_tsom_bc, "TruffleSOM-graal-bc")$st
 
 stats_pysom_ast_int <- compute_stats(data_optim_pysom_ast, "RPySOM-ast-interp")$stats
 stats_pysom_bc_int <- compute_stats(data_optim_pysom_bc, "RPySOM-bc-interp")$stats
-stats_pyson_ast_jit <- compute_stats(data_optim_pysom_ast, "RPySOM-ast-jit")$stats
+stats_pysom_ast_jit <- compute_stats(data_optim_pysom_ast, "RPySOM-ast-jit")$stats
 stats_pysom_bc_jit <- compute_stats(data_optim_pysom_bc, "RPySOM-bc-jit")$stats
 ```
 
@@ -437,8 +437,43 @@ macros = c(
     Cmd("PySOMastInlineCacheMaxX",
         X2((stats_pysom_ast_int |> filter(optim == "inline caching"))$max)),
     Cmd("PySOMastInlineCacheMinX",
-        X2((stats_pysom_ast_int |> filter(optim == "inline caching"))$min))
+        X2((stats_pysom_ast_int |> filter(optim == "inline caching"))$min)),
 
+    "",
+    Cmd("TSOMastJitInlineCacheMedianX",
+        X2((stats_tsom_ast_jit |> filter(optim == "inline caching"))$median)),
+    Cmd("TSOMastJitInlineCacheMaxX",
+        X2((stats_tsom_ast_jit |> filter(optim == "inline caching"))$max)),
+    Cmd("TSOMastJitInlineCacheMinX",
+        X2((stats_tsom_ast_jit |> filter(optim == "inline caching"))$min)),
+
+    
+    Cmd("TSOMbcJitInlineCacheMedianX",
+        X2((stats_tsom_bc_jit |> filter(optim == "inline caching"))$median)),
+    Cmd("TSOMbcJitInlineCacheMaxX",
+        X2((stats_tsom_bc_jit |> filter(optim == "inline caching"))$max)),
+    Cmd("TSOMbcJitInlineCacheMinX",
+        X2((stats_tsom_bc_jit |> filter(optim == "inline caching"))$min)),
+
+    "",
+    Cmd("PySOMastJitInlineCacheMedianX",
+        X2((stats_pysom_ast_jit |> filter(optim == "inline caching"))$median)),
+    Cmd("PySOMastJitInlineCacheMaxX",
+        X2((stats_pysom_ast_jit |> filter(optim == "inline caching"))$max)),
+    Cmd("PySOMastJitInlineCacheMinX",
+        X2((stats_pysom_ast_jit |> filter(optim == "inline caching"))$min)),
+
+    
+    Cmd("PySOMbcJitInlineCacheMedianX",
+        X2((stats_pysom_bc_jit |> filter(optim == "inline caching"))$median)),
+    Cmd("PySOMbcJitInlineCacheMaxX",
+        X2((stats_pysom_bc_jit |> filter(optim == "inline caching"))$max)),
+    Cmd("PySOMbcJitInlineCacheMinX",
+        X2((stats_pysom_bc_jit |> filter(optim == "inline caching"))$min)),
+
+    
+        
+    ""
   )
 
 writeLines(macros, tex.file)
