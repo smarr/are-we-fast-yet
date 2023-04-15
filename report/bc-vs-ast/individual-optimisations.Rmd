@@ -77,7 +77,7 @@ compute_stats <- function(data, exe_name, iteration_threshold = 0, baseline_opti
 
 get_data_for_box_plot_optim <- function(input_data, exe_name, baseline_optim_name="all optimizations", iteration_threshold=0) {
   all <- compute_stats(input_data, exe_name, iteration_threshold)
-  all$norm %>% filter(!is.na(expid.y))
+  all$norm # %>% filter(!is.na(expid.y))
 }
 
 box_plot_optim <- function(data, custom_x_breaks=NULL, colors = color_set_optims) {
