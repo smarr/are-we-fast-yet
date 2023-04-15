@@ -57,7 +57,7 @@ jdk20_data$exe <- ifelse(grepl("Java-int", jdk20_data$exe), "Java20-int", "Java2
 
 data <- rbind(
   load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2858"),
-  jdk20_data
+  load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2897") # JDK20
 )
 
 interp_exes <- c("PySOM-bc-int", "Node-int", "PySOM-ast-int", "PyPy-int", "Java8-int", "Java-int", "TruffleSOM-bc-NativeCE-int-astvsbc", "TruffleSOM-ast-NativeCE-int-astvsbc", "Java20-int")
