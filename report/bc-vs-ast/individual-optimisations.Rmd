@@ -471,8 +471,46 @@ macros = c(
     Cmd("PySOMbcJitInlineCacheMinX",
         X2((stats_pysom_bc_jit |> filter(optim == "inline caching"))$min)),
 
+    "",
     
+    Cmd("TSOMastJitInlineStructMedianX",
+        X2((stats_tsom_ast_jit |> filter(optim == "inlined control struc."))$median)),
+    Cmd("TSOMastJitInlineStructMaxX",
+        X2((stats_tsom_ast_jit |> filter(optim == "inlined control struc."))$max)),
+    Cmd("TSOMastJitInlineStructMinX",
+        X2((stats_tsom_ast_jit |> filter(optim == "inlined control struc."))$min)),
+    
+    Cmd("PySOMastJitInlineStructMedianX",
+        X2((stats_pysom_ast_jit |> filter(optim == "inlined control struc."))$median)),
+    Cmd("PySOMastJitInlineStructMaxX",
+        X2((stats_pysom_ast_jit |> filter(optim == "inlined control struc."))$max)),
+    Cmd("PySOMastJitInlineStructMinX",
+        X2((stats_pysom_ast_jit |> filter(optim == "inlined control struc."))$min)),
+    
+    Cmd("TSOMbcJitInlineStructMedianX",
+        X2((stats_tsom_bc_jit |> filter(optim == "inlined control struc."))$median)),
+    Cmd("TSOMbcJitInlineStructMaxX",
+        X2((stats_tsom_bc_jit |> filter(optim == "inlined control struc."))$max)),
+    Cmd("TSOMbcJitInlineStructMinX",
+        X2((stats_tsom_bc_jit |> filter(optim == "inlined control struc."))$min)),
+    
+    Cmd("PySOMbcJitInlineStructMedianX",
+        X2((stats_pysom_bc_jit |> filter(optim == "inlined control struc."))$median)),
+    Cmd("PySOMbcJitInlineStructMaxX",
+        X2((stats_pysom_bc_jit |> filter(optim == "inlined control struc."))$max)),
+    Cmd("PySOMbcJitInlineStructMinX",
+        X2((stats_pysom_bc_jit |> filter(optim == "inlined control struc."))$min)),
         
+    "",
+    
+    Cmd("PySOMbcJitLowBasicOpsMedianX",
+        X2((stats_pysom_bc_jit |> filter(optim == "lowered basic ops"))$median)),
+    Cmd("PySOMbcJitLowBasicOpsMaxX",
+        X2((stats_pysom_bc_jit |> filter(optim == "lowered basic ops"))$max)),
+    Cmd("PySOMbcJitLowBasicOpsMinX",
+        X2((stats_pysom_bc_jit |> filter(optim == "lowered basic ops"))$min)),
+    
+    
     ""
   )
 
