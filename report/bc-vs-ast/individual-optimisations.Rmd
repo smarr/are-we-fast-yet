@@ -38,16 +38,16 @@ compute_stats <- function(data, exe_name, iteration_threshold = 0, baseline_opti
     # ugly as hell fix for the two missing data points with the new data
     if (exe_name == "RPySOM-ast-jit" || exe_name == "RPySOM-bc-jit") {
       lowered_basic_ops_data <- load_data_for_experiment(2812, "lowered basic ops", "RPySOM") |>
-    select(!c(commitid, suite, cmdline, varvalue, cores, expid, runid, trialid, envid, inputsize, extraargs, warmup, invocation)) |>
-    filter(exe == exe_name)  %>% filter(criterion == "total")
+        select(!c(commitid, suite, cmdline, varvalue, cores, expid, runid, trialid, envid, inputsize, extraargs, warmup, invocation)) |>
+        filter(exe == exe_name)  %>% filter(criterion == "total")
       lowered_basic_ops_data <- lowered_basic_ops_data %>% filter(iteration >= MIN_JIT_ITERATION_FOR_OLD_DATA)
       data <- rbind(data, lowered_basic_ops_data)
     }
     
     if (exe_name == "TruffleSOM-graal-bc") {
       inline_caching_data <- load_data_for_experiment(2785, "inline caching", "TruffleSOM") |>
-    select(!c(commitid, suite, cmdline, varvalue, cores, expid, runid, trialid, envid, inputsize, extraargs, warmup, invocation)) |>
-    filter(exe == exe_name)  %>% filter(criterion == "total")
+        select(!c(commitid, suite, cmdline, varvalue, cores, expid, runid, trialid, envid, inputsize, extraargs, warmup, invocation)) |>
+        filter(exe == exe_name)  %>% filter(criterion == "total")
       inline_caching_data <- inline_caching_data %>% filter(iteration >= MIN_JIT_ITERATION_FOR_OLD_DATA)
       data <- rbind(data, inline_caching_data)
     }
