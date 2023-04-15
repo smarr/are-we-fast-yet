@@ -57,6 +57,9 @@ compute_stats <- function(data, exe_name, iteration_threshold = 0, baseline_opti
   norm <- norm |>
     filter(!is.na(base_value))
 
+  # TODO: we might want to still summarize first by benchmark,
+  # and only have the median value per benchmark
+  
   stats <- norm %>%
     group_by(optim, exe) %>%
     summarise(
