@@ -410,11 +410,11 @@ macros = c(
         X2((stats_tsom_bc_int |> filter(optim == "inline caching"))$max)),
     
     Cmd("TSOMbcInlineCacheMedianX",
-        X2((stats_tsom_ast_int |> filter(optim == "inline caching"))$median)),
+        X2((stats_tsom_bc_int |> filter(optim == "inline caching"))$median)),
     Cmd("TSOMbcInlineCacheMaxX",
-        X2((stats_tsom_ast_int |> filter(optim == "inline caching"))$max)),
+        X2((stats_tsom_bc_int |> filter(optim == "inline caching"))$max)),
     Cmd("TSOMbcInlineCacheMinX",
-        X2((stats_tsom_ast_int |> filter(optim == "inline caching"))$min)),
+        X2((stats_tsom_bc_int |> filter(optim == "inline caching"))$min)),
     
     Cmd("PySOMastInlineCacheMedianX",
         X2((stats_pysom_ast_int |> filter(optim == "inline caching"))$median)),
