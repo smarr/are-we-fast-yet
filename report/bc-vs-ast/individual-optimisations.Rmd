@@ -237,7 +237,7 @@ get_pysom_ast_data <- function() {
   rbind(load_data_for_experiment(2873, "all optimizations", project_name),
         load_data_for_experiment(2877, "global caching", project_name),
         load_data_for_experiment(2891, "inlined control struc.", project_name),
-        load_data_for_experiment(2764, "inline caching", project_name), # OLD DATA        
+        load_data_for_experiment(2895, "inline caching", project_name),       
         load_data_for_experiment(2891, "lowered basic ops", project_name)
         ) %>% filter(criterion == "total")
 }
@@ -248,7 +248,7 @@ get_pysom_bc_data <- function() {
         load_data_for_experiment(2876, "global caching", project_name),
         load_data_for_experiment(2891, "inlined control struc.", project_name),
         load_data_for_experiment(2892, "superinstructions (*)", project_name),
-        load_data_for_experiment(2764, "inline caching", project_name), # OLD DATA
+        load_data_for_experiment(2895, "inline caching", project_name),
         load_data_for_experiment(2894, "quickening (*)", project_name),
         load_data_for_experiment(2891, "lowered basic ops", project_name)
         ) %>% filter(criterion == "total")
