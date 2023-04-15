@@ -57,24 +57,33 @@ compute_stats <- function(data, exe_name, iteration_threshold = 0, baseline_opti
   norm <- norm |>
     filter(!is.na(base_value))
 
-  # TODO: we might want to still summarize first by benchmark,
-  # and only have the median value per benchmark
+  # summarize normalized results per benchmark
+  # we only want one value per benchmark, and the median seems a good choice
+  # mean might not be valid because of our unit conversion (it should, but who knows statistics...)
+  # anyway, do get statistics for an experiment, we really want only one value per benchmark
   
-  stats <- norm %>%
-    group_by(optim, exe) %>%
+  per_bench <- norm |>
+    group_by(optim, exe, bench) |>
+    summarize(
+      unit = unit[1],
+      median_ratio = median(ratio),
+      .groups = "drop")
+  
+  # now get the overall stats
+  # the min, max, and median, each corresponding to exactly one benchmark
+  # and the specific values happen to be the median we measured for that benchmark
+  stats <- per_bench |>
+    group_by(optim, exe) |>
     summarise(
       unit = unit[1],
-      min = min(ratio),
-      max = max(ratio),
-      sd = sd(ratio),
-      mean = mean(ratio),
-      median = median(ratio),
-      samples = length(ratio),
+      min = min(median_ratio),
+      max = max(median_ratio),
+      median = median(median_ratio),
       .groups = "drop")
 
   list(
     base = base,
-    norm = norm,
+    norm = per_bench,
     stats = stats)
 }
 
@@ -89,7 +98,7 @@ box_plot_optim <- function(data, custom_x_breaks=NULL, colors = color_set_optims
   else
     x_breaks <- custom_x_breaks
 
-  plot <- ggplot(data, aes(x=ratio, y=reorder(factor(optim), -ratio, FUN = median)))
+  plot <- ggplot(data, aes(x=median_ratio, y=reorder(factor(optim), -median_ratio, FUN = median)))
   plot <- plot + 
     geom_vline(aes(xintercept=1),    colour="#999999", linetype="solid") +
     geom_vline(aes(xintercept=1.5),  colour="#999999", linetype="dotted") +
@@ -126,7 +135,7 @@ box_plot_optim_unified <- function(data, custom_x_breaks=NULL) {
   #vm_colors <- rainbow(255)
   col_values <- rainbow(10)
   
-  plot <- ggplot(data, aes(x=ratio, y=optim, fill = optim))
+  plot <- ggplot(data, aes(x=median_ratio, y=optim, fill = optim))
   plot <- plot + geom_boxplot(outlier.size = 0.5) +
     scale_x_log10(breaks = x_breaks) +
     scale_fill_viridis_d() +
