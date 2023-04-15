@@ -20,44 +20,54 @@ MIN_JIT_ITERATION <- 1000
 MIN_JIT_ITERATION_FOR_OLD_DATA <- 50
 
 compute_stats <- function(data, exe_name, iteration_threshold = 0, baseline_optim="all optimizations") {
-  base <- data %>% 
-    filter(optim == baseline_optim) %>%
-    transform(base_value = value)
+  # compute_stats(data_optim_pysom_ast, "RPySOM-ast-interp")
+  # data <- data_optim_pysom_ast
+  # exe_name <- "RPySOM-ast-interp"
   
+  # remove all the columns we don't need for this
+  # and keep only the exe we are interested in
+  data <- data |>
+    select(!c(commitid, suite, cmdline, varvalue, cores, expid, runid, trialid, envid, inputsize, extraargs, warmup, invocation)) |>
+    filter(exe == exe_name)
+  
+  # then selected the "warmed up data"
   jit_exe_vals <- c("RPySOM-bc-jit", "RPySOM-ast-jit", "TruffleSOM-graal", "TruffleSOM-graal-bc")
   if (exe_name %in% jit_exe_vals) {
     data <- data %>% 
-      filter(exe == exe_name) %>%
-      group_by(optim) %>%
       filter(iteration >= ifelse(max(iteration) == 2000, MIN_JIT_ITERATION, MIN_JIT_ITERATION_FOR_OLD_DATA))
-  }
-  else {
+  } else {
     data <- data %>% 
-      filter(exe == exe_name) %>%
       filter(iteration >= iteration_threshold)    
   }
   
-  norm <- data %>% left_join(
-        base,
-        by = c("exe", "bench", "invocation", "iteration")) %>%
-    rename("optim" = "optim.x", 
-           "base_optim" = "optim.y",
-           "value" = "value.x") %>%
-    group_by(optim, exe, bench, iteration) %>%
-    transform(ratio = value / base_value)
+  # now, and only now, let's isolate the baseline, and pick the median
+  base <- data |>
+    filter(optim == baseline_optim) |>
+    select(!c(optim)) |>
+    group_by(bench) |>
+    summarise(base_value = median(value))
+  
+  
+  # and finally, we can normalize things
+  norm <- data |>
+    left_join(base, by = c("bench")) |>   # add the base_value column per join
+    transform(ratio = value / base_value) # do the unit conversion
+  
+  # TODO: remove, this is needed because we have old benchmarks in there
+  norm <- norm |>
+    filter(!is.na(base_value))
 
   stats <- norm %>%
     group_by(optim, exe) %>%
-    mutate(
-      unit = unit.x,
+    summarise(
+      unit = unit[1],
       min = min(ratio),
       max = max(ratio),
       sd = sd(ratio),
       mean = mean(ratio),
       median = median(ratio),
-      samples = length(ratio)) %>%
-    select(optim, exe, unit, min, max, sd, mean, median, samples) %>%
-    slice(1)
+      samples = length(ratio),
+      .groups = "drop")
 
   list(
     base = base,
