@@ -6,11 +6,11 @@
 # load libraries, the data, and prepare it
 if (Sys.getenv("USER") == "smarr") {
   setwd("/Users/smarr/Projects/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast")
-  } else if (Sys.getenv("USER") == "sopi") {
+} else if (Sys.getenv("USER") == "sopi") {
   setwd("/home/sopi/Documents/Writing/2023/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast/" )
-  } else {
+} else {
   setwd("/home/octavel/PhD/papers/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast")
-  }
+}
 source("scripts/libraries.R", chdir=TRUE)
 source("scripts/data-processing2.R")
 
