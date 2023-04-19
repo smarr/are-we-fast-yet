@@ -9,8 +9,8 @@ CmdsMedianMinMaxX <- function(cmd_prefix, data) {
   
   c(
     Cmd(median_cmd, X2(data$median)),
-    Cmd(max_cmd,    X2(data$max)),
     Cmd(min_cmd,    X2(data$min)),
+    Cmd(max_cmd,    X2(data$max)),
     
     Cmd(paste0(cmd_prefix, "MMMX"),
         paste0("\\", median_cmd,
