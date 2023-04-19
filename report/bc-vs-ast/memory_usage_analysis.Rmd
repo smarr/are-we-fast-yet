@@ -19,35 +19,12 @@ output_folder <- "../../../paper/images/"
 #extrafont::loadfonts()
 #extrafont::loadfonts(device = "postscript")
 
-get_data_rss <- function() {
-  # iteration is always 1 so we remove it. unit is always kb
-  remove_unneeded_data <- function(df) {
-    df <- df %>% 
-      filter(criterion == "MaxRSS") %>% 
+# Simple and direct code, no function, no duplication, just executed once
+data_rss <- rbind(
+  load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2597"),
+  load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2615")) |>
+  filter(criterion == "MaxRSS") |>
       subset(select = -c(commitid, cmdline, expid, varvalue, cores, inputsize, iteration, criterion, envid))
-    
-    # group the data by runid and trialid, and keep only the first row of each group
-    #df <- df %>%
-    #  group_by(runid, trialid) %>%
-    #  slice_head(n = 1) %>%
-    #  mutate(invocation = NA, value = max(value)) %>%
-    #  ungroup() %>%
-    #  select(-invocation)
-    
-    df
-  }
-
-  #TODO NOT based on ast-vs-bc-baseline for TSOM. which probably isn't tremendously important, frankly
-  data_rss_tsom <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2597") %>% remove_unneeded_data()
-  #data_rss_pysom <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2596") %>% remove_unneeded_data()
-  data_rss_pysom <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2615") %>% remove_unneeded_data()
-  
-#  towers <- data_rss_pysom %>% filter(bench == "Towers") %>% subset(select = -c(commitid, cmdline, expid, varvalue, cores, inputsize, iteration, envid))
-  
-  data_rss <- rbind(data_rss_tsom, data_rss_pysom)
-  
-  data_rss
-}
 
 get_data_program_representation <- function(data) {
   data_repr_tsom <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% filter(criterion == "Allocated")
@@ -182,7 +159,6 @@ get_data_for_box_plot <- function(all_data, baseline_name, exe_names=NULL) {
   df2
 }
 
-data_rss <- get_data_rss() 
 data_repr_from_old_function <- get_data_program_representation()
 
 #data_repr_tsom_old <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% 
