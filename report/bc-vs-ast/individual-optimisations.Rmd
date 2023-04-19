@@ -384,135 +384,30 @@ tex.file <- file("../../../paper/gen/individual-optimisations.tex")
 
 # interpreter data for tsom
 macros = c(
-    Cmd("TSOMastInlineStructMedianX",
-        X2((stats_tsom_ast_int |> filter(optim == "inlined control struc."))$median)),
-    Cmd("TSOMastInlineStructMaxX",
-        X2((stats_tsom_ast_int |> filter(optim == "inlined control struc."))$max)),
-    Cmd("TSOMastInlineStructMinX",
-        X2((stats_tsom_ast_int |> filter(optim == "inlined control struc."))$min)),
-    
-    Cmd("PySOMastInlineStructMedianX",
-        X2((stats_pysom_ast_int |> filter(optim == "inlined control struc."))$median)),
-    Cmd("PySOMastInlineStructMaxX",
-        X2((stats_pysom_ast_int |> filter(optim == "inlined control struc."))$max)),
-    Cmd("PySOMastInlineStructMinX",
-        X2((stats_pysom_ast_int |> filter(optim == "inlined control struc."))$min)),
-    
-    Cmd("TSOMbcInlineStructMedianX",
-        X2((stats_tsom_bc_int |> filter(optim == "inlined control struc."))$median)),
-    Cmd("TSOMbcInlineStructMaxX",
-        X2((stats_tsom_bc_int |> filter(optim == "inlined control struc."))$max)),
-    Cmd("TSOMbcInlineStructMinX",
-        X2((stats_tsom_bc_int |> filter(optim == "inlined control struc."))$min)),
-    
-    Cmd("PySOMbcInlineStructMedianX",
-        X2((stats_pysom_bc_int |> filter(optim == "inlined control struc."))$median)),
-    Cmd("PySOMbcInlineStructMaxX",
-        X2((stats_pysom_bc_int |> filter(optim == "inlined control struc."))$max)),
-    Cmd("PySOMbcInlineStructMinX",
-        X2((stats_pysom_bc_int |> filter(optim == "inlined control struc."))$min)),
-    
-    Cmd("TSOMbcInlineStructMedian",
-        X2((stats_tsom_bc_int |> filter(optim == "inlined control struc."))$median)),
-    Cmd("TSOMbcInlineStructSlowest",
-        X2((stats_tsom_bc_int |> filter(optim == "inlined control struc."))$max)),
-    Cmd("TSOMastInlineCacheMedian",
-        X2((stats_tsom_ast_int |> filter(optim == "inline caching"))$median)),
-    Cmd("TSOMastInlineCacheSlowest",
-        X2((stats_tsom_ast_int |> filter(optim == "inline caching"))$max)),
-    Cmd("TSOMbcInlineCacheMedian",
-        X2((stats_tsom_bc_int |> filter(optim == "inline caching"))$median)),
-    Cmd("TSOMbcInlineCacheSlowest",
-        X2((stats_tsom_bc_int |> filter(optim == "inline caching"))$max)),
-    
-    Cmd("TSOMbcInlineCacheMedianX",
-        X2((stats_tsom_bc_int |> filter(optim == "inline caching"))$median)),
-    Cmd("TSOMbcInlineCacheMaxX",
-        X2((stats_tsom_bc_int |> filter(optim == "inline caching"))$max)),
-    Cmd("TSOMbcInlineCacheMinX",
-        X2((stats_tsom_bc_int |> filter(optim == "inline caching"))$min)),
-    
-    Cmd("PySOMastInlineCacheMedianX",
-        X2((stats_pysom_ast_int |> filter(optim == "inline caching"))$median)),
-    Cmd("PySOMastInlineCacheMaxX",
-        X2((stats_pysom_ast_int |> filter(optim == "inline caching"))$max)),
-    Cmd("PySOMastInlineCacheMinX",
-        X2((stats_pysom_ast_int |> filter(optim == "inline caching"))$min)),
+  CmdsMedianMinMaxX("TSOMastInlineStruct",  stats_tsom_ast_int  |> filter(optim == "inlined control struc.")),
+  CmdsMedianMinMaxX("PySOMastInlineStruct", stats_pysom_ast_int |> filter(optim == "inlined control struc.")),
+  CmdsMedianMinMaxX("TSOMbcInlineStruct",   stats_tsom_bc_int   |> filter(optim == "inlined control struc.")),
+  CmdsMedianMinMaxX("PySOMbcInlineStruct",  stats_pysom_bc_int  |> filter(optim == "inlined control struc.")),
+  
+  CmdsMedianMinMaxX("TSOMastInlineCache",  stats_tsom_ast_int  |> filter(optim == "inline caching")),
+  CmdsMedianMinMaxX("PySOMastInlineCache", stats_pysom_ast_int |> filter(optim == "inline caching")),
+  CmdsMedianMinMaxX("TSOMbcInlineCache",   stats_tsom_bc_int   |> filter(optim == "inline caching")),
+  CmdsMedianMinMaxX("PySOMbcInlineCache",  stats_pysom_bc_int  |> filter(optim == "inline caching")),
+  
+  CmdsMedianMinMaxX("TSOMastJitInlineCache",  stats_tsom_ast_jit  |> filter(optim == "inline caching")),
+  CmdsMedianMinMaxX("TSOMbcJitInlineCache",   stats_tsom_bc_jit   |> filter(optim == "inline caching")),
+  CmdsMedianMinMaxX("PySOMastJitInlineCache", stats_pysom_ast_jit |> filter(optim == "inline caching")),
+  CmdsMedianMinMaxX("PySOMbcJitInlineCache",  stats_pysom_bc_jit  |> filter(optim == "inline caching")),
+  
+  CmdsMedianMinMaxX("TSOMastJitInlineStruct",  stats_tsom_ast_jit  |> filter(optim == "inlined control struc.")),
+  CmdsMedianMinMaxX("PySOMastJitInlineStruct", stats_pysom_ast_jit |> filter(optim == "inlined control struc.")),
+  CmdsMedianMinMaxX("TSOMbcJitInlineStruct",   stats_tsom_bc_jit   |> filter(optim == "inlined control struc.")),
+  CmdsMedianMinMaxX("PySOMbcJitInlineStruct",  stats_pysom_bc_jit  |> filter(optim == "inlined control struc.")),
+  
+  CmdsMedianMinMaxX("PySOMbcJitLowBasicOps",  stats_pysom_bc_jit  |> filter(optim == "lowered basic ops")),
 
-    "",
-    Cmd("TSOMastJitInlineCacheMedianX",
-        X2((stats_tsom_ast_jit |> filter(optim == "inline caching"))$median)),
-    Cmd("TSOMastJitInlineCacheMaxX",
-        X2((stats_tsom_ast_jit |> filter(optim == "inline caching"))$max)),
-    Cmd("TSOMastJitInlineCacheMinX",
-        X2((stats_tsom_ast_jit |> filter(optim == "inline caching"))$min)),
-
-    
-    Cmd("TSOMbcJitInlineCacheMedianX",
-        X2((stats_tsom_bc_jit |> filter(optim == "inline caching"))$median)),
-    Cmd("TSOMbcJitInlineCacheMaxX",
-        X2((stats_tsom_bc_jit |> filter(optim == "inline caching"))$max)),
-    Cmd("TSOMbcJitInlineCacheMinX",
-        X2((stats_tsom_bc_jit |> filter(optim == "inline caching"))$min)),
-
-    "",
-    Cmd("PySOMastJitInlineCacheMedianX",
-        X2((stats_pysom_ast_jit |> filter(optim == "inline caching"))$median)),
-    Cmd("PySOMastJitInlineCacheMaxX",
-        X2((stats_pysom_ast_jit |> filter(optim == "inline caching"))$max)),
-    Cmd("PySOMastJitInlineCacheMinX",
-        X2((stats_pysom_ast_jit |> filter(optim == "inline caching"))$min)),
-
-    
-    Cmd("PySOMbcJitInlineCacheMedianX",
-        X2((stats_pysom_bc_jit |> filter(optim == "inline caching"))$median)),
-    Cmd("PySOMbcJitInlineCacheMaxX",
-        X2((stats_pysom_bc_jit |> filter(optim == "inline caching"))$max)),
-    Cmd("PySOMbcJitInlineCacheMinX",
-        X2((stats_pysom_bc_jit |> filter(optim == "inline caching"))$min)),
-
-    "",
-    
-    Cmd("TSOMastJitInlineStructMedianX",
-        X2((stats_tsom_ast_jit |> filter(optim == "inlined control struc."))$median)),
-    Cmd("TSOMastJitInlineStructMaxX",
-        X2((stats_tsom_ast_jit |> filter(optim == "inlined control struc."))$max)),
-    Cmd("TSOMastJitInlineStructMinX",
-        X2((stats_tsom_ast_jit |> filter(optim == "inlined control struc."))$min)),
-    
-    Cmd("PySOMastJitInlineStructMedianX",
-        X2((stats_pysom_ast_jit |> filter(optim == "inlined control struc."))$median)),
-    Cmd("PySOMastJitInlineStructMaxX",
-        X2((stats_pysom_ast_jit |> filter(optim == "inlined control struc."))$max)),
-    Cmd("PySOMastJitInlineStructMinX",
-        X2((stats_pysom_ast_jit |> filter(optim == "inlined control struc."))$min)),
-    
-    Cmd("TSOMbcJitInlineStructMedianX",
-        X2((stats_tsom_bc_jit |> filter(optim == "inlined control struc."))$median)),
-    Cmd("TSOMbcJitInlineStructMaxX",
-        X2((stats_tsom_bc_jit |> filter(optim == "inlined control struc."))$max)),
-    Cmd("TSOMbcJitInlineStructMinX",
-        X2((stats_tsom_bc_jit |> filter(optim == "inlined control struc."))$min)),
-    
-    Cmd("PySOMbcJitInlineStructMedianX",
-        X2((stats_pysom_bc_jit |> filter(optim == "inlined control struc."))$median)),
-    Cmd("PySOMbcJitInlineStructMaxX",
-        X2((stats_pysom_bc_jit |> filter(optim == "inlined control struc."))$max)),
-    Cmd("PySOMbcJitInlineStructMinX",
-        X2((stats_pysom_bc_jit |> filter(optim == "inlined control struc."))$min)),
-        
-    "",
-    
-    Cmd("PySOMbcJitLowBasicOpsMedianX",
-        X2((stats_pysom_bc_jit |> filter(optim == "lowered basic ops"))$median)),
-    Cmd("PySOMbcJitLowBasicOpsMaxX",
-        X2((stats_pysom_bc_jit |> filter(optim == "lowered basic ops"))$max)),
-    Cmd("PySOMbcJitLowBasicOpsMinX",
-        X2((stats_pysom_bc_jit |> filter(optim == "lowered basic ops"))$min)),
-    
-    
-    ""
-  )
+  ""
+)
 
 writeLines(macros, tex.file)
 close(tex.file)
