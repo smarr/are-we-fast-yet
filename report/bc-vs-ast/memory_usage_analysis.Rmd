@@ -117,7 +117,7 @@ box_plot_in_kb <- function(data, colors = color_set_vms, parse_y_labels = FALSE)
   
   breaks <- levels(droplevels(data)$exe)
 
-  plot <- ggplot(data, aes(x=value.x, y=reorder(exe, -ratio, FUN = median)))
+  plot <- ggplot(data, aes(x=value, y=reorder(exe, -ratio, FUN = median)))
   plot <- plot + geom_boxplot(outlier.size = 0.9,
                               outlier.alpha = 0.6,
                               width=0.5,
@@ -144,21 +144,27 @@ box_plot_in_kb <- function(data, colors = color_set_vms, parse_y_labels = FALSE)
   plot
 }
 
-get_data_for_box_plot <- function(all_data, baseline_name, exe_names=NULL) {
-  if (!is.null(exe_names)) {
-    df <- all_data %>% filter(exe %in% exe_names)
-  } else {
-    df <- all_data
-  }
-
-  df_baseline <- df %>% filter(exe == baseline_name)
-  df2 <- df %>% left_join(
-        df_baseline,
-        by = c("bench", "extraargs", "invocation", "warmup"))
+get_data_for_box_plot <- function(all_data, baseline_name, exe_names) {
+  # For easy explortion of function in RStudio:
+  # all_data <- data_rss
+  # baseline_name <- "RPySOM-bc-interp"
+  # exe_names <- c("RPySOM-bc-interp", "RPySOM-ast-interp")
   
-  colnames(df2)[which(colnames(df2) == "exe.x")] <- "exe"
-  df2$ratio <- df2$value.x / df2$value.y
+  df <- all_data |> filter(exe %in% exe_names)
 
+  df_baseline <- df |>
+    filter(exe == baseline_name) |>
+    select(-c(exe, unit)) |>
+    group_by(bench) |>
+    summarise(base = median(value))
+  
+  df2 <- df |>
+    left_join(
+      df_baseline,
+      by = c("bench")) |>
+    mutate(ratio = value / base)
+  
+  # try renaming TODO: get rid of one of them after unifying the experiment names
   suppressMessages(df2$exe <- revalue(df2$exe, unify_overview_memory_data) %>% droplevels())
   suppressMessages(df2$exe <- revalue(df2$exe, vm_names) %>% droplevels())
   df2
@@ -172,8 +178,8 @@ data_repr_from_old_function <- get_data_program_representation()
 #    summarize(iteration = 1, value = sum(value))
 
 data_repr_tsom <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2838") %>% 
-    filter(criterion == "Allocated") %>% 
-    rename(value.x = value) %>% mutate(ratio = 1) # bad code to make it work with the previous boxplot function...
+    filter(criterion == "Allocated") |>
+    mutate(ratio = 1) # bad code to make it work with the previous boxplot function...
 
 data_repr_pysom <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2860")
 data_repr_pysom <- distinct(data_repr_pysom, exe, runid, cmdline, cores, extraargs, envid, .keep_all = TRUE)
@@ -290,7 +296,7 @@ data <- data_repr_tsom %>%
 
 data <- data %>%
     group_by(expid, runid, trialid, bench, exe, cmdline, extraargs, invocation, ratio) %>%
-    summarize(iteration = 1, value.x = sum(value.x))
+    summarize(iteration = 1, value = sum(value))
 
 plot <- box_plot_in_kb(data)
 ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/program-repr-interp-tsom.pdf"), dpi=300, height=50, width=100, units="mm", family="Arial")
@@ -316,7 +322,7 @@ data <- data_repr_tsom %>%
 
 data <- data %>%
     group_by(expid, runid, trialid, bench, exe, cmdline, extraargs, invocation, ratio) %>%
-    summarize(iteration = 1, value.x = sum(value.x))
+    summarize(iteration = 1, value = sum(value))
 
 plot <- box_plot_in_kb(data)
 ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/program-repr-jit-tsom.pdf"), dpi=300, height=50, width=100, units="mm", family="Arial")
@@ -339,7 +345,7 @@ plot
 ### BCvsAST - PySOM Int
 ```{r program-repr-memory-int-pysom, fig.width=8, fig.height=2.2, echo=FALSE}
 data <- data_repr_pysom %>% filter(exe %in% c("RPySOM-bc-interp", "RPySOM-ast-interp"))
-data <- data %>% rename(value.x = value) %>% mutate(ratio = 1) # bad code to make it work with the previous boxplot function...
+data <- data |> mutate(ratio = 1) # bad code to make it work with the previous boxplot function...
 
 plot <- box_plot_in_kb(data)
 ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/program-repr-interp-pysom.pdf"), dpi=300, height=50, width=100, units="mm", family="Arial")
@@ -359,7 +365,7 @@ plot
 ### BCvsAST - PySOM JIT
 ```{r program-repr-memory-jit-pysom, fig.width=8, fig.height=2.2, echo=FALSE}
 data <- data_repr_pysom %>% filter(exe %in% c("RPySOM-bc-jit", "RPySOM-ast-jit"))
-data <- data %>% rename(value.x = value) %>% mutate(ratio = 1) # bad code to make it work with the previous boxplot function...
+data <- data |> mutate(ratio = 1) # bad code to make it work with the previous boxplot function...
 
 plot <- box_plot_in_kb(data)
 ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/program-repr-jit-pysom.pdf"), dpi=300, height=50, width=100, units="mm", family="Arial")
@@ -386,7 +392,7 @@ data <- data_repr_tsom %>%
 
 data <- data %>%
     group_by(expid, runid, trialid, bench, exe, cmdline, extraargs, invocation, ratio) %>%
-    summarize(iteration = 1, value.x = sum(value.x))
+    summarize(iteration = 1, value = sum(value))
 
 plot <- box_plot_in_kb(data)
 #ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/program-repr-interp-tsom.pdf"), dpi=300, height=50, width=100, units="mm", family="Arial")
@@ -403,7 +409,7 @@ data <- data_repr_tsom %>%
 
 data <- data %>%
     group_by(expid, runid, trialid, bench, exe, cmdline, extraargs, invocation, ratio) %>%
-    summarize(iteration = 1, value.x = sum(value.x))
+    summarize(iteration = 1, value = sum(value))
 
 plot <- box_plot_in_kb(data)
 #ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/program-repr-jit-tsom.pdf"), dpi=300, height=50, width=100, units="mm", family="Arial")
@@ -418,7 +424,7 @@ plot
 data_tsom <- data_repr_tsom %>%
     filter(bench == "Test") %>%
     group_by(expid, runid, trialid, bench, exe, cmdline, extraargs, invocation, ratio) %>%
-    summarize(iteration = 1, value.x = sum(value.x))
+    summarize(iteration = 1, value = sum(value))
 
 plot_tsom <- box_plot_in_kb(data_tsom)
 #ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/program-repr-jit-tsom.pdf"), dpi=300, height=50, width=100, units="mm", family="Arial")
@@ -427,8 +433,8 @@ plot_tsom
 ```
 
 ```{r test-bench-pysom, fig.width=8, fig.height=2.2, echo=FALSE}
-data_pysom <- data_repr_pysom %>%
-    filter(bench == "Test") %>% rename(value.x = value) %>% mutate(ratio = 1)
+data_pysom <- data_repr_pysom |>
+    filter(bench == "Test") |> mutate(ratio = 1)
 
 plot_pysom <- box_plot_in_kb(data_pysom)
 
