@@ -323,45 +323,15 @@ min_exe <- min_row$exe
 fastest_bench <- results_int$stats$bench |> filter(exe == min_row$exe, ratio == min_row$min_ratio)
 
 
-
 macros = c(
   Cmd("LowestRatioIntJavaPer",       Per(min_row$min_ratio)),
   Cmd("LowestRatioIntJavaBenchmark", fastest_bench$bench),
   
-  Cmd("SpeediestExeInt", min_exe),
-  Cmd("PySOMastIntMedianX", X2((results_int$stats$exe
-                             |> filter(exe == "PySOM-ast-int"))$median_ratio)),
-  Cmd("PySOMbcIntMedianX", X2((results_int$stats$exe
-                            |> filter(exe == "PySOM-bc-int"))$median_ratio)),
-  
-  Cmd("TSOMastIntMedianX",
-      X2((results_int$stats$exe
-          |> filter(exe == "TruffleSOM-ast-NativeCE-int-astvsbc"))$median_ratio)),
-  Cmd("TSOMbcIntMedianX",
-      X2((results_int$stats$exe |>
-            filter(exe == "TruffleSOM-bc-NativeCE-int-astvsbc"))$median_ratio)),
-  
-  Cmd("PySOMastIntMinX",
-        X2((results_int$stats$exe |> filter(exe == "PySOM-ast-int"))$min_ratio)),
-  Cmd("PySOMastIntMaxX",
-        X2((results_int$stats$exe |> filter(exe == "PySOM-ast-int"))$max_ratio)),
-  Cmd("PySOMbcIntMinX",
-        X2((results_int$stats$exe |> filter(exe == "PySOM-bc-int"))$min_ratio)),
-  Cmd("PySOMbcIntMaxX",
-        X2((results_int$stats$exe |> filter(exe == "PySOM-bc-int"))$max_ratio)),
-  
-  Cmd("TSOMastIntMinX",
-        X2((results_int$stats$exe |>
-              filter(exe == "TruffleSOM-ast-NativeCE-int-astvsbc"))$min_ratio)),
-  Cmd("TSOMastIntMaxX",
-        X2((results_int$stats$exe |>
-              filter(exe == "TruffleSOM-ast-NativeCE-int-astvsbc"))$max_ratio)),
-  Cmd("TSOMbcIntMinX",
-        X2((results_int$stats$exe |>
-              filter(exe == "TruffleSOM-bc-NativeCE-int-astvsbc"))$min_ratio)),
-  Cmd("TSOMbcIntMaxX",
-        X2((results_int$stats$exe |>
-              filter(exe == "TruffleSOM-bc-NativeCE-int-astvsbc"))$max_ratio))
+  CmdsMedianMinMaxRatioX("PySOMastInt", results_int$stats$exe |> filter(exe == "PySOM-ast-int")),
+  CmdsMedianMinMaxRatioX("PySOMbcInt",  results_int$stats$exe |> filter(exe == "PySOM-bc-int")),
+
+  CmdsMedianMinMaxRatioX("TSOMastInt", results_int$stats$exe |> filter(exe == "TruffleSOM-ast-NativeCE-int-astvsbc")),
+  CmdsMedianMinMaxRatioX("TSOMbcInt",  results_int$stats$exe |> filter(exe == "TruffleSOM-bc-NativeCE-int-astvsbc"))
 )
 
 # Numbers for part 5.2
@@ -370,64 +340,13 @@ min_row_jit = only_soms_jit[which.min(only_soms_jit$median_ratio),]
 max_row_jit = only_soms_jit[which.max(only_soms_jit$median_ratio),]
 
 macros = c(macros,
-  paste0("\\newcommand{\\SpeediestSOMjitMedianFirst}{",
-        X2(min_row_jit$median_ratio), "\\xspace}"),
-  paste0("\\newcommand{\\SpeediestSOMjitExeFirst}{",
-        X2(min_row_jit$exe), "\\xspace}"),
-  paste0("\\newcommand{\\SpeediestSOMjitMedianSecond}{",
-        X2(only_soms_jit[2,]$median_ratio), "\\xspace}"),
-  paste0("\\newcommand{\\SpeediestSOMjitExeSecond}{",
-        X2(only_soms_jit[2,]$exe), "\\xspace}"),
-  paste0("\\newcommand{\\SlowliestSOMjitMedianThird}{",
-        X2(only_soms_jit[3,]$median_ratio), "\\xspace}"),
-  paste0("\\newcommand{\\SlowliestSOMjitExeThird}{",
-        X2(only_soms_jit[3,]$exe), "\\xspace}"),
-  paste0("\\newcommand{\\SlowliestSOMjitMedianFourth}{",
-        X2(max_row_jit$median_ratio), "\\xspace}"),
-  paste0("\\newcommand{\\SlowliestSOMjitExeFourth}{",
-        X2(max_row_jit$exe), "\\xspace}"),
+  CmdsMedianMinMaxRatioX("NodeJit", results_peak$stats$exe |> filter(exe == "Node-jit")),
   
+  CmdsMedianMinMaxRatioX("PySOMastJit", results_peak$stats$exe |> filter(exe == "PySOM-ast-jit")),
+  CmdsMedianMinMaxRatioX("PySOMbcJit",  results_peak$stats$exe |> filter(exe == "PySOM-bc-jit")),
   
-  Cmd("NodeJitMedianX", X2((results_peak$stats$exe
-                             |> filter(exe == "Node-jit"))$median_ratio)),
-  Cmd("NodeJitMinX", X2((results_peak$stats$exe
-                            |> filter(exe == "Node-jit"))$min_ratio)),
-  Cmd("NodeJitMaxX", X2((results_peak$stats$exe
-                             |> filter(exe == "Node-jit"))$max_ratio)),
-  
-  Cmd("PySOMastJitMedianX", X2((results_peak$stats$exe
-                             |> filter(exe == "PySOM-ast-jit"))$median_ratio)),
-  Cmd("PySOMbcJitMedianX", X2((results_peak$stats$exe
-                            |> filter(exe == "PySOM-bc-jit"))$median_ratio)),
-  
-  Cmd("TSOMastJitMedianX",
-      X2((results_peak$stats$exe
-          |> filter(exe == "TruffleSOM-ast-HotspotCE-jit-main"))$median_ratio)),
-  Cmd("TSOMbcJitMedianX",
-      X2((results_peak$stats$exe |>
-            filter(exe == "TruffleSOM-bc-HotspotCE-jit-main"))$median_ratio)),
-  
-  Cmd("PySOMastJitMinX",
-        X2((results_peak$stats$exe |> filter(exe == "PySOM-ast-jit"))$min_ratio)),
-  Cmd("PySOMastJitMaxX",
-        X2((results_peak$stats$exe |> filter(exe == "PySOM-ast-jit"))$max_ratio)),
-  Cmd("PySOMbcJitMinX",
-        X2((results_peak$stats$exe |> filter(exe == "PySOM-bc-jit"))$min_ratio)),
-  Cmd("PySOMbcJitMaxX",
-        X2((results_peak$stats$exe |> filter(exe == "PySOM-bc-jit"))$max_ratio)),
-  
-  Cmd("TSOMastJitMinX",
-        X2((results_peak$stats$exe |>
-              filter(exe == "TruffleSOM-ast-HotspotCE-jit-main"))$min_ratio)),
-  Cmd("TSOMastJitMaxX",
-        X2((results_peak$stats$exe |>
-              filter(exe == "TruffleSOM-ast-HotspotCE-jit-main"))$max_ratio)),
-  Cmd("TSOMbcJitMinX",
-        X2((results_peak$stats$exe |>
-              filter(exe == "TruffleSOM-bc-HotspotCE-jit-main"))$min_ratio)),
-  Cmd("TSOMbcJitMaxX",
-        X2((results_peak$stats$exe |>
-              filter(exe == "TruffleSOM-bc-HotspotCE-jit-main"))$max_ratio))
+  CmdsMedianMinMaxRatioX("TSOMastJit", results_peak$stats$exe |> filter(exe == "TruffleSOM-ast-HotspotCE-jit-main")),
+  CmdsMedianMinMaxRatioX("TSOMbcJit",  results_peak$stats$exe |> filter(exe == "TruffleSOM-bc-HotspotCE-jit-main"))
 )
 
 writeLines(macros, tex.file)

@@ -20,6 +20,24 @@ CmdsMedianMinMaxX <- function(cmd_prefix, data) {
   )
 }
 
+CmdsMedianMinMaxRatioX <- function(cmd_prefix, data) {
+  median_cmd <- paste0(cmd_prefix, "MedianX")
+  min_cmd    <- paste0(cmd_prefix, "MinX")
+  max_cmd    <- paste0(cmd_prefix, "MaxX")
+  
+  c(
+    Cmd(median_cmd, X2(data$median_ratio)),
+    Cmd(min_cmd,    X2(data$min_ratio)),
+    Cmd(max_cmd,    X2(data$max_ratio)),
+    
+    Cmd(paste0(cmd_prefix, "MMMX"),
+        paste0("\\", median_cmd,
+               " (min.\\ \\", min_cmd,
+               ", max.\\ \\", max_cmd, ")")),
+    ""
+  )
+}
+
 X2 <- function(num) {
   paste0(format(num, digits=2, nsmall = 2), "\\texttimes")
 }
