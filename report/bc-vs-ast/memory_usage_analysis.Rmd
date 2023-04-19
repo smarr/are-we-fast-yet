@@ -24,7 +24,12 @@ data_rss <- rbind(
   load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2597"),
   load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2615")) |>
   filter(criterion == "MaxRSS") |>
-      subset(select = -c(commitid, cmdline, expid, varvalue, cores, inputsize, iteration, criterion, envid))
+      subset(select = -c(commitid, expid, runid, trialid,
+                         cmdline, 
+                         varvalue, cores, inputsize, extraargs, warmup,
+                         iteration, criterion,
+                         suite,
+                         envid))
 
 get_data_program_representation <- function(data) {
   data_repr_tsom <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% filter(criterion == "Allocated")
