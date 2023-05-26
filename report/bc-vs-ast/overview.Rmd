@@ -60,10 +60,13 @@ data <- rbind(
   load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2897") # JDK20
 )
 
-interp_exes <- c("PySOM-bc-int", "Node-int", "PySOM-ast-int", "PyPy-int", "Java8-int", "Java-int", "TruffleSOM-bc-NativeCE-int-astvsbc", "TruffleSOM-ast-NativeCE-int-astvsbc", "Java20-int")
-data <- rbind(data %>% filter(!(exe %in% interp_exes)), 
-              load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2893") # interp data
-)
+interp_exes <- c("PySOM-bc-int", "Node-int", "PySOM-ast-int", "PyPy-int", "Java-int", "TruffleSOM-bc-NativeCE-int-astvsbc", "TruffleSOM-ast-NativeCE-int-astvsbc")
+interp_data <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2987")
+interp_data$exe <- as.character(interp_data$exe)
+interp_data$exe[interp_data$exe=="TruffleSOM-ast-NativeCE-int"]<-"TruffleSOM-ast-NativeCE-int-astvsbc" # to make it fit the old data
+interp_data$exe[interp_data$exe=="TruffleSOM-bc-NativeCE-int"]<-"TruffleSOM-bc-NativeCE-int-astvsbc"
+
+data <- rbind(data %>% filter(!(exe %in% interp_exes)), interp_data)
 
 # ragg_png = function(..., res = 192) {
 #   ragg::agg_png(..., res = res, units = "in")
@@ -300,7 +303,6 @@ lol <- results_int$stats$bench
 plot <- overview_box_plot(results_int$stats$bench,
                   c("PySOM-ast-int", "PySOM-bc-int",
                     "TruffleSOM-ast-NativeCE-int-astvsbc", "TruffleSOM-bc-NativeCE-int-astvsbc",
-                    "TruffleSOM-native-interp-bc-supernodes",
                     "Java20-int", "Node-int"),
                   x_breaks = c(0.3, 0.5, 0.75, 1, 1.33333, 2, 3, 5, 10),
                   x_lab = "lower is better")
