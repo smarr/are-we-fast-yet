@@ -153,30 +153,21 @@ load_data_for_experiment <- function(experiment_ref, optim_name, project_name) {
   load_data_url(paste0("https://rebench.stefan-marr.de/", project_name, "/data/", experiment_ref)) %>% mutate(optim = optim_name)
 }
 
-all_data_not_final <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2945")
-all_data_not_final$exe <- as.character(all_data_not_final$exe) # otherwise it complained about a factor in the exes which 
-
-#""deprecated"", this function should - and will - be removed in time 
-get_data_for <- function(name) {
-  mdr <- all_data_not_final %>% filter(startsWith(exe, name))
-  mdr$optim <- sub("^.*-no-(.*)$", "no-\\1", mdr$exe) # the "exe" column has the optim in the names this time... so we get them from that
-  mdr$exe <- sub("^(.*)-no-.*$", "\\1", mdr$exe) # and we rename them to just their real executable names, e.g., "TruffleSOM-ast-int" instead of ""TruffleSOM-ast-int-no-random-optim"
-  mdr$optim[mdr$optim == mdr$exe] <- "all optimizations" # if no modifs were done, it's the default case
-  mdr
-}
-
-get_and_format_new_data <- function(data_url) {
-  data <- load_data_url(data_url)
+get_and_format_new_data <- function(data) {
   data$optim <- sub("^.*-no-(.*)$", "no-\\1", data$exe)
   data$exe <- sub("^(.*)-no-.*$", "\\1", data$exe)
   data$optim[data$optim == data$exe] <- "all optimizations" 
   data
 }
 
-data_optim_tsom_ast <- get_and_format_new_data("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2957")
-data_optim_tsom_bc <- get_and_format_new_data("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2980")
-data_optim_pysom_ast <- get_data_for("PySOM-ast")# get_pysom_ast_data()
-data_optim_pysom_bc <- get_data_for("PySOM-bc") #get_pysom_bc_data()
+data_optim_tsom_ast <- get_and_format_new_data(load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2957"))
+data_optim_tsom_bc <- get_and_format_new_data(load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2980"))
+
+pysom_ast_data <- rbind(load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2989"),
+                        load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2991"), # global caching experiments for int
+                        load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2993")) # global caching for JIT. they had been omitted
+data_optim_pysom_ast <- get_and_format_new_data(pysom_ast_data)
+data_optim_pysom_bc <- get_and_format_new_data(load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2994"))
 
 all_optims <- rbind(data_optim_tsom_ast, data_optim_tsom_bc, data_optim_pysom_ast, data_optim_pysom_bc)
 unique_optims <- unique(all_optims$optim)
@@ -197,7 +188,7 @@ plot
 
 ### PySOM - AST interp
 
-```{r optim-pysom-ast-int, fig.width=8, fig.height=2.2, echo=FALSE, eval=FALSE}
+```{r optim-pysom-ast-int, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_ast, "PySOM-ast-int")
 
 plot <- box_plot_optim(box_plot_data)
@@ -217,7 +208,7 @@ plot
 
 ### PySOM - AST JIT
 
-```{r optim-pysom-ast-jit, fig.width=8, fig.height=2.2, echo=FALSE, eval=FALSE}
+```{r optim-pysom-ast-jit, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_ast, "PySOM-ast-jit")
 
 plot <- box_plot_optim(box_plot_data)
@@ -239,7 +230,7 @@ plot
 
 ### PySOM - BC interp
 
-```{r optim-pysom-bc-interp, fig.width=8, fig.height=2.2, echo=FALSE, eval=FALSE}
+```{r optim-pysom-bc-interp, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_bc, "PySOM-bc-int")
 
 plot <- box_plot_optim(box_plot_data)
@@ -259,7 +250,7 @@ plot
 
 ### PySOM - BC JIT
 
-```{r optim-pysom-bc-jit, fig.width=8, fig.height=2.2, echo=FALSE, eval=FALSE}
+```{r optim-pysom-bc-jit, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_bc, "PySOM-bc-jit")
 
 plot <- box_plot_optim(box_plot_data)
