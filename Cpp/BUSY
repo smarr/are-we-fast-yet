@@ -1,0 +1,37 @@
+let config : Config {
+    if (target_toolchain == `gcc) || (target_toolchain == `clang) {
+        .lib_names += [ "m" "stdc++" ]
+        .ldflags += "-shared-libgcc"
+    }
+    .include_dirs += .
+}
+
+let awfy ! : Executable {
+    .sources += [
+        ./main.cpp
+        ./som/Interfaces.h
+        ./som/Vector.h
+        ./som/Set.h
+        ./som/Dictionary.h
+        ./som/Random.cpp
+        ./Benchmark.h
+        ./Run.cpp
+        ./Bounce.cpp
+        ./List.cpp
+        ./Mandelbrot.cpp
+        ./Permute.cpp
+        ./Queens.cpp
+        ./Sieve.cpp
+        ./Storage.cpp
+        ./Towers.cpp
+        ./NBody.cpp
+        ./Object.h
+        ./Richards.cpp
+        ./Json.cpp
+        ./CD.cpp
+        ./RedBlackTree.h
+        ./Havlak.cpp
+        ./DeltaBlue.cpp
+    ]
+    .configs += config
+}
