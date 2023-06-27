@@ -499,7 +499,8 @@ public:
     //
 public:
     bool addPropagate(AbstractConstraint* c, int mark) {
-        Vector<AbstractConstraint*> todo = Vector<AbstractConstraint*>::with(c);
+        Vector<AbstractConstraint*> todo;
+        todo.append(c);
 
         while (!todo.isEmpty()) {
             AbstractConstraint* d = todo.removeFirst();
@@ -544,7 +545,8 @@ protected:
         out->setWalkStrength(Strength::absoluteWeakest());
         out->setStay(true);
 
-        Vector<Variable*> todo = Vector<Variable*>::with(out);
+        Vector<Variable*> todo;
+        todo.append(out);
 
         while (!todo.isEmpty()) {
             Variable* v = todo.removeFirst();
@@ -1002,7 +1004,8 @@ void Planner::change(Variable *var, int newValue)
 {
     EditConstraint* editC = new EditConstraint(var, Strength::PREFERRED, this);
 
-    Vector<AbstractConstraint*> editV = Vector<AbstractConstraint*>::with(editC);
+    Vector<AbstractConstraint*> editV;
+    editV.append(editC);
     Plan* plan = extractPlanFromConstraints(editV);
     for (int i = 0; i < 10; i++) {
         var->setValue(newValue);
@@ -1032,7 +1035,8 @@ void Planner::chainTest(int n)
     AbstractConstraint* editC = new EditConstraint(vars.at(0), Strength::PREFERRED, planner);
     toDelete.append( editC );
 
-    Vector<AbstractConstraint*> editV = Vector<AbstractConstraint*>::with(editC);
+    Vector<AbstractConstraint*> editV;
+    editV.append(editC);
     Plan* plan = planner->extractPlanFromConstraints(editV);
     for (int i = 0; i < 100; i++) {
         vars.at(0)->setValue(i);

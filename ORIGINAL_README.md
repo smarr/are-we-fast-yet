@@ -29,9 +29,9 @@ as well as the absolute performance achieved, we set the following basic rules:
      This means, they should be realized as much as possible with idiomatic
      code in each language, while relying only on the core set of abstractions.
 
-For the detailed set of rules see [the guidelines](docs/guidelines.md) document.
+For the detailed set of rules see [the guidelines](https://github.com/smarr/are-we-fast-yet/tree/master/docs/guidelines.md) document.
 For a description of the set of common language abstractions see [the *core*
-language](docs/core-language.md) document.
+language](https://github.com/smarr/are-we-fast-yet/tree/master/docs/core-language.md) document.
 
 The initial publication describing the project is [Cross-Language Compiler 
 Benchmarking: Are We Fast Yet?][3] and can be cited as follows:
@@ -60,13 +60,13 @@ different implementations after warmup, to ensure peak performance is reported:
 ![Peak Performance of Java, Node.js, JRuby, JRuby+Truffle, MRI, and SOMns,
 last update 2016-06-20](docs/figures/all-langs-overview-1.png?raw=true)
 
-A detailed overview of the results is in [docs/performance.md](docs/performance.md).
+A detailed overview of the results is in [docs/performance.md](https://github.com/smarr/are-we-fast-yet/tree/master/docs/performance.md).
 
 For a performance comparison over time, see the [timeline view on awfy-speed.stefan-marr.de](http://awfy-speed.stefan-marr.de/timeline/).
 The runs are managed at [smarr/awfy-runs](https://github.com/smarr/awfy-runs).
 
 The benchmarks are listed below. A detailed analysis including metrics for the
-benchmarks is in [docs/metrics.md](docs/metrics.md).
+benchmarks is in [docs/metrics.md](https://github.com/smarr/are-we-fast-yet/tree/master/docs/metrics.md).
 
 #### Macro Benchmarks
 
@@ -121,8 +121,8 @@ contributions of benchmark ports to new languages. We would also be interested
 in new benchmarks that are in the range of 300 to 1000 lines of code.
 
 When porting to a new language, please carefully consider [the
-guidelines](docs/guidelines.md) and description of [the *core*
-language](docs/core-language.md) to ensure that we can compare results.
+guidelines](https://github.com/smarr/are-we-fast-yet/tree/master/docs/guidelines.md) and description of [the *core*
+language](https://github.com/smarr/are-we-fast-yet/tree/master/docs/core-language.md) to ensure that we can compare results.
 
 A list of languages we would definitely be interested in is on the [issues
 tracker](https://github.com/smarr/are-we-fast-yet/issues?q=is%3Aissue+is%3Aopen+label%3A%22contribution+request%22).
@@ -182,7 +182,7 @@ are expected to be already available on the benchmark machine:
  - [Node.js](https://nodejs.org/en/download/)
  - [Ruby](https://www.ruby-lang.org/en/documentation/installation/)
  - GraalVM, expected to be available in `implementations/graalvm`.
-   Please see [implementations/graalvm/README.md](implementations/graalvm/README.md)
+   Please see [implementations/graalvm/README.md](https://github.com/smarr/are-we-fast-yet/implementations/graalvm/README.md)
    for details.
 
 This repository uses git submodules for some languages implementations. To

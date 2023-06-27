@@ -86,12 +86,6 @@ public:
         return *this;
     }
 
-    static Vector<E> with(const E& elem) {
-        Vector<E> v = Vector<E>(1);
-        v.append(elem);
-        return v;
-    }
-
     void expand(int newLength)
     {
         if( newLength <= length )

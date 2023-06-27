@@ -34,6 +34,7 @@ int Queens::benchmark()
 
 bool Queens::queens()
 {
+    // stack allocation would save 2us of 165us, and further deviate from the original code.
     freeRows  = new bool[8];
     freeMaxs  = new bool[16];
     freeMins  = new bool[16];

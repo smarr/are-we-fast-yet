@@ -172,14 +172,14 @@ public:
         double e = 0.0;
 
         for (int i = 0; i < Count; ++i) {
-            Body iBody = bodies[i];
+            const Body& iBody = bodies[i];
             e += 0.5 * iBody.getMass()
                     * (iBody.getVX() * iBody.getVX() +
                        iBody.getVY() * iBody.getVY() +
                        iBody.getVZ() * iBody.getVZ());
 
             for (int j = i + 1; j < Count; ++j) {
-                Body jBody = bodies[j];
+                const Body& jBody = bodies[j];
                 const double dx = iBody.getX() - jBody.getX();
                 const double dy = iBody.getY() - jBody.getY();
                 const double dz = iBody.getZ() - jBody.getZ();
