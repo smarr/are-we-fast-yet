@@ -1,4 +1,4 @@
-# Impact of individual optimisations (ONLY NEW, FINAL DATA SHOWN)
+# Impact of individual optimisations
 
 ## AST
 
@@ -184,12 +184,28 @@ get_and_format_new_data <- function(data) {
   data
 }
 
-data_optim_tsom_ast <- get_and_format_new_data(load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2957"))
-data_optim_tsom_bc <- get_and_format_new_data(load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2980"))
+#a <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2957")
+#b <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2980") # WRONG
+#c <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2989") # WRONG
+#d <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2991")
+#e <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2993")
 
-pysom_ast_data <- rbind(load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2989"),
-                        load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2991"), # global caching experiments for int
-                        load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2993")) # global caching for JIT. they had been omitted
+data_optim_tsom_ast <- get_and_format_new_data(load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2957"))
+
+tsom_bc_jit_half <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3068")
+tsom_bc_jit_other_half <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3074")
+tsom_bc_interps <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3083")
+data_optim_tsom_bc <- get_and_format_new_data(rbind(tsom_bc_jit_half, tsom_bc_jit_other_half, tsom_bc_interps))
+
+pysom_ast_interps <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3080")
+pysom_ast_jit <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3081")
+pysom_ast_global_caching <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3082")
+pysom_ast_data <- rbind(pysom_ast_interps, pysom_ast_jit, pysom_ast_global_caching)
+
+#pysom_ast_data <- rbind(load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2989"),
+#                        load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2991"), # global caching experiments for int
+#                        load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2993")) # global caching for JIT. they had been omitted
+
 data_optim_pysom_ast <- get_and_format_new_data(pysom_ast_data)
 data_optim_pysom_bc <- get_and_format_new_data(load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2994"))
 
