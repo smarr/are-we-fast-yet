@@ -215,20 +215,54 @@ benchmarks.
 
 ## Academic Work using this benchmark suite
 
+- [Collecting Cyclic Garbage across Foreign Function Interfaces: Who Takes the Last Piece of Cake?][19]  
+  T. Yamazaki, T. Nakamaru, R. Shioya, T. Ugawa, S. Chiba.
+  Proceedings of the ACM on Programming Languages, PLDI 2023.
+
+- [Simple Object Machine Implementation in a Functional Programming Language][20]  
+  Filip Říha. Bachelor's Thesis, CTU Prague, 2023.
+  
+- [Supporting multi-scope and multi-level compilation in a
+   meta-tracing just-in-time compiler][23]  
+  Y. Izawa. PhD Dissertation. Tokyo Institute of Technology, 2023.
+
+- [Optimizing the Order of Bytecode Handlers in Interpreters using a Genetic Algorithm][25]  
+  W. Huang, S. Marr, T. Ugawa.
+  The 38th ACM/SIGAPP Symposium on Applied Computing, SAC 2023.
+
+- [Who You Gonna Call: Analyzing the Run-time Call-Site Behavior of Ruby Applications][21]  
+  S. Kaleba, O. Larose, R. Jones, S. Marr.
+  Proceedings of the 18th Symposium on Dynamic Languages, DLS 2022.
+
 - [Generating Virtual Machine Code of JavaScript Engine for Embedded Systems][18]  
   Y. Hirasawa, H. Iwasaki, T. Ugawa, H. Onozawa. Journal of Information Processing. 2022.
+  
+- [Profile Guided Offline Optimization of Hidden Class Graphs for JavaScript VMs in Embedded Systems][24]  
+  T. Ugawa, S. Marr, R. Jones.
+  Proceedings of the 14th ACM SIGPLAN International Workshop on Virtual Machines and Intermediate Languages, VMIL 2022.
+
+- [Implementation Strategies for Mutable Value Semantics][27]  
+  D. Racordon, D. Shabalin, D. Zheng, D. Abrahams, B. Saeta.
+  Journal of Object Technology, 2022.
+
+- [Fusuma: Double-Ended Threaded Compaction][22]  
+  H. Onozawa, T. Ugawa, H. Iwasaki. 
+  Proceedings of the 2021 ACM SIGPLAN International Symposium on Memory Management, ISMM 2021.
 
 - [A Surprisingly Simple Lua Compiler – Extended Version][17]  
   H. M. Gualandi, R. Ierusalimschy. Journal of Computer Languages. 2021.
 
 - [Contextual Dispatch for Function Specialization][16]  
-  O. Flückiger, G. Chari, M. Yee, J. Ječmen, J. Hain, J. Vitek. Proceedings of the ACM on Programming Languages, OOPSLA, 2020.
+  O. Flückiger, G. Chari, M. Yee, J. Ječmen, J. Hain, J. Vitek. Proceedings of the ACM on Programming Languages, OOPSLA 2020.
 
 - [GraalSqueak: Toward a Smalltalk-based Tooling Platform for Polyglot Programming][15]  
-  F. Niephaus, T. Felgentreff, R. Hirschfeld. Proceedings of 16th International Conference on Managed Programming Languages & Runtimes, MPLR'19. 2019.
+  F. Niephaus, T. Felgentreff, R. Hirschfeld. Proceedings of 16th International Conference on Managed Programming Languages & Runtimes, MPLR 2019.
+  
+- [Scopes and Frames Improve Meta-Interpreter Specialization][26]  
+  V. Vergu, A. Tolmach, E. Visser. 33rd European Conference on Object-Oriented Programming, ECOOP 2019.
 
 - [Self-Contained Development Environments][14]  
-  G. Chari, J. Pimás, J. Vitek, O. Flückiger. Proceedings of the 14th ACM SIGPLAN International Symposium on Dynamic Languages. 2018.
+  G. Chari, J. Pimás, J. Vitek, O. Flückiger. Proceedings of the 14th ACM SIGPLAN International Symposium on Dynamic Languages. DLS 2018.
   
 - [Interflow: Interprocedural Flow-Sensitive TypeInference and Method Duplication][13]  
   D. Shabalin, M. Odersky. Proceedings of the 9th ACM SIGPLAN International Symposium on Scala 2018.
@@ -241,11 +275,11 @@ benchmarks.
 
 - [Parallelization of Dynamic Languages: Synchronizing Built-in Collections][10]  
   B. Daloze, A. Tal, S. Marr, H. Mössenböck, E. Petrank 
-  Proceedings of the ACM on Programming Languages, OOPSLA'18, p. 27, 2018
+  Proceedings of the ACM on Programming Languages, OOPSLA 2018
 
 - [Efficient and Deterministic Record & Replay for Actor Languages][9]  
   D. Aumayr, S. Marr, C. Béra, E. Gonzalez Boix, H. Mössenböck 
-  Proceedings of the 15th International Conference on Managed Languages and Runtimes, ManLang'18, ACM, 2018. 
+  Proceedings of the 15th International Conference on Managed Languages and Runtimes, ManLang 2018. 
 
 - [Fully Reflective Execution Environments: Virtual Machines for More Flexible Software][8]  
   G. Chari, D. Garbervetsky, S. Marr, S. Ducasse 
@@ -253,15 +287,15 @@ benchmarks.
 
 - [Garbage Collection and Efficiency in Dynamic Metacircular Runtimes][7]  
   J. Pimás, J. Burroni, J., B. Arnaud, S. Marr 
-  Proceedings of the 13th ACM SIGPLAN International Symposium on Dynamic Languages, DLS'17, ACM, 2017.
+  Proceedings of the 13th ACM SIGPLAN International Symposium on Dynamic Languages, DLS 2017.
 
 - [Applying Optimizations for Dynamically-typed Languages to Java][6]  
   M. Grimmer, S. Marr, M. Kahlhofer, C. Wimmer, T. Würthinger, H. Mössenböck 
-  Proceedings of the 14th International Conference on Managed Languages and Runtimes, ManLang'17, ACM, 2017.
+  Proceedings of the 14th International Conference on Managed Languages and Runtimes, ManLang 2017.
 
 - [Efficient and Thread-Safe Objects for Dynamically-Typed Languages][5]  
   B. Daloze, S. Marr, D. Bonetta, Hanspeter Mössenböck
-  In Proceedings of the 2016 ACM SIGPLAN International Conference on Object-Oriented Programming, Systems, Languages, and Applications (OOPSLA '16). ACM.
+  In Proceedings of the 2016 ACM SIGPLAN International Conference on Object-Oriented Programming, Systems, Languages, and Applications, OOPSLA 2016.
 
 
 
@@ -283,6 +317,15 @@ benchmarks.
  [16]: http://janvitek.org/pubs/oopsla20-cd.pdf
  [17]: http://www.inf.puc-rio.br/~hgualandi/papers/Gualandi-2022-SCP.pdf
  [18]: https://www.jstage.jst.go.jp/article/ipsjjip/30/0/30_679/_pdf
+ [19]: https://dl.acm.org/doi/abs/10.1145/3591244
+ [20]: https://dspace.cvut.cz/bitstream/handle/10467/109352/F8-BP-2023-Riha-Filip-thesis.pdf
+ [21]: https://stefan-marr.de/downloads/dls22-kaleba-et-al-analyzing-the-run-time-call-site-behavior-of-ruby-applications.pdf
+ [22]: https://dl.acm.org/doi/10.1145/3459898.3463903
+ [23]: https://prg.is.titech.ac.jp/wp-content/uploads/2023/03/izawa-phd-dissertation.pdf
+ [24]: https://stefan-marr.de/downloads/vmil22-ugawa-et-al-profile-guided-offline-optimization-of-hidden-class-graphs.pdf
+ [25]: https://stefan-marr.de/downloads/acmsac23-huang-et-al-optimizing-the-order-of-bytecode-handlers-in-interpreters-using-a-genetic-algorithm.pdf
+ [26]: https://drops.dagstuhl.de/opus/volltexte/2019/10796/pdf/LIPIcs-ECOOP-2019-4.pdf
+ [27]: http://www.jot.fm/issues/issue_2022_02/article2.pdf
 
  [CD]:        https://www.cs.purdue.edu/sss/projects/cdx/
  [CDjs]:      https://github.com/WebKit/webkit/tree/master/PerformanceTests/JetStream/cdjs
