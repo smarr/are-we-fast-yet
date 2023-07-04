@@ -247,22 +247,22 @@ benchmarks.
 
 - [Fusuma: Double-Ended Threaded Compaction][22]  
   H. Onozawa, T. Ugawa, H. Iwasaki. 
-  Proceedings of the 2021 ACM SIGPLAN International Symposium on Memory Management, ISMM 2021
+  Proceedings of the 2021 ACM SIGPLAN International Symposium on Memory Management, ISMM 2021.
 
 - [A Surprisingly Simple Lua Compiler – Extended Version][17]  
   H. M. Gualandi, R. Ierusalimschy. Journal of Computer Languages. 2021.
 
 - [Contextual Dispatch for Function Specialization][16]  
-  O. Flückiger, G. Chari, M. Yee, J. Ječmen, J. Hain, J. Vitek. Proceedings of the ACM on Programming Languages, OOPSLA, 2020.
+  O. Flückiger, G. Chari, M. Yee, J. Ječmen, J. Hain, J. Vitek. Proceedings of the ACM on Programming Languages, OOPSLA 2020.
 
 - [GraalSqueak: Toward a Smalltalk-based Tooling Platform for Polyglot Programming][15]  
-  F. Niephaus, T. Felgentreff, R. Hirschfeld. Proceedings of 16th International Conference on Managed Programming Languages & Runtimes, MPLR'19. 2019.
+  F. Niephaus, T. Felgentreff, R. Hirschfeld. Proceedings of 16th International Conference on Managed Programming Languages & Runtimes, MPLR 2019.
   
 - [Scopes and Frames Improve Meta-Interpreter Specialization][26]  
   V. Vergu, A. Tolmach, E. Visser. 33rd European Conference on Object-Oriented Programming, ECOOP 2019.
 
 - [Self-Contained Development Environments][14]  
-  G. Chari, J. Pimás, J. Vitek, O. Flückiger. Proceedings of the 14th ACM SIGPLAN International Symposium on Dynamic Languages. 2018.
+  G. Chari, J. Pimás, J. Vitek, O. Flückiger. Proceedings of the 14th ACM SIGPLAN International Symposium on Dynamic Languages. DLS 2018.
   
 - [Interflow: Interprocedural Flow-Sensitive TypeInference and Method Duplication][13]  
   D. Shabalin, M. Odersky. Proceedings of the 9th ACM SIGPLAN International Symposium on Scala 2018.
@@ -275,11 +275,11 @@ benchmarks.
 
 - [Parallelization of Dynamic Languages: Synchronizing Built-in Collections][10]  
   B. Daloze, A. Tal, S. Marr, H. Mössenböck, E. Petrank 
-  Proceedings of the ACM on Programming Languages, OOPSLA'18, p. 27, 2018
+  Proceedings of the ACM on Programming Languages, OOPSLA 2018
 
 - [Efficient and Deterministic Record & Replay for Actor Languages][9]  
   D. Aumayr, S. Marr, C. Béra, E. Gonzalez Boix, H. Mössenböck 
-  Proceedings of the 15th International Conference on Managed Languages and Runtimes, ManLang'18, ACM, 2018. 
+  Proceedings of the 15th International Conference on Managed Languages and Runtimes, ManLang 2018. 
 
 - [Fully Reflective Execution Environments: Virtual Machines for More Flexible Software][8]  
   G. Chari, D. Garbervetsky, S. Marr, S. Ducasse 
@@ -287,15 +287,15 @@ benchmarks.
 
 - [Garbage Collection and Efficiency in Dynamic Metacircular Runtimes][7]  
   J. Pimás, J. Burroni, J., B. Arnaud, S. Marr 
-  Proceedings of the 13th ACM SIGPLAN International Symposium on Dynamic Languages, DLS'17, ACM, 2017.
+  Proceedings of the 13th ACM SIGPLAN International Symposium on Dynamic Languages, DLS 2017.
 
 - [Applying Optimizations for Dynamically-typed Languages to Java][6]  
   M. Grimmer, S. Marr, M. Kahlhofer, C. Wimmer, T. Würthinger, H. Mössenböck 
-  Proceedings of the 14th International Conference on Managed Languages and Runtimes, ManLang'17, ACM, 2017.
+  Proceedings of the 14th International Conference on Managed Languages and Runtimes, ManLang 2017.
 
 - [Efficient and Thread-Safe Objects for Dynamically-Typed Languages][5]  
   B. Daloze, S. Marr, D. Bonetta, Hanspeter Mössenböck
-  In Proceedings of the 2016 ACM SIGPLAN International Conference on Object-Oriented Programming, Systems, Languages, and Applications (OOPSLA '16). ACM.
+  In Proceedings of the 2016 ACM SIGPLAN International Conference on Object-Oriented Programming, Systems, Languages, and Applications, OOPSLA 2016.
 
 
 
