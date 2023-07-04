@@ -241,6 +241,10 @@ benchmarks.
   T. Ugawa, S. Marr, R. Jones.
   Proceedings of the 14th ACM SIGPLAN International Workshop on Virtual Machines and Intermediate Languages, VMIL 2022.
 
+- [Implementation Strategies for Mutable Value Semantics][27]  
+  D. Racordon, D. Shabalin, D. Zheng, D. Abrahams, B. Saeta.
+  Journal of Object Technology, 2022.
+
 - [Fusuma: Double-Ended Threaded Compaction][22]  
   H. Onozawa, T. Ugawa, H. Iwasaki. 
   Proceedings of the 2021 ACM SIGPLAN International Symposium on Memory Management, ISMM 2021
@@ -321,6 +325,7 @@ benchmarks.
  [24]: https://stefan-marr.de/downloads/vmil22-ugawa-et-al-profile-guided-offline-optimization-of-hidden-class-graphs.pdf
  [25]: https://stefan-marr.de/downloads/acmsac23-huang-et-al-optimizing-the-order-of-bytecode-handlers-in-interpreters-using-a-genetic-algorithm.pdf
  [26]: https://drops.dagstuhl.de/opus/volltexte/2019/10796/pdf/LIPIcs-ECOOP-2019-4.pdf
+ [27]: http://www.jot.fm/issues/issue_2022_02/article2.pdf
 
  [CD]:        https://www.cs.purdue.edu/sss/projects/cdx/
  [CDjs]:      https://github.com/WebKit/webkit/tree/master/PerformanceTests/JetStream/cdjs
