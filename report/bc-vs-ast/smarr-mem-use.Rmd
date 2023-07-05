@@ -92,31 +92,3 @@ tabular(
   language ~ (files + blank + comment + code) * id,
   data=code_stats)
 ```
-
-
-## Write to text file
-
-```{r write-file}
-tex.file <- file("../../../paper/gen/program-rep.tex")
-
-macros = c(
-  Cmd("progRepAstOverheadPySomWOExecX",
-         X2((norm |> filter(exe == "PySOM AST", bench == "TestGC"))$ratio)),
-  Cmd("progRepAstOverheadPySomWithExecX",
-         X2((norm |> filter(exe == "PySOM AST", bench == "Test"))$ratio)),
-  Cmd("progRepAstOverheadTrSomWOExecX",
-         X2((norm |> filter(exe == "TrSOM AST", bench == "TestGC"))$ratio)),
-  Cmd("progRepAstOverheadTrSomWithExecX",
-         X2((norm |> filter(exe == "TrSOM AST", bench == "Test"))$ratio)),
-  
-  Cmd("progRepNumFiles",
-         WithT((code_stats |> filter(language == "Smalltalk"))$files)),
-  Cmd("progRepNumLOC",
-         WithT((code_stats |> filter(language == "Smalltalk"))$code))
-)
-
-writeLines(macros, tex.file)
-close(tex.file)
-```
-
-
