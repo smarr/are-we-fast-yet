@@ -37,7 +37,7 @@ load_rebench_data_file <- function(file) {
            comment.char = "#",
            col.names = c("invocation", "iteration", "value", "unit",
                          "criterion", "bench", "exe", "suite", "extraargs",
-                         "cores", "inputsize", "varvalue", "machine"))
+                         "cores", "inputsize", "varvalue", "machine", "cmdline", "commitid", "trialid", "warmup"))
 }
 
 factorize_result <- function(result) {

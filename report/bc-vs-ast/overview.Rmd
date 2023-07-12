@@ -6,22 +6,25 @@ This report was generated on `r Sys.time()`.
 # load libraries, the data, and prepare it
 source("scripts/libraries.R", chdir=TRUE)
 
-jit_data <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3048")
-jit_data$exe <- as.character(jit_data$exe)
-jit_data$exe[jit_data$exe=="TruffleSOM-ast-HotspotCE-jit"] <- "TruffleSOM-ast-HotspotCE-jit-main" # to make it fit the old data
-jit_data$exe[jit_data$exe=="TruffleSOM-bc-HotspotCE-jit"] <- "TruffleSOM-bc-HotspotCE-jit-main"
+#jit_data <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3048")
+#jit_data$exe <- as.character(jit_data$exe)
+#jit_data$exe[jit_data$exe=="TruffleSOM-ast-HotspotCE-jit"] <- "TruffleSOM-ast-HotspotCE-jit-main" # to make it fit the old data
+#jit_data$exe[jit_data$exe=="TruffleSOM-bc-HotspotCE-jit"] <- "TruffleSOM-bc-HotspotCE-jit-main"
 
 
-interp_exes <- c("PySOM-bc-int", "Node-int", "PySOM-ast-int", "PyPy-int", "Java-int", "TruffleSOM-bc-NativeCE-int-astvsbc", "TruffleSOM-ast-NativeCE-int-astvsbc")
-interp_data <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2987")
-interp_data$exe <- as.character(interp_data$exe)
-interp_data$exe[interp_data$exe=="TruffleSOM-ast-NativeCE-int"] <- "TruffleSOM-ast-NativeCE-int-astvsbc" # to make it fit the old data
-interp_data$exe[interp_data$exe=="TruffleSOM-bc-NativeCE-int"] <- "TruffleSOM-bc-NativeCE-int-astvsbc"
+#interp_exes <- c("PySOM-bc-int", "Node-int", "PySOM-ast-int", "PyPy-int", "Java-int", "TruffleSOM-bc-NativeCE-int-astvsbc", "TruffleSOM-ast-NativeCE-int-astvsbc")
+#interp_data <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2987")
+#interp_data$exe <- as.character(interp_data$exe)
+#interp_data$exe[interp_data$exe=="TruffleSOM-ast-NativeCE-int"] <- "TruffleSOM-ast-NativeCE-int-astvsbc" # to make it fit the old data
+#interp_data$exe[interp_data$exe=="TruffleSOM-bc-NativeCE-int"] <- "TruffleSOM-bc-NativeCE-int-astvsbc"
 
-data <- rbind(jit_data, interp_data)
+#data <- rbind(jit_data, interp_data)
+data <- load_rebench_data_file("../../../benchmark.data")
 
-# old
-#data <- rbind(data %>% filter(!(exe %in% interp_exes)), interp_data)
+data$exe <- ifelse(data$exe == "TruffleSOM-ast-HotspotCE-jit", "TruffleSOM-ast-HotspotCE-jit-main", data$exe)
+data$exe <- ifelse(data$exe == "TruffleSOM-bc-HotspotCE-jit", "TruffleSOM-bc-HotspotCE-jit-main", data$exe)
+data$exe <- ifelse(data$exe == "TruffleSOM-ast-NativeCE-int", "TruffleSOM-ast-NativeCE-int-astvsbc", data$exe)
+data$exe <- ifelse(data$exe == "TruffleSOM-bc-NativeCE-int", "TruffleSOM-bc-NativeCE-int-astvsbc", data$exe)
 
 # ragg_png = function(..., res = 192) {
 #   ragg::agg_png(..., res = res, units = "in")
@@ -56,11 +59,6 @@ vms_int <- c(
  
   "PySOM-ast-int",
   "PySOM-bc-int", 
-  
-  "TruffleSOM-ast-NativeEE-int-main",
-  "TruffleSOM-ast-NativeEE-int-super", 
-  "TruffleSOM-ast-NativeEE-int-uber", 
-  "TruffleSOM-bc-NativeEE-int-main",
   
   "TruffleSOM-ast-NativeCE-int-astvsbc",
   "TruffleSOM-bc-NativeCE-int-astvsbc",
