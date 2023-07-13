@@ -1,12 +1,10 @@
-# Warmup Plots of the Data Set
+---
+title: "Section 5.4 Warmup Behavior"
+output: html_document
+---
 
-The following report shows all data, as warmup plots.
-It shows for each benchmark and VM the run time for each iteration.
-If the data set contains multiple invocations, they are shown on the same plot.
 
-Plots are sorted by benchmark, and then as second order concern the VM.
-
-```{r prepare-data, echo=FALSE, message=TRUE, warning=TRUE, dev='svg'}
+```{r prepare-data, echo=FALSE, message=FALSE, warning=FALSE, include=FALSE, dev='svg'}
 # load libraries, the data, and prepare it
 source("scripts/libraries.R", chdir=TRUE)
 data <- rbind(
@@ -77,7 +75,7 @@ warmup_plot <- function (data_ea, b, e) {
 }
 ```
 
-# Plots
+#### Sec. 5.4 Figure 4 TSOM Interpreter on GraalVM Native Image
 
 ```{r warmup-plot, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
 #for (b in sorted_benchmarks) { 
@@ -147,13 +145,18 @@ plot_graal <- get_warmup_plots(graal_data, "TruffleSOM-graal-ast", expression(No
 native_image_data <- all_data %>% filter(exe %in% c("TruffleSOM-native-ast", "TruffleSOM-native-bc"))
 plot_native <- get_warmup_plots(native_image_data, "TruffleSOM-native-ast", expression(Normalized~to~median(TSOM[AST]))) # "Java-C2-jit")
 
+
+# print(plot_all)
+# print(plot_graal)
+print(plot_native)
+```
+
+#### Sec. 5.4 Figure 5 PySOM Interpreter
+
+```{r warmup-plot-pysom, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
 # pysom_data <- rbind(all_data %>% filter(exe %in% c("RPySOM-ast-jit", "RPySOM-bc-jit")), data_java)
 pysom_data <- all_data %>% filter(exe %in% c("RPySOM-ast-jit", "RPySOM-bc-jit"))
 plot_pysom <- get_warmup_plots(pysom_data, "RPySOM-ast-jit", expression(Normalized~to~median(PySOM[AST]))) # "Java-C2-jit")
-
-print(plot_all)
-print(plot_graal)
-print(plot_native)
 print(plot_pysom)
 
 OUTPUT_WIDTH <- 5.5
