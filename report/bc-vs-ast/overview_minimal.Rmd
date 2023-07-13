@@ -1,0 +1,248 @@
+# Performance Results
+
+This report was generated on `r Sys.time()`.
+
+```{r load-scripts, echo=FALSE, include=FALSE}
+# load libraries, the data, and prepare it
+source("scripts/libraries.R", chdir=TRUE)
+
+data <- load_rebench_data_file("../../../benchmark.data")
+
+data$exe <- ifelse(data$exe == "TruffleSOM-ast-HotspotCE-jit", "TruffleSOM-ast-HotspotCE-jit-main", data$exe)
+data$exe <- ifelse(data$exe == "TruffleSOM-bc-HotspotCE-jit", "TruffleSOM-bc-HotspotCE-jit-main", data$exe)
+data$exe <- ifelse(data$exe == "TruffleSOM-ast-NativeCE-int", "TruffleSOM-ast-NativeCE-int-astvsbc", data$exe)
+data$exe <- ifelse(data$exe == "TruffleSOM-bc-NativeCE-int", "TruffleSOM-bc-NativeCE-int-astvsbc", data$exe)
+
+# ragg_png = function(..., res = 192) {
+#   ragg::agg_png(..., res = res, units = "in")
+# }
+opts_chunk$set(dev = 'png',
+               #fig.ext = 'png',
+               #dpi = 120,
+               fig.retina = 2,
+               dev.args=list(pointsize=10),
+               echo = FALSE,
+               fig.keep='all',
+               fig.path="figures/",
+               external=FALSE,
+               tidy=FALSE)
+#    cache=TRUE,
+
+# dput(levels(data$bench))
+vms_all <- names(vm_names)
+vms_int <- c(
+  "Java-int",
+  "Java20-int",
+  "Java8-int",
+  "Node-int",
+  "GraalJS-NativeEE-int",
+  
+  "CPython-int",
+  "GraalPython-NativeEE-int", 
+  "PyPy-int",
+  
+  "CRuby-int",
+  "TruffleRuby-NativeEE-int",
+ 
+  "PySOM-ast-int",
+  "PySOM-bc-int", 
+  
+  "TruffleSOM-ast-NativeCE-int-astvsbc",
+  "TruffleSOM-bc-NativeCE-int-astvsbc",
+  
+  "SOMpp-int",
+  "CSOM-int",
+  "SOM-RS-ast-int",
+  "SOM-RS-bc-int",
+  "ykSOM-int")
+
+warmup_jit_iteration <- 1
+baseline_vm_peak <- "Java20-C2-jit"
+baseline_vm_int <- "Java20-int"
+baseline_vm_first <- "Java20-C2-jit"
+
+results_peak <- data %>%
+  compute_all(
+    iteration >= warmup_jit_iteration | exe %in% vms_int,
+    baseline_vm_peak)
+
+results_int <- data %>%
+  compute_all(
+    exe %in% vms_int,
+    baseline_vm_int)
+
+plot_benchmarks_speedup_for_vms <- function(
+  vm_norm, vms, label = "Runtime Factor, normalized to Java\n(lower is better)") {
+  # vm_norm <- norm_peak
+  # vms <- vms_jit
+  
+  vm_norm <- vm_norm %>%
+    filter(exe %in% vms) %>%
+    droplevels()
+  suppressMessages(vm_norm$exe <- revalue(vm_norm$exe, vm_names) %>% droplevels())
+  # TODO: is norm_peak the right table? we don't have exe_ratio there yet
+  # vm_norm$exe <- reorder(vm_norm$exe, X=vm_norm$exe_ratio)
+
+  breaks <- levels(droplevels(vm_norm)$exe)
+  col_values <- sapply(breaks, function(x) color_set_vms[[x]])
+  
+  for (b in levels(vm_norm$bench)) {
+    # b <- "Bounce"
+    data_b <- droplevels(filter(vm_norm, bench == b))
+
+    p <- ggplot(data_b, aes(y = exe, x = ratio_median, fill = exe)) +
+      geom_vline(aes(xintercept=1), colour="#333333", linetype="solid") +
+      geom_boxplot(aes(color = exe, fill = exe),
+                    alpha=0.4,
+                   outlier.size = 0.9,
+                   outlier.alpha = 0.6,
+                   lwd=0.2) +
+      geom_jitter(aes(color = exe, y = exe), size=0.3, alpha=0.3) +
+      scale_x_log10() +
+      scale_y_discrete(limits = rev) +
+      scale_color_manual(values = color_set_vms) +
+      scale_fill_manual(values = color_set_vms) +
+      theme_simple() + # scale_fill_manual(values=col) +
+      theme(legend.position="none",
+            axis.title.x = element_text(
+              size = theme_simple_font_size(),
+              margin = margin(t = 0.1, unit = "cm"))) +
+      ggtitle(b) +
+      ylab(NULL) +
+      xlab(label) 
+      
+    tryCatch({print(p)})
+  }
+}
+
+overview_box_plot <- function(stats, vms = NULL, prepare_data = NULL, pre_plot = NULL, new_colors = FALSE, x_breaks = waiver(), x_lab = NULL, y_lab = NULL) {
+  # stats <- stats_latest
+  # vms <- c("Node", "Pharo", "JavaInt", 
+  #          "Lua53", "LuaJIT2", "SOMns-Enterprise")
+
+  if (is.null(vms)) {
+    vm_stats <- stats
+  } else {
+    vm_stats <- stats %>%
+      filter(exe %in% vms) %>%
+      droplevels()
+  }
+
+  if (!is.null(prepare_data)) {
+   vm_stats <- vm_stats %>%
+     prepare_data() %>%
+     droplevels()
+  }
+
+  suppressMessages(vm_stats$exe <- revalue(vm_stats$exe, vm_names))
+  breaks <- levels(vm_stats$exe)
+
+  # if (new_colors) {
+  #   col_values <- brewer.pal(length(breaks), "Paired")
+  # } else {
+  #   col_values <- sapply(breaks, function(x) color_set_vms[[x]])
+  # }
+
+  median_fn <- median
+  
+#col_names <- names(vm_stats)
+
+# Loop over each column in the data
+#for (col in col_names) {
+  # Check for missing values (NA) in each column
+#  if (any(is.na(vm_stats[[col]]))) {
+#    cat(paste("Column", col, "has missing values\n"))
+#  }
+  # Check for non-finite values (Inf, -Inf, NaN) in each column
+#  if (!all(is.finite(vm_stats[[col]]))) {
+#    cat(paste("Column", col, "has non-finite values\n"))
+#  }
+#}
+  
+  # Only two decimal places
+  x_breaks <- round(x_breaks, 2)
+  
+  plot <- ggplot(vm_stats, aes(x=ratio, y=reorder(exe, -ratio, FUN = median_fn)))
+  if (!is.null(pre_plot)) {
+    plot <- pre_plot(plot)
+  }
+  
+  if (!identical(x_breaks, waiver())) {
+    for (b in x_breaks) {
+      # REM: the loop requires the use of the eager aes_ here!
+      plot <- plot + geom_vline(aes(xintercept=b),
+                                colour="#cccccc", linetype="dashed")
+    }
+  }
+  plot <- plot + 
+    geom_vline(aes(xintercept=1),    colour="#999999", linetype="solid") +
+    geom_vline(aes(xintercept=2), colour="#999999", linetype="dotted") +
+    geom_vline(aes(xintercept=10), colour="#999999", linetype="dotted")
+    
+  plot <- plot +
+    geom_boxplot(outlier.size = 0.5,
+                 aes(colour = exe, fill = exe), 
+                  alpha=0.4) + #fill=get_color(5, 7)
+    scale_x_log10(breaks = x_breaks) +
+    scale_y_discrete(label = function (x) parse(text=x)) +
+    scale_color_manual(values = color_set_vms) +
+    scale_fill_manual(values = color_set_vms) +
+    theme_simple() +
+    theme(
+      axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1),
+      axis.title.x = theme_simple_axis_title(),
+      legend.position="none")
+    #scale_y_log10(breaks=c(1,2,3,10,20,30,50,100,200,300,500,1000)) + #limit=c(0,30), breaks=seq(0,100,5), expand = c(0,0)
+    #xlab("Runtime Factor, normalized to Java (lower is better)")
+  
+  if (is.null(x_lab)) {
+    plot <- plot + xlab("")
+  } else {
+    plot <- plot + xlab(x_lab)
+  }
+  
+  if (is.null(y_lab)) {
+    plot <- plot + ylab("")
+  } else {
+    plot <- plot + ylab(y_lab)
+  }
+  
+  plot
+}
+
+```
+
+For VMs with just-in-time compilation, we report results based on
+the measurements starting from iteration `r warmup_jit_iteration`.
+While this does not guarantee that we measure "peak performance",
+it gives us relatively stable results for most language implementations.
+
+## Overview
+
+###### TruffleSOM/PySOM JIT Peak Performance
+
+Results are normalized either to `r vm_names[baseline_vm_peak]`.
+
+```{r tsom-pysom-jit, fig.width=5.5, fig.height=1.3}
+plot <- overview_box_plot(results_peak$stats$bench,
+                  c("PySOM-ast-jit", "PySOM-bc-jit", 
+                    "TruffleSOM-ast-HotspotCE-jit-main",
+                    "TruffleSOM-bc-HotspotCE-jit-main", "Java20-C2-jit", "Node-jit"),
+                  x_breaks = c(0.5, 0.75, 1, 1.33333, 2, 3, 5, 10, 20),
+                  x_lab = "lower is better")
+plot
+```
+
+###### TruffleSOM/PySOM Interpreter Performance
+
+Comparing TruffleSOM, PySOM, Node-int and Java-Int. Using `r vm_names[baseline_vm_int]` as a baseline.
+
+```{r tsom-pysom-int, fig.width=5.5, fig.height=1.3, cache=FALSE}
+plot <- overview_box_plot(results_int$stats$bench,
+                  c("PySOM-ast-int", "PySOM-bc-int",
+                    "TruffleSOM-ast-NativeCE-int-astvsbc", "TruffleSOM-bc-NativeCE-int-astvsbc",
+                    "Java20-int", "Node-int"),
+                  x_breaks = c(0.3, 0.5, 0.75, 1, 1.33333, 2, 3, 5, 10),
+                  x_lab = "lower is better")
+plot
+```
