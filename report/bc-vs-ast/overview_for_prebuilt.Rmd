@@ -6,12 +6,7 @@ This report was generated on `r Sys.time()`.
 # load libraries, the data, and prepare it
 source("scripts/libraries.R", chdir=TRUE)
 
-data <- load_rebench_data_file("../../../benchmark.data")
-
-data$exe <- ifelse(data$exe == "TruffleSOM-ast-HotspotCE-jit", "TruffleSOM-ast-HotspotCE-jit-main", data$exe)
-data$exe <- ifelse(data$exe == "TruffleSOM-bc-HotspotCE-jit", "TruffleSOM-bc-HotspotCE-jit-main", data$exe)
-data$exe <- ifelse(data$exe == "TruffleSOM-ast-NativeCE-int", "TruffleSOM-ast-NativeCE-int-astvsbc", data$exe)
-data$exe <- ifelse(data$exe == "TruffleSOM-bc-NativeCE-int", "TruffleSOM-bc-NativeCE-int-astvsbc", data$exe)
+data <- qread("../../../data/overview.qs")
 
 # ragg_png = function(..., res = 192) {
 #   ragg::agg_png(..., res = res, units = "in")

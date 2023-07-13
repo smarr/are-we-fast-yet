@@ -7,22 +7,7 @@ source("scripts/data-processing2.R")
 
 output_folder <- "../../../paper/images/"
 
-#extrafont::font_import()
-#print(extrafont::fonts())
-#extrafont::loadfonts()
-#extrafont::loadfonts(device = "postscript")
-
-# Simple and direct code, no function, no duplication, just executed once
-data_rss <- rbind(
-  load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2597"),
-  load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2615")) |>
-  filter(criterion == "MaxRSS") |>
-      subset(select = -c(commitid, expid, runid, trialid,
-                         cmdline, 
-                         varvalue, cores, inputsize, extraargs, warmup,
-                         iteration, criterion,
-                         suite,
-                         envid))
+data_rss <- qread("../../../data/rss-data.qs")
 
 # Unused.
 get_comparison_table <- function(all_data, exe_bc_name, exe_ast_name, only_with_warmup=FALSE) {

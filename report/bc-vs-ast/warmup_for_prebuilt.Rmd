@@ -1,0 +1,149 @@
+# Warmup Plots of the Data Set
+
+The following report shows all data, as warmup plots.
+It shows for each benchmark and VM the run time for each iteration.
+If the data set contains multiple invocations, they are shown on the same plot.
+
+Plots are sorted by benchmark, and then as second order concern the VM.
+
+```{r prepare-data, echo=FALSE, message=TRUE, warning=TRUE, dev='svg'}
+# load libraries, the data, and prepare it
+source("scripts/libraries.R", chdir=TRUE)
+
+data <- qread("../../../data/warmup.qs")
+
+# summary(data)
+# dput(levels(data$bench))
+# dput(levels(data$exe))
+
+sorted_benchmarks <- c(
+  "DeltaBlue", "Json", "NBody", "Richards", 
+  "Bounce", "List", "Mandelbrot", "Permute",
+  "Queens", "Sieve", "Storage", "Towers"
+)
+
+sorted_exe <- c(
+  "RPySOM-ast-jit",
+  "RPySOM-bc-jit",
+  
+  "TruffleSOM-graal-ast",
+  "TruffleSOM-graal-bc",
+  
+  "TruffleSOM-native-ast",
+  "TruffleSOM-native-bc"
+)
+    
+# data_ea is expected to have only a single configuration,
+# and perhaps multiple invocations, but no other variation
+warmup_plot <- function (data_ea, b, e) {
+  ## First take the medians over the values for each VM separated
+  data_ea_stats <- data_ea %>%
+      summarise(
+        median = median(value),
+        max = max(value),
+        .groups = "drop")
+  
+  # summary(data_ea)
+  
+  # use the highest one with a little margin as an upper bound
+  upper_bound <- min(2 * max(data_ea_stats$median), 1.05 * max(data_ea_stats$max))
+  
+  plot <- ggplot(data_ea, aes(x=iteration, y=value)) +
+    geom_line(aes(colour = invocation)) +
+    scale_color_manual(values = color_set_vms) +
+    ggtitle(paste(b, e)) +
+    ylab(levels(data_b$unit)) +
+    # scale_x_continuous(breaks = seq(0, max(data_b$iteration), 10)) +
+    coord_cartesian(ylim=c(0, upper_bound)) +
+    geom_vline(
+      xintercept = seq(0, max(data_ea$iteration), 50),
+      linetype = "longdash", colour = "#cccccc") +
+    theme_simple() +
+    theme(legend.position=c(0.85, .92))
+  plot
+}
+```
+
+# Plots
+
+```{r warmup-plot, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
+#for (b in sorted_benchmarks) { 
+#  data_b <- data %>% filter(bench == b) %>% droplevels()
+#  for (e in sorted_exe) { 
+#    data_e <- data_b %>% filter(exe == e) %>% droplevels()
+#    plot <- warmup_plot(data_e, b, e)
+#    print(plot)
+      #ggsave(plot, device= cairo_pdf, path=".", filename=paste0("output_graphs_warmup/", b, e, ".pdf"), dpi=300, height=50, width=50, units="mm", family="Arial")
+ #   }
+#  } 
+#}
+# to normalize:
+# rbind
+
+MAX_ITER <- 100
+
+# SM: Let's no use Java as baseline.
+# I hope the plots are more clear when we just pick TSOMast as baseline (TruffleSOM-graal-ast)
+# data_java <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2858") %>% filter(exe=="Java-C2-jit")
+# all_data <- rbind(data, data_java)
+all_data <- data
+all_data$exe <- revalue(all_data$exe, c("TruffleSOM-graal"="TruffleSOM-graal-ast"))
+  
+get_warmup_plots <- function(data, baseline_name, y_lab, dont_rename = FALSE) {
+  filtered <- data %>% select_data(iteration <= MAX_ITER)
+  
+  base <- filtered %>%
+    compute_baseline(baseline_name)
+  
+  norm <- filtered %>%
+            left_join(base, by = c("bench")) %>%
+            group_by(bench) %>%
+            transform(ratio_median = value / base_median)
+
+  if (!dont_rename) {
+    suppressMessages(norm$exe <- revalue(norm$exe, vm_names))
+  }
+  
+  vms <- levels(droplevels(norm)$exe)
+  # col_values <- sapply(vms, function(x) color_set_vms[[x]])
+  
+  # norm %>% filter(exe %in% sorted_exe)
+  plots <- ggplot(norm, aes(x=iteration, y=ratio_median)) +
+    geom_line(aes(colour = exe), linewidth=0.3)+
+    scale_y_log10() +
+    scale_color_manual(values = color_set_vms, label = function (x) parse(text=x), col) +
+#    scale_color_discrete(label = function (x) parse(text=x), col) +
+    theme_simple() +
+    theme(
+      legend.title = element_blank(),
+      legend.text.align = 0,
+      legend.position = c(0.9, 0.525)) +
+    ylab(y_lab) +
+    facet_wrap(~ bench, scales = "free_y")
+  
+  plots
+}
+
+plot_all <- get_warmup_plots(all_data, "TruffleSOM-graal-ast", expression(Normalized~to~median(TSOM[AST])), TRUE) # "Java-C2-jit")
+
+# graal_data <- rbind(all_data %>% filter(exe %in% c("TruffleSOM-graal-ast", "TruffleSOM-graal-bc")), data_java)
+graal_data <- all_data %>% filter(exe %in% c("TruffleSOM-graal-ast", "TruffleSOM-graal-bc"))
+plot_graal <- get_warmup_plots(graal_data, "TruffleSOM-graal-ast", expression(Normalized~to~median(TSOM[AST]))) # "Java-C2-jit")
+
+# native_image_data <- rbind(all_data %>% filter(exe %in% c("TruffleSOM-native-ast", "TruffleSOM-native-bc")), data_java)
+native_image_data <- all_data %>% filter(exe %in% c("TruffleSOM-native-ast", "TruffleSOM-native-bc"))
+plot_native <- get_warmup_plots(native_image_data, "TruffleSOM-native-ast", expression(Normalized~to~median(TSOM[AST]))) # "Java-C2-jit")
+
+# pysom_data <- rbind(all_data %>% filter(exe %in% c("RPySOM-ast-jit", "RPySOM-bc-jit")), data_java)
+pysom_data <- all_data %>% filter(exe %in% c("RPySOM-ast-jit", "RPySOM-bc-jit"))
+plot_pysom <- get_warmup_plots(pysom_data, "RPySOM-ast-jit", expression(Normalized~to~median(PySOM[AST]))) # "Java-C2-jit")
+
+print(plot_all)
+print(plot_graal)
+print(plot_native)
+print(plot_pysom)
+
+OUTPUT_WIDTH <- 5.5
+OUTPUT_HEIGHT <- 3.3
+output_folder <- "../../../paper/images/"
+```
