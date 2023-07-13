@@ -25,6 +25,7 @@ load_and_install_if_necessary("forcats")
 load_and_install_if_necessary("qs")
 load_and_install_if_necessary("knitr")
 load_and_install_if_necessary("markdown")
+load_and_install_if_necessary("rmarkdown")
 load_and_install_if_necessary("ragg")
 load_and_install_if_necessary("viridis")
 
