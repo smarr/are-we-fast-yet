@@ -1,6 +1,7 @@
-# Impact of individual optimisations
-
-## AST
+---
+title: "Section 5.6 Impact of Optimizations"
+output: html_document
+---
 
 ```{r load-scripts, echo=FALSE, include=FALSE}
 # load libraries, the data, and prepare it
@@ -122,7 +123,9 @@ color_set_opti <- c('#081d58', '#AADC32FF','#472D7BFF','#3B528BFF','#FDE725FF','
 color_set_optims <- set_color_bindings_for_plots(unique_optims, color_set_opti)
 ```
 
-### TruffleSOM - AST interp
+#### Sec. 5.6.1 Impact on Interpreter Performance
+
+##### Fig. 7 (a) TSOM AST Interpreter
 
 ```{r optim-tsom-ast-int, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(all_optims, "TruffleSOM-native-interp-ast")
@@ -131,36 +134,7 @@ plot <- box_plot_optim(box_plot_data)
 plot
 ```
 
-### PySOM - AST interp
-
-```{r optim-pysom-ast-int, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_optim(all_optims, "RPySOM-ast-interp")
-
-plot <- box_plot_optim(box_plot_data)
-plot
-```
-
-### TruffleSOM - AST JIT
-
-```{r optim-tsom-ast-jit, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_optim(all_optims, "TruffleSOM-graal")
-
-plot <- box_plot_optim(box_plot_data)
-plot
-```
-
-### PySOM - AST JIT
-
-```{r optim-pysom-ast-jit, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_optim(all_optims, "RPySOM-ast-jit")
-
-plot <- box_plot_optim(box_plot_data)
-plot
-```
-
-## BC
-
-### TruffleSOM - BC interp
+##### Fig. 7 (b) TSOM BC Interpreter
 
 ```{r optim-tsom-bc-interp, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(all_optims, "TruffleSOM-native-interp-bc")
@@ -169,7 +143,16 @@ plot <- box_plot_optim(box_plot_data)
 plot
 ```
 
-### PySOM - BC interp
+##### Fig. 7 (c) PySOM AST Interpreter
+
+```{r optim-pysom-ast-int, fig.width=8, fig.height=2.2, echo=FALSE}
+box_plot_data <- get_data_for_box_plot_optim(all_optims, "RPySOM-ast-interp")
+
+plot <- box_plot_optim(box_plot_data)
+plot
+```
+
+##### Fig. 7 (c) PySOM BC Interpreter
 
 ```{r optim-pysom-bc-interp, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(all_optims, "RPySOM-bc-interp")
@@ -178,7 +161,18 @@ plot <- box_plot_optim(box_plot_data)
 plot
 ```
 
-### TruffleSOM - BC JIT
+#### Sec. 5.6.2 Impact on Peak Performance
+
+##### Fig. 8 (a) TSOM AST with JIT Compilation
+
+```{r optim-tsom-ast-jit, fig.width=8, fig.height=2.2, echo=FALSE}
+box_plot_data <- get_data_for_box_plot_optim(all_optims, "TruffleSOM-graal")
+
+plot <- box_plot_optim(box_plot_data)
+plot
+```
+
+##### Fig. 8 (b) TSOM BC with JIT Compilation
 
 ```{r optim-tsom-bc-jit, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(all_optims, "TruffleSOM-graal-bc")
@@ -187,7 +181,16 @@ plot <- box_plot_optim(box_plot_data)
 plot
 ```
 
-### PySOM - BC JIT
+##### Fig. 8 (c) PySOM AST with JIT Compilation
+
+```{r optim-pysom-ast-jit, fig.width=8, fig.height=2.2, echo=FALSE}
+box_plot_data <- get_data_for_box_plot_optim(all_optims, "RPySOM-ast-jit")
+
+plot <- box_plot_optim(box_plot_data)
+plot
+```
+
+##### Fig. 8 (c) PySOM BC with JIT Compilation
 
 ```{r optim-pysom-bc-jit, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(all_optims, "RPySOM-bc-jit")
