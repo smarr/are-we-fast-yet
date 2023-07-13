@@ -8,9 +8,9 @@ Plots are sorted by benchmark, and then as second order concern the VM.
 
 ```{r prepare-data, echo=FALSE, message=TRUE, warning=TRUE, dev='svg'}
 # load libraries, the data, and prepare it
-source("scripts/libraries.R", chdir=TRUE)
+source("../scripts/libraries.R", chdir=TRUE)
 
-data <- qread("../../../data/warmup.qs")
+data <- qread("../../../../data/warmup.qs")
 
 # summary(data)
 # dput(levels(data$bench))

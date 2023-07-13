@@ -4,8 +4,8 @@
 
 ```{r load-scripts, echo=FALSE, include=FALSE}
 # load libraries, the data, and prepare it
-source("scripts/libraries.R", chdir=TRUE)
-source("scripts/data-processing2.R")
+source("../scripts/libraries.R", chdir=TRUE)
+source("../scripts/data-processing2.R")
 
 OPTIM_GRAPH_HEIGHT <- 1.3
 OPTIM_GRAPH_WIDTH <- 2.6
@@ -115,94 +115,7 @@ box_plot_optim <- function(data, custom_x_breaks=NULL, colors = color_set_optims
   plot
 }
 
-box_plot_optim_unified <- function(data, custom_x_breaks=NULL) {
-  if (is.null(custom_x_breaks))
-    x_breaks <- c(0.5, 0.8, 1, 1.5, 2, 3, 5, 10, 15, 30, 50, 100, 300)
-  else
-    x_breaks <- custom_x_breaks
-  
-#  breaks <- levels(droplevels(data)$optim)
-  #vm_colors <- rainbow(255)
-  col_values <- rainbow(10)
-  
-  plot <- ggplot(data, aes(x=median_ratio, y=optim, fill = optim))
-  plot <- plot + geom_boxplot(outlier.size = 0.5) +
-    scale_x_log10(breaks = x_breaks) +
-    scale_fill_viridis_d() +
-    theme_simple() +
-    theme(
-      axis.text.x = element_text(angle= 90, vjust=0.5, hjust=1),
-      axis.title.x = theme_simple_axis_title(),
-      legend.position="none") +
-    #scale_y_log10(breaks=c(1,2,3,10,20,30,50,100,200,300,500,1000)) + #limit=c(0,30), breaks=seq(0,100,5), expand = c(0,0)
-    ylab("") +
-    xlab("") + 
-    geom_hline(yintercept = 8.5, linetype = "dotted")
-  
-  plot
-}
-
-load_data_for_experiment <- function(experiment_ref, optim_name, project_name) {
-  load_data_url(paste0("https://rebench.stefan-marr.de/", project_name, "/data/", experiment_ref)) %>% mutate(optim = optim_name)
-}
-
-# was acquired through the new Dockerfile unified config. as opposed to the previous "we run everything individually on its own branch" approach
-# so the results are formatted differently and we need to do some plumbing
-get_and_format_new_data <- function(data) {
-  data$optim <- sub("^.*-no-(.*)$", "no-\\1", data$exe)
-  data$exe <- sub("^(.*)-no-.*$", "\\1", data$exe)
-  
-  # renaming optimizations
-  data$optim[data$optim == data$exe] <- "all optimizations"
-  data$optim <- sapply(data$optim, function(x) {
-    x <- gsub("^no-", "", x)  # Remove leading "no-"
-    split_values <- unlist(strsplit(as.character(x), "-"))  # Split values by "-"
-    paste(split_values, collapse = " ")  # Combine the split values back into a single string
-  })
-  data$optim[data$optim == "inlining control structs"] <- "inlined control struc."
-  data$optim[data$optim == "lower prims"] <- "lowered basic ops"
-  data$optim[data$optim == "quickening"] <- "quickening (*)"
-  data$optim[data$optim == "superinstructions"] <- "superinstructions (*)"
-  data$optim[data$optim == "supernodes"] <- "supernodes (*)"
-  
-  # renaming exes
-  data$exe[data$exe == "TruffleSOM-ast-HotspotCE-jit"] <- "TruffleSOM-graal"
-  data$exe[data$exe == "TruffleSOM-bc-HotspotCE-jit"] <- "TruffleSOM-graal-bc"
-  data$exe[data$exe == "TruffleSOM-ast-NativeCE-int"] <- "TruffleSOM-native-interp-ast"
-  data$exe[data$exe == "TruffleSOM-bc-NativeCE-int"] <- "TruffleSOM-native-interp-bc"
-  data$exe[data$exe == "PySOM-ast-int"] <- "RPySOM-ast-interp"
-  data$exe[data$exe == "PySOM-bc-int"] <- "RPySOM-bc-interp"
-  data$exe[data$exe == "PySOM-ast-jit"] <- "RPySOM-ast-jit"
-  data$exe[data$exe == "PySOM-bc-jit"] <- "RPySOM-bc-jit"
-  data
-}
-
-#a <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2957")
-#b <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2980") # WRONG
-#c <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2989") # WRONG
-#d <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2991")
-#e <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2993")
-
-data_optim_tsom_ast <- get_and_format_new_data(load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2957"))
-
-tsom_bc_jit_half <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3068")
-tsom_bc_jit_other_half <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3074")
-tsom_bc_interps <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3083")
-data_optim_tsom_bc <- get_and_format_new_data(rbind(tsom_bc_jit_half, tsom_bc_jit_other_half, tsom_bc_interps))
-
-pysom_ast_interps <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3080")
-pysom_ast_jit <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3081")
-pysom_ast_global_caching <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3082")
-pysom_ast_data <- rbind(pysom_ast_interps, pysom_ast_jit, pysom_ast_global_caching)
-
-#pysom_ast_data <- rbind(load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2989"),
-#                        load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2991"), # global caching experiments for int
-#                        load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2993")) # global caching for JIT. they had been omitted
-
-data_optim_pysom_ast <- get_and_format_new_data(pysom_ast_data)
-data_optim_pysom_bc <- get_and_format_new_data(load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2994"))
-
-all_optims <- rbind(data_optim_tsom_ast, data_optim_tsom_bc, data_optim_pysom_ast, data_optim_pysom_bc)
+all_optims <- qread("../../../../data/optimisations.qs")
 unique_optims <- unique(all_optims$optim)
 
 color_set_opti <- c('#081d58', '#AADC32FF','#472D7BFF','#3B528BFF','#FDE725FF','#440154FF','#1d91c0','#238b45','#ec7014')
@@ -212,7 +125,7 @@ color_set_optims <- set_color_bindings_for_plots(unique_optims, color_set_opti)
 ### TruffleSOM - AST interp
 
 ```{r optim-tsom-ast-int, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_ast, "TruffleSOM-native-interp-ast")
+box_plot_data <- get_data_for_box_plot_optim(all_optims, "TruffleSOM-native-interp-ast")
 
 plot <- box_plot_optim(box_plot_data)
 plot
@@ -221,7 +134,7 @@ plot
 ### PySOM - AST interp
 
 ```{r optim-pysom-ast-int, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_ast, "RPySOM-ast-interp")
+box_plot_data <- get_data_for_box_plot_optim(all_optims, "RPySOM-ast-interp")
 
 plot <- box_plot_optim(box_plot_data)
 plot
@@ -230,7 +143,7 @@ plot
 ### TruffleSOM - AST JIT
 
 ```{r optim-tsom-ast-jit, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_ast, "TruffleSOM-graal")
+box_plot_data <- get_data_for_box_plot_optim(all_optims, "TruffleSOM-graal")
 
 plot <- box_plot_optim(box_plot_data)
 plot
@@ -239,7 +152,7 @@ plot
 ### PySOM - AST JIT
 
 ```{r optim-pysom-ast-jit, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_ast, "RPySOM-ast-jit")
+box_plot_data <- get_data_for_box_plot_optim(all_optims, "RPySOM-ast-jit")
 
 plot <- box_plot_optim(box_plot_data)
 plot
@@ -250,7 +163,7 @@ plot
 ### TruffleSOM - BC interp
 
 ```{r optim-tsom-bc-interp, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_bc, "TruffleSOM-native-interp-bc")
+box_plot_data <- get_data_for_box_plot_optim(all_optims, "TruffleSOM-native-interp-bc")
 
 plot <- box_plot_optim(box_plot_data)
 plot
@@ -259,7 +172,7 @@ plot
 ### PySOM - BC interp
 
 ```{r optim-pysom-bc-interp, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_bc, "RPySOM-bc-interp")
+box_plot_data <- get_data_for_box_plot_optim(all_optims, "RPySOM-bc-interp")
 
 plot <- box_plot_optim(box_plot_data)
 plot
@@ -268,7 +181,7 @@ plot
 ### TruffleSOM - BC JIT
 
 ```{r optim-tsom-bc-jit, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_optim(data_optim_tsom_bc, "TruffleSOM-graal-bc")
+box_plot_data <- get_data_for_box_plot_optim(all_optims, "TruffleSOM-graal-bc")
 
 plot <- box_plot_optim(box_plot_data)
 plot
@@ -277,7 +190,7 @@ plot
 ### PySOM - BC JIT
 
 ```{r optim-pysom-bc-jit, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot_optim(data_optim_pysom_bc, "RPySOM-bc-jit")
+box_plot_data <- get_data_for_box_plot_optim(all_optims, "RPySOM-bc-jit")
 
 plot <- box_plot_optim(box_plot_data)
 plot

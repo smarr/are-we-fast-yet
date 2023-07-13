@@ -4,9 +4,9 @@ This report was generated on `r Sys.time()`.
 
 ```{r load-scripts, echo=FALSE, include=FALSE}
 # load libraries, the data, and prepare it
-source("scripts/libraries.R", chdir=TRUE)
+source("../scripts/libraries.R", chdir=TRUE)
 
-data <- qread("../../../data/overview.qs")
+data <- qread("../../../../data/overview.qs")
 
 # ragg_png = function(..., res = 192) {
 #   ragg::agg_png(..., res = res, units = "in")
@@ -17,8 +17,8 @@ opts_chunk$set(dev = 'png',
                fig.retina = 2,
                dev.args=list(pointsize=10),
                echo = FALSE,
-               fig.keep='all',
-               fig.path="figures/",
+               #fig.keep='all',
+               #fig.path="figures/",
                external=FALSE,
                tidy=FALSE)
 #    cache=TRUE,

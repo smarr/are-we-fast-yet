@@ -2,12 +2,10 @@
 
 ```{r load-scripts, echo=FALSE, include=FALSE}
 # load libraries, the data, and prepare it
-source("scripts/libraries.R", chdir=TRUE)
-source("scripts/data-processing2.R")
+source("../scripts/libraries.R", chdir=TRUE)
+source("../scripts/data-processing2.R")
 
-output_folder <- "../../../paper/images/"
-
-data_rss <- qread("../../../data/rss-data.qs")
+data_rss <- qread("../../../../data/rss-data.qs")
 
 # Unused.
 get_comparison_table <- function(all_data, exe_bc_name, exe_ast_name, only_with_warmup=FALSE) {
@@ -132,18 +130,6 @@ get_data_for_box_plot <- function(all_data, baseline_name, exe_names) {
   suppressMessages(df2$exe <- revalue(df2$exe, vm_names) %>% droplevels())
   df2
 }
-
-#data_repr_tsom_old <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% 
-#    filter(criterion == "Allocated") %>%
-#    group_by(expid, runid, trialid, bench, exe, cmdline, extraargs, invocation) %>%
-#    summarize(iteration = 1, value = sum(value))
-
-data_repr_tsom <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2838") %>% 
-    filter(criterion == "Allocated") |>
-    mutate(ratio = 1) # bad code to make it work with the previous boxplot function...
-
-data_repr_pysom <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2860")
-data_repr_pysom <- distinct(data_repr_pysom, exe, runid, cmdline, cores, extraargs, envid, .keep_all = TRUE)
 ```
 
 ## BCvsAST - interpreter only
