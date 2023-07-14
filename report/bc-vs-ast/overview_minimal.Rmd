@@ -57,12 +57,12 @@ baseline_vm_peak <- "Java20-C2-jit"
 baseline_vm_int <- "Java20-int"
 baseline_vm_first <- "Java20-C2-jit"
 
-results_peak <- data %>%
+results_peak <- data |>
   compute_all(
     iteration >= warmup_jit_iteration | exe %in% vms_int,
     baseline_vm_peak)
 
-results_int <- data %>%
+results_int <- data |>
   compute_all(
     exe %in% vms_int,
     baseline_vm_int)
@@ -72,10 +72,10 @@ plot_benchmarks_speedup_for_vms <- function(
   # vm_norm <- norm_peak
   # vms <- vms_jit
   
-  vm_norm <- vm_norm %>%
-    filter(exe %in% vms) %>%
+  vm_norm <- vm_norm |>
+    filter(exe %in% vms) |>
     droplevels()
-  suppressMessages(vm_norm$exe <- revalue(vm_norm$exe, vm_names) %>% droplevels())
+  suppressMessages(vm_norm$exe <- revalue(vm_norm$exe, vm_names) |> droplevels())
   # TODO: is norm_peak the right table? we don't have exe_ratio there yet
   # vm_norm$exe <- reorder(vm_norm$exe, X=vm_norm$exe_ratio)
 
@@ -119,14 +119,14 @@ overview_box_plot <- function(stats, vms = NULL, prepare_data = NULL, pre_plot =
   if (is.null(vms)) {
     vm_stats <- stats
   } else {
-    vm_stats <- stats %>%
-      filter(exe %in% vms) %>%
+    vm_stats <- stats |>
+      filter(exe %in% vms) |>
       droplevels()
   }
 
   if (!is.null(prepare_data)) {
-   vm_stats <- vm_stats %>%
-     prepare_data() %>%
+   vm_stats <- vm_stats |>
+     prepare_data() |>
      droplevels()
   }
 
