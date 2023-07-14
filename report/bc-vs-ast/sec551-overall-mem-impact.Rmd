@@ -8,14 +8,22 @@ output: html_document
 source("scripts/libraries.R", chdir=TRUE)
 source("scripts/data-processing2.R")
 
-data <- load_rebench_data_file("../../../benchmark.data") |> 
+data_rss <- load_rebench_data_file("../../../benchmark.data") |> 
       filter(criterion == "MaxRSS") |>
-      subset(select = -c(commitid, expid, runid, trialid,
+      subset(select = -c(commitid, trialid,
                          cmdline, 
                          varvalue, cores, inputsize, extraargs, warmup,
                          iteration, criterion,
-                         suite,
-                         envid))
+                         suite))
+
+data_rss$exe <- ifelse(data_rss$exe == "TruffleSOM-ast-NativeCE-int", "TruffleSOM-native-interp-ast", data_rss$exe)
+data_rss$exe <- ifelse(data_rss$exe == "TruffleSOM-bc-NativeCE-int", "TruffleSOM-native-interp-bc", data_rss$exe)
+data_rss$exe <- ifelse(data_rss$exe ==  "TruffleSOM-ast-HotspotCE-jit", "TruffleSOM-graal", data_rss$exe)
+data_rss$exe <- ifelse(data_rss$exe ==  "TruffleSOM-bc-HotspotCE-jit", "TruffleSOM-graal-bc", data_rss$exe)
+data_rss$exe <- ifelse(data_rss$exe ==  "PySOM-ast-int", "RPySOM-ast-interp", data_rss$exe)
+data_rss$exe <- ifelse(data_rss$exe ==  "PySOM-bc-int", "RPySOM-bc-interp", data_rss$exe)
+data_rss$exe <- ifelse(data_rss$exe ==  "PySOM-ast-jit", "RPySOM-ast-jit", data_rss$exe)
+data_rss$exe <- ifelse(data_rss$exe ==  "PySOM-bc-jit", "RPySOM-bc-jit", data_rss$exe)
 
 box_plot_rss <- function(data, colors = color_set_vms) {
   x_breaks <- c(0.5, 0.8, 1, 2, 3, 5, 10, 15, 30)
@@ -123,8 +131,12 @@ get_data_for_box_plot <- function(all_data, baseline_name, exe_names) {
     mutate(ratio = value / base)
   
   # try renaming TODO: get rid of one of them after unifying the experiment names
-  suppressMessages(df2$exe <- revalue(df2$exe, unify_overview_memory_data) %>% droplevels())
-  suppressMessages(df2$exe <- revalue(df2$exe, vm_names) %>% droplevels())
+#  suppressMessages(df2$exe <- revalue(df2$exe, unify_overview_memory_data) %>% droplevels())
+#  suppressMessages(df2$exe <- revalue(df2$exe, vm_names) %>% droplevels())
+
+  suppressMessages(df2$exe <- revalue(df2$exe, unify_overview_memory_data))
+  suppressMessages(df2$exe <- revalue(df2$exe, vm_names))
+  
   df2
 }
 
