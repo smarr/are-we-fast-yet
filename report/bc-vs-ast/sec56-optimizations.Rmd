@@ -19,7 +19,7 @@ compute_stats <- function(data, exe_name, iteration_threshold = 0, baseline_opti
   # remove all the columns we don't need for this
   # and keep only the exe we are interested in
   data <- data |>
-    select(!c(commitid, suite, cmdline, varvalue, cores, expid, runid, trialid, envid, inputsize, extraargs, warmup, invocation)) |>
+    select(!c(commitid, suite, cmdline, varvalue, cores, trialid, inputsize, extraargs, warmup, invocation)) |>
     filter(exe == exe_name)
   
   # then selected the "warmed up data"
@@ -173,28 +173,8 @@ get_and_format_new_data <- function(data) {
   data
 }
 
-#data_optim_tsom_ast <- get_and_format_new_data(load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2957"))
-
-#tsom_bc_jit_half <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3068")
-#tsom_bc_jit_other_half <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3074")
-#tsom_bc_interps <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3083")
-#data_optim_tsom_bc <- get_and_format_new_data(rbind(tsom_bc_jit_half, tsom_bc_jit_other_half, tsom_bc_interps))
-
-#pysom_ast_interps <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3080")
-#pysom_ast_jit <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3081")
-#pysom_ast_global_caching <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/3082")
-#pysom_ast_data <- rbind(pysom_ast_interps, pysom_ast_jit, pysom_ast_global_caching)
-
-#pysom_ast_data <- rbind(load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2989"),
-#                        load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2991"), # global caching experiments for int
-#                        load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2993")) # global caching for JIT. they had been omitted
-
-#data_optim_pysom_ast <- get_and_format_new_data(pysom_ast_data)
-#data_optim_pysom_bc <- get_and_format_new_data(load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2994"))
-
 all_optims <- load_rebench_data_file("../../../benchmark.data")
 all_optims <- get_and_format_new_data(all_optims)
-#all_optims <- rbind(data_optim_tsom_ast, data_optim_tsom_bc, data_optim_pysom_ast, data_optim_pysom_bc)
 unique_optims <- unique(all_optims$optim)
 
 color_set_opti <- c('#081d58', '#AADC32FF','#472D7BFF','#3B528BFF','#FDE725FF','#440154FF','#1d91c0','#238b45','#ec7014')
