@@ -25,6 +25,8 @@ source("scripts/libraries.R", chdir=TRUE)
 
 data <- load_rebench_data_file("../../../benchmark.data")
 
+data <- subset(data, exe %in% c("TruffleSOM-native-ast", "TruffleSOM-native-bc", "TruffleSOM-ast-HotspotCE-jit", "TruffleSOM-bc-HotspotCE-jit", "PySOM-ast-jit", "PySOM-bc-jit"))
+
 data$exe <- ifelse(data$exe == "TruffleSOM-ast-HotspotCE-jit", "TruffleSOM-graal-ast", data$exe)
 data$exe <- ifelse(data$exe == "TruffleSOM-bc-HotspotCE-jit", "TruffleSOM-graal-bc", data$exe)
 data$exe <- ifelse(data$exe == "TruffleSOM-ast-NativeCE-int", "TruffleSOM-native-ast", data$exe)
@@ -162,7 +164,7 @@ print(plot_native)
 
 ```{r warmup-plot-pysom, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
 # pysom_data <- rbind(all_data %>% filter(exe %in% c("RPySOM-ast-jit", "RPySOM-bc-jit")), data_java)
-pysom_data <- all_data %>% filter(exe %in% c("RPySOM-ast-jit", "RPySOM-bc-jit"))
+pysom_data <- data %>% filter(exe %in% c("RPySOM-ast-jit", "RPySOM-bc-jit"))
 plot_pysom <- get_warmup_plots(pysom_data, "RPySOM-ast-jit", expression(Normalized~to~median(PySOM[AST]))) # "Java-C2-jit")
 print(plot_pysom)
 
