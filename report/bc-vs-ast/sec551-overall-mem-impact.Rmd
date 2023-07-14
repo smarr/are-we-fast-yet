@@ -1,11 +1,31 @@
-# Max RSS
+---
+title: "Section 5.5.1 Overall Memory Impact"
+output: html_document
+---
 
 ```{r load-scripts, echo=FALSE, include=FALSE}
 # load libraries, the data, and prepare it
-source("../scripts/libraries.R", chdir=TRUE)
-source("../scripts/data-processing2.R")
+source("scripts/libraries.R", chdir=TRUE)
+source("scripts/data-processing2.R")
 
-data_rss <- qread("../../../../data/rss-data.qs")
+output_folder <- "../../../paper/images/"
+
+#extrafont::font_import()
+#print(extrafont::fonts())
+#extrafont::loadfonts()
+#extrafont::loadfonts(device = "postscript")
+
+# Simple and direct code, no function, no duplication, just executed once
+data_rss <- rbind(
+  load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2597"),
+  load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2615")) |>
+  filter(criterion == "MaxRSS") |>
+      subset(select = -c(commitid, expid, runid, trialid,
+                         cmdline, 
+                         varvalue, cores, inputsize, extraargs, warmup,
+                         iteration, criterion,
+                         suite,
+                         envid))
 
 # Unused.
 get_comparison_table <- function(all_data, exe_bc_name, exe_ast_name, only_with_warmup=FALSE) {
@@ -130,68 +150,22 @@ get_data_for_box_plot <- function(all_data, baseline_name, exe_names) {
   suppressMessages(df2$exe <- revalue(df2$exe, vm_names) %>% droplevels())
   df2
 }
-```
 
-## BCvsAST - interpreter only
+#data_repr_tsom_old <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2622") %>% 
+#    filter(criterion == "Allocated") %>%
+#    group_by(expid, runid, trialid, bench, exe, cmdline, extraargs, invocation) %>%
+#    summarize(iteration = 1, value = sum(value))
 
-```{r rss-interp, fig.width=8, fig.height=2.2, echo=FALSE}
-#box_plot_data <- get_data_for_box_plot_rss(data_rss, 
-#                                           "TruffleSOM-native-interp-bc",
-#                                           c("TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast"))
+data_repr_tsom <- load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2838") %>% 
+    filter(criterion == "Allocated") |>
+    mutate(ratio = 1) # bad code to make it work with the previous boxplot function...
 
-#box_plot_data <- get_data_for_box_plot_rss(data_rss, 
-#                                           "RPySOM-bc-interp",
-#                                           c("RPySOM-bc-interp", "RPySOM-ast-interp"))
-
-box_plot_data <- get_data_for_box_plot(data_rss,
-                                           "RPySOM-bc-interp",
-                                           c("RPySOM-bc-interp", "RPySOM-ast-interp",
-                                             "TruffleSOM-native-interp-bc", "TruffleSOM-native-interp-ast"))
-
-
-#print(kable(df2), type="latex", comment=FALSE)
-plot <- box_plot_rss(box_plot_data)
-#ggsave("rss-interp.pdf", plot, dpi = 300, height = 200, width = 400, units="mm", device="pdf")
-#ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/rss-interp.pdf"), dpi=300, height=50, width=100, units="mm", family="Arial")
-
-plot
+data_repr_pysom <- load_data_url("https://rebench.stefan-marr.de/RPySOM/data/2860")
+data_repr_pysom <- distinct(data_repr_pysom, exe, runid, cmdline, cores, extraargs, envid, .keep_all = TRUE)
 ```
 
 
-## BCvsAST - JIT
-
-```{r rss-jit, fig.width=8, fig.height=2.2, echo=FALSE}
-#box_plot_data2 <- get_data_for_box_plot_rss(data_rss,
-#                                      "RPySOM-bc-jit",
-#                                       c("RPySOM-bc-jit", "RPySOM-ast-jit"))
-
-box_plot_data <- get_data_for_box_plot(data_rss,
-                                           "RPySOM-bc-jit",
-                                           c("RPySOM-bc-jit", "RPySOM-ast-jit", "TruffleSOM-graal", "TruffleSOM-graal-bc"))
-
-
-#print(kable(df2), type="latex", comment=FALSE)
-plot <- box_plot_rss(box_plot_data)
-#ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "rss-jit.pdf"), dpi=300, height=50, width=100, units="mm", family="Arial")
-#ggsave(plot, device= cairo_pdf, path=".", filename="rss-jit.pdf", dpi=300, height=4, width=8.5, units="in", family="Arial")
-
-plot
-```
-
-## BCvsAST - PySOM int
-
-```{r rss-pysom-int, fig.width=8, fig.height=2.2, echo=FALSE}
-box_plot_data <- get_data_for_box_plot(data_rss,
-                                           "RPySOM-bc-interp",
-                                           c("RPySOM-bc-interp", "RPySOM-ast-interp"))
-
-plot <- box_plot_in_kb(box_plot_data, parse_y_labels = TRUE)
-#ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/rss-interp-pysom.pdf"), dpi=300, height=1.3, width=2.6, units="in", family="Arial")
-
-plot
-```
-
-## BCvsAST - TruffleSOM int
+#### Figure 6 (a) TruffleSOM Interpreter
 
 ```{r rss-tsom-int, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot(data_rss,
@@ -204,20 +178,22 @@ plot <- box_plot_in_kb(box_plot_data, parse_y_labels = TRUE)
 plot
 ```
 
-## BCvsAST - PySOM JIT
+#### Figure 6 (b) PySOM Interpreter
 
-```{r rss-pysom-jit, fig.width=8, fig.height=2.2, echo=FALSE}
+```{r rss-pysom-int, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot(data_rss,
-                                           "RPySOM-bc-jit",
-                                           c("RPySOM-bc-jit", "RPySOM-ast-jit"))
+                                           "RPySOM-bc-interp",
+                                           c("RPySOM-bc-interp", "RPySOM-ast-interp"))
 
 plot <- box_plot_in_kb(box_plot_data, parse_y_labels = TRUE)
-#ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/rss-jit-pysom.pdf"), dpi=300, height=1.3, width=2.6, units="in", family="Arial")
+#ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/rss-interp-pysom.pdf"), dpi=300, height=1.3, width=2.6, units="in", family="Arial")
 
 plot
 ```
 
-## BCvsAST - TruffleSOM JIT
+
+
+#### Figure 6 (c) TruffleSOM with JIT compilation
 
 ```{r rss-tsom-jit, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot(data_rss,
@@ -226,6 +202,19 @@ box_plot_data <- get_data_for_box_plot(data_rss,
 
 plot <- box_plot_in_kb(box_plot_data, parse_y_labels = TRUE)
 #ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/rss-jit-tsom.pdf"), dpi=300, height=1.3, width=2.6, units="in", family="Arial")
+
+plot
+```
+
+#### Figure 6 (d) PySOM with JIT compilation
+
+```{r rss-pysom-jit, fig.width=8, fig.height=2.2, echo=FALSE}
+box_plot_data <- get_data_for_box_plot(data_rss,
+                                           "RPySOM-bc-jit",
+                                           c("RPySOM-bc-jit", "RPySOM-ast-jit"))
+
+plot <- box_plot_in_kb(box_plot_data, parse_y_labels = TRUE)
+#ggsave(plot, device= cairo_pdf, path=".", filename=paste0(output_folder, "/rss-jit-pysom.pdf"), dpi=300, height=1.3, width=2.6, units="in", family="Arial")
 
 plot
 ```

@@ -1,17 +1,15 @@
-# Performance Results
+---
+title: "Section 5.2 and 5.3"
+output: html_document
+---
 
 This report was generated on `r Sys.time()`.
 
 ```{r load-scripts, echo=FALSE, include=FALSE}
 # load libraries, the data, and prepare it
-source("scripts/libraries.R", chdir=TRUE)
+source("../scripts/libraries.R", chdir=TRUE)
 
-data <- load_rebench_data_file("../../../benchmark.data")
-
-data$exe <- ifelse(data$exe == "TruffleSOM-ast-HotspotCE-jit", "TruffleSOM-ast-HotspotCE-jit-main", data$exe)
-data$exe <- ifelse(data$exe == "TruffleSOM-bc-HotspotCE-jit", "TruffleSOM-bc-HotspotCE-jit-main", data$exe)
-data$exe <- ifelse(data$exe == "TruffleSOM-ast-NativeCE-int", "TruffleSOM-ast-NativeCE-int-astvsbc", data$exe)
-data$exe <- ifelse(data$exe == "TruffleSOM-bc-NativeCE-int", "TruffleSOM-bc-NativeCE-int-astvsbc", data$exe)
+data <- qread("../../../../data/overview.qs")
 
 # ragg_png = function(..., res = 192) {
 #   ragg::agg_png(..., res = res, units = "in")
@@ -22,8 +20,8 @@ opts_chunk$set(dev = 'png',
                fig.retina = 2,
                dev.args=list(pointsize=10),
                echo = FALSE,
-               fig.keep='all',
-               fig.path="figures/",
+               #fig.keep='all',
+               #fig.path="figures/",
                external=FALSE,
                tidy=FALSE)
 #    cache=TRUE,
@@ -217,9 +215,22 @@ the measurements starting from iteration `r warmup_jit_iteration`.
 While this does not guarantee that we measure "peak performance",
 it gives us relatively stable results for most language implementations.
 
-## Overview
 
-###### TruffleSOM/PySOM JIT Peak Performance
+#### Sec. 5.2 Interpreter Performance, Figure 2
+
+Using `r vm_names[baseline_vm_int]` as a baseline.
+
+```{r tsom-pysom-int, fig.width=5.5, fig.height=1.3, cache=FALSE}
+plot <- overview_box_plot(results_int$stats$bench,
+                  c("PySOM-ast-int", "PySOM-bc-int",
+                    "TruffleSOM-ast-NativeCE-int-astvsbc", "TruffleSOM-bc-NativeCE-int-astvsbc",
+                    "Java20-int", "Node-int"),
+                  x_breaks = c(0.3, 0.5, 0.75, 1, 1.33333, 2, 3, 5, 10),
+                  x_lab = "lower is better")
+plot
+```
+
+#### Sec. 5.3 Peak Performance, Figure 3
 
 Results are normalized either to `r vm_names[baseline_vm_peak]`.
 
@@ -229,20 +240,6 @@ plot <- overview_box_plot(results_peak$stats$bench,
                     "TruffleSOM-ast-HotspotCE-jit-main",
                     "TruffleSOM-bc-HotspotCE-jit-main", "Java20-C2-jit", "Node-jit"),
                   x_breaks = c(0.5, 0.75, 1, 1.33333, 2, 3, 5, 10, 20),
-                  x_lab = "lower is better")
-plot
-```
-
-###### TruffleSOM/PySOM Interpreter Performance
-
-Comparing TruffleSOM, PySOM, Node-int and Java-Int. Using `r vm_names[baseline_vm_int]` as a baseline.
-
-```{r tsom-pysom-int, fig.width=5.5, fig.height=1.3, cache=FALSE}
-plot <- overview_box_plot(results_int$stats$bench,
-                  c("PySOM-ast-int", "PySOM-bc-int",
-                    "TruffleSOM-ast-NativeCE-int-astvsbc", "TruffleSOM-bc-NativeCE-int-astvsbc",
-                    "Java20-int", "Node-int"),
-                  x_breaks = c(0.3, 0.5, 0.75, 1, 1.33333, 2, 3, 5, 10),
                   x_lab = "lower is better")
 plot
 ```

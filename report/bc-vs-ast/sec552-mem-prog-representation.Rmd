@@ -1,7 +1,6 @@
 ---
-title: "Stefan: Looking at MaxRSS for Test1-100 and TestGC1-100"
+title: "Section 5.5.2 Memory Usage for Program Representation"
 output: html_document
-date: "2023-04-07"
 ---
 
 ```{r setup, include=FALSE, echo=FALSE}
@@ -44,16 +43,19 @@ med <- data |>
             .groups = "drop")
 ```
 
-## MaxRSS Increase
 
 
-```{r maxrss-increase}
-ggplot(med, aes(x=inputsize, y=median, group=exe.bench, color=exe.bench)) + geom_line()
+```{r maxrss-increase, include=FALSE, echo=FALSE}
+# ggplot(med, aes(x=inputsize, y=median, group=exe.bench, color=exe.bench)) + geom_line()
 ```
 
-## Per Iteration Increase
+#### Increase of MaxRSS for Each Copy of the SOM Unit Tests
 
-```{r per-iter-increase}
+This plot is not included in the paper, but shows that MaxRSS approximates well
+the memory use of the program representation, since it is increasing with the
+number of program copies.
+
+```{r per-iter-increase, echo=FALSE}
 med_diff <- med |>
   group_by(bench, exe, criterion, unit, exe.bench) |>
   mutate(diff = median - lag(median)) |>
@@ -61,9 +63,9 @@ med_diff <- med |>
 ggplot(med_diff, aes(x=inputsize, y=diff, group=exe.bench, color=exe.bench)) + geom_line()
 ```
 
-## Stats
+#### Sec. 5.5.2 Numbers Used
 
-```{r stats}
+```{r stats, echo=FALSE}
 stats <- med_diff |>
   group_by(bench, exe, criterion, unit, exe.bench) |>
   summarise(median.diff = median(diff),
@@ -83,9 +85,9 @@ id <- function(x) { x }
 
 tabular(bench*exe ~ (median.diff + ratio) * id, data=norm)
 ```
-## Code Stats
+#### Lines of Code Statistics
 
-```{r code-stats}
+```{r code-stats, echo=FALSE}
 code_stats <- read.csv("../../../paper/data/program-rep.cloc.csv")
 code_stats$language <- factor(code_stats$language)
 tabular(
