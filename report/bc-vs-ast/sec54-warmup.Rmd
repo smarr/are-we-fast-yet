@@ -7,21 +7,28 @@ output: html_document
 ```{r prepare-data, echo=FALSE, message=FALSE, warning=FALSE, include=FALSE, dev='svg'}
 # load libraries, the data, and prepare it
 source("scripts/libraries.R", chdir=TRUE)
-data <- rbind(
+#data <- rbind(
   # main run, one invocation of everything
-  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1518"),
+#  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1518"),
   # another run, adding JDK8
-  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1523")) %>%
-  factorize_result()
+#  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1523")) %>%
+#  factorize_result()
 
-data <- rbind(
-  load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2867"), # tsom
-  load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2851") # pysom
-) %>% 
-  subset(!(exe %in% c("TruffleSOM-native-interp-ast", "TruffleSOM-native-interp-bc", "RPySOM-bc-interp", "RPySOM-ast-interp"))) %>%
-  subset(iteration <= 500)
+#data <- rbind(
+#  load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2867"), # tsom
+#  load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2851") # pysom
+#) %>% 
+#  subset(!(exe %in% c("TruffleSOM-native-interp-ast", "TruffleSOM-native-interp-bc", "RPySOM-bc-interp", "RPySOM-ast-interp"))) %>%
+#  subset(iteration <= 500)
 
-data <- data[!(data$exe %in% c("RPySOM-bc-jit", "RPySOM-ast-jit") & data$suite %in% c("macro-startup", "micro-startup")),] # those were ran by mistake
+#data <- data[!(data$exe %in% c("RPySOM-bc-jit", "RPySOM-ast-jit") & data$suite %in% c("macro-startup", "micro-startup")),] # those were ran by mistake
+
+data <- load_rebench_data_file("../../../benchmark.data")
+
+data$exe <- ifelse(data$exe == "TruffleSOM-ast-HotspotCE-jit", "TruffleSOM-graal-ast", data$exe)
+data$exe <- ifelse(data$exe == "TruffleSOM-bc-HotspotCE-jit", "TruffleSOM-graal-bc", data$exe)
+data$exe <- ifelse(data$exe == "TruffleSOM-ast-NativeCE-int", "TruffleSOM-native-ast", data$exe)
+data$exe <- ifelse(data$exe == "TruffleSOM-bc-NativeCE-int", "TruffleSOM-native-bc", data$exe)
 
 # summary(data)
 # dput(levels(data$bench))

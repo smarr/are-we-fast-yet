@@ -4,21 +4,17 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE, echo=FALSE}
-if (Sys.getenv("USER") == "smarr") {
-  setwd("/Users/smarr/Projects/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast")
-  } else if (Sys.getenv("USER") == "sopi") {
-  setwd("/home/sopi/Documents/Writing/2023/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast/" )
-  } else {
-  setwd("/home/octavel/PhD/papers/ast-vs-bc-interp/are-we-fast-yet/report/bc-vs-ast")
-  }
 source("scripts/libraries.R", chdir=TRUE)
 source("scripts/data-processing2.R")
 
-raw_data <- rbind(
-  load_rebench_data_file("../../../paper/data/max-rss-test-testgc-tsom.002.data.bz2"),
-  load_rebench_data_file("../../../paper/data/max-rss-test-testgc.003.data.bz2") |>
-    filter(str_detect(exe, "RPySOM-bc-interp", negate=TRUE)),
-  load_rebench_data_file("../../../paper/data/max-rss-test-testgc-fix-pysom.data.bz2"))
+#raw_data <- rbind(
+#  load_rebench_data_file("../../../paper/data/max-rss-test-testgc-tsom.002.data.bz2"),
+#  load_rebench_data_file("../../../paper/data/max-rss-test-testgc.003.data.bz2") |>
+#    filter(str_detect(exe, "RPySOM-bc-interp", negate=TRUE)),
+#  load_rebench_data_file("../../../paper/data/max-rss-test-testgc-fix-pysom.data.bz2"))
+
+# will need some formatting
+data <- load_rebench_data_file("../../../benchmark.data")
 
 raw_data <- factorize_result(raw_data)
 
