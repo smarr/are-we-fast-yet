@@ -15,12 +15,7 @@ data$exe <- ifelse(data$exe == "TruffleSOM-bc-NativeCE-int", "TruffleSOM-bc-Nati
 
 data <- subset(data, suite != "progr-rep-mem")
 
-# ragg_png = function(..., res = 192) {
-#   ragg::agg_png(..., res = res, units = "in")
-# }
 opts_chunk$set(dev = 'png',
-               #fig.ext = 'png',
-               #dpi = 120,
                fig.retina = 2,
                dev.args=list(pointsize=10),
                echo = FALSE,
@@ -28,7 +23,6 @@ opts_chunk$set(dev = 'png',
                fig.path="figures/",
                external=FALSE,
                tidy=FALSE)
-#    cache=TRUE,
 
 # dput(levels(data$bench))
 vms_all <- names(vm_names)
