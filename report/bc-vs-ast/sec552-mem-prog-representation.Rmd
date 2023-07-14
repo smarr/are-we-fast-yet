@@ -14,9 +14,9 @@ source("scripts/data-processing2.R")
 #  load_rebench_data_file("../../../paper/data/max-rss-test-testgc-fix-pysom.data.bz2"))
 
 # will need some formatting
-data <- load_rebench_data_file("../../../benchmark.data")
-
+raw_data <- load_rebench_data_file("../../../benchmark.data")
 raw_data <- factorize_result(raw_data)
+raw_data <- subset(raw_data, suite == "progr-rep-mem")
 
 data <- raw_data |>
   select(!c(suite, cores, extraargs, varvalue, machine)) |>
@@ -84,7 +84,7 @@ tabular(bench*exe ~ (median.diff + ratio) * id, data=norm)
 #### Lines of Code Statistics
 
 ```{r code-stats, echo=FALSE}
-code_stats <- read.csv("../../../paper/data/program-rep.cloc.csv")
+code_stats <- read.csv("../../../data/program-rep.cloc.csv")
 code_stats$language <- factor(code_stats$language)
 tabular(
   language ~ (files + blank + comment + code) * id,
