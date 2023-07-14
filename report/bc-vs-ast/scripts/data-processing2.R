@@ -34,6 +34,7 @@ load_rebench_data_file <- function(file) {
   read.csv(file,
            sep = "\t",
            header = FALSE,
+           skip = 5,
            comment.char = "#",
            col.names = c("invocation", "iteration", "value", "unit",
                          "criterion", "bench", "exe", "suite", "extraargs",
