@@ -1,4 +1,7 @@
-# Performance Results
+---
+title: "Performance Overview based on a Reduced Dataset"
+output: html_document
+---
 
 This report was generated on `r Sys.time()`.
 
@@ -15,12 +18,7 @@ data$exe <- ifelse(data$exe == "TruffleSOM-bc-NativeCE-int", "TruffleSOM-bc-Nati
 
 data <- subset(data, suite != "progr-rep-mem")
 
-# ragg_png = function(..., res = 192) {
-#   ragg::agg_png(..., res = res, units = "in")
-# }
 opts_chunk$set(dev = 'png',
-               #fig.ext = 'png',
-               #dpi = 120,
                fig.retina = 2,
                dev.args=list(pointsize=10),
                echo = FALSE,
@@ -28,7 +26,6 @@ opts_chunk$set(dev = 'png',
                fig.path="figures/",
                external=FALSE,
                tidy=FALSE)
-#    cache=TRUE,
 
 # dput(levels(data$bench))
 vms_all <- names(vm_names)
@@ -63,12 +60,12 @@ baseline_vm_peak <- "Java20-C2-jit"
 baseline_vm_int <- "Java20-int"
 baseline_vm_first <- "Java20-C2-jit"
 
-results_peak <- data %>%
+results_peak <- data |>
   compute_all(
     iteration >= warmup_jit_iteration | exe %in% vms_int,
     baseline_vm_peak)
 
-results_int <- data %>%
+results_int <- data |>
   compute_all(
     exe %in% vms_int,
     baseline_vm_int)
@@ -78,10 +75,10 @@ plot_benchmarks_speedup_for_vms <- function(
   # vm_norm <- norm_peak
   # vms <- vms_jit
   
-  vm_norm <- vm_norm %>%
-    filter(exe %in% vms) %>%
+  vm_norm <- vm_norm |>
+    filter(exe %in% vms) |>
     droplevels()
-  suppressMessages(vm_norm$exe <- revalue(vm_norm$exe, vm_names) %>% droplevels())
+  suppressMessages(vm_norm$exe <- revalue(vm_norm$exe, vm_names) |> droplevels())
   # TODO: is norm_peak the right table? we don't have exe_ratio there yet
   # vm_norm$exe <- reorder(vm_norm$exe, X=vm_norm$exe_ratio)
 
@@ -125,14 +122,14 @@ overview_box_plot <- function(stats, vms = NULL, prepare_data = NULL, pre_plot =
   if (is.null(vms)) {
     vm_stats <- stats
   } else {
-    vm_stats <- stats %>%
-      filter(exe %in% vms) %>%
+    vm_stats <- stats |>
+      filter(exe %in% vms) |>
       droplevels()
   }
 
   if (!is.null(prepare_data)) {
-   vm_stats <- vm_stats %>%
-     prepare_data() %>%
+   vm_stats <- vm_stats |>
+     prepare_data() |>
      droplevels()
   }
 
@@ -214,15 +211,29 @@ overview_box_plot <- function(stats, vms = NULL, prepare_data = NULL, pre_plot =
 
 ```
 
-These reports are for a minimal run, providing a basic overview of the performance of our runtime systems.
-In the normal case, and in our paper, peak performance is only reported based on
-the measurements starting from iteration 1000. 
-For the sake of this simple example, it is only 1 and the runs are only 5 iterations, therefore this does not represent the peak performance of our systems adequately.
-Likewise, interpreters are not ran for enough invocations to report very accurate results.
+This following plots providing a basic overview of the performance of Java, Node.js, and our four interpreters.
+Normally, for assessing peak performance, one would need to let a VM with JIT compiler run longer to reach a steady state.
+However, to keep the overall time for the Getting Started steps in check,
+the benchmarks were only run once with only 5 iterations.
+Therefore the obtain data is not likely to represent the peak performance of our systems adequately.
 
 ## Overview of a minimal run
 
-###### TruffleSOM/PySOM JIT Peak Performance
+#### Sec. 5.2 Interpreter Performance, Figure 2
+
+Comparing TruffleSOM, PySOM, Node-int and Java-Int. Using `r vm_names[baseline_vm_int]` as a baseline.
+
+```{r tsom-pysom-int, fig.width=5.5, fig.height=1.3, cache=FALSE}
+plot <- overview_box_plot(results_int$stats$bench,
+                  c("PySOM-ast-int", "PySOM-bc-int",
+                    "TruffleSOM-ast-NativeCE-int-astvsbc", "TruffleSOM-bc-NativeCE-int-astvsbc",
+                    "Java20-int", "Node-int"),
+                  x_breaks = c(0.3, 0.5, 0.75, 1, 1.33333, 2, 3, 5, 10),
+                  x_lab = "lower is better")
+plot
+```
+
+#### Sec. 5.3 Peak Performance, Figure 3
 
 Results are normalized either to `r vm_names[baseline_vm_peak]`.
 
@@ -236,16 +247,4 @@ plot <- overview_box_plot(results_peak$stats$bench,
 plot
 ```
 
-###### TruffleSOM/PySOM Interpreter Performance
 
-Comparing TruffleSOM, PySOM, Node-int and Java-Int. Using `r vm_names[baseline_vm_int]` as a baseline.
-
-```{r tsom-pysom-int, fig.width=5.5, fig.height=1.3, cache=FALSE}
-plot <- overview_box_plot(results_int$stats$bench,
-                  c("PySOM-ast-int", "PySOM-bc-int",
-                    "TruffleSOM-ast-NativeCE-int-astvsbc", "TruffleSOM-bc-NativeCE-int-astvsbc",
-                    "Java20-int", "Node-int"),
-                  x_breaks = c(0.3, 0.5, 0.75, 1, 1.33333, 2, 3, 5, 10),
-                  x_lab = "lower is better")
-plot
-```

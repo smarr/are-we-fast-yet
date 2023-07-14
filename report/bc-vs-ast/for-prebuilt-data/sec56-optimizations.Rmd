@@ -152,7 +152,7 @@ plot <- box_plot_optim(box_plot_data)
 plot
 ```
 
-##### Fig. 7 (c) PySOM BC Interpreter
+##### Fig. 7 (d) PySOM BC Interpreter
 
 ```{r optim-pysom-bc-interp, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(all_optims, "RPySOM-bc-interp")
@@ -190,7 +190,7 @@ plot <- box_plot_optim(box_plot_data)
 plot
 ```
 
-##### Fig. 8 (c) PySOM BC with JIT Compilation
+##### Fig. 8 (d) PySOM BC with JIT Compilation
 
 ```{r optim-pysom-bc-jit, fig.width=8, fig.height=2.2, echo=FALSE}
 box_plot_data <- get_data_for_box_plot_optim(all_optims, "RPySOM-bc-jit")
