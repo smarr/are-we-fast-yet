@@ -212,12 +212,13 @@ overview_box_plot <- function(stats, vms = NULL, prepare_data = NULL, pre_plot =
 
 ```
 
-For VMs with just-in-time compilation, we report results based on
-the measurements starting from iteration `r warmup_jit_iteration`.
-While this does not guarantee that we measure "peak performance",
-it gives us relatively stable results for most language implementations.
+These reports are for a minimal run, providing a basic overview of the performance of our runtime systems.
+In the normal case, and in our paper, peak performance is only reported based on
+the measurements starting from iteration 1000. 
+For the sake of this simple example, it is only 1 and the runs are only 5 iterations, therefore this does not represent the peak performance of our systems adequately.
+Likewise, interpreters are not ran for enough invocations to report very accurate results.
 
-## Overview
+## Overview of a minimal run
 
 ###### TruffleSOM/PySOM JIT Peak Performance
 
