@@ -31,6 +31,10 @@ data$exe <- ifelse(data$exe == "TruffleSOM-ast-HotspotCE-jit", "TruffleSOM-graal
 data$exe <- ifelse(data$exe == "TruffleSOM-bc-HotspotCE-jit", "TruffleSOM-graal-bc", data$exe)
 data$exe <- ifelse(data$exe == "TruffleSOM-ast-NativeCE-int", "TruffleSOM-native-ast", data$exe)
 data$exe <- ifelse(data$exe == "TruffleSOM-bc-NativeCE-int", "TruffleSOM-native-bc", data$exe)
+data$exe <- ifelse(data$exe == "PySOM-ast-jit", "RPySOM-ast-jit", data$exe)
+data$exe <- ifelse(data$exe == "PySOM-bc-jit", "RPySOM-bc-jit", data$exe)
+
+data <- subset(data, criterion != "MaxRSS" & suite != "progr-rep-mem")
 
 # summary(data)
 # dput(levels(data$bench))
@@ -143,6 +147,16 @@ get_warmup_plots <- function(data, baseline_name, y_lab, dont_rename = FALSE) {
   
   plots
 }
+
+  filtered <- all_data %>% select_data(iteration <= MAX_ITER)
+  
+  base <- filtered %>%
+    compute_baseline("TruffleSOM-graal-ast")
+  
+  norm <- filtered %>%
+            left_join(base, by = c("bench")) %>%
+            group_by(bench) %>%
+            transform(ratio_median = value / base_median)
 
 plot_all <- get_warmup_plots(all_data, "TruffleSOM-graal-ast", expression(Normalized~to~median(TSOM[AST])), TRUE) # "Java-C2-jit")
 
