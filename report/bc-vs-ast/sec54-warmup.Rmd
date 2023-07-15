@@ -7,121 +7,45 @@ output: html_document
 ```{r prepare-data, echo=FALSE, message=FALSE, warning=FALSE, include=FALSE, dev='svg'}
 # load libraries, the data, and prepare it
 source("scripts/libraries.R", chdir=TRUE)
-#data <- rbind(
-  # main run, one invocation of everything
-#  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1518"),
-  # another run, adding JDK8
-#  load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1523")) %>%
-#  factorize_result()
-
-#data <- rbind(
-#  load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2867"), # tsom
-#  load_data_url("https://rebench.stefan-marr.de/TruffleSOM/data/2851") # pysom
-#) %>% 
-#  subset(!(exe %in% c("TruffleSOM-native-interp-ast", "TruffleSOM-native-interp-bc", "RPySOM-bc-interp", "RPySOM-ast-interp"))) %>%
-#  subset(iteration <= 500)
-
-#data <- data[!(data$exe %in% c("RPySOM-bc-jit", "RPySOM-ast-jit") & data$suite %in% c("macro-startup", "micro-startup")),] # those were ran by mistake
 
 data <- load_rebench_data_file("../../../benchmark.data")
+data <- subset(data, criterion == "total" & suite != "progr-rep-mem")
 
-data <- subset(data, exe %in% c("TruffleSOM-native-ast", "TruffleSOM-native-bc", "TruffleSOM-ast-HotspotCE-jit", "TruffleSOM-bc-HotspotCE-jit", "PySOM-ast-jit", "PySOM-bc-jit"))
-
-data$exe <- ifelse(data$exe == "TruffleSOM-ast-HotspotCE-jit", "TruffleSOM-graal-ast", data$exe)
-data$exe <- ifelse(data$exe == "TruffleSOM-bc-HotspotCE-jit", "TruffleSOM-graal-bc", data$exe)
 data$exe <- ifelse(data$exe == "TruffleSOM-ast-NativeCE-int", "TruffleSOM-native-ast", data$exe)
 data$exe <- ifelse(data$exe == "TruffleSOM-bc-NativeCE-int", "TruffleSOM-native-bc", data$exe)
-data$exe <- ifelse(data$exe == "PySOM-ast-jit", "RPySOM-ast-jit", data$exe)
-data$exe <- ifelse(data$exe == "PySOM-bc-jit", "RPySOM-bc-jit", data$exe)
 
-data <- subset(data, criterion != "MaxRSS" & suite != "progr-rep-mem")
-
-# summary(data)
-# dput(levels(data$bench))
-# dput(levels(data$exe))
-
-sorted_benchmarks <- c(
-  "DeltaBlue", "Json", "NBody", "Richards", 
-  "Bounce", "List", "Mandelbrot", "Permute",
-  "Queens", "Sieve", "Storage", "Towers"
-)
-
-sorted_exe <- c(
-  "RPySOM-ast-jit",
-  "RPySOM-bc-jit",
-  
-  "TruffleSOM-graal-ast",
-  "TruffleSOM-graal-bc",
-  
-  "TruffleSOM-native-ast",
-  "TruffleSOM-native-bc"
-)
-    
-# data_ea is expected to have only a single configuration,
-# and perhaps multiple invocations, but no other variation
-warmup_plot <- function (data_ea, b, e) {
-  ## First take the medians over the values for each VM separated
-  data_ea_stats <- data_ea %>%
-      summarise(
-        median = median(value),
-        max = max(value),
-        .groups = "drop")
-  
-  # summary(data_ea)
-  
-  # use the highest one with a little margin as an upper bound
-  upper_bound <- min(2 * max(data_ea_stats$median), 1.05 * max(data_ea_stats$max))
-  
-  plot <- ggplot(data_ea, aes(x=iteration, y=value)) +
-    geom_line(aes(colour = invocation)) +
-    scale_color_manual(values = color_set_vms) +
-    ggtitle(paste(b, e)) +
-    ylab(levels(data_b$unit)) +
-    # scale_x_continuous(breaks = seq(0, max(data_b$iteration), 10)) +
-    coord_cartesian(ylim=c(0, upper_bound)) +
-    geom_vline(
-      xintercept = seq(0, max(data_ea$iteration), 50),
-      linetype = "longdash", colour = "#cccccc") +
-    theme_simple() +
-    theme(legend.position=c(0.85, .92))
-  plot
-}
-```
-
-#### Sec. 5.4 Figure 4 TSOM Interpreter on GraalVM Native Image
-
-```{r warmup-plot, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
-#for (b in sorted_benchmarks) { 
-#  data_b <- data %>% filter(bench == b) %>% droplevels()
-#  for (e in sorted_exe) { 
-#    data_e <- data_b %>% filter(exe == e) %>% droplevels()
-#    plot <- warmup_plot(data_e, b, e)
-#    print(plot)
-      #ggsave(plot, device= cairo_pdf, path=".", filename=paste0("output_graphs_warmup/", b, e, ".pdf"), dpi=300, height=50, width=50, units="mm", family="Arial")
- #   }
-#  } 
-#}
-# to normalize:
-# rbind
+data <- subset(data, exe %in% c(
+  "TruffleSOM-native-ast", "TruffleSOM-native-bc",
+  "PySOM-ast-jit", "PySOM-bc-jit")) |>
+  factorize_result()
 
 MAX_ITER <- 100
 
-# SM: Let's no use Java as baseline.
-# I hope the plots are more clear when we just pick TSOMast as baseline (TruffleSOM-graal-ast)
-# data_java <- load_data_url("https://rebench.stefan-marr.de/Are-We-Fast-Yet/data/2858") %>% filter(exe=="Java-C2-jit")
-# all_data <- rbind(data, data_java)
 all_data <- data
-all_data$exe <- revalue(all_data$exe, c("TruffleSOM-graal"="TruffleSOM-graal-ast"))
-  
+
+filtered <- all_data |> select_data(iteration <= MAX_ITER)
+
+base <- filtered |>
+  compute_baseline("TruffleSOM-native-ast")
+
+norm <- filtered |>
+          left_join(base, by = c("bench")) |>
+          group_by(bench) |>
+          transform(ratio_median = value / base_median)
+
 get_warmup_plots <- function(data, baseline_name, y_lab, dont_rename = FALSE) {
-  filtered <- data %>% select_data(iteration <= MAX_ITER)
+  # data <- native_image_data
+  # baseline_name <- "TruffleSOM-native-ast"
+  # y_lab <- expression(Normalized~to~median(TSOM[AST]))
+  # dont_rename <- FALSE
+  filtered <- data |> select_data(iteration <= MAX_ITER)
   
-  base <- filtered %>%
+  base <- filtered |>
     compute_baseline(baseline_name)
   
-  norm <- filtered %>%
-            left_join(base, by = c("bench")) %>%
-            group_by(bench) %>%
+  norm <- filtered |>
+            left_join(base, by = c("bench")) |>
+            group_by(bench) |>
             transform(ratio_median = value / base_median)
 
   if (!dont_rename) {
@@ -129,14 +53,11 @@ get_warmup_plots <- function(data, baseline_name, y_lab, dont_rename = FALSE) {
   }
   
   vms <- levels(droplevels(norm)$exe)
-  # col_values <- sapply(vms, function(x) color_set_vms[[x]])
   
-  # norm %>% filter(exe %in% sorted_exe)
   plots <- ggplot(norm, aes(x=iteration, y=ratio_median)) +
     geom_line(aes(colour = exe), linewidth=0.3)+
     scale_y_log10() +
     scale_color_manual(values = color_set_vms, label = function (x) parse(text=x), col) +
-#    scale_color_discrete(label = function (x) parse(text=x), col) +
     theme_simple() +
     theme(
       legend.title = element_blank(),
@@ -147,39 +68,22 @@ get_warmup_plots <- function(data, baseline_name, y_lab, dont_rename = FALSE) {
   
   plots
 }
+```
 
-  filtered <- all_data %>% select_data(iteration <= MAX_ITER)
-  
-  base <- filtered %>%
-    compute_baseline("TruffleSOM-graal-ast")
-  
-  norm <- filtered %>%
-            left_join(base, by = c("bench")) %>%
-            group_by(bench) %>%
-            transform(ratio_median = value / base_median)
+#### Sec. 5.4 Figure 4 TSOM Interpreter on GraalVM Native Image
 
-plot_all <- get_warmup_plots(all_data, "TruffleSOM-graal-ast", expression(Normalized~to~median(TSOM[AST])), TRUE) # "Java-C2-jit")
+```{r warmup-plot, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
+native_image_data <- all_data |> filter(exe %in% c("TruffleSOM-native-ast", "TruffleSOM-native-bc"))
+plot_native <- get_warmup_plots(native_image_data, "TruffleSOM-native-ast", expression(Normalized~to~median(TSOM[AST])))
 
-# graal_data <- rbind(all_data %>% filter(exe %in% c("TruffleSOM-graal-ast", "TruffleSOM-graal-bc")), data_java)
-graal_data <- all_data %>% filter(exe %in% c("TruffleSOM-graal-ast", "TruffleSOM-graal-bc"))
-plot_graal <- get_warmup_plots(graal_data, "TruffleSOM-graal-ast", expression(Normalized~to~median(TSOM[AST]))) # "Java-C2-jit")
-
-# native_image_data <- rbind(all_data %>% filter(exe %in% c("TruffleSOM-native-ast", "TruffleSOM-native-bc")), data_java)
-native_image_data <- all_data %>% filter(exe %in% c("TruffleSOM-native-ast", "TruffleSOM-native-bc"))
-plot_native <- get_warmup_plots(native_image_data, "TruffleSOM-native-ast", expression(Normalized~to~median(TSOM[AST]))) # "Java-C2-jit")
-
-
-# print(plot_all)
-# print(plot_graal)
 print(plot_native)
 ```
 
 #### Sec. 5.4 Figure 5 PySOM Interpreter
 
 ```{r warmup-plot-pysom, echo=FALSE, dev='png', fig.keep='all', fig.width=10, fig.height=6}
-# pysom_data <- rbind(all_data %>% filter(exe %in% c("RPySOM-ast-jit", "RPySOM-bc-jit")), data_java)
-pysom_data <- data %>% filter(exe %in% c("RPySOM-ast-jit", "RPySOM-bc-jit"))
-plot_pysom <- get_warmup_plots(pysom_data, "RPySOM-ast-jit", expression(Normalized~to~median(PySOM[AST]))) # "Java-C2-jit")
+pysom_data <- all_data |> filter(exe %in% c("PySOM-ast-jit", "PySOM-bc-jit"))
+plot_pysom <- get_warmup_plots(pysom_data, "PySOM-ast-jit", expression(Normalized~to~median(PySOM[AST]))) # "Java-C2-jit")
 print(plot_pysom)
 
 OUTPUT_WIDTH <- 5.5
