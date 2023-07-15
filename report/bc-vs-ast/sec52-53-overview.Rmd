@@ -16,12 +16,10 @@ data$exe <- ifelse(data$exe == "TruffleSOM-bc-HotspotCE-jit", "TruffleSOM-bc-Hot
 data$exe <- ifelse(data$exe == "TruffleSOM-ast-NativeCE-int", "TruffleSOM-ast-NativeCE-int-astvsbc", data$exe)
 data$exe <- ifelse(data$exe == "TruffleSOM-bc-NativeCE-int", "TruffleSOM-bc-NativeCE-int-astvsbc", data$exe)
 
-# ragg_png = function(..., res = 192) {
-#   ragg::agg_png(..., res = res, units = "in")
-# }
+data <- subset(data, suite != "progr-rep-mem") |>
+  factorize_result()
+
 opts_chunk$set(dev = 'png',
-               #fig.ext = 'png',
-               #dpi = 120,
                fig.retina = 2,
                dev.args=list(pointsize=10),
                echo = FALSE,
@@ -29,37 +27,20 @@ opts_chunk$set(dev = 'png',
                fig.path="figures/",
                external=FALSE,
                tidy=FALSE)
-#    cache=TRUE,
 
 # dput(levels(data$bench))
 vms_all <- names(vm_names)
 vms_int <- c(
-  "Java-int",
   "Java20-int",
-  "Java8-int",
   "Node-int",
-  "GraalJS-NativeEE-int",
   
-  "CPython-int",
-  "GraalPython-NativeEE-int", 
-  "PyPy-int",
-  
-  "CRuby-int",
-  "TruffleRuby-NativeEE-int",
- 
   "PySOM-ast-int",
   "PySOM-bc-int", 
   
   "TruffleSOM-ast-NativeCE-int-astvsbc",
-  "TruffleSOM-bc-NativeCE-int-astvsbc",
-  
-  "SOMpp-int",
-  "CSOM-int",
-  "SOM-RS-ast-int",
-  "SOM-RS-bc-int",
-  "ykSOM-int")
+  "TruffleSOM-bc-NativeCE-int-astvsbc")
 
-warmup_jit_iteration <- 1000
+warmup_jit_iteration <- 1
 baseline_vm_peak <- "Java20-C2-jit"
 baseline_vm_int <- "Java20-int"
 baseline_vm_first <- "Java20-C2-jit"
