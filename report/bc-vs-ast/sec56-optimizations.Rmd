@@ -177,7 +177,7 @@ all_optims <- load_rebench_data_file("../../../benchmark.data")
 all_optims <- get_and_format_new_data(all_optims)
 unique_optims <- unique(all_optims$optim)
 
-MIN_JIT_ITERATION <- ifelse(max(all_optims$iteration) > 1000, 1000, 6)
+MIN_JIT_ITERATION <- ifelse(max(all_optims$iteration) > 1000, 1000, 0)
 
 color_set_opti <- c('#081d58', '#AADC32FF','#472D7BFF','#3B528BFF','#FDE725FF','#440154FF','#1d91c0','#238b45','#ec7014')
 color_set_optims <- set_color_bindings_for_plots(unique_optims, color_set_opti)
