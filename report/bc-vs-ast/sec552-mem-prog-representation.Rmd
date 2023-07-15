@@ -7,12 +7,6 @@ output: html_document
 source("scripts/libraries.R", chdir=TRUE)
 source("scripts/data-processing2.R")
 
-#raw_data <- rbind(
-#  load_rebench_data_file("../../../paper/data/max-rss-test-testgc-tsom.002.data.bz2"),
-#  load_rebench_data_file("../../../paper/data/max-rss-test-testgc.003.data.bz2") |>
-#    filter(str_detect(exe, "RPySOM-bc-interp", negate=TRUE)),
-#  load_rebench_data_file("../../../paper/data/max-rss-test-testgc-fix-pysom.data.bz2"))
-
 # will need some formatting
 raw_data <- load_rebench_data_file("../../../benchmark.data")
 raw_data <- factorize_result(raw_data)
@@ -20,14 +14,15 @@ raw_data <- subset(raw_data, suite == "progr-rep-mem")
 
 data <- raw_data |>
   select(!c(suite, cores, extraargs, varvalue, machine)) |>
-  filter(criterion == "MaxRSS") |>
+  filter(criterion == "MaxRSS", exe %in% c("PySOM-ast-int", "PySOM-bc-int",
+                                           "TruffleSOM-ast-NativeCE-int", "TruffleSOM-bc-NativeCE-int" )) |>
   droplevels()
 
 data$exe <- revalue(data$exe,
-                    c("RPySOM-bc-interp"="PySOM BC",
-                      "RPySOM-ast-interp"="PySOM AST",
-                      "TruffleSOM-native-interp-ast" = "TrSOM AST",
-                      "TruffleSOM-native-interp-bc" = "TrSOM BC"))
+                    c("PySOM-bc-int"="PySOM BC",
+                      "PySOM-ast-int"="PySOM AST",
+                      "TruffleSOM-ast-NativeCE-int" = "TrSOM AST",
+                      "TruffleSOM-bc-NativeCE-int" = "TrSOM BC"))
 
 data <- data |>
   mutate(exe.bench = paste(exe, bench))
@@ -60,6 +55,12 @@ ggplot(med_diff, aes(x=inputsize, y=diff, group=exe.bench, color=exe.bench)) + g
 ```
 
 #### Sec. 5.5.2 Numbers Used
+
+**Warning**: The numbers here don't make sense. With the setup used in the artifact,
+we run each benchmark once, but for 5 iterations. This means, the program representation
+is drowned out by the program execution. These experiments would need to be
+run separately For the paper, we ran them with 1 iteration and 5 invocations.
+
 
 ```{r stats, echo=FALSE}
 stats <- med_diff |>
