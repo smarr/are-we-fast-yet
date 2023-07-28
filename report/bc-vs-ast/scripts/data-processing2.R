@@ -42,7 +42,6 @@ load_rebench_data_file <- function(file) {
 }
 
 factorize_result <- function(result) {
-  options(warn = 2)
   suppressWarnings({
     result$bench <- factor(result$bench)
     result$suite <- factor(result$suite)

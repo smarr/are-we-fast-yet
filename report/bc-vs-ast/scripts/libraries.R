@@ -10,7 +10,7 @@ source("latex.R")
 options(scipen=999)
 
 # prints stack trace on error, from: http://stackoverflow.com/a/2000757/916546
-options(warn = 2, keep.source = TRUE, error = 
+options(warn = 0, keep.source = TRUE, error = 
           quote({ 
             cat("Environment:\n", file=stderr()); 
             
