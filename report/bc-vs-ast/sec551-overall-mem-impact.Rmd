@@ -8,7 +8,7 @@ output: html_document
 source("scripts/libraries.R", chdir=TRUE)
 source("scripts/data-processing2.R")
 
-data_rss <- load_rebench_data_file("../../../memory.data") |> 
+data_rss <- load_rebench_data_file("../../../memory-sec551.data") |> 
       filter(criterion == "MaxRSS") |>
       subset(select = -c(commitid, trialid,
                          cmdline, 

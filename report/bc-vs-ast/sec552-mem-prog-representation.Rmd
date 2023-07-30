@@ -8,7 +8,7 @@ source("scripts/libraries.R", chdir=TRUE)
 source("scripts/data-processing2.R")
 
 # will need some formatting
-raw_data <- load_rebench_data_file("../../../benchmark.data")
+raw_data <- load_rebench_data_file("../../../memory-sec552.data")
 raw_data <- factorize_result(raw_data)
 raw_data <- subset(raw_data, suite == "progr-rep-mem")
 
