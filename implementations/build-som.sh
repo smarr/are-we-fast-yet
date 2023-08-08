@@ -18,7 +18,9 @@ else
   load_git_repo https://github.com/SOM-st/TruffleSOM.git $SCRIPT_PATH/TruffleSOM
   pushd $SCRIPT_PATH/TruffleSOM
   git submodule update --recursive --init
-  ant jar
+  ./som --setup mx
+  ./som --setup labsjdk
+  ../mx/mx build
   popd
 fi
 OK SOM and TruffleSOM Build Completed.
