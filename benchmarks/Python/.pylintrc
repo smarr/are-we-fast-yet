@@ -85,7 +85,8 @@ disable=raw-checker-failed,
         consider-using-enumerate,
         consider-using-in,
         too-many-branches,
-        too-many-statements
+        too-many-statements,
+        broad-exception-raised
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -527,7 +528,5 @@ min-public-methods=2
 
 [EXCEPTIONS]
 
-# Exceptions that will emit a warning when being caught. Defaults to
-# "BaseException, Exception".
-overgeneral-exceptions=BaseException,
-                       Exception
+# Exceptions that will emit a warning when being caught.
+overgeneral-exceptions=

@@ -382,6 +382,7 @@ class _Direction(Enum):
 
 # ------------------------ constraints ------------------------------------
 
+
 # I am an abstract class representing a system-maintainable
 # relationship (or "constraint") between a set of variables. I supply
 # a strength instance variable; concrete subclasses provide a means
@@ -670,7 +671,6 @@ class _UnaryConstraint(_AbstractConstraint):
 # I am a unary input constraint used to mark a variable that the
 # client wishes to change.
 class _EditConstraint(_UnaryConstraint):
-
     # I indicate that a variable is to be changed by imperative code.
     def is_input(self):
         return True
@@ -681,7 +681,6 @@ class _EditConstraint(_UnaryConstraint):
 
 # I constrain two variables to have the same value: "v1 = v2".
 class _EqualityConstraint(_BinaryConstraint):
-
     # Install a constraint with the given strength equating the given
     # variables.
     def __init__(self, var1, var2, strength, planner):
@@ -772,6 +771,7 @@ class _StayConstraint(_UnaryConstraint):
 
 
 # ------------------------------ variables ------------------------------
+
 
 # I represent a constrained variable. In addition to my value, I
 # maintain the structure of the constraint graph, the current
