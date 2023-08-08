@@ -24,7 +24,7 @@
  * THE SOFTWARE.
  */
 
-#include <som/Vector.h>
+#include "Vector.h"
 
 namespace som {
 

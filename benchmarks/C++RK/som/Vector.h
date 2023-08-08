@@ -24,7 +24,7 @@
  * THE SOFTWARE.
  */
 
-#include <som/Interfaces.h>
+#include "Interfaces.h"
 
 namespace som {
 

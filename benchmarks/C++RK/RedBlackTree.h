@@ -1,7 +1,7 @@
 #ifndef _REDBLACKTREE_H
 #define _REDBLACKTREE_H
 
-#include <som/Interfaces.h>
+#include "som/Interfaces.h"
 
 template <class K, class V, class C>
 class RedBlackTree {

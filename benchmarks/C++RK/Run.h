@@ -26,7 +26,7 @@
 
 #include <string>
 #include <iostream>
-#include <Benchmark.h>
+#include "Benchmark.h"
 
 class Run {
     std::string name;
