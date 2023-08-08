@@ -85,7 +85,7 @@ jobs:
           sudo gem install rubocop
 
       - name: Install Lua
-        uses: leafo/gh-actions-lua@v8
+        uses: leafo/gh-actions-lua@v10
         with:
             luaVersion: 5.2
         if: matrix.id == 'lua52'
@@ -97,7 +97,7 @@ jobs:
       - name: Install LuaCheck and lua5.2 symlink
         run: |
           luarocks install luacheck
-          sudo ln -s "`which lua`" "`which lua`5.2"
+          (cd .lua/bin && ln -s lua lua5.2)
         if: matrix.id == 'lua52'
 
       - name: Install Python
