@@ -141,11 +141,11 @@ public:
     }
 
     int size() {
-        return size;
+        return sz;
     }
 
     bool isEmpty() {
-        return size == 0;
+        return sz == 0;
     }
 
     int getBucketIdx(int hash) {
