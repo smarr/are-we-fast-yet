@@ -3,9 +3,9 @@
 
 namespace json {
     
-    extern shared_ptr<JsonLiteral> JsonLiteral::NNULL = make_shared<JsonLiteral>("null");
-    extern shared_ptr<JsonLiteral> JsonLiteral::TRUE = make_shared<JsonLiteral>("true");
-    extern shared_ptr<JsonLiteral> JsonLiteral::FALSE = make_shared<JsonLiteral>("false");
+    shared_ptr<JsonLiteral> JsonLiteral::NNULL = make_shared<JsonLiteral>("null");
+    shared_ptr<JsonLiteral> JsonLiteral::TRUE = make_shared<JsonLiteral>("true");
+    shared_ptr<JsonLiteral> JsonLiteral::FALSE = make_shared<JsonLiteral>("false");
 
     JsonLiteral::JsonLiteral(string value) {
         _value = value;
