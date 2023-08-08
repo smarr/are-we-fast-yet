@@ -67,17 +67,11 @@ class Bounce : public Benchmark
             shared_ptr<Random> random = make_shared<Random>();
             int ballCount = 100;
             int bounces = 0;
-<<<<<<< Updated upstream
+            
             Ball *balls = new Ball[ballCount];
             for(int i = 0; i < ballCount; i++) {
                 balls[i] = Ball(random);
             }
-=======
-            vector<Ball> balls;
-
-            for (int i = 0; i < ballCount; i++)
-                balls.push_back(Ball(random));
->>>>>>> Stashed changes
 
             for (int i = 0; i < 50; i++) {
                 for (int j = 0; j < ballCount; j++) {

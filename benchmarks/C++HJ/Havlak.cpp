@@ -14,12 +14,7 @@ namespace havlak {
                 return result;
             } 
 
-<<<<<<< Updated upstream
-            bool verifyResult(any result, int innerIterations) {
-                vector<int> r = any_cast<vector<int>>(result);
-=======
             bool verifyResult(vector<int> r, int innerIterations) {
->>>>>>> Stashed changes
                 if (innerIterations == 15000) { return r[0] == 46602 && r[1] == 5213; }
                 if (innerIterations ==  1500) { return r[0] ==  6102 && r[1] == 5213; }
                 if (innerIterations ==   150) { return r[0] ==  2052 && r[1] == 5213; }
