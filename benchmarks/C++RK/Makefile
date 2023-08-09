@@ -1,7 +1,7 @@
 SRC_CORE=som/Random.cpp						\
 			Bounce.cpp							\
 			Run.cpp 							\
-			main.cpp							\
+			Harness.cpp							\
 			List.cpp							\
 			Mandelbrot.cpp						\
 			Sieve.cpp							\
