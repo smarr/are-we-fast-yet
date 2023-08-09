@@ -9,24 +9,7 @@ source("scripts/libraries.R", chdir=TRUE)
 
 load_and_install_if_necessary("ragg")
 library(ragg)
-
-# data <- rbind(
-#   # main run, one invocation of everything
-#   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1518"),
-#   # another run, adding JDK8
-#   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1523"))
-# 
-# data <- rbind(
-#   data %>% filter(exe != "TruffleSOM-ast-NativeEE-int-uber"),
-#   # latest uber run
-#   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1543")) %>%
-#   factorize_result()
-
-# data <- 
-#   rbind(load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1806") %>%
-#           factorize_result(),
-#         # PyPy-int
-#         load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1814"))
+library(tidyr)
 
 data <- rbind(
   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/2257") |>
@@ -37,9 +20,21 @@ data <- rbind(
   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/2275"),
   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/2277"),
   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/2280"),
-  load_data_url("https://rebench.dev/Are-We-Fast-Yet/data/2545")) |>
+  load_data_url("https://rebench.dev/Are-We-Fast-Yet/data/2545"),
+  load_data_url("https://rebench.dev/Are-We-Fast-Yet/data/2899"),
+  load_data_url("https://rebench.dev/Are-We-Fast-Yet/data/3059"),
+  load_data_url("https://rebench.dev/Are-We-Fast-Yet/data/3062"))
+
+# Hack to separate out the versions
+data$commitid <- as.character(data$commitid)
+data$commitid[data$commitid =="dc9700"] <- "v23.0"
+data$commitid[data$commitid !="v23.0"]  <- "v22.3"
+
+baseline_version <- "v22.3"
+
+data <- data |>
   factorize_result()
-  
+
 
 # ragg_png = function(..., res = 192) {
 #   ragg::agg_png(..., res = res, units = "in")
@@ -57,16 +52,34 @@ opts_chunk$set(dev = 'png',
 #    cache=TRUE,
 
 vm_names <- c(
+  "Java20-C2-jit" = "Java JDK20 C2",
+  "Java20-int"    = "Java JDK20 Int", 
+  "Java-C2-jit"   = "Java ?? C2",
   "Java17-C2-jit" = "Java JDK17 C2",
   "Java-int"      = "Java JDK17 Int", 
   "Java8-C2-jit"  = "Java JDK8 C2",
   "Java8-int"     = "Java JDK8 Int", 
   "Java-native"   = "GraalVM Native EE 22.3",
   
+  "Java-Temurin-8-int" = "Java-Temurin-8-int",
+  "Java-Temurin-17-int" = "Java-Temurin-17-int",
+  "Java-Temurin-20-int" = "Java-Temurin-20-int",
+  
+  "Java-Temurin-8-jit" = "Java-Temurin-8-jit",
+  "Java-Temurin-17-jit" = "Java-Temurin-17-jit",
+  "Java-Temurin-20-jit" = "Java-Temurin-20-jit",
+  
+  "Java-OpenJDK-8-jit" = "Java-OpenJDK-8-jit",
+  "Java-OpenJDK-8-int" = "Java-OpenJDK-8-int",
+  "Java-OpenJDK-17-int" = "Java-OpenJDK-17-int",
+  "Java-OpenJDK-17-jit" = "Java-OpenJDK-17-jit",
+  
   "CSharp-jit"    = "C# .NET 6.0.200",
  
-  "Node-jit"      = "Node.js 17.9",
-  "Node-int"      = "Node.js 17.9 jitless", 
+  "Node-jit"      = "Node.js 20.3",
+  "Node-int"      = "Node.js 20.3 jitless", 
+  "Bun-jit"       = "Bun 0.6.9",
+  "Bun-int"       = "Bun 0.6.9 jitless", 
   "GraalJS-HotspotEE-jit" = "Graal.js EE 22.3 Hotspot", 
   "GraalJS-NativeEE-int"  = "Graal.js EE 22.3 Native Int", 
   
@@ -106,10 +119,19 @@ vm_names <- c(
 
 vms_all <- names(vm_names)
 vms_int <- c(
+  "Java20-int",
   "Java-int",
   "Java8-int",
   "Node-int",
+  "Bun-int",
   "GraalJS-NativeEE-int",
+  
+  "Java-Temurin-8-int",
+  "Java-Temurin-17-int",
+  "Java-Temurin-20-int",
+  
+  "Java-OpenJDK-8-int",
+  "Java-OpenJDK-17-int",
   
   "CPython-int",
   "GraalPython-NativeEE-int", 
@@ -134,11 +156,22 @@ vms_int <- c(
   "ykSOM-int")
 
 vms_jit <- c(
+  "Java20-C2-jit",
   "Java17-C2-jit",
   "Java8-C2-jit",
   "Java-native",
+  "Java-C2-jit",
+  
+  "Java-Temurin-8-jit",
+  "Java-Temurin-17-jit",
+  "Java-Temurin-20-jit",
+  
+  "Java-OpenJDK-8-jit",
+  "Java-OpenJDK-17-jit",
+  
   "CSharp-jit",
   "Node-jit",
+  "Bun-jit",
   "GraalJS-HotspotEE-jit",
   
   "PyPy-jit",
@@ -157,6 +190,14 @@ vms_jit <- c(
 
 assert_that(all(sort(c(vms_int, vms_jit)) == sort(vms_all))) ## sanity check
 
+for (e in as.character(unique(data$exe))) {
+  if (!(e %in% vms_all)) {
+    cat(e)
+  }
+  assert_that(e %in% vms_all)
+}
+
+
 # vm_colors <- brewer.pal(length(vms_all), "Paired")  # to replace scale_fill_brewer(type = "qual", palette = "Paired")
 vm_colors <- rainbow(length(vms_all))
 vm_colors_light <- rainbow(length(vms_all), s = 0.8, v = 0.8)
@@ -169,25 +210,30 @@ baseline_vm_peak <- "Java8-C2-jit"
 baseline_vm_int <- "Java8-int"
 baseline_vm_first <- "Java8-C2-jit"
 
-results_peak <- data %>%
+results_peak <- data |>
   compute_all(
     iteration >= warmup_jit_iteration | exe %in% vms_int | exe == "CRuby-y-jit",
-    baseline_vm_peak)
+    baseline_vm_peak, baseline_version)
 
-results_int <- data %>%
+results_peak_node <- data |>
+  compute_all(
+    iteration >= warmup_jit_iteration | exe %in% vms_int | exe == "CRuby-y-jit",
+    "Node-jit", baseline_version)
+
+results_int <- data |>
   compute_all(
     exe %in% vms_int,
-    baseline_vm_int)
+    baseline_vm_int, baseline_version)
 
-results_python_int <- data %>%
+results_python_int <- data |>
   compute_all(
     exe %in% vms_int,
-    "CPython-int")
+    "CPython-int", baseline_version)
 
-results_first <- data %>%
+results_first <- data |>
   compute_all(
     iteration == 1,
-    baseline_vm_first)
+    baseline_vm_first, baseline_version)
 
 
 plot_benchmarks_speedup_for_vms <- function(
@@ -195,10 +241,10 @@ plot_benchmarks_speedup_for_vms <- function(
   # vm_norm <- norm_peak
   # vms <- vms_jit
   
-  vm_norm <- vm_norm %>%
-    filter(exe %in% vms) %>%
+  vm_norm <- vm_norm |>
+    filter(exe %in% vms) |>
     droplevels()
-  suppressMessages(vm_norm$exe <- revalue(vm_norm$exe, vm_names) %>% droplevels())
+  suppressMessages(vm_norm$exe <- revalue(vm_norm$exe, vm_names) |> droplevels())
   # TODO: is norm_peak the right table? we don't have exe_ratio there yet
   # vm_norm$exe <- reorder(vm_norm$exe, X=vm_norm$exe_ratio)
 
@@ -241,14 +287,14 @@ overview_box_plot <- function(stats, vms = NULL, prepare_data = NULL, pre_plot =
   if (is.null(vms)) {
     vm_stats <- stats
   } else {
-    vm_stats <- stats %>%
-      filter(exe %in% vms) %>%
+    vm_stats <- stats |>
+      filter(exe %in% vms) |>
       droplevels()
   }
 
   if (!is.null(prepare_data)) {
-   vm_stats <- vm_stats %>%
-     prepare_data() %>%
+   vm_stats <- vm_stats |>
+     prepare_data() |>
      droplevels()
   }
 
@@ -263,7 +309,7 @@ overview_box_plot <- function(stats, vms = NULL, prepare_data = NULL, pre_plot =
 
   median_fn <- median
   
-  plot <- ggplot(vm_stats, aes(x=ratio, y=reorder(exe, -ratio, FUN = median_fn), fill = exe))
+  plot <- ggplot(vm_stats, aes(x=ratio, y=reorder(exe, -ratio, FUN = median_fn), fill = exe, group = exeCommitId))
   if (!is.null(pre_plot)) {
     plot <- pre_plot(plot)
   }
@@ -271,7 +317,7 @@ overview_box_plot <- function(stats, vms = NULL, prepare_data = NULL, pre_plot =
   if (!identical(x_breaks, waiver())) {
     for (b in x_breaks) {
       # REM: the loop requires the use of the eager aes_ here!
-      plot <- plot + geom_vline(aes_(xintercept=b),
+      plot <- plot + geom_vline(aes(xintercept=b),
                                 colour="#cccccc", linetype="dashed")
     }
   }
@@ -339,11 +385,37 @@ overview_box_plot(
 
 ###### Java Performance
 
-```{r java-overview, fig.width=8, fig.height=1.5}
+Interpreter 
+```{r java-overview-int, fig.width=8, fig.height=2}
 overview_box_plot(results_int$stats$bench,
-                  c("Java-int",  "Java17-C2-jit",
-                    "Java8-int", "Java8-C2-jit",
-                    "Java-native"))
+                  c("Java-int",
+                    "Java8-int",
+		                "Java20-int",
+		                
+                    "Java-Temurin-8-int",
+                    "Java-Temurin-17-int",
+                    "Java-Temurin-20-int",
+                    
+                    "Java-OpenJDK-8-int",
+                    "Java-OpenJDK-17-int"
+))
+```
+
+C2
+
+```{r java-overview-c2, fig.width=8, fig.height=2}
+overview_box_plot(results_peak$stats$bench,
+                  c("Java17-C2-jit",
+                     "Java8-C2-jit",
+		                "Java20-C2-jit",
+                    "Java-native",
+		                
+                    "Java-Temurin-8-jit",
+                    "Java-Temurin-17-jit",
+                    "Java-Temurin-20-jit",
+                    
+                    "Java-OpenJDK-8-jit",
+                    "Java-OpenJDK-17-jit"))
 ```
 
 ###### JavaScript Performance
@@ -351,7 +423,18 @@ overview_box_plot(results_int$stats$bench,
 ```{r js-overview, fig.width=8, fig.height=1.5}
 overview_box_plot(results_peak$stats$bench,
                   c("Node-int", "Node-jit",
+                    "Bun-int", "Bun-jit",
                     "GraalJS-HotspotEE-jit", "GraalJS-NativeEE-int"))
+
+overview_box_plot(results_peak_node$stats$bench,
+                  c("Node-int", "Node-jit",
+                    "Bun-int", "Bun-jit",
+                    "GraalJS-HotspotEE-jit", "GraalJS-NativeEE-int"))
+
+overview_box_plot(results_peak_node$stats$bench,
+                  c("Node-int", "Node-jit",
+                    "Bun-int", "Bun-jit"))
+
 ```
 
 ###### Python Performance
@@ -484,11 +567,21 @@ plot_benchmarks_speedup_for_vms(results_int$normalized, c(
 ```
 
 ##### Java+JavaScript Interpreter Only
+<a id="js-int"></a>
 
 ```{r java-js-benchmarks, fig.width=8, fig.height=2.2}
 plot_benchmarks_speedup_for_vms(
   results_int$normalized,
-  c("Java-int", "Java8-int", "Node-int", "GraalJS-NativeEE-int"))
+  c("Java-int", "Java8-int", "Node-int","Bun-int", "GraalJS-NativeEE-int"))
+```
+
+##### Java+JavaScript JIT Compiler Only
+<a id="js-jit"></a>
+
+```{r java-js-benchmarks-jit, fig.width=8, fig.height=2.2}
+plot_benchmarks_speedup_for_vms(
+  results_peak$normalized,
+  c("Java-jit", "Java8-jit", "Node-jit","Bun-jit", "GraalJS-NativeEE-jit"))
 ```
 
 ##### SOM Optimizations
@@ -505,7 +598,7 @@ plot_benchmarks_speedup_for_vms(results_int$normalized, c("PySOM-ast-int",
 ##### TruffleSOM, Normalized to main
 
 ```{r trufflesom-opt-overview, fig.width=8, fig.height=1.5}
-results_som <- data %>%
+results_som <- data |>
   compute_all(str_detect(exe, "TruffleSOM"), "TruffleSOM-ast-NativeEE-int-main")
 
 overview_box_plot(results_som$stats$bench,

@@ -34,10 +34,13 @@ factorize_result <- function(result) {
   result$suite <- factor(result$suite)
   result$exe <- factor(result$exe)
   result$cmdline <- factor(result$cmdline)
-  result$varvalue <- forcats::fct_explicit_na(factor(result$varvalue), na_level = "")
+  #result$varvalue <- forcats::fct_explicit_na(factor(result$varvalue), na_level = "")
+  result$varvalue <- forcats::fct_na_value_to_level(factor(result$varvalue), level = "")
   result$cores <- factor(result$cores)
-  result$inputsize <- forcats::fct_explicit_na(factor(result$inputsize), na_level = "")
-  result$extraargs <- forcats::fct_explicit_na(factor(result$extraargs), na_level = "")
+  #result$inputsize <- forcats::fct_explicit_na(factor(result$inputsize), na_level = "")
+  result$inputsize <- forcats::fct_na_value_to_level(factor(result$inputsize), level = "")
+  #result$extraargs <- forcats::fct_explicit_na(factor(result$extraargs), na_level = "")
+  result$extraargs <- forcats::fct_na_value_to_level(factor(result$extraargs), level = "")
   
   if ("criterion" %in% colnames(result)) {
     result$criterion <- factor(result$criterion)
@@ -103,39 +106,44 @@ map_names <- function(old_names, name_map) {
 ## Function to calculate the needed statistics
 select_data <- function(data, filter_cond) {
   filter_cond <- enquo(filter_cond)
-  data %>%
-    group_by(exe, bench,
-             varvalue, cores, inputsize, extraargs) %>%
-    select(!c(cmdline, commitid, trialid, suite, warmup, criterion)) %>%
-    filter(!!filter_cond) %>%
+  data |>
+    group_by(exe, commitid, bench,
+             varvalue, cores, inputsize, extraargs) |>
+    select(!c(cmdline, trialid, suite, warmup, criterion)) |>
+    filter(!!filter_cond) |>
     droplevels()
 }
 
-compute_baseline <- function(data, baseline_exe) {
-  data %>%
-    filter(exe == baseline_exe) %>%
+compute_baseline <- function(data, baseline_exe, baseline_version) {
+  data |>
+    filter(exe == baseline_exe, commitid == baseline_version) |>
     summarise(base_median = median(value),
-              .groups = "drop")  %>%
-    select(!exe) %>%
+              .groups = "drop")  |>
+    select(!c(exe, commitid)) |>
     droplevels()
 }
 
 compute_normalized <- function(data, baseline_data) {
-  data %>%
+  result <- data |>
     left_join(
       baseline_data,
-      by = c("bench", "varvalue", "cores", "inputsize", "extraargs")) %>%
+      by = c("bench", "varvalue", "cores", "inputsize", "extraargs")) |>
     group_by(
-      exe, bench,
-      varvalue, cores, inputsize, extraargs) %>%
-    transform(ratio_median = value / base_median)
+      exe, commitid, bench,
+      varvalue, cores, inputsize, extraargs) |>
+    transform(ratio_median = value / base_median) |>
+    unite("exeCommitId", exe, commitid, sep = " ", remove = FALSE)
+  
+  result$exeCommitId <- factor(result$exeCommitId)
+  
+  result
 }
 
 compute_bench_stats <- function(data) {
-  data %>%
+  result <- data |>
     group_by(
-      exe, bench,
-      varvalue, cores, inputsize, extraargs) %>%
+      exe, commitid, bench,
+      varvalue, cores, inputsize, extraargs) |>
     summarise(
       unit = unit[1],
       min = min(value),
@@ -145,14 +153,20 @@ compute_bench_stats <- function(data) {
       
       ratio = median(value) / base_median[1],
       change_m = ratio - 1,
-      .groups = "drop")
+      .groups = "drop") |>
+    unite("exeCommitId", exe, commitid, sep = " ", remove = FALSE)
+  
+  result$exeCommitId <- factor(result$exeCommitId)
+  
+  result
 }
 
 compute_exe_stats <- function(data) {
-  data %>%
-    group_by(exe) %>%
+  data |>
+    group_by(exe, commitid) |>
     summarise(
       unit = unit[1],
+      exeCommitId = exeCommitId[1],
       median_ratio = median(ratio),
       min_ratio = min(ratio),
       max_ratio = max(ratio),
@@ -160,33 +174,33 @@ compute_exe_stats <- function(data) {
 }
 
 add_exe_median_ratio <- function (stats, stats_exe) {
-  d <- stats_exe %>%
-    rename(exe_ratio = median_ratio) %>%
-    select(exe, exe_ratio)
+  d <- stats_exe |>
+    rename(exe_ratio = median_ratio) |>
+    select(exe, exe_ratio, commitid)
   
-  stats %>%
-    left_join(d, by = c("exe"))
+  stats |>
+    left_join(d, by = c("exe", "commitid"))
 }
 
-compute_all <- function(data, filter_cond, baseline) {
+compute_all <- function(data, filter_cond, baseline, baseline_version) {
   filter_cond <- enquo(filter_cond)
   
-  filtered <- data %>%
+  filtered <- data |>
     select_data(!!filter_cond)
   
-  base <- filtered %>%
-    compute_baseline(baseline)
+  base <- filtered |>
+    compute_baseline(baseline, baseline_version)
   
-  norm <- filtered %>%
+  norm <- filtered |>
     compute_normalized(base)
   
-  stats_bench <- norm %>%
+  stats_bench <- norm |>
     compute_bench_stats()
   
-  stats_exe <- stats_bench %>%
+  stats_exe <- stats_bench |>
     compute_exe_stats()
   
-  stats_bench <- stats_bench %>%
+  stats_bench <- stats_bench |>
     add_exe_median_ratio(stats_exe)
   
   list(
@@ -194,6 +208,7 @@ compute_all <- function(data, filter_cond, baseline) {
     base = base,
     normalized = norm,
     baseline = baseline,
+    baseline_version = baseline_version,
     stats = list(
       bench = stats_bench,
       exe = stats_exe
