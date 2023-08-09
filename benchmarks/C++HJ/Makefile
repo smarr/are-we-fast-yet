@@ -70,7 +70,7 @@ OBJ_CORE    =	$(SRC_CORE:.cpp=.o)
 
 CXXFLAGS+=	-Wall -Wextra -std=c++17 -O2
 
-NAME_CORE   =	Harness
+NAME_CORE   =	Harness-$(CXX)
 
 
 $(NAME_CORE):	$(OBJ_CORE)
