@@ -4,6 +4,7 @@
 #include "ControlFlowGraph.h"
 #include "LoopStructureGraph.h"
 #include "UnionFindNode.h"
+#include <limits>
 #include <map>
 #include <algorithm>
 #include <iostream>
