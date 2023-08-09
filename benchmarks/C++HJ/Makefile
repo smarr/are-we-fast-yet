@@ -68,7 +68,7 @@ SRC_CORE=som/Error.cpp						\
 
 OBJ_CORE    =	$(SRC_CORE:.cpp=.o)
 
-CXXFLAGS+=	-Wall -Wextra -std=c++17 -O2
+CXXFLAGS+=	-Wall -Wextra -std=c++17 -O3
 
 NAME_CORE   =	Harness-$(CXX)
 
