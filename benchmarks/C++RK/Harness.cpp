@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "run.h"
+#include "Run.h"
 
 static Run process_arguments(int32_t argc, const char* argv[]) {
   std::string name(argv[1]);
