@@ -170,28 +170,18 @@ void Run::doRuns(Benchmark *bench)
 
 void Run::reportBenchmark()
 {
-    // Checkstyle: stop
     std::cout << name << ": iterations=" << numIterations <<
                  " average: " << (total / numIterations) << "us total: " << total << "us" << std::endl;
-    // Checkstyle: resume
-
 }
 
 void Run::printResult(long runTime)
 {
-#if 0
-    // Checkstyle: stop
     std::cout << name << ": iterations=1 runtime: " << runTime << "us" << std::endl;
-    // Checkstyle: resume
-#endif
-
 }
 
 void Run::printTotal()
 {
-#if 0
     // Checkstyle: stop
     std::cout << "Total Runtime: " << total << "us" << std::endl;
     // Checkstyle: resume
-#endif
 }
