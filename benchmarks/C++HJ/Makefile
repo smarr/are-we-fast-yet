@@ -68,13 +68,13 @@ SRC_CORE=som/Error.cpp						\
 
 OBJ_CORE    =	$(SRC_CORE:.cpp=.o)
 
-CXXFLAGS+=	-Wall -Wextra -std=c++17 -O3
+CXXFLAGS+=	-Wall -Wextra -std=c++17 -O2 -flto
 
 NAME_CORE   =	Harness-$(CXX)
 
 
 $(NAME_CORE):	$(OBJ_CORE)
-	$(CXX) -o $(NAME_CORE) $(OBJ_CORE) $(CXXFLAGS) -ldl 
+	$(CXX)  -flto -o $(NAME_CORE) $(OBJ_CORE) $(CXXFLAGS) -ldl 
 
 all:	$(NAME_CORE) clean
 
