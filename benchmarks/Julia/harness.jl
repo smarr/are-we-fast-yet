@@ -28,14 +28,17 @@ mutable struct Run
 end
 
 function Run(name, num_iterations, inner_iterations)
-    benchmark = Module()
-    Base.include(benchmark, "$name.jl")
+    anon = Module()
+    path = joinpath(@__DIR__, "$(lowercase(name)).jl")
+    Base.include(anon, path)
+    benchmark = getproperty(anon, Symbol(name))
     Run(name, benchmark, 0.0, num_iterations, inner_iterations)
 end
 
 function measure!(run::Run)
     start_time = time()
-    @assert run.benchmark.inner_benchmark_loop(run.inner_iterations) "Benchmark failed with incorrect result"
+    benchmark = run.benchmark
+    @assert benchmark.inner_benchmark_loop(benchmark.Benchmark(), run.inner_iterations) "Benchmark failed with incorrect result"
     end_time = time()
 
     run_time = end_time - start_time
