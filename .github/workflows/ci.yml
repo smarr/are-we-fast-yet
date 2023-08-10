@@ -119,7 +119,7 @@ jobs:
         uses: julia-actions/setup-julia@v1
         with:
           version: '1'
-        if: matrix.id == 'python'
+        if: matrix.id == 'julia'
 
       - name: Build
         run: |
