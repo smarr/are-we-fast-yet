@@ -4,6 +4,7 @@
 #include <cstdio>
 
 #include "bounce.h"
+#include "deltablue.h"
 #include "mandelbrot.h"
 #include "permute.h"
 #include "queens.h"
@@ -69,6 +70,9 @@ class Run {
     if (name == "Towers") {
       return []() -> Benchmark* { return new Towers(); };
     }
+    if (name == "DeltaBlue") {
+      return []() -> Benchmark* { return new DeltaBlue(); };
+    }
 
     std::cerr << "Benchmark not recognized: " << name << "\n";
     exit(1);
@@ -78,7 +82,7 @@ class Run {
     auto start_time = std::chrono::high_resolution_clock::now();
     if (!bench->inner_benchmark_loop(inner_iterations)) {
       std::cout << "Benchmark failed with incorrect result\n";
-      exit(1);  // TODO: should this be an exception?
+      exit(1);
     }
     auto end_time = std::chrono::high_resolution_clock::now();
     const int64_t run_time =

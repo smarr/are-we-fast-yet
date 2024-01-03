@@ -26,7 +26,7 @@ class Storage : public Benchmark {
     count = 0;
     ArrayTree* result = build_tree_depth(7, random);
     delete[] result;
-    
+
     return reinterpret_cast<void*>(static_cast<intptr_t>(count));
   }
 
@@ -41,7 +41,7 @@ class Storage : public Benchmark {
       return new ArrayTree[random.next() % 10 + 1];
     }
 
-    ArrayTree* arr = new ArrayTree[4];
+    auto* arr = new ArrayTree[4];
     for (size_t i = 0; i < 4; i++) {
       arr[i].children = build_tree_depth(depth - 1, random);
     }

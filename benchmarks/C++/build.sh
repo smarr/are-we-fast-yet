@@ -3,7 +3,7 @@ if [ "$1" = "format" ]
 then
   CMD=clang-format
   type -P "$CMD" || CMD=clang-format-mp-16
-  $CMD -i --style=file src/*.cpp src/*.h
+  $CMD -i --style=file src/*.cpp src/*.h src/**/*.cpp src/**/*.h
   exit 0
 fi
 
@@ -11,7 +11,7 @@ if [ "$1" = "check-format" ]
 then
   CMD=clang-format
   type -P "$CMD" || CMD=clang-format-mp-16
-  $CMD --style=file --dry-run --Werror src/*.cpp src/*.h
+  $CMD --style=file --dry-run --Werror src/*.cpp src/*.h  src/**/*.cpp src/**/*.h
   exit 0
 fi
 
@@ -23,4 +23,13 @@ then
   exit 0
 fi
 
-clang++-mp-16 -Wall -Wextra  -O2 -ffp-contract=off -std=c++17 src/harness.cpp -o harness
+if [ "$1" = "sanitize" ]
+then
+  SANATIZE='-g -fsanitize=leak'
+  OPT='-Og'
+else
+  SANATIZE=''
+  OPT='-O3'
+fi
+
+clang++-mp-16 -Wall -Wextra $SANATIZE $OPT -ffp-contract=off -std=c++17 src/harness.cpp src/deltablue.cpp -o harness
