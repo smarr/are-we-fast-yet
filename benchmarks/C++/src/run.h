@@ -5,6 +5,7 @@
 
 #include "bounce.h"
 #include "deltablue.h"
+#include "list.h"
 #include "mandelbrot.h"
 #include "nbody.h"
 #include "permute.h"
@@ -52,6 +53,9 @@ class Run {
   benchmark_suite_ctr select_benchmark(std::string& name) {
     if (name == "Bounce") {
       return []() -> Benchmark* { return new Bounce(); };
+    }
+    if (name == "List") {
+      return []() -> Benchmark* { return new List(); };
     }
     if (name == "Mandelbrot") {
       return []() -> Benchmark* { return new Mandelbrot(); };
