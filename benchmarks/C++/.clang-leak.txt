@@ -1,0 +1,2 @@
+leak:_fetchInitializingClassList
+leak:libobjc
