@@ -1,6 +1,7 @@
 #pragma once
 
 #include "benchmark.h"
+#include "memory/object_tracker.h"
 #include "som/error.h"
 #include "som/identity_dictionary.h"
 #include "som/vector.h"
@@ -35,6 +36,7 @@ class Strength {
 
   static IdentityDictionary<int32_t>* createStrengthTable();
   static IdentityDictionary<const Strength*>* createStrengthConstants();
+  static void releaseStrengthConstants();
 
  public:
   explicit Strength(const Sym* const symbolicValue)
@@ -69,6 +71,7 @@ class Strength {
   static const Strength* absoluteWeakest();
   static const Strength* required();
   static void initializeConstants();
+  static void releaseConstants();
 
  private:
   static const Strength* _absoluteWeakest;
@@ -81,7 +84,7 @@ class Strength {
 class Planner;
 class Variable;
 
-class AbstractConstraint {
+class AbstractConstraint : public TrackedObject {
  protected:
   const Strength* const _strength;
   Planner* const _planer{nullptr};
@@ -89,8 +92,6 @@ class AbstractConstraint {
  public:
   explicit AbstractConstraint(const Sym* strength)
       : _strength(Strength::of(strength)) {}
-
-  virtual ~AbstractConstraint() = default;
 
   [[nodiscard]] const Strength* getStrength() { return _strength; }
 
@@ -112,7 +113,7 @@ class AbstractConstraint {
   virtual void recalculate() = 0;
 };
 
-class Variable {
+class Variable : public TrackedObject {
  private:
   int32_t _value{0};
   Vector<AbstractConstraint*>* _constraints;
@@ -126,7 +127,7 @@ class Variable {
       : _constraints(new Vector<AbstractConstraint*>(2)),
         _walkStrength(Strength::absoluteWeakest()) {}
 
-  ~Variable() { delete _constraints; }
+  ~Variable() override { delete _constraints; }
 
   static Variable* value(int32_t aValue) {
     auto* v = new Variable();
@@ -652,6 +653,7 @@ class Planner {
     editC->destroyConstraint(&planner);
     delete plan;
     delete[] vars;
+    ObjectTracker::releaseAll();
   }
 
   static void projectionTest(int32_t n) {
@@ -695,6 +697,8 @@ class Planner {
         throw Error("Projection test 4 failed!");
       }
     }
+    ObjectTracker::releaseAll();
+    Strength::releaseConstants();
   }
 };
 

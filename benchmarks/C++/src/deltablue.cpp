@@ -38,11 +38,12 @@ IdentityDictionary<int32_t>* Strength::createStrengthTable() {
 
 IdentityDictionary<const Strength*>* Strength::createStrengthConstants() {
   auto* strengthConstant = new IdentityDictionary<const Strength*>();
-  _strengthTable->getKeys()->forEach(
-      [&strengthConstant](const CustomHash* const key) -> void {
-        const Sym* keySym = dynamic_cast<const Sym*>(key);
-        strengthConstant->atPut(keySym, new Strength(keySym));
-      });
+  auto* keys = _strengthTable->getKeys();
+  keys->forEach([&strengthConstant](const CustomHash* const key) -> void {
+    const Sym* keySym = dynamic_cast<const Sym*>(key);
+    strengthConstant->atPut(keySym, new Strength(keySym));
+  });
+  delete keys;
 
   return strengthConstant;
 }
@@ -52,6 +53,18 @@ void Strength::initializeConstants() {
   _strengthConstant = createStrengthConstants();
   _absoluteWeakest = of(&Strength::ABSOLUTE_WEAKEST);
   _required = of(&Strength::REQUIRED);
+}
+
+void Strength::releaseStrengthConstants() {
+  _strengthConstant->destroyValues();
+  delete _strengthConstant;
+}
+
+void Strength::releaseConstants() {
+  delete _strengthTable;
+  Strength::releaseStrengthConstants();
+  _absoluteWeakest = nullptr;
+  _required = nullptr;
 }
 
 void AbstractConstraint::addConstraint(Planner* planner) {
