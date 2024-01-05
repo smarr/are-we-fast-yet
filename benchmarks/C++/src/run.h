@@ -6,6 +6,7 @@
 #include "bounce.h"
 #include "deltablue.h"
 #include "mandelbrot.h"
+#include "nbody.h"
 #include "permute.h"
 #include "queens.h"
 #include "sieve.h"
@@ -54,6 +55,9 @@ class Run {
     }
     if (name == "Mandelbrot") {
       return []() -> Benchmark* { return new Mandelbrot(); };
+    }
+    if (name == "NBody") {
+      return []() -> Benchmark* { return new NBody(); };
     }
     if (name == "Permute") {
       return []() -> Benchmark* { return new Permute(); };
