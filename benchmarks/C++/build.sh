@@ -32,4 +32,6 @@ else
   OPT='-O3'
 fi
 
-clang++-mp-16 -Wall -Wextra $SANATIZE $OPT -ffp-contract=off -std=c++17 src/harness.cpp src/deltablue.cpp -o harness
+SRC='src/harness.cpp src/deltablue.cpp src/memory/object_tracker.cpp'
+
+clang++-mp-16 -Wall -Wextra $SANATIZE $OPT -ffp-contract=off -std=c++17 $SRC -o harness

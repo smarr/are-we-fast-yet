@@ -172,6 +172,16 @@ class Dictionary {
     return values;
   }
 
+  void destroyValues() {
+    for (int32_t i = 0; i < _capacity; i++) {
+      Entry* current = _buckets[i];
+      while (current != nullptr) {
+        delete current->_value;
+        current = current->_next;
+      }
+    }
+  }
+
   virtual Entry* newEntry(const CustomHash* key, V value, int32_t hash) {
     return new Entry(hash, key, value, nullptr);
   }
