@@ -88,6 +88,12 @@ class Vector {
 
   ~Vector() { delete[] storage; }
 
+  void destroyValues() {
+    for (size_t i = _firstIdx; i < _lastIdx; i++) {
+      delete storage[i];
+    }
+  }
+
   [[nodiscard]] E atPtr(size_t idx) const {
     if (idx >= _lastIdx - _firstIdx) {
       return nullptr;
