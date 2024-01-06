@@ -11,6 +11,7 @@
 #include "nbody.h"
 #include "permute.h"
 #include "queens.h"
+#include "richards.h"
 #include "sieve.h"
 #include "storage.h"
 #include "towers.h"
@@ -72,6 +73,9 @@ class Run {
     }
     if (name == "Queens") {
       return []() -> Benchmark* { return new Queens(); };
+    }
+    if (name == "Richards") {
+      return []() -> Benchmark* { return new Richards(); };
     }
     if (name == "Sieve") {
       return []() -> Benchmark* { return new Sieve(); };
