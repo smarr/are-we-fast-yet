@@ -71,6 +71,6 @@ else
   SANATIZE=''
 fi
 
-SRC='src/harness.cpp src/deltablue.cpp src/memory/object_tracker.cpp'
+SRC='src/harness.cpp src/deltablue.cpp src/memory/object_tracker.cpp src/richards.cpp'
 
 exec $CMD -Wall -Wextra -Wno-unused-private-field $SANATIZE $OPT -ffp-contract=off -std=c++17 $SRC -o harness
