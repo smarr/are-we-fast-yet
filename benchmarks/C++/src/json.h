@@ -8,7 +8,7 @@
 
 using std::string;
 
-const string rapBenchmarkMinified =
+const string rapBenchmarkMinified =  // NOLINT
     "{\"head\":{\"requestCounter\":4},\"operations\":[[\"destroy\",\"w54\"],["
     "\"set\",\"w2\",{\"activeControl\":\"w99\"}],[\"set\",\"w21\",{"
     "\"customVariant\":\"variant_navigation\"}],[\"set\",\"w28\",{"
@@ -454,7 +454,7 @@ class HashIndexTable {
 
  public:
   void add(const std::string& name, int32_t index) {
-    int32_t slot = hashSlotFor(name);
+    const int32_t slot = hashSlotFor(name);
     if (index < 0xff) {
       // increment by 1, 0 stands for empty
       _hashTable[slot] = (index + 1) & 0xff;
@@ -464,7 +464,7 @@ class HashIndexTable {
   }
 
   [[nodiscard]] int32_t get(const std::string& name) const {
-    int32_t slot = hashSlotFor(name);
+    const int32_t slot = hashSlotFor(name);
     // subtract 1, 0 stands for empty
     return (_hashTable[slot] & 0xff) - 1;
   }
@@ -473,11 +473,11 @@ class HashIndexTable {
   [[nodiscard]] int32_t stringHash(const std::string& s) const {
     // this is not a proper hash, but sufficient for the benchmark,
     // and very portable!
-    return s.size() * 1402589;
+    return static_cast<int32_t>(s.size()) * 1402589;
   }
 
   [[nodiscard]] int32_t hashSlotFor(const std::string& element) const {
-    return stringHash(element) & _hashTable.size() - 1;
+    return stringHash(element) & static_cast<int32_t>(_hashTable.size()) - 1;
   }
 };
 
@@ -526,7 +526,7 @@ class JsonArray : public JsonValue {
 
   [[nodiscard]] size_t size() const { return _values.size(); }
 
-  [[nodiscard]] const JsonValue* get(int index) const {
+  [[nodiscard]] const JsonValue* get(int32_t index) const {
     return *_values.at(index);
   }
 
@@ -543,10 +543,13 @@ class JsonLiteral : public JsonValue {
   bool _isFalse;
 
   JsonLiteral(string value, bool isNull, bool isTrue, bool isFalse)
-      : _value(value), _isNull(isNull), _isTrue(isTrue), _isFalse(isFalse) {}
+      : _value(std::move(value)),
+        _isNull(isNull),
+        _isTrue(isTrue),
+        _isFalse(isFalse) {}
 
  public:
-  JsonLiteral(string value)
+  explicit JsonLiteral(const string& value)
       : _value(value),
         _isNull(value == "null"),
         _isTrue(value == "true"),
@@ -577,7 +580,7 @@ class JsonNumber : public JsonValue {
   string _string;
 
  public:
-  JsonNumber(string string) : _string(string) {
+  explicit JsonNumber(const string& string) : _string(string) {
     if (string.empty()) {
       throw Error("value is null");
     }
@@ -593,8 +596,8 @@ class JsonObject : public JsonValue {
   Vector<const JsonValue*> _values{};
   HashIndexTable _table{};
 
-  int32_t indexOf(string name) const {
-    int32_t index = _table.get(name);
+  [[nodiscard]] int32_t indexOf(const string& name) const {
+    const int32_t index = _table.get(name);
     if (index != -1 && name == *_names.at(index)) {
       return index;
     }
@@ -605,30 +608,30 @@ class JsonObject : public JsonValue {
   JsonObject() = default;
   ~JsonObject() override { _values.destroyValues(); }
 
-  void add(string name, const JsonValue* value) {
+  void add(const string& name, const JsonValue* value) {
     if (name.empty()) {
       throw Error("name is null");
     }
     if (value == nullptr) {
       throw Error("value is null");
     }
-    _table.add(name, _names.size());
+    _table.add(name, static_cast<int32_t>(_names.size()));
     _names.append(name);
     _values.append(value);
   }
 
-  const JsonValue* get(string name) const {
+  [[nodiscard]] const JsonValue* get(const string& name) const {
     if (name.empty()) {
       throw Error("name is null");
     }
-    int32_t index = indexOf(name);
+    const int32_t index = indexOf(name);
     return index == -1 ? nullptr : *_values.at(index);
   }
 
   [[nodiscard]] size_t size() const { return _names.size(); }
   [[nodiscard]] bool isEmpty() const { return _names.isEmpty(); }
   [[nodiscard]] bool isObject() const override { return true; }
-  const JsonObject* asObject() const override { return this; }
+  [[nodiscard]] const JsonObject* asObject() const override { return this; }
 };
 
 class JsonString : public JsonValue {
@@ -636,7 +639,7 @@ class JsonString : public JsonValue {
   string _string;
 
  public:
-  JsonString(string string) : _string(string) {}
+  explicit JsonString(string string) : _string(std::move(string)) {}
 
   [[nodiscard]] bool isString() const override { return true; }
 };
@@ -649,14 +652,17 @@ class ParseException : virtual public std::exception {
   string _what;
 
  public:
-  ParseException(string message, size_t offset, int32_t line, int32_t column)
+  ParseException(const string& message,
+                 size_t offset,
+                 int32_t line,
+                 int32_t column)
       : _offset(offset),
         _line(line),
         _column(column),
         _what(message + " at " + std::to_string(line) + ":" +
               std::to_string(column)) {}
 
-  [[nodiscard]] int32_t getOffset() const { return _offset; }
+  [[nodiscard]] size_t getOffset() const { return _offset; }
   [[nodiscard]] int32_t getLine() const { return _line; }
   [[nodiscard]] int32_t getColumn() const { return _column; }
   [[nodiscard]] const char* what() const noexcept override {
@@ -670,42 +676,49 @@ class JsonPureStringParser {
   size_t _index{SIZE_MAX};
   int32_t _line{1};
   int32_t _column{0};
-  string _current{""};
-  string _captureBuffer{""};
+  string _current{};
+  string _captureBuffer{};
   size_t _captureStart{SIZE_MAX};
 
   const JsonValue* readValue() {
     if (_current == "n") {
       return readNull();
-    } else if (_current == "t") {
+    }
+    if (_current == "t") {
       return readTrue();
-    } else if (_current == "f") {
+    }
+    if (_current == "f") {
       return readFalse();
-    } else if (_current == "\"") {
+    }
+    if (_current == "\"") {
       return readString();
-    } else if (_current == "[") {
+    }
+    if (_current == "[") {
       return readArray();
-    } else if (_current == "{") {
+    }
+    if (_current == "{") {
       return readObject();
-    } else if (_current == "-" || _current == "0" || _current == "1" ||
-               _current == "2" || _current == "3" || _current == "4" ||
-               _current == "5" || _current == "6" || _current == "7" ||
-               _current == "8" || _current == "9") {
+    }
+    if (_current == "-" || _current == "0" || _current == "1" ||
+        _current == "2" || _current == "3" || _current == "4" ||
+        _current == "5" || _current == "6" || _current == "7" ||
+        _current == "8" || _current == "9") {
       return readNumber();
-    } else
-      throw expected("value");
+    }
+
+    throw expected("value");
   }
 
   JsonObject* readObject() {
     read();
-    JsonObject* object = new JsonObject();
+    auto* object = new JsonObject();
     skipWhiteSpace();
     if (readChar("}")) {
       return object;
     }
     do {
       skipWhiteSpace();
-      string name = readName();
+      const string name = readName();
       skipWhiteSpace();
       if (!readChar(":")) {
         throw expected("':'");
@@ -730,7 +743,7 @@ class JsonPureStringParser {
 
   JsonArray* readArray() {
     read();
-    JsonArray* array = new JsonArray();
+    auto* array = new JsonArray();
     skipWhiteSpace();
     if (readChar("]")) {
       return array;
@@ -772,7 +785,7 @@ class JsonPureStringParser {
     return JsonLiteral::createFalse();
   }
 
-  void readRequiredChar(string ch) {
+  void readRequiredChar(const string& ch) {
     if (!readChar(ch)) {
       throw expected("'" + ch + "'");
     }
@@ -799,27 +812,28 @@ class JsonPureStringParser {
 
   void readEscape() {
     read();
-    if (_current == "\"" || _current == "/" || _current == "\\")
+    if (_current == "\"" || _current == "/" || _current == "\\") {
       _captureBuffer += _current;
-    else if (_current == "b")
+    } else if (_current == "b") {
       _captureBuffer += "\b";
-    else if (_current == "f")
+    } else if (_current == "f") {
       _captureBuffer += "\f";
-    else if (_current == "n")
+    } else if (_current == "n") {
       _captureBuffer += "\n";
-    else if (_current == "r")
+    } else if (_current == "r") {
       _captureBuffer += "\r";
-    else if (_current == "t")
+    } else if (_current == "t") {
       _captureBuffer += "\t";
-    else
+    } else {
       throw expected("valid escape sequence");
+    }
     read();
   }
 
   const JsonValue* readNumber() {
     startCapture();
     readChar("-");
-    string firstDigit = _current;
+    const string firstDigit = _current;
     if (!readDigit()) {
       throw expected("digit");
     }
@@ -861,7 +875,7 @@ class JsonPureStringParser {
     return true;
   }
 
-  bool readChar(string ch) {
+  bool readChar(const string& ch) {
     if (_current != ch) {
       return false;
     }
@@ -899,15 +913,15 @@ class JsonPureStringParser {
   void startCapture() { _captureStart = _index; }
 
   void pauseCapture() {
-    size_t _end = _current == "" ? _index : _index - 1;
+    const size_t _end = _current.empty() ? _index : _index - 1;
     _captureBuffer += _input.substr(_captureStart, _end - _captureStart + 1);
     _captureStart = -1;
   }
 
   string endCapture() {
-    size_t _end = _current == "" ? _index : _index - 1;
+    const size_t _end = _current.empty() ? _index : _index - 1;
     string captured;
-    if ("" == _captureBuffer) {
+    if (_captureBuffer.empty()) {
       captured = _input.substr(_captureStart, _end - _captureStart + 1);
     } else {
       _captureBuffer += _input.substr(_captureStart, _end - _captureStart + 1);
@@ -918,7 +932,7 @@ class JsonPureStringParser {
     return captured;
   }
 
-  ParseException expected(string expected) {
+  ParseException expected(const string& expected) {
     if (isEndOfText()) {
       return error("Unexpected end of input");
     }
@@ -926,8 +940,8 @@ class JsonPureStringParser {
     return error("Expected " + expected);
   }
 
-  ParseException error(string message) {
-    return ParseException(message, _index, _line, _column - 1);
+  [[nodiscard]] ParseException error(const string& message) const {
+    return {message, _index, _line, _column - 1};
   }
 
   bool isWhiteSpace() {
@@ -942,10 +956,10 @@ class JsonPureStringParser {
            "9" == _current;
   }
 
-  bool isEndOfText() { return _current == ""; }
+  bool isEndOfText() { return _current.empty(); }
 
  public:
-  JsonPureStringParser(string string) : _input(string) {}
+  explicit JsonPureStringParser(string string) : _input(std::move(string)) {}
 
   const JsonValue* parse() {
     read();
@@ -973,14 +987,14 @@ class Json : public Benchmark {
     if (!result->isObject()) {
       return false;
     }
-    auto* resultObject = result->asObject();
+    const auto* resultObject = result->asObject();
     if (!resultObject->get("head")->isObject()) {
       return false;
     }
     if (!resultObject->get("operations")->isArray()) {
       return false;
     }
-    auto* resultArray = resultObject->get("operations")->asArray();
+    const auto* resultArray = resultObject->get("operations")->asArray();
     return resultArray->size() == 156;
   }
 
