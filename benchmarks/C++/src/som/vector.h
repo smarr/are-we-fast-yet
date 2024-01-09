@@ -84,7 +84,7 @@ class Vector {
 
   explicit Vector(size_t size) : storage(new E[size]), _capacity(size) {}
 
-  Vector() : Vector(50) {}  // NOLINT
+  explicit Vector() : Vector(50) {}  // NOLINT
 
   ~Vector() { delete[] storage; }
 
@@ -94,18 +94,11 @@ class Vector {
     }
   }
 
-  [[nodiscard]] E atPtr(size_t idx) const {
+  [[nodiscard]] E* at(size_t idx) const {
     if (idx >= _lastIdx - _firstIdx) {
       return nullptr;
     }
-    return storage[_firstIdx + idx];
-  }
-
-  [[nodiscard]] E at(size_t idx) const {
-    if (idx >= _lastIdx - _firstIdx) {
-      return E();
-    }
-    return storage[_firstIdx + idx];
+    return &storage[_firstIdx + idx];
   }
 
   void atPut(size_t idx, const E& val) {

@@ -40,7 +40,7 @@ class Strength {
 
  public:
   explicit Strength(const Sym* const symbolicValue)
-      : _arithmeticValue(_strengthTable->at(symbolicValue)),
+      : _arithmeticValue(*_strengthTable->at(symbolicValue)),
         _symbolicValue(symbolicValue) {}
 
   bool sameAs(const Strength* const s) const {
@@ -66,7 +66,7 @@ class Strength {
   [[nodiscard]] int32_t getArithmeticValue() const { return _arithmeticValue; }
 
   static const Strength* of(const Sym* const strength) {
-    return _strengthConstant->atPtr(strength);
+    return *_strengthConstant->at(strength);
   }
   static const Strength* absoluteWeakest();
   static const Strength* required();
@@ -686,14 +686,16 @@ class Planner {
 
     planner.change(scale, 5);
     for (int32_t i = 0; i < n - 1; ++i) {
-      if (dests.at(i)->getValue() != (i + 1) * 5 + 1000) {
+      Variable* di = *dests.at(i);
+      if (di->getValue() != (i + 1) * 5 + 1000) {
         throw Error("Projection test 3 failed!");
       }
     }
 
     planner.change(offset, 2000);
     for (int32_t i = 0; i < n - 1; ++i) {
-      if (dests.at(i)->getValue() != (i + 1) * 5 + 2000) {
+      Variable* di = *dests.at(i);
+      if (di->getValue() != (i + 1) * 5 + 2000) {
         throw Error("Projection test 4 failed!");
       }
     }
