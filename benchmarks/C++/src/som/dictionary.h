@@ -88,31 +88,18 @@ class Dictionary {
     return false;
   }
 
-  V atPtr(const CustomHash* key) const {
-    const int32_t h = hash(key);
-    Entry* e = getBucket(h);
-
-    while (e != nullptr) {
-      if (e->match(h, key)) {
-        return e->_value;
-      }
-      e = e->_next;
-    }
-    return nullptr;
-  }
-
-  V at(const CustomHash* key) const {
+  V* at(const CustomHash* key) const {
     const int32_t h = this->hash(key);
     Entry* e = getBucket(h);
 
     while (e != nullptr) {
       if (e->match(h, key)) {
-        return e->_value;
+        return &e->_value;
       }
       e = e->_next;
     }
     // Return a default-constructed V if the key is not found
-    return V();
+    return nullptr;
   }
 
   void atPut(const CustomHash* const key, const V& value) {
@@ -233,13 +220,13 @@ class Dictionary {
         if (current->_next == nullptr) {
           _buckets[current->_hash & (oldCapacity - 1)] = current;
         } else {
-          splitBucket(i, current, oldCapacity);
+          splitBucket(oldCapacity, i, current);
         }
       }
     }
   }
 
-  void splitBucket(int32_t idx, Entry* head, int32_t oldCapacity) {
+  void splitBucket(int32_t oldCapacity, int32_t idx, Entry* head) {
     Entry* loHead = nullptr;
     Entry* loTail = nullptr;
     Entry* hiHead = nullptr;
