@@ -6,6 +6,7 @@
 #include "bounce.h"
 #include "cd.h"
 #include "deltablue.h"
+#include "havlak.h"
 #include "json.h"
 #include "list.h"
 #include "mandelbrot.h"
@@ -59,6 +60,9 @@ class Run {
     }
     if (name == "CD") {
       return []() -> Benchmark* { return new CD(); };
+    }
+    if (name == "Havlak") {
+      return []() -> Benchmark* { return new Havlak(); };
     }
     if (name == "Json") {
       return []() -> Benchmark* { return new Json(); };
