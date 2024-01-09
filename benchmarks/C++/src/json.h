@@ -527,7 +527,7 @@ class JsonArray : public JsonValue {
   [[nodiscard]] size_t size() const { return _values.size(); }
 
   [[nodiscard]] const JsonValue* get(int index) const {
-    return _values.at(index);
+    return *_values.at(index);
   }
 
   [[nodiscard]] bool isArray() const override { return true; }
@@ -595,7 +595,7 @@ class JsonObject : public JsonValue {
 
   int32_t indexOf(string name) const {
     int32_t index = _table.get(name);
-    if (index != -1 && name == _names.at(index)) {
+    if (index != -1 && name == *_names.at(index)) {
       return index;
     }
     throw Error("not yet implemented, not relevant for the benchmark");
@@ -622,7 +622,7 @@ class JsonObject : public JsonValue {
       throw Error("name is null");
     }
     int32_t index = indexOf(name);
-    return index == -1 ? nullptr : _values.at(index);
+    return index == -1 ? nullptr : *_values.at(index);
   }
 
   [[nodiscard]] size_t size() const { return _names.size(); }

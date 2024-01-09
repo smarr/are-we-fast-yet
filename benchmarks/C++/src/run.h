@@ -4,6 +4,7 @@
 #include <cstdio>
 
 #include "bounce.h"
+#include "cd.h"
 #include "deltablue.h"
 #include "json.h"
 #include "list.h"
@@ -55,6 +56,9 @@ class Run {
   benchmark_suite_ctr select_benchmark(std::string& name) {
     if (name == "Bounce") {
       return []() -> Benchmark* { return new Bounce(); };
+    }
+    if (name == "CD") {
+      return []() -> Benchmark* { return new CD(); };
     }
     if (name == "Json") {
       return []() -> Benchmark* { return new Json(); };
