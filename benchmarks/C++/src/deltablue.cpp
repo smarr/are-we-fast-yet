@@ -1,4 +1,9 @@
 #include "deltablue.h"
+#include "som/dictionary.h"
+#include "som/error.h"
+#include "som/identity_dictionary.h"
+
+#include <cstdint>
 
 // Set static member variable
 const Sym Strength::ABSOLUTE_STRONGEST(0);

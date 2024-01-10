@@ -7,7 +7,6 @@
 #include "som/identity_set.h"
 
 using std::cout;
-using std::endl;
 
 class BasicBlock : public CustomHash {
  private:
@@ -573,9 +572,8 @@ class Havlak : public Benchmark {
       return r[0] == 1605 && r[1] == 5213;
     }
 
-    cout << "No verification result for " << innerIterations << " found"
-         << endl;
-    cout << "Result is: " << r[0] << ", " << r[1] << endl;
+    cout << "No verification result for " << innerIterations << " found\n";
+    cout << "Result is: " << r[0] << ", " << r[1] << "\n";
 
     return false;
   }

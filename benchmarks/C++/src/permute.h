@@ -20,7 +20,7 @@ class Permute : public Benchmark {
     }
   }
 
-  void swap(int32_t i, int32_t j) {
+  void swap(int32_t i, int32_t j) noexcept {
     const int32_t tmp = v[i];
     v[i] = v[j];
     v[j] = tmp;

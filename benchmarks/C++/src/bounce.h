@@ -3,6 +3,8 @@
 #include "benchmark.h"
 #include "som/random.h"
 
+#include <array>
+
 class Ball {
  private:
   int32_t x;

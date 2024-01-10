@@ -4,7 +4,6 @@
 #include "som/error.h"
 
 using std::cout;
-using std::endl;
 
 class Body {
  private:
@@ -180,9 +179,8 @@ class NBody : public Benchmark {
       return result == -0.16907495402506745;
     }
 
-    cout << "No verification result for " << innerIterations << " found"
-         << endl;
-    cout << "Result is: " << result << endl;
+    cout << "No verification result for " << innerIterations << " found\n";
+    cout << "Result is: " << result << "\n";
     return false;
   }
 
