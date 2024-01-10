@@ -1,6 +1,9 @@
 #pragma once
 
+#include <cmath>
 #include <iostream>
+#include <optional>
+
 #include "benchmark.h"
 #include "som/error.h"
 #include "som/vector.h"
@@ -936,9 +939,8 @@ class CD : public Benchmark {
       return actualCollisions == 42;
     }
 
-    std::cout << "No verification result for " << numAircrafts << " found"
-              << std::endl;
-    std::cout << "Result is: " << actualCollisions << std::endl;
+    std::cout << "No verification result for " << numAircrafts << " found\n";
+    std::cout << "Result is: " << actualCollisions << "\n";
     return false;
   }
 

@@ -5,11 +5,11 @@
 #include "som/error.h"
 
 #include <array>
+#include <functional>
 #include <iostream>
 #include <string>
 
 using std::cout;
-using std::endl;
 
 class Packet;
 class TaskControlBlock;
@@ -467,10 +467,10 @@ class Scheduler : public RBObject {
   void trace(int32_t id) {
     _layout = _layout - 1;
     if (0 >= _layout) {
-      cout << endl;
+      cout << "\n";
       _layout = 50;
     }
-    cout << id << endl;
+    cout << id << "\n";
   }
 
   TaskControlBlock* markWaiting() {

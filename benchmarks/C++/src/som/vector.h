@@ -212,13 +212,13 @@ class Vector {
   }
 
  private:
-  static void swap(E*, size_t, size_t) {
-    std::cerr << "swap not implemented" << std::endl;
+  static void swap(E*, size_t, size_t) noexcept {
+    std::cerr << "swap not implemented\n";
     exit(1);
   }
 
   void defaultSort(size_t, size_t) {
-    std::cerr << "defaultSort not implemented" << std::endl;
+    std::cerr << "defaultSort not implemented\n";
     exit(1);
   }
 };
