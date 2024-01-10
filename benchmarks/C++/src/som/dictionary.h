@@ -7,7 +7,7 @@ class CustomHash {
  public:
   CustomHash() = default;
   virtual ~CustomHash() = default;
-  [[nodiscard]] virtual int32_t customHash() const = 0;
+  [[nodiscard]] virtual uint32_t customHash() const = 0;
 };
 
 template <typename V>
@@ -29,33 +29,33 @@ class Dictionary {
     friend class Dictionary<V>;
 
    private:
-    int32_t _hash;
+    uint32_t _hash;
     const CustomHash* const _key;
     V _value;
     Entry* _next;
 
    public:
-    Entry(int32_t h, const CustomHash* k, const V& v, Entry* n)
+    Entry(uint32_t h, const CustomHash* k, const V& v, Entry* n)
         : _hash(h), _key(k), _value(v), _next(n) {}
     virtual ~Entry() = default;
 
-    virtual bool match(int32_t h, const CustomHash* const k) {
+    virtual bool match(uint32_t h, const CustomHash* const k) {
       return _hash == h && _key == k;
     }
 
     [[nodiscard]] const CustomHash* getKey() const { return _key; }
 
-    [[nodiscard]] int32_t getHash() const { return _hash; }
+    [[nodiscard]] uint32_t getHash() const { return _hash; }
   };
 
-  static const int32_t INITIAL_CAPACITY = 16;
+  static const uint32_t INITIAL_CAPACITY = 16;
 
   Entry** _buckets;
-  int32_t _size{0};
-  int32_t _capacity;
+  uint32_t _size{0};
+  uint32_t _capacity;
 
  public:
-  explicit Dictionary(int32_t capacity = INITIAL_CAPACITY)
+  explicit Dictionary(uint32_t capacity = INITIAL_CAPACITY)
       : _buckets(new Entry* [capacity] {}), _capacity(capacity) {}
 
   virtual ~Dictionary() {
@@ -63,20 +63,20 @@ class Dictionary {
     delete[] _buckets;
   }
 
-  [[nodiscard]] int32_t getSize() const { return _size; }
+  [[nodiscard]] uint32_t getSize() const { return _size; }
 
   [[nodiscard]] bool isEmpty() const { return _size == 0; }
 
-  [[nodiscard]] int32_t hash(const CustomHash* key) const {
+  [[nodiscard]] uint32_t hash(const CustomHash* key) const {
     if (key == nullptr) {
       return 0;
     }
-    const int32_t h = key->customHash();
-    return h ^ (h >> 16);
+    const uint32_t h = key->customHash();
+    return h ^ (h >> 16U);
   }
 
   [[nodiscard]] bool containsKey(const CustomHash* key) const {
-    int32_t h = hash(key);
+    uint32_t h = hash(key);
     Entry* e = getBucket(h);
 
     while (e != nullptr) {
@@ -89,7 +89,7 @@ class Dictionary {
   }
 
   V* at(const CustomHash* key) const {
-    const int32_t h = this->hash(key);
+    const uint32_t h = this->hash(key);
     Entry* e = getBucket(h);
 
     while (e != nullptr) {
@@ -103,8 +103,8 @@ class Dictionary {
   }
 
   void atPut(const CustomHash* const key, const V& value) {
-    const int32_t h = hash(key);
-    const int32_t i = getBucketIdx(h);
+    const uint32_t h = hash(key);
+    const uint32_t i = getBucketIdx(h);
 
     Entry* current = _buckets[i];
 
@@ -121,7 +121,7 @@ class Dictionary {
   }
 
   void removeAll() {
-    for (int32_t i = 0; i < _capacity; i += 1) {
+    for (uint32_t i = 0; i < _capacity; i += 1) {
       Entry* current = _buckets[i];
       while (current != nullptr) {
         Entry* toBeDeleted = current;
@@ -136,7 +136,7 @@ class Dictionary {
 
   [[nodiscard]] Vector<const CustomHash*>* getKeys() {
     auto* keys = new Vector<const CustomHash*>();
-    for (int32_t i = 0; i < _capacity; i += 1) {
+    for (uint32_t i = 0; i < _capacity; i += 1) {
       Entry* current = _buckets[i];
       while (current != nullptr) {
         keys->append(current->_key);
@@ -149,7 +149,7 @@ class Dictionary {
   [[nodiscard]] Vector<V>* getValues() {
     auto* values = new Vector<V>(_size);
 
-    for (int32_t i = 0; i < _capacity; i += 1) {
+    for (uint32_t i = 0; i < _capacity; i += 1) {
       Entry* current = _buckets[i];
       while (current != nullptr) {
         values->append(current->_value);
@@ -160,7 +160,7 @@ class Dictionary {
   }
 
   void destroyValues() {
-    for (int32_t i = 0; i < _capacity; i += 1) {
+    for (uint32_t i = 0; i < _capacity; i += 1) {
       Entry* current = _buckets[i];
       while (current != nullptr) {
         delete current->_value;
@@ -169,22 +169,22 @@ class Dictionary {
     }
   }
 
-  virtual Entry* newEntry(const CustomHash* key, V value, int32_t hash) {
+  virtual Entry* newEntry(const CustomHash* key, V value, uint32_t hash) {
     return new Entry(hash, key, value, nullptr);
   }
 
  private:
-  [[nodiscard]] int32_t getBucketIdx(int32_t hash) const {
+  [[nodiscard]] uint32_t getBucketIdx(uint32_t hash) const {
     return (_capacity - 1) & hash;
   }
 
-  [[nodiscard]] Entry* getBucket(int32_t hash) const {
+  [[nodiscard]] Entry* getBucket(uint32_t hash) const {
     return _buckets[getBucketIdx(hash)];
   }
 
   void insertBucketEntry(const CustomHash* key,
                          const V& value,
-                         int32_t hash,
+                         uint32_t hash,
                          Entry* head) {
     Entry* current = head;
 
@@ -204,7 +204,7 @@ class Dictionary {
 
   void resize() {
     Entry** oldStorage = _buckets;
-    const int32_t oldCapacity = _capacity;
+    const uint32_t oldCapacity = _capacity;
     _capacity *= 2;
     auto* newStorage = new Entry*[_capacity];
     _buckets = newStorage;
@@ -212,8 +212,8 @@ class Dictionary {
     delete[] oldStorage;
   }
 
-  void transferEntries(Entry** oldStorage, int32_t oldCapacity) {
-    for (int32_t i = 0; i < oldCapacity; i += 1) {
+  void transferEntries(Entry** oldStorage, uint32_t oldCapacity) {
+    for (uint32_t i = 0; i < oldCapacity; i += 1) {
       Entry* current = oldStorage[i];
       if (current != nullptr) {
         oldStorage[i] = nullptr;
@@ -226,7 +226,7 @@ class Dictionary {
     }
   }
 
-  void splitBucket(int32_t oldCapacity, int32_t idx, Entry* head) {
+  void splitBucket(uint32_t oldCapacity, uint32_t idx, Entry* head) {
     Entry* loHead = nullptr;
     Entry* loTail = nullptr;
     Entry* hiHead = nullptr;
