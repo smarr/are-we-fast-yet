@@ -23,9 +23,9 @@ class Sieve : public Benchmark {
   int32_t sieve(std::array<bool, Size> flags, int32_t size) {
     int32_t prime_count = 0;
 
-    for (int32_t i = 2; i <= size; i++) {
+    for (int32_t i = 2; i <= size; i += 1) {
       if (flags[i - 1]) {
-        prime_count++;
+        prime_count += 1;
         int k = i + i;
         while (k <= size) {
           flags[k - 1] = false;

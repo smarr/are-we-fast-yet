@@ -121,7 +121,7 @@ class Dictionary {
   }
 
   void removeAll() {
-    for (int32_t i = 0; i < _capacity; i++) {
+    for (int32_t i = 0; i < _capacity; i += 1) {
       Entry* current = _buckets[i];
       while (current != nullptr) {
         Entry* toBeDeleted = current;
@@ -136,7 +136,7 @@ class Dictionary {
 
   [[nodiscard]] Vector<const CustomHash*>* getKeys() {
     auto* keys = new Vector<const CustomHash*>();
-    for (int32_t i = 0; i < _capacity; i++) {
+    for (int32_t i = 0; i < _capacity; i += 1) {
       Entry* current = _buckets[i];
       while (current != nullptr) {
         keys->append(current->_key);
@@ -149,7 +149,7 @@ class Dictionary {
   [[nodiscard]] Vector<V>* getValues() {
     auto* values = new Vector<V>(_size);
 
-    for (int32_t i = 0; i < _capacity; i++) {
+    for (int32_t i = 0; i < _capacity; i += 1) {
       Entry* current = _buckets[i];
       while (current != nullptr) {
         values->append(current->_value);
@@ -160,7 +160,7 @@ class Dictionary {
   }
 
   void destroyValues() {
-    for (int32_t i = 0; i < _capacity; i++) {
+    for (int32_t i = 0; i < _capacity; i += 1) {
       Entry* current = _buckets[i];
       while (current != nullptr) {
         delete current->_value;
@@ -213,7 +213,7 @@ class Dictionary {
   }
 
   void transferEntries(Entry** oldStorage, int32_t oldCapacity) {
-    for (int32_t i = 0; i < oldCapacity; i++) {
+    for (int32_t i = 0; i < oldCapacity; i += 1) {
       Entry* current = oldStorage[i];
       if (current != nullptr) {
         oldStorage[i] = nullptr;

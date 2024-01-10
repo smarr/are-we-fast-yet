@@ -643,7 +643,7 @@ class Planner {
     Plan* plan = planner.extractPlanFromConstraints(editV);
     delete editV;
 
-    for (int i = 0; i < 100; i++) {
+    for (int32_t i = 0; i < 100; i += 1) {
       vars[0]->setValue(i);
       plan->execute();
       if (vars[n]->getValue() != i) {
@@ -665,7 +665,7 @@ class Planner {
 
     Variable* src = nullptr;
     Variable* dst = nullptr;
-    for (int32_t i = 1; i <= n; i++) {
+    for (int32_t i = 1; i <= n; i += 1) {
       src = Variable::value(i);
       dst = Variable::value(i);
       dests.append(dst);
@@ -685,7 +685,7 @@ class Planner {
     }
 
     planner.change(scale, 5);
-    for (int32_t i = 0; i < n - 1; ++i) {
+    for (int32_t i = 0; i < n - 1; i += 1) {
       Variable* di = *dests.at(i);
       if (di->getValue() != (i + 1) * 5 + 1000) {
         throw Error("Projection test 3 failed!");
@@ -693,7 +693,7 @@ class Planner {
     }
 
     planner.change(offset, 2000);
-    for (int32_t i = 0; i < n - 1; ++i) {
+    for (int32_t i = 0; i < n - 1; i += 1) {
       Variable* di = *dests.at(i);
       if (di->getValue() != (i + 1) * 5 + 2000) {
         throw Error("Projection test 4 failed!");

@@ -8,11 +8,11 @@ class Permute : public Benchmark {
   int32_t* v{nullptr};
 
   void permute(int32_t n) {
-    count++;
+    count += 1;
     if (n != 0) {
       const int32_t n1 = n - 1;
       permute(n1);
-      for (int32_t i = n1; i >= 0; i--) {
+      for (int32_t i = n1; i >= 0; i -= 1) {
         swap(n1, i);
         permute(n1);
         swap(n1, i);

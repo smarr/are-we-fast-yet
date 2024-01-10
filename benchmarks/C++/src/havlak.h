@@ -293,7 +293,7 @@ class HavlakLoopFinder {
 
     // Start node is root of all other loops.
     _header[0] = 0;
-    for (int32_t w = size - 1; w >= 0; w--) {
+    for (int32_t w = size - 1; w >= 0; w -= 1) {
       // this is 'P' in Havlak's paper
       Vector<UnionFindNode*> nodePool{};
 

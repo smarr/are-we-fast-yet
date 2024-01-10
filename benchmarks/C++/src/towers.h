@@ -75,11 +75,11 @@ class Towers : public Benchmark {
 
   void move_top_disk(int32_t from_pile, int32_t to_pile) {
     push_disk(pop_disk_from(from_pile), to_pile);
-    moves_done++;
+    moves_done += 1;
   }
 
   void build_tower_at(int32_t pile, int32_t disks) {
-    for (int32_t i = disks; i >= 0; i--) {
+    for (int32_t i = disks; i >= 0; i -= 1) {
       push_disk(new TowersDisk(i), pile);
     }
   }
