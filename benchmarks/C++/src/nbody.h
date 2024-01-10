@@ -1,5 +1,7 @@
 #pragma once
 
+#include <any>
+
 #include "benchmark.h"
 #include "som/error.h"
 
@@ -193,6 +195,9 @@ class NBody : public Benchmark {
 
     return verify_result(system.energy(), innerIterations);
   }
-  void* benchmark() override { throw Error("Should never be reached"); }
-  bool verify_result(void*) override { throw Error("Should never be reached"); }
+
+  std::any benchmark() override { throw Error("Should never be reached"); }
+  bool verify_result(std::any) override {
+    throw Error("Should never be reached");
+  }
 };

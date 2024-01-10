@@ -1,5 +1,6 @@
 #pragma once
 
+#include <any>
 #include <string>
 
 #include "benchmark.h"
@@ -976,11 +977,10 @@ class JsonPureStringParser {
 class Json : public Benchmark {
  private:
  public:
-  void* benchmark() override {
+  std::any benchmark() override {
     JsonPureStringParser parser{rapBenchmarkMinified};
     const JsonValue* const result = parser.parse();
-    return const_cast<JsonValue*>(
-        result);  // TODO make benchmark return const void* or std::any or so
+    return result;
   }
 
   bool has_expected_content(const JsonValue* result) {
@@ -998,8 +998,8 @@ class Json : public Benchmark {
     return resultArray->size() == 156;
   }
 
-  bool verify_result(void* r) override {
-    auto* const result = reinterpret_cast<JsonValue*>(r);
+  bool verify_result(std::any r) override {
+    auto* const result = std::any_cast<const JsonValue*>(r);
     const bool doesVerify = has_expected_content(result);
     delete result;
     return doesVerify;

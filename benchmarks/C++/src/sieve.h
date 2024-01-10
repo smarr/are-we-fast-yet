@@ -1,21 +1,22 @@
 #pragma once
 
+#include <any>
+
 #include "benchmark.h"
 
 class Sieve : public Benchmark {
  public:
-  void* benchmark() override {
+  std::any benchmark() override {
     const int32_t num_flags = 5000;
     std::array<bool, num_flags> flags{};
 
     std::fill_n(flags.begin(), num_flags, true);
 
-    return reinterpret_cast<void*>(
-        static_cast<intptr_t>(sieve<num_flags>(flags, 5000)));
+    return sieve<num_flags>(flags, 5000);
   }
 
-  bool verify_result(void* result) override {
-    return 669 == static_cast<int32_t>(reinterpret_cast<intptr_t>(result));
+  bool verify_result(std::any result) override {
+    return 669 == std::any_cast<int32_t>(result);
   }
 
  private:

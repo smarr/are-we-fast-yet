@@ -3,6 +3,7 @@
 #include "benchmark.h"
 #include "som/random.h"
 
+#include <any>
 #include <array>
 
 class Ball {
@@ -60,7 +61,7 @@ class Ball {
 
 class Bounce : public Benchmark {
  public:
-  void* benchmark() override {
+  std::any benchmark() override {
     Random random;
 
     const int32_t ball_count = 100;
@@ -79,10 +80,10 @@ class Bounce : public Benchmark {
         }
       }
     }
-    return reinterpret_cast<void*>(static_cast<intptr_t>(bounces));
+    return bounces;
   }
 
-  bool verify_result(void* result) override {
-    return 1331 == static_cast<int32_t>(reinterpret_cast<intptr_t>(result));
+  bool verify_result(std::any result) override {
+    return 1331 == std::any_cast<int32_t>(result);
   }
 };

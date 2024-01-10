@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <any>
 
 #include "benchmark.h"
 
@@ -61,15 +62,15 @@ class Queens : public Benchmark {
   }
 
  public:
-  void* benchmark() override {
+  std::any benchmark() override {
     bool result = true;
     for (int32_t i = 0; i < 10; i += 1) {
       result = result && queens();
     }
-    return reinterpret_cast<void*>(result);
+    return result;
   }
 
-  bool verify_result(void* result) override {
-    return static_cast<bool>(reinterpret_cast<intptr_t>(result));
+  bool verify_result(std::any result) override {
+    return std::any_cast<bool>(result);
   }
 };

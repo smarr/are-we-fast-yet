@@ -1,13 +1,14 @@
 #pragma once
 
+#include <any>
 #include <iostream>
 
 #include "benchmark.h"
 
 class Mandelbrot : public Benchmark {
  public:
-  void* benchmark() override { return nullptr; };
-  bool verify_result(void*) override { return false; };
+  std::any benchmark() override { return nullptr; };
+  bool verify_result(std::any) override { return false; };
 
   bool inner_benchmark_loop(int32_t inner_iterations) override {
     return verify_result(mandelbrot(inner_iterations), inner_iterations);

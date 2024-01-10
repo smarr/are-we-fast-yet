@@ -1,5 +1,7 @@
 #pragma once
 
+#include <any>
+
 #include "benchmark.h"
 #include "memory/object_tracker.h"
 #include "som/error.h"
@@ -712,7 +714,7 @@ class DeltaBlue : public Benchmark {
     return true;
   }
 
-  void* benchmark() override { return nullptr; }
+  std::any benchmark() override { return nullptr; }
 
-  bool verify_result(void*) override { return false; }
+  bool verify_result(std::any) override { return false; }
 };

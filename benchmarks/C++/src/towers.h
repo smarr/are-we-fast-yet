@@ -1,5 +1,6 @@
 #pragma once
 
+#include <any>
 #include <array>
 #include <memory>
 
@@ -32,7 +33,7 @@ class Towers : public Benchmark {
   int32_t moves_done{0};
 
  public:
-  void* benchmark() override {
+  std::any benchmark() override {
     piles = std::array<TowersDisk*, 3>();
     build_tower_at(0, 13);
     moves_done = 0;
@@ -42,11 +43,11 @@ class Towers : public Benchmark {
       delete disk;
     }
 
-    return reinterpret_cast<void*>(static_cast<intptr_t>(moves_done));
+    return moves_done;
   }
 
-  bool verify_result(void* result) override {
-    return 8191 == static_cast<int32_t>(reinterpret_cast<intptr_t>(result));
+  bool verify_result(std::any result) override {
+    return 8191 == std::any_cast<int32_t>(result);
   }
 
  private:
