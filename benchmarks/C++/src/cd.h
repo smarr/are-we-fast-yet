@@ -1,5 +1,6 @@
 #pragma once
 
+#include <any>
 #include <cmath>
 #include <iostream>
 #include <optional>
@@ -944,6 +945,8 @@ class CD : public Benchmark {
     return false;
   }
 
-  void* benchmark() override { throw Error("Should never be reached"); }
-  bool verify_result(void*) override { throw Error("Should never be reached"); }
+  std::any benchmark() override { throw Error("Should never be reached"); }
+  bool verify_result(std::any) override {
+    throw Error("Should never be reached");
+  }
 };

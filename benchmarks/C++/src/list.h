@@ -33,7 +33,7 @@ class Element {
 
 class List : public Benchmark {
  public:
-  void* benchmark() override {
+  std::any benchmark() override {
     Element* x = makeList(15);
     Element* y = makeList(10);
     Element* z = makeList(6);
@@ -44,7 +44,7 @@ class List : public Benchmark {
     delete x;
     delete y;
     delete z;
-    return reinterpret_cast<void*>(static_cast<intptr_t>(l));
+    return l;
   }
 
  private:
@@ -79,7 +79,7 @@ class List : public Benchmark {
     return z;
   }
 
-  bool verify_result(void* result) override {
-    return 10 == static_cast<int32_t>(reinterpret_cast<intptr_t>(result));
+  bool verify_result(std::any result) override {
+    return 10 == std::any_cast<int32_t>(result);
   }
 };

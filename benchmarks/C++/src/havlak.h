@@ -1,5 +1,6 @@
 #pragma once
 
+#include <any>
 #include <cstdint>
 #include <limits>
 
@@ -578,7 +579,9 @@ class Havlak : public Benchmark {
     return false;
   }
 
-  void* benchmark() override { throw Error("Should never be reached"); }
+  std::any benchmark() override { throw Error("Should never be reached"); }
 
-  bool verify_result(void*) override { throw Error("Should never be reached"); }
+  bool verify_result(std::any) override {
+    throw Error("Should never be reached");
+  }
 };

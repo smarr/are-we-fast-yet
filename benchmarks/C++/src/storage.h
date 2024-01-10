@@ -1,5 +1,6 @@
 #pragma once
 
+#include <any>
 #include <vector>
 
 #include "benchmark.h"
@@ -20,18 +21,18 @@ class Storage : public Benchmark {
  public:
   Storage() = default;
 
-  void* benchmark() override {
+  std::any benchmark() override {
     Random random;
 
     count = 0;
     ArrayTree* result = build_tree_depth(7, random);
     delete[] result;
 
-    return reinterpret_cast<void*>(static_cast<intptr_t>(count));
+    return count;
   }
 
-  bool verify_result(void* result) override {
-    return 5461 == static_cast<int32_t>(reinterpret_cast<intptr_t>(result));
+  bool verify_result(std::any result) override {
+    return 5461 == std::any_cast<int32_t>(result);
   }
 
  private:

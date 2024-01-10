@@ -4,6 +4,7 @@
 #include "memory/object_tracker.h"
 #include "som/error.h"
 
+#include <any>
 #include <array>
 #include <functional>
 #include <iostream>
@@ -496,17 +497,16 @@ class Scheduler : public RBObject {
 
 class Richards : public Benchmark {
  public:
-  bool verify_result(void* result) override {
-    const bool result_cast =
-        static_cast<bool>(reinterpret_cast<intptr_t>(result));
+  bool verify_result(std::any result) override {
+    const bool result_cast = std::any_cast<bool>(result);
     return result_cast;
   }
 
-  void* benchmark() override {
+  std::any benchmark() override {
     auto* scheduler = new Scheduler();
     const bool result = scheduler->start();
 
     ObjectTracker::releaseAll();
-    return reinterpret_cast<void*>(static_cast<intptr_t>(result));
+    return result;
   }
 };

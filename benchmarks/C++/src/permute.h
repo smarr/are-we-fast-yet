@@ -1,5 +1,7 @@
 #pragma once
 
+#include <any>
+
 #include "benchmark.h"
 
 class Permute : public Benchmark {
@@ -27,15 +29,15 @@ class Permute : public Benchmark {
   }
 
  public:
-  void* benchmark() override {
+  std::any benchmark() override {
     count = 0;
     v = new int32_t[6];
     permute(6);
     delete[] v;
-    return reinterpret_cast<void*>(static_cast<intptr_t>(count));
+    return count;
   }
 
-  bool verify_result(void* result) override {
-    return 8660 == static_cast<int32_t>(reinterpret_cast<intptr_t>(result));
+  bool verify_result(std::any result) override {
+    return 8660 == std::any_cast<int32_t>(result);
   }
 };
