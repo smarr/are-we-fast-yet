@@ -12,13 +12,13 @@ enum Direction { FORWARD, BACKWARD, NONE };
 
 class Sym : public CustomHash {
  private:
-  int32_t hash;
+  uint32_t hash;
 
  public:
-  explicit constexpr Sym(int32_t hash_value) noexcept : hash(hash_value){};
+  explicit constexpr Sym(uint32_t hash_value) noexcept : hash(hash_value){};
   ~Sym() override = default;
 
-  [[nodiscard]] int32_t customHash() const override { return hash; };
+  [[nodiscard]] uint32_t customHash() const override { return hash; };
 };
 
 class Strength {

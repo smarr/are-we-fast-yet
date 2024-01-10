@@ -13,7 +13,7 @@ class BasicBlock : public CustomHash {
  private:
   Vector<BasicBlock*> _inEdges{2};
   Vector<BasicBlock*> _outEdges{2};
-  int32_t _name;
+  uint32_t _name;
 
  public:
   explicit BasicBlock(int32_t name) : _name(name) {}
@@ -22,7 +22,7 @@ class BasicBlock : public CustomHash {
   int32_t getNumPred() { return static_cast<int32_t>(_inEdges.size()); }
   void addOutEdge(BasicBlock* to) { _outEdges.append(to); }
   void addInEdge(BasicBlock* from) { _inEdges.append(from); }
-  [[nodiscard]] int32_t customHash() const override { return _name; }
+  [[nodiscard]] uint32_t customHash() const override { return _name; }
 
   bool equal(BasicBlock* other) const { return _name == other->_name; }
 };
