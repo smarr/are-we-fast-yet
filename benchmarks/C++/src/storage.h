@@ -36,13 +36,13 @@ class Storage : public Benchmark {
 
  private:
   ArrayTree* build_tree_depth(int32_t depth, Random& random) {
-    count++;
+    count += 1;
     if (depth == 1) {
       return new ArrayTree[random.next() % 10 + 1];
     }
 
     auto* arr = new ArrayTree[4];
-    for (size_t i = 0; i < 4; i++) {
+    for (size_t i = 0; i < 4; i += 1) {
       arr[i].children = build_tree_depth(depth - 1, random);
     }
     return arr;

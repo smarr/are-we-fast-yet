@@ -70,10 +70,10 @@ class Bounce : public Benchmark {
       ball = Ball(random);
     }
 
-    for (int32_t j = 0; j < 50; j++) {
+    for (int32_t j = 0; j < 50; j += 1) {
       for (auto& ball : balls) {
         if (ball.bounce()) {
-          bounces++;
+          bounces += 1;
         }
       }
     }

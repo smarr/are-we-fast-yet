@@ -119,7 +119,7 @@ class Run {
   }
 
   void do_runs(Benchmark* const bench) {
-    for (int32_t i = 0; i < num_iterations; i++) {
+    for (int32_t i = 0; i < num_iterations; i += 1) {
       measure(bench);
     }
   }

@@ -89,7 +89,7 @@ class Vector {
   ~Vector() { delete[] storage; }
 
   void destroyValues() {
-    for (size_t i = _firstIdx; i < _lastIdx; i++) {
+    for (size_t i = _firstIdx; i < _lastIdx; i += 1) {
       delete storage[i];
     }
   }
@@ -108,7 +108,7 @@ class Vector {
         newLength *= 2;
       }
       E* newStorage = new E[newLength];
-      for (size_t i = 0; i < _lastIdx; i++) {
+      for (size_t i = 0; i < _lastIdx; i += 1) {
         newStorage[i] = storage[i];
       }
       delete[] storage;
@@ -126,7 +126,7 @@ class Vector {
       // Need to expand _capacity first
       _capacity *= 2;
       E* newStorage = new E[_capacity];
-      for (size_t i = 0; i < _lastIdx; i++) {
+      for (size_t i = 0; i < _lastIdx; i += 1) {
         newStorage[i] = storage[i];
       }
       delete[] storage;
@@ -134,19 +134,19 @@ class Vector {
     }
 
     storage[_lastIdx] = elem;
-    _lastIdx++;
+    _lastIdx += 1;
   }
 
   [[nodiscard]] bool isEmpty() const { return _lastIdx == _firstIdx; }
 
   void forEach(const std::function<void(const E&)>& fn) const {
-    for (size_t i = _firstIdx; i < _lastIdx; i++) {
+    for (size_t i = _firstIdx; i < _lastIdx; i += 1) {
       fn(storage[i]);
     }
   }
 
   bool hasSome(const std::function<bool(const E&)>& fn) const {
-    for (size_t i = _firstIdx; i < _lastIdx; i++) {
+    for (size_t i = _firstIdx; i < _lastIdx; i += 1) {
       if (fn(storage[i])) {
         return true;
       }
@@ -155,7 +155,7 @@ class Vector {
   }
 
   E getOne(const std::function<bool(const E&)>& fn) const {
-    for (size_t i = _firstIdx; i < _lastIdx; i++) {
+    for (size_t i = _firstIdx; i < _lastIdx; i += 1) {
       const E& e = storage[i];
       if (fn(e)) {
         return e;
@@ -177,19 +177,19 @@ class Vector {
       return nullptr;  // Return a default-constructed object for an empty
                        // vector
     }
-    _firstIdx++;
+    _firstIdx += 1;
     return storage[_firstIdx - 1];
   }
 
   bool remove(const E& obj) {
     bool found = false;
     size_t newLast = _firstIdx;
-    for (size_t i = _firstIdx; i < _lastIdx; i++) {
+    for (size_t i = _firstIdx; i < _lastIdx; i += 1) {
       if (storage[i] == obj) {
         found = true;
       } else {
         storage[newLast] = storage[i];
-        newLast++;
+        newLast += 1;
       }
     }
     _lastIdx = newLast;

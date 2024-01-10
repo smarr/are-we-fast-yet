@@ -136,7 +136,7 @@ class IdleTaskDataRecord : public RBObject {
 
 class Packet : public RBObject {
  public:
-  static const int DATA_SIZE = 4;
+  static const int32_t DATA_SIZE = 4;
 
  private:
   Packet* _link;
@@ -387,7 +387,7 @@ class Scheduler : public RBObject {
               (HANDLER_A == data->getDestination()) ? HANDLER_B : HANDLER_A);
           work->setIdentity(data->getDestination());
           work->setDatum(0);
-          for (int i = 0; i < Packet::DATA_SIZE; i++) {
+          for (int32_t i = 0; i < Packet::DATA_SIZE; i += 1) {
             data->setCount(data->getCount() + 1);
             if (data->getCount() > 26) {
               data->setCount(1);

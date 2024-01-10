@@ -843,9 +843,9 @@ class CollisionDetector {
 
     allReduced->forEach(
         [collisions](const Vector<Motion>* const& reduced) -> void {
-          for (size_t i = 0; i < reduced->size(); ++i) {
+          for (size_t i = 0; i < reduced->size(); i += 1) {
             const Motion* motion1 = reduced->at(i);
-            for (size_t j = i + 1; j < reduced->size(); ++j) {
+            for (size_t j = i + 1; j < reduced->size(); j += 1) {
               const Motion* motion2 = reduced->at(j);
               std::optional<Vector3D> collision =
                   motion1->findIntersection(*motion2);
@@ -897,7 +897,7 @@ class CD : public Benchmark {
     CollisionDetector detector{};
     size_t actualCollisions = 0;
 
-    for (int32_t i = 0; i < numFrames; i++) {
+    for (int32_t i = 0; i < numFrames; i += 1) {
       const double time = i / 10.0;
       Vector<Aircraft> frame = simulator.simulate(time);
       Vector<Collision>* collisions = detector.handleNewFrame(frame);

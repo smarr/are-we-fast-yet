@@ -32,7 +32,7 @@ class Queens : public Benchmark {
   }
 
   bool place_queen(int32_t c) {
-    for (int32_t r = 0; r < 8; r++) {
+    for (int32_t r = 0; r < 8; r += 1) {
       if (get_row_column(r, c)) {
         queen_rows[r] = c;
         set_row_column(r, c, false);
@@ -63,7 +63,7 @@ class Queens : public Benchmark {
  public:
   void* benchmark() override {
     bool result = true;
-    for (int32_t i = 0; i < 10; i++) {
+    for (int32_t i = 0; i < 10; i += 1) {
       result = result && queens();
     }
     return reinterpret_cast<void*>(result);
