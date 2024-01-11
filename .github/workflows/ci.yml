@@ -24,8 +24,8 @@ jobs:
           - name: SOMns
             id:   somns
 
-          - name: Pharo
-            id:   pharo
+          # - name: Pharo
+          #   id:   pharo
 
           - name: Squeak 64-bit
             id:   squeak64
