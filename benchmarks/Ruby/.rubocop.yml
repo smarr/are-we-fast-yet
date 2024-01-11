@@ -21,11 +21,6 @@ Style/IfInsideElse:
 Style/NumericPredicate:
   Enabled: false
 
-Style/IfUnlessModifier:
-  Exclude:
-    - 'harness.rb'
-    - 'havlak.rb'
-  
 Style/HashEachMethods:
   Enabled: false
 
@@ -176,5 +171,9 @@ Style/OrAssignment:
   Enabled: false
 
 Style/RedundantCondition:
+  Exclude:
+    - 'cd.rb'
+
+Style/RedundantParentheses:
   Exclude:
     - 'cd.rb'
