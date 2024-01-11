@@ -86,6 +86,8 @@ class Vector {
 
   explicit Vector() : Vector(50) {}  // NOLINT
 
+  Vector(const Vector& other) = default;
+
   ~Vector() { delete[] storage; }
 
   void destroyValues() {
