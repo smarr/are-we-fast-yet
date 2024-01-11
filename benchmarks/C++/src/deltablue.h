@@ -15,10 +15,10 @@ class Sym : public CustomHash {
   uint32_t hash;
 
  public:
-  explicit constexpr Sym(uint32_t hash_value) noexcept : hash(hash_value){};
+  explicit constexpr Sym(uint32_t hash_value) noexcept : hash(hash_value) {}
   ~Sym() override = default;
 
-  [[nodiscard]] uint32_t customHash() const override { return hash; };
+  [[nodiscard]] uint32_t customHash() const override { return hash; }
 };
 
 class Strength {
@@ -300,7 +300,7 @@ class UnaryConstraint : public AbstractConstraint {
   // can't free _output here, because it is shared with other constraints
   ~UnaryConstraint() override = default;
 
-  bool isSatisfied() override { return _satisfied; };
+  bool isSatisfied() override { return _satisfied; }
 
   void addToGraph() override {
     _output->addConstraint(this);
@@ -342,7 +342,7 @@ class EditConstraint : public UnaryConstraint {
       : UnaryConstraint(v, strength, planner) {
     addConstraint(planner);  // moved here from UnaryConstraint constructor to
                              // make sure the right method is called
-  };
+  }
 
   bool isInput() override { return true; }
 
@@ -372,7 +372,7 @@ class EqualityConstraint : public BinaryConstraint {
 
 class Plan : public Vector<AbstractConstraint*> {
  public:
-  Plan() : Vector<AbstractConstraint*>(15){};
+  Plan() : Vector<AbstractConstraint*>(15) {}
 
   void execute() {
     forEach([&](AbstractConstraint* c) -> void { c->execute(); });
@@ -467,7 +467,7 @@ class StayConstraint : public UnaryConstraint {
       : UnaryConstraint(v, strength, planner) {
     addConstraint(planner);  // moved here from UnaryConstraint constructor to
                              // make sure the right method is called
-  };
+  }
 
   void execute() override {
     // StayConstraints do nothing.

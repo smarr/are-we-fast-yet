@@ -7,8 +7,8 @@
 
 class Mandelbrot : public Benchmark {
  public:
-  std::any benchmark() override { return nullptr; };
-  bool verify_result(std::any) override { return false; };
+  std::any benchmark() override { return nullptr; }
+  bool verify_result(std::any) override { return false; }
 
   bool inner_benchmark_loop(int32_t inner_iterations) override {
     return verify_result(mandelbrot(inner_iterations), inner_iterations);
