@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   test_awfy:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -38,6 +38,9 @@ jobs:
 
           - name: Python
             id:   python
+          
+          - name: C++
+            id:   cpp
 
     name: ${{ matrix.name }}
     steps:

@@ -5,28 +5,31 @@ CMD_VERSION='-mp-17'
 
 if ! [ -x "$(command -v clang++$CMD_VERSION)" ]; then
   CMD_VERSION='-17'
+  if ! [ -x "$(command -v clang++$CMD_VERSION)" ]; then
+    CMD_VERSION='-15'
+  fi
 fi
 
 CMD="clang++$CMD_VERSION"
 
 if [ "$1" = "format" ]
 then
-  CMD=clang-format
-  type -P "$CMD" || CMD=clang-format$CMD_VERSION
+  CMD=clang-format$CMD_VERSION
+  type -P "$CMD" || CMD=clang-format
   exec $CMD -i --style=file src/*.cpp src/*.h src/**/*.cpp src/**/*.h
 fi
 
 if [ "$1" = "check-format" ]
 then
-  CMD=clang-format
-  type -P "$CMD" || CMD=clang-format$CMD_VERSION
+  CMD=clang-format$CMD_VERSION
+  type -P "$CMD" || CMD=clang-format
   exec $CMD --style=file --dry-run --Werror src/*.cpp src/*.h  src/**/*.cpp src/**/*.h
 fi
 
 if [ "$1" = "lint" ]
 then
-  CMD=clang-tidy
-  type -P "$CMD" || CMD=clang-tidy$CMD_VERSION
+  CMD=clang-tidy$CMD_VERSION
+  type -P "$CMD" || CMD=clang-tidy
   exec $CMD --config-file=.clang-tidy -header-filter=.* src/*.cpp
 fi
 
