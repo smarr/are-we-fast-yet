@@ -5,6 +5,9 @@ source $SCRIPT_PATH/script.inc
 
 if [ "$1" = "style" ]
 then
+  WARN Disabled for the moment, GHA version seems not to understand .clang-format file format
+  exit 0
+  
   pushd $SCRIPT_PATH/../benchmarks/C++
 
   INFO Check Format
