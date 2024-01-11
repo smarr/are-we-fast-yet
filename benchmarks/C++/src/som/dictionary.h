@@ -206,7 +206,7 @@ class Dictionary {
     Entry** oldStorage = _buckets;
     const uint32_t oldCapacity = _capacity;
     _capacity *= 2;
-    auto* newStorage = new Entry*[_capacity];
+    auto* newStorage = new Entry* [_capacity] {};
     _buckets = newStorage;
     transferEntries(oldStorage, oldCapacity);
     delete[] oldStorage;
