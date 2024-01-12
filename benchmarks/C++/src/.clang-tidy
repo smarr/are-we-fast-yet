@@ -1,0 +1,2 @@
+Checks: '*,-llvm-header-guard,-google-readability-todo,-cppcoreguidelines-pro-type-reinterpret-cast,-google-runtime-references,-readability-named-parameter,-misc-noexcept-move-constructor'
+HeaderFilterRegex: '.*'
