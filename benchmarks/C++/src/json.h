@@ -999,7 +999,7 @@ class Json : public Benchmark {
   }
 
   bool verify_result(std::any r) override {
-    auto* const result = std::any_cast<const JsonValue*>(r);
+    const auto* const result = std::any_cast<const JsonValue*>(r);
     const bool doesVerify = has_expected_content(result);
     delete result;
     return doesVerify;
