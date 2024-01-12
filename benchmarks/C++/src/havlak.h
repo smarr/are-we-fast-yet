@@ -17,8 +17,8 @@ class BasicBlock : public CustomHash {
 
  public:
   explicit BasicBlock(int32_t name) : _name(name) {}
-  Vector<BasicBlock*>* getInEdges() { return &_inEdges; }
-  Vector<BasicBlock*>* getOutEdges() { return &_outEdges; }
+  Vector<BasicBlock*>& getInEdges() { return _inEdges; }
+  Vector<BasicBlock*>& getOutEdges() { return _outEdges; }
   int32_t getNumPred() { return static_cast<int32_t>(_inEdges.size()); }
   void addOutEdge(BasicBlock* to) { _outEdges.append(to); }
   void addInEdge(BasicBlock* from) { _inEdges.append(from); }
@@ -61,7 +61,7 @@ class ControlFlowGraph {
   void addEdge(BasicBlockEdge* edge) { _edgeList.append(edge); }
   int32_t getNumNodes() { return static_cast<int32_t>(_basicBlockMap.size()); }
   BasicBlock* getStartBasicBlock() { return _startNode; }
-  Vector<BasicBlock*>* getBasicBlocks() { return &_basicBlockMap; }
+  Vector<BasicBlock*>& getBasicBlocks() { return _basicBlockMap; }
 };
 
 class BasicBlockEdge {
@@ -74,6 +74,8 @@ class BasicBlockEdge {
       : _from(cfg.createNode(fromName)), _to(cfg.createNode(toName)) {
     _from->addOutEdge(_to);
     _to->addInEdge(_from);
+
+    cfg.addEdge(this);
   }
 };
 
@@ -89,6 +91,8 @@ class SimpleLoop {
   int32_t _counter{0};
   int32_t _depthLevel{0};
 
+  void addChildLoop(SimpleLoop* loop) { _children.add(loop); }
+
  public:
   SimpleLoop(BasicBlock* bb, bool isReducible)
       : _header(bb), _isReducible(isReducible) {
@@ -100,17 +104,15 @@ class SimpleLoop {
   bool equal(SimpleLoop* other) const { return this == other; }
 
   void addNode(BasicBlock* bb) { _basicBlocks.add(bb); }
-  void addChildLoop(SimpleLoop* loop) { _children.add(loop); }
-  [[nodiscard]] IdentitySet<SimpleLoop*>* getChildren() { return &_children; }
-  [[nodiscard]] SimpleLoop* getParent() { return _parent; }
+
+  [[nodiscard]] IdentitySet<SimpleLoop*>& getChildren() { return _children; }
+  [[nodiscard]] SimpleLoop* getParent() const { return _parent; }
   [[nodiscard]] int32_t getNestingLevel() const { return _nestingLevel; }
   [[nodiscard]] bool isRoot() const { return _isRoot; }
 
   void setParent(SimpleLoop* parent) {
     _parent = parent;
-    if (parent != nullptr) {
-      parent->addChildLoop(this);
-    }
+    _parent->addChildLoop(this);
   }
 
   void setIsRoot() { _isRoot = true; }
@@ -166,7 +168,7 @@ class LoopStructureGraph {
 
   void calculateNestingLevelRec(SimpleLoop* loop, int32_t depth) {
     loop->setDepthLevel(depth);
-    loop->getChildren()->forEach(
+    loop->getChildren().forEach(
         [this, loop, depth](SimpleLoop* const& liter) -> void {
           calculateNestingLevelRec(liter, depth + 1);
 
@@ -208,7 +210,7 @@ class UnionFindNode {
 
     // Path Compression, all nodes' parents point to the 1st level parent.
     nodeList.forEach(
-        [&](UnionFindNode* const& iter) -> void { iter->unionSet(_parent); });
+        [this](UnionFindNode* const& iter) -> void { iter->unionSet(_parent); });
     return node;
   }
 
@@ -341,10 +343,10 @@ class HavlakLoopFinder {
     _number.atPut(currentNode, current);
 
     int32_t lastId = current;
-    Vector<BasicBlock*>* outerBlocks = currentNode->getOutEdges();
+    Vector<BasicBlock*>& outerBlocks = currentNode->getOutEdges();
 
-    for (int32_t i = 0; i < static_cast<int32_t>(outerBlocks->size()); i += 1) {
-      BasicBlock* target = *outerBlocks->at(i);
+    for (int32_t i = 0; i < static_cast<int32_t>(outerBlocks.size()); i += 1) {
+      BasicBlock* target = *outerBlocks.at(i);
       if (*_number.at(target) == UNVISITED) {
         lastId = doDFS(target, lastId + 1);
       }
@@ -355,7 +357,7 @@ class HavlakLoopFinder {
   }
 
   void initAllNodes() {
-    _cfg.getBasicBlocks()->forEach([this](BasicBlock* const& bb) -> void {
+    _cfg.getBasicBlocks().forEach([this](BasicBlock* const& bb) -> void {
       _number.atPut(bb, UNVISITED);
     });
     doDFS(_cfg.getStartBasicBlock(), 0);
@@ -377,7 +379,7 @@ class HavlakLoopFinder {
 
   void processEdges(BasicBlock* nodeW, int32_t w) {
     if (nodeW->getNumPred() > 0) {
-      nodeW->getInEdges()->forEach([this, w](BasicBlock* const& nodeV) -> void {
+      nodeW->getInEdges().forEach([this, w](BasicBlock* const& nodeV) -> void {
         const int32_t v = *_number.at(nodeV);
         if (v != UNVISITED) {
           if (isAncestor(w, v)) {
@@ -452,16 +454,16 @@ class LoopTesterApp {
 
   int32_t buildDiamond(int32_t start) {
     const int32_t bb0 = start;
-    _cfg.addEdge(new BasicBlockEdge(_cfg, bb0, bb0 + 1));
-    _cfg.addEdge(new BasicBlockEdge(_cfg, bb0, bb0 + 2));
-    _cfg.addEdge(new BasicBlockEdge(_cfg, bb0 + 1, bb0 + 3));
-    _cfg.addEdge(new BasicBlockEdge(_cfg, bb0 + 2, bb0 + 3));
+    new BasicBlockEdge(_cfg, bb0, bb0 + 1);
+    new BasicBlockEdge(_cfg, bb0, bb0 + 2);
+    new BasicBlockEdge(_cfg, bb0 + 1, bb0 + 3);
+    new BasicBlockEdge(_cfg, bb0 + 2, bb0 + 3);
 
     return bb0 + 3;
   }
 
   void buildConnect(int32_t start, int32_t end) {
-    _cfg.addEdge(new BasicBlockEdge(_cfg, start, end));
+    new BasicBlockEdge(_cfg, start, end);
   }
 
   int32_t buildStraight(int32_t start, int32_t n) {
@@ -489,7 +491,7 @@ class LoopTesterApp {
     buildBaseLoop(0);
     _cfg.createNode(1);
 
-    _cfg.addEdge(new BasicBlockEdge(_cfg, 0, 2));
+    new BasicBlockEdge(_cfg, 0, 2);
   }
 
  public:
