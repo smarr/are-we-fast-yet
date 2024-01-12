@@ -1,6 +1,6 @@
 #!/bin/bash
 if [ -z "$OPT" ]; then
-  OPT='-O2 -flto'
+  OPT='-O3 -flto'
 fi
 
 # start by trying to find a suitable clang
@@ -18,6 +18,8 @@ CMD="clang++$CMD_VERSION"
 if [ -z "$CXX" ]; then
   CXX="$CMD"
 fi
+
+SRC='src/harness.cpp src/deltablue.cpp src/memory/object_tracker.cpp src/richards.cpp'
 
 if [ "$1" = "format" ]
 then
@@ -74,11 +76,42 @@ then
                      -Wno-unsafe-buffer-usage -Wno-weak-vtables'
   SANATIZE="-Weverything -pedantic -Wall -Wextra $DISABLED_WARNINGS"
   echo Bulding with pedantic warnings and $OPT optimizations
+elif [ "$1" = "pgo" ]
+then
+  echo Bulding with PGO optimizations
+  ORG_OPT="$OPT"
+
+  OPT="$ORG_OPT -fprofile-generate"
+  $CXX -Wall -Wextra -Wno-unused-private-field $SANATIZE $OPT -ffp-contract=off -std=c++17 $SRC -o harness-$CXX
+
+  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX NBody      10 250000
+  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX Richards   10 100
+  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX DeltaBlue  10 1200
+  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX Mandelbrot 10 500
+  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX Queens     10 1000
+  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX Towers     10 600
+  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX Bounce     10 1500
+  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX CD         10 250
+  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX Json       10 100
+  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX List       10 1500
+  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX Storage    10 1000
+  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX Sieve      10 3000
+  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX Mandelbrot 10 500
+  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX Permute    10 1000
+  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX Bounce     10 1500
+  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX Mandelbrot 10 500
+  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX Havlak     10 1500
+
+  llvm-profdata$CMD_VERSION merge -output=prof.profdata prof-*.profraw
+
+  OPT="$ORG_OPT -fprofile-use=prof.profdata"
+  $CXX -Wall -Wextra -Wno-unused-private-field -march=native $SANATIZE $OPT -ffp-contract=off -std=c++17 $SRC -o harness-$CXX
+  EXIT_CODE=$?
+  rm *.profraw prof.profdata
+  exit $EXIT_CODE
 else
   echo Bulding with $OPT optimizations
   SANATIZE=''
 fi
 
-SRC='src/harness.cpp src/deltablue.cpp src/memory/object_tracker.cpp src/richards.cpp'
-
-exec $CXX -Wall -Wextra -Wno-unused-private-field $SANATIZE $OPT -ffp-contract=off -std=c++17 $SRC -o harness-$CXX
+exec $CXX -Wall -Wextra -Wno-unused-private-field -march=native $SANATIZE $OPT -ffp-contract=off -std=c++17 $SRC -o harness-$CXX
