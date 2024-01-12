@@ -166,8 +166,13 @@ class SimpleLoop {
     IdentitySet<SimpleLoop*> children;
     SimpleLoop* parent;
 
+    BasicBlock* _header;
+
+    bool _isReducible;
     bool isRoot_;
-    int     nestingLevel;
+    int  nestingLevel;
+    int _counter;
+    int _depthLevel;
 
     void addChildLoop(SimpleLoop* loop) {
         children.add(loop);
@@ -176,8 +181,10 @@ class SimpleLoop {
 public:
     SimpleLoop(BasicBlock* bb) {
         parent = 0;
+        _header = bb;
         isRoot_ = false;
         nestingLevel = 0;
+        _depthLevel = 0;
         if (bb != 0) {
             basicBlocks.add(bb);
         }
@@ -219,6 +226,8 @@ public:
         }
     }
 
+void setCounter(int32_t value) { _counter = value; }
+void setDepthLevel(int32_t level) { _depthLevel = level; }
 };
 
 class UnionFindNode {
@@ -297,6 +306,7 @@ public:
         loopCounter = 0;
         root = new SimpleLoop(0);
         root->setNestingLevel(0);
+        root->setCounter(loopCounter);
         loopCounter += 1;
         loops.append(root);
     }
@@ -310,6 +320,7 @@ public:
 
     SimpleLoop* createNewLoop(BasicBlock* bb, bool isReducible) {
         SimpleLoop* loop = new SimpleLoop(bb);
+        loop->setCounter(loopCounter);
         loopCounter += 1;
         loops.append(loop);
         return loop;
