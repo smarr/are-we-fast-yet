@@ -9,7 +9,7 @@
 
 using std::cout;
 
-class BasicBlock : public CustomHash {
+class BasicBlock {
  private:
   Vector<BasicBlock*> _inEdges{2};
   Vector<BasicBlock*> _outEdges{2};
@@ -17,12 +17,13 @@ class BasicBlock : public CustomHash {
 
  public:
   explicit BasicBlock(int32_t name) : _name(name) {}
+
   Vector<BasicBlock*>& getInEdges() { return _inEdges; }
   Vector<BasicBlock*>& getOutEdges() { return _outEdges; }
   int32_t getNumPred() { return static_cast<int32_t>(_inEdges.size()); }
   void addOutEdge(BasicBlock* to) { _outEdges.append(to); }
   void addInEdge(BasicBlock* from) { _inEdges.append(from); }
-  [[nodiscard]] uint32_t customHash() const override { return _name; }
+  [[nodiscard]] uint32_t customHash() const { return _name; }
 
   bool equal(BasicBlock* other) const { return _name == other->_name; }
 };
@@ -209,8 +210,9 @@ class UnionFindNode {
     }
 
     // Path Compression, all nodes' parents point to the 1st level parent.
-    nodeList.forEach(
-        [this](UnionFindNode* const& iter) -> void { iter->unionSet(_parent); });
+    nodeList.forEach([this](UnionFindNode* const& iter) -> void {
+      iter->unionSet(_parent);
+    });
     return node;
   }
 
@@ -241,7 +243,7 @@ class HavlakLoopFinder {
 
   Vector<Set<int32_t>*> _nonBackPreds{};
   Vector<Vector<int32_t>*> _backPreds{};
-  IdentityDictionary<int32_t> _number{};
+  IdentityDictionary<BasicBlock, int32_t> _number{};
 
   int32_t _maxSize{0};
   int32_t* _header{nullptr};
@@ -343,7 +345,7 @@ class HavlakLoopFinder {
     _number.atPut(currentNode, current);
 
     int32_t lastId = current;
-    Vector<BasicBlock*>& outerBlocks = currentNode->getOutEdges();
+    const Vector<BasicBlock*>& outerBlocks = currentNode->getOutEdges();
 
     for (int32_t i = 0; i < static_cast<int32_t>(outerBlocks.size()); i += 1) {
       BasicBlock* target = *outerBlocks.at(i);

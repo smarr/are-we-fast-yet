@@ -10,15 +10,14 @@
 
 enum Direction { FORWARD, BACKWARD, NONE };
 
-class Sym : public CustomHash {
+class Sym {
  private:
   uint32_t hash;
 
  public:
   explicit constexpr Sym(uint32_t hash_value) noexcept : hash(hash_value) {}
-  ~Sym() override = default;
 
-  [[nodiscard]] uint32_t customHash() const override { return hash; }
+  [[nodiscard]] uint32_t customHash() const { return hash; }
 };
 
 class Strength {
@@ -36,8 +35,9 @@ class Strength {
   int32_t const _arithmeticValue;
   const Sym* const _symbolicValue;
 
-  static IdentityDictionary<int32_t>* createStrengthTable();
-  static IdentityDictionary<const Strength*>* createStrengthConstants();
+  static IdentityDictionary<const Sym, int32_t>* createStrengthTable();
+  static IdentityDictionary<const Sym, const Strength*>*
+  createStrengthConstants();
   static void releaseStrengthConstants();
 
  public:
@@ -79,8 +79,8 @@ class Strength {
   static const Strength* _absoluteWeakest;
   static const Strength* _required;
 
-  static IdentityDictionary<int32_t>* _strengthTable;
-  static IdentityDictionary<const Strength*>* _strengthConstant;
+  static IdentityDictionary<const Sym, int32_t>* _strengthTable;
+  static IdentityDictionary<const Sym, const Strength*>* _strengthConstant;
 };
 
 class Planner;

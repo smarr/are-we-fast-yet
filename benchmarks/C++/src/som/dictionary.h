@@ -3,14 +3,7 @@
 #include <memory>
 #include "vector.h"
 
-class CustomHash {
- public:
-  CustomHash() = default;
-  virtual ~CustomHash() = default;
-  [[nodiscard]] virtual uint32_t customHash() const = 0;
-};
-
-template <typename V>
+template <typename K, typename V>
 class IdentityDictionary;
 
 /**
@@ -19,31 +12,31 @@ class IdentityDictionary;
  * The memory of Entry objects is managed by ownership through the _buckets
  * field. Thus, they are anchored in the _buckets, and only freed from there.
  */
-template <typename V>
+template <typename K, typename V>
 class Dictionary {
-  friend class IdentityDictionary<V>;
+  friend class IdentityDictionary<K, V>;
 
  private:
   class Entry {
-    friend class IdentityDictionary<V>;
-    friend class Dictionary<V>;
+    friend class IdentityDictionary<K, V>;
+    friend class Dictionary<K, V>;
 
    private:
     uint32_t _hash;
-    const CustomHash* const _key;
+    const K* const _key;
     V _value;
     Entry* _next;
 
    public:
-    Entry(uint32_t h, const CustomHash* k, const V& v, Entry* n)
+    Entry(uint32_t h, const K* k, const V& v, Entry* n)
         : _hash(h), _key(k), _value(v), _next(n) {}
     virtual ~Entry() = default;
 
-    virtual bool match(uint32_t h, const CustomHash* const k) {
+    virtual bool match(uint32_t h, const K* const k) {
       return _hash == h && _key == k;
     }
 
-    [[nodiscard]] const CustomHash* getKey() const { return _key; }
+    [[nodiscard]] const K* getKey() const { return _key; }
 
     [[nodiscard]] uint32_t getHash() const { return _hash; }
   };
@@ -67,7 +60,7 @@ class Dictionary {
 
   [[nodiscard]] bool isEmpty() const { return _size == 0; }
 
-  [[nodiscard]] uint32_t hash(const CustomHash* key) const {
+  [[nodiscard]] uint32_t hash(const K* key) const {
     if (key == nullptr) {
       return 0;
     }
@@ -75,7 +68,7 @@ class Dictionary {
     return h ^ (h >> 16U);
   }
 
-  [[nodiscard]] bool containsKey(const CustomHash* key) const {
+  [[nodiscard]] bool containsKey(const K* key) const {
     uint32_t h = hash(key);
     Entry* e = getBucket(h);
 
@@ -88,7 +81,7 @@ class Dictionary {
     return false;
   }
 
-  V* at(const CustomHash* key) const {
+  V* at(const K* key) const {
     const uint32_t h = this->hash(key);
     Entry* e = getBucket(h);
 
@@ -102,7 +95,7 @@ class Dictionary {
     return nullptr;
   }
 
-  void atPut(const CustomHash* const key, const V& value) {
+  void atPut(const K* const key, const V& value) {
     const uint32_t h = hash(key);
     const uint32_t i = getBucketIdx(h);
 
@@ -134,8 +127,8 @@ class Dictionary {
     _size = 0;
   }
 
-  [[nodiscard]] Vector<const CustomHash*>* getKeys() {
-    auto* keys = new Vector<const CustomHash*>();
+  [[nodiscard]] Vector<const K*>* getKeys() {
+    auto* keys = new Vector<const K*>();
     for (uint32_t i = 0; i < _capacity; i += 1) {
       Entry* current = _buckets[i];
       while (current != nullptr) {
@@ -169,7 +162,7 @@ class Dictionary {
     }
   }
 
-  virtual Entry* newEntry(const CustomHash* key, V value, uint32_t hash) {
+  virtual Entry* newEntry(const K* key, V value, uint32_t hash) {
     return new Entry(hash, key, value, nullptr);
   }
 
@@ -182,7 +175,7 @@ class Dictionary {
     return _buckets[getBucketIdx(hash)];
   }
 
-  void insertBucketEntry(const CustomHash* key,
+  void insertBucketEntry(const K* key,
                          const V& value,
                          uint32_t hash,
                          Entry* head) {
