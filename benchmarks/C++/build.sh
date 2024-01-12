@@ -1,4 +1,7 @@
 #!/bin/bash
+if [ -z "$OPT" ]; then
+  OPT='-O2 -flto'
+fi
 
 # start by trying to find a suitable clang
 CMD_VERSION='-mp-17'
@@ -11,6 +14,10 @@ if ! [ -x "$(command -v clang++$CMD_VERSION)" ]; then
 fi
 
 CMD="clang++$CMD_VERSION"
+
+if [ -z "$CXX" ]; then
+  CXX="$CMD"
+fi
 
 if [ "$1" = "format" ]
 then
@@ -66,14 +73,12 @@ then
                      -Wno-sign-conversion
                      -Wno-unsafe-buffer-usage -Wno-weak-vtables'
   SANATIZE="-Weverything -pedantic -Wall -Wextra $DISABLED_WARNINGS"
-  OPT='-O3'
   echo Bulding with pedantic warnings and $OPT optimizations
 else
-  
   echo Bulding with $OPT optimizations
   SANATIZE=''
 fi
 
 SRC='src/harness.cpp src/deltablue.cpp src/memory/object_tracker.cpp src/richards.cpp'
 
-exec $CMD -Wall -Wextra -Wno-unused-private-field $SANATIZE $OPT -ffp-contract=off -std=c++17 $SRC -o harness
+exec $CXX -Wall -Wextra -Wno-unused-private-field $SANATIZE $OPT -ffp-contract=off -std=c++17 $SRC -o harness-$CXX
