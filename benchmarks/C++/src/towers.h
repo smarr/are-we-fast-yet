@@ -14,11 +14,7 @@ class TowersDisk {
  public:
   explicit TowersDisk(int32_t size) : size(size) {}
 
-  ~TowersDisk() {
-    if (next != nullptr) {
-      delete next;
-    }
-  }
+  ~TowersDisk() { delete next; }
 
   [[nodiscard]] int32_t get_size() const { return size; }
 
@@ -34,7 +30,7 @@ class Towers : public Benchmark {
 
  public:
   std::any benchmark() override {
-    piles = std::array<TowersDisk*, 3>();
+    piles = std::array<TowersDisk*, 3>{};
     build_tower_at(0, 13);
     moves_done = 0;
     move_disks(13, 0, 1);
