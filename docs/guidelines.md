@@ -143,7 +143,7 @@ languages.
 ### Python
 
  - Use plain fields instead of getter/setter when they would be trivial
- 
+
 
 ### C++
 
@@ -184,7 +184,7 @@ Memory Management Strategies Per Benchmarks:
  - **DeltaBlue** uses `object_tracker`, since there are cyclic dependencies,
    but we can free the full setup once it's not needed.
    A mix of `shared_ptr` and `weak_ptr` would probably also work.
-  
+
  - **Havlak** manages memory explicitly by assigning ownership to specific
    classes. Specifically, the ControlFlowGraph owns the basic blocks and
    block edges, the LoopStructureGraph owns the loops, the HavlakLoopFinder
@@ -202,11 +202,11 @@ Memory Management Strategies Per Benchmarks:
    but I might have missed something.
 
  - **Bounce** allocates everything statically, i.e., on the stack.
- 
+
  - **List** trivially uses the list structure for freeing the list.
- 
+
  - **Mandelbrot** does not allocate any data structures.
- 
+
  - **NBody** allocates everything statically, i.e., on the stack.
 
  - **Permute** allocates an array dynamically, and frees it directly.
@@ -249,6 +249,8 @@ General C++-isms:
 
  - avoid changing signatures for the sake of the compiler. It should do an
    appropriate return-value optimization itself.
+
+ - use templates where Java uses generics
 
 
 ## Repository Structure

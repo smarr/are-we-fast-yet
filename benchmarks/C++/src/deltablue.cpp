@@ -15,8 +15,8 @@ const Sym Strength::DEFAULT(5);
 const Sym Strength::WEAK_DEFAULT(6);
 const Sym Strength::ABSOLUTE_WEAKEST(7);
 
-IdentityDictionary<int32_t>* Strength::_strengthTable;
-IdentityDictionary<const Strength*>* Strength::_strengthConstant;
+IdentityDictionary<const Sym, int32_t>* Strength::_strengthTable;
+IdentityDictionary<const Sym, const Strength*>* Strength::_strengthConstant;
 const Strength* Strength::_absoluteWeakest;
 const Strength* Strength::_required;
 
@@ -28,8 +28,8 @@ const Strength* Strength::required() {
   return _required;
 }
 
-IdentityDictionary<int32_t>* Strength::createStrengthTable() {
-  auto* strengthTable = new IdentityDictionary<int32_t>();
+IdentityDictionary<const Sym, int32_t>* Strength::createStrengthTable() {
+  auto* strengthTable = new IdentityDictionary<const Sym, int32_t>();
   strengthTable->atPut(&Strength::ABSOLUTE_STRONGEST, -10000);
   strengthTable->atPut(&Strength::REQUIRED, -800);
   strengthTable->atPut(&Strength::STRONG_PREFERRED, -600);
@@ -41,10 +41,11 @@ IdentityDictionary<int32_t>* Strength::createStrengthTable() {
   return strengthTable;
 }
 
-IdentityDictionary<const Strength*>* Strength::createStrengthConstants() {
-  auto* strengthConstant = new IdentityDictionary<const Strength*>();
+IdentityDictionary<const Sym, const Strength*>*
+Strength::createStrengthConstants() {
+  auto* strengthConstant = new IdentityDictionary<const Sym, const Strength*>();
   auto* keys = _strengthTable->getKeys();
-  keys->forEach([&strengthConstant](const CustomHash* const key) -> void {
+  keys->forEach([&strengthConstant](const Sym* const key) -> void {
     const Sym* keySym = dynamic_cast<const Sym*>(key);
     strengthConstant->atPut(keySym, new Strength(keySym));
   });
