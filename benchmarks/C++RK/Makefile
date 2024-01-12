@@ -16,10 +16,11 @@ SRC_CORE=som/Random.cpp						\
 			Towers.cpp							\
 			CD.cpp
 
+OPT ?=-O2 -flto
 
 OBJ_CORE    =	$(SRC_CORE:.cpp=.o)
 
-CXXFLAGS+=	-Wall -Wextra -std=c++17 -O2  -flto
+CXXFLAGS+=	-Wall -Wextra -std=c++17 $(OPT)
 
 NAME_CORE   =	Harness-$(CXX)
 
