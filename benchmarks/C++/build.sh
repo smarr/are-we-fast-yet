@@ -2,6 +2,8 @@
 if [ -z "$OPT" ]; then
   OPT='-O3 -flto'
 fi
+NAME_OPT="${OPT//[[:blank:]]/}"
+NAME_OPT="${NAME_OPT//flto/lto}"
 
 # start by trying to find a suitable clang
 CMD_VERSION='-mp-17'
@@ -127,7 +129,7 @@ then
     OPT="$ORG_OPT -fprofile-use"
   fi
 
-  $CXX $WARNINGS $SANATIZE $OPT $COMP_OPT $SRC -o harness-$CXX
+  $CXX $WARNINGS $SANATIZE $OPT $COMP_OPT $SRC -o harness-$CXX$NAME_OPT-pgo
   EXIT_CODE=$?
   rm -f *.profraw prof.profdata *.gcda
   exit $EXIT_CODE
@@ -136,4 +138,6 @@ else
   SANATIZE=''
 fi
 
-exec $CXX $WARNINGS $SANATIZE $OPT $COMP_OPT $SRC -o harness-$CXX
+
+echo Binary name: harness-$CXX$NAME_OPT
+exec $CXX $WARNINGS $SANATIZE $OPT $COMP_OPT $SRC -o harness-$CXX$NAME_OPT
