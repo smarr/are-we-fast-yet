@@ -21,10 +21,15 @@ fi
 
 if [[ $CMD == *"clang"* ]]; then
   COMPILER_NAME="clang"
+  WARNINGS="-Wall -Wextra -Wno-unused-private-field"
 else
   # we assume gcc
   COMPILER_NAME="gcc"
+  WARNINGS="-Wall -Wextra"
 fi
+COMP_OPT="-march=native -ffp-contract=off -std=c++17"
+
+echo "Using compiler type: $CXX"
 
 SRC='src/harness.cpp src/deltablue.cpp src/memory/object_tracker.cpp src/richards.cpp'
 
@@ -107,7 +112,7 @@ then
   ORG_OPT="$OPT"
 
   OPT="$ORG_OPT -fprofile-generate"
-  $CXX -Wall -Wextra -Wno-unused-private-field $SANATIZE $OPT -ffp-contract=off -std=c++17 $SRC -o harness-$CXX
+  $CXX $WARNINGS $SANATIZE $OPT $COMP_OPT $SRC -o harness-$CXX
 
   for b in "${BENCHMARKS[@]}"; do
     LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX $b
@@ -120,7 +125,7 @@ then
     OPT="$ORG_OPT -fprofile-use"
   fi
 
-  $CXX -Wall -Wextra -Wno-unused-private-field -march=native $SANATIZE $OPT -ffp-contract=off -std=c++17 $SRC -o harness-$CXX
+  $CXX $WARNINGS $SANATIZE $OPT $COMP_OPT $SRC -o harness-$CXX
   EXIT_CODE=$?
   rm *.profraw prof.profdata
   exit $EXIT_CODE
@@ -129,4 +134,4 @@ else
   SANATIZE=''
 fi
 
-exec $CXX -Wall -Wextra -Wno-unused-private-field -march=native $SANATIZE $OPT -ffp-contract=off -std=c++17 $SRC -o harness-$CXX
+exec $CXX $WARNINGS $SANATIZE $OPT $COMP_OPT $SRC -o harness-$CXX
