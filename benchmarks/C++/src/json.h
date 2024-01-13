@@ -478,7 +478,7 @@ class HashIndexTable {
   }
 
   [[nodiscard]] int32_t hashSlotFor(const std::string& element) const {
-    return stringHash(element) & static_cast<int32_t>(_hashTable.size()) - 1;
+    return stringHash(element) & (static_cast<int32_t>(_hashTable.size()) - 1);
   }
 };
 
