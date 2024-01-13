@@ -19,7 +19,32 @@ if [ -z "$CXX" ]; then
   CXX="$CMD"
 fi
 
+if [[ $CMD == *"clang"* ]]; then
+  COMPILER_NAME="clang"
+else
+  # we assume gcc
+  COMPILER_NAME="gcc"
+fi
+
 SRC='src/harness.cpp src/deltablue.cpp src/memory/object_tracker.cpp src/richards.cpp'
+
+BENCHMARKS=("NBody      10 250000"
+            "Richards   10 100"
+            "DeltaBlue  10 1200"
+            "Mandelbrot 10 500"
+            "Queens     10 1000"
+            "Towers     10 600"
+            "Bounce     10 1500"
+            "CD         10 250"
+            "Json       10 100"
+            "List       10 1500"
+            "Storage    10 1000"
+            "Sieve      10 3000"
+            "Mandelbrot 10 500"
+            "Permute    10 1000"
+            "Bounce     10 1500"
+            "Mandelbrot 10 500"
+            "Havlak     10 1500")
 
 if [ "$1" = "format" ]
 then
@@ -84,27 +109,17 @@ then
   OPT="$ORG_OPT -fprofile-generate"
   $CXX -Wall -Wextra -Wno-unused-private-field $SANATIZE $OPT -ffp-contract=off -std=c++17 $SRC -o harness-$CXX
 
-  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX NBody      10 250000
-  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX Richards   10 100
-  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX DeltaBlue  10 1200
-  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX Mandelbrot 10 500
-  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX Queens     10 1000
-  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX Towers     10 600
-  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX Bounce     10 1500
-  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX CD         10 250
-  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX Json       10 100
-  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX List       10 1500
-  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX Storage    10 1000
-  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX Sieve      10 3000
-  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX Mandelbrot 10 500
-  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX Permute    10 1000
-  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX Bounce     10 1500
-  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX Mandelbrot 10 500
-  LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX Havlak     10 1500
+  for b in "${BENCHMARKS[@]}"; do
+    LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX $b
+  done
 
-  llvm-profdata$CMD_VERSION merge -output=prof.profdata prof-*.profraw
+  if [ "$COMPILER_NAME" = "clang" ]; then
+    llvm-profdata$CMD_VERSION merge -output=prof.profdata prof-*.profraw
+    OPT="$ORG_OPT -fprofile-use=prof.profdata"
+  else
+    OPT="$ORG_OPT -fprofile-use"
+  fi
 
-  OPT="$ORG_OPT -fprofile-use=prof.profdata"
   $CXX -Wall -Wextra -Wno-unused-private-field -march=native $SANATIZE $OPT -ffp-contract=off -std=c++17 $SRC -o harness-$CXX
   EXIT_CODE=$?
   rm *.profraw prof.profdata
