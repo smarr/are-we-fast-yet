@@ -1,9 +1,30 @@
 ## This file defines common functions used for data processing.
 library(stringr)
+library(jsonlite)
 suppressMessages(library(qs))
 
 load_data_file <- function(filename) {
   qread(filename)  
+}
+
+
+load_json_data_url <- function(url) {
+  # url <- "https://rebench.stefan-marr.de/rebenchdb/get-exp-data/3369"
+  safe_name <- str_replace_all(url, "[:/.]", "-")
+  cache_file <- paste0(str_replace_all(safe_name, "-+", "-"), ".json.gz")
+  
+  if(!file.exists(cache_file)) {
+    download.file(url=url, destfile=cache_file)
+  }
+  
+  tryCatch(
+    fromJSON(txt=cache_file),
+    error = function(c) {
+      file.remove(cache_file)
+      Sys.sleep(10)
+      load_data_url(url)
+    }
+  )
 }
 
 load_data_url <- function(url) {
