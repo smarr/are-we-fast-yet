@@ -13,13 +13,15 @@ if ! [ -x "$(command -v clang++$CMD_VERSION)" ]; then
   fi
 fi
 
-CMD="clang++$CMD_VERSION"
-
 if [ -z "$CXX" ]; then
+  CMD="clang++$CMD_VERSION"
   CXX="$CMD"
+
+  # trying to avoid bugs, CXX should be used at this point
+  unset CMD
 fi
 
-if [[ $CMD == *"clang"* ]]; then
+if [[ $CXX == *"clang"* ]]; then
   COMPILER_NAME="clang"
   WARNINGS="-Wall -Wextra -Wno-unused-private-field"
 else
@@ -29,7 +31,7 @@ else
 fi
 COMP_OPT="-march=native -ffp-contract=off -std=c++17"
 
-echo "Using compiler type: $CXX"
+echo "Using compiler type: $COMPILER_NAME"
 
 SRC='src/harness.cpp src/deltablue.cpp src/memory/object_tracker.cpp src/richards.cpp'
 
@@ -127,7 +129,7 @@ then
 
   $CXX $WARNINGS $SANATIZE $OPT $COMP_OPT $SRC -o harness-$CXX
   EXIT_CODE=$?
-  rm *.profraw prof.profdata
+  rm -f *.profraw prof.profdata *.gcda
   exit $EXIT_CODE
 else
   echo Bulding with $OPT optimizations
