@@ -38,6 +38,9 @@ jobs:
 
           - name: Python
             id:   python
+          
+          - name: Julia
+            id: julia
 
     name: ${{ matrix.name }}
     steps:
@@ -111,6 +114,12 @@ jobs:
           options: "--check --diff ."
           src: "./benchmarks/Python"
         if: matrix.id == 'python'
+
+      - name: Install Julia
+        uses: julia-actions/setup-julia@v1
+        with:
+          version: '1'
+        if: matrix.id == 'julia'
 
       - name: Build
         run: |
