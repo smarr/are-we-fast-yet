@@ -1,6 +1,6 @@
 #!/bin/bash
 if [ -z "$OPT" ]; then
-  OPT='-O3 -flto'
+  OPT='-O3 -flto -march=native'
 fi
 NAME_OPT="${OPT//[[:blank:]]/}"
 NAME_OPT="${NAME_OPT//flto/lto}"
@@ -31,7 +31,7 @@ else
   COMPILER_NAME="gcc"
   WARNINGS="-Wall -Wextra"
 fi
-COMP_OPT="-march=native -ffp-contract=off -std=c++17"
+COMP_OPT="-ffp-contract=off -std=c++17"
 
 echo "Using compiler type: $COMPILER_NAME"
 
