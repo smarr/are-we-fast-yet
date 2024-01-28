@@ -99,7 +99,7 @@ createEmptyClassIn: universe
 	superclass := universe
 		globalAt: self superName
 		ifAbsent: [universe loadSOMClass: self superName].
-	^ universe classClass 
+	^ universe classClass
 		inUniverse: universe
 		withSomSuperClass: superclass.! !
 
@@ -262,19 +262,19 @@ endOfBuffer
 !SomLexer methodsFor: 'accessing' stamp: 'StefanMarr 5/13/2012 17:14'!
 fillBuffer
 	stream atEnd ifTrue: [^ -1].
-	
+
 	buf := stream nextLine.
 	buf ifNil: [^ -1].
-	
+
 	lineNumber := lineNumber + 1.
-	
+
 	bufP := 1.
 	^ buf size.! !
 
 !SomLexer methodsFor: 'private' stamp: 'StefanMarr 5/13/2012 17:11'!
 hasMoreInput
 	self readBufferIfEmpty: [^ false].
-	
+
 	^ true! !
 
 !SomLexer methodsFor: 'initialize-release' stamp: 'StefanMarr 5/13/2012 10:04'!
@@ -339,14 +339,14 @@ matchLetter
 			text nextPut: self currentChar.
 			self readNext.
 		].
-	
+
 	sym := #identifier.
-	
+
 	self currentChar == $: ifTrue: [
 		sym := #keyword.
 		self readNext.
 		text nextPut: $:.
-		
+
 		(self currentChar notNil and: [self currentChar isLetter]) ifTrue: [
 			sym := #keywordSequence.
 			[self currentChar isLetter or: [self currentChar == $:]]
@@ -427,7 +427,7 @@ matchOperator
 	cur == $, ifTrue: [ ^ self match: #comma].
 	cur == $@ ifTrue: [ ^ self match: #at  ].
 	cur == $% ifTrue: [ ^ self match: #per ].
-	
+
 	Error signal: 'STEFAN: this is unexpected, I think...'.! !
 
 !SomLexer methodsFor: 'lexing' stamp: 'StefanMarr 7/22/2016 23:42'!
@@ -451,9 +451,9 @@ matchString
 			text nextPut: self currentChar.
 			self readNext.
 		].
-	
+
 	self readNext. "skip the ending $'"
-	
+
 	^ sym! !
 
 !SomLexer methodsFor: 'helper' stamp: 'StefanMarr 5/13/2012 17:48'!
@@ -471,9 +471,9 @@ nextWordInBufIs: aString
    (self nextInBufIs: aString) ifTrue: [
      | nextPos nextChar |
       nextPos := bufP + aString size.
-       
+
       nextPos > buf size ifTrue: [^true].
-       
+
       nextChar := buf at: nextPos.
       ^ (nextChar isLetter or: [nextChar isDigit]) not.
 	].
@@ -485,22 +485,22 @@ peek
 	| oldSym oldSymChr oldText oldPrevStream |
 	peekDone
 		ifTrue: [ Error signal: 'SOM Lexer: cannot peek twice!!' ].
-	
+
 	oldSym    := sym.
 	oldSymChr := symChr.
 	oldText   := RWBinaryOrTextStream with: text contents.
 	oldPrevStream := prevStreamPosition.
-	
+
 	nextSym   := self symbol.
 	nextSymChr:= symChr.
 	nextText  := text.
-	
+
 	sym   := oldSym.
 	symChr:= oldSymChr.
 	text  := oldText.
-	
+
 	peekDone := true.
-	
+
 	prevStreamPosition := oldPrevStream.
 	^ nextSym.! !
 
@@ -582,7 +582,7 @@ symbol
 	| currentChar |
 	peekDone ifTrue: [^ self symbolAfterPeek].
 	prevLastNonWhiteChar := lastNonWhiteChar.
-		
+
 	self skipWhitespaceAndCommentsOrEnd: [
 		sym := #none.
 		symChr := nil.
@@ -591,7 +591,7 @@ symbol
 	].
 
 	currentChar := self currentChar.
-	
+
 	currentChar == $' ifTrue: [ ^ self matchString ].
 	currentChar == $[ ifTrue: [ ^ self match: #newBlock ].
 	currentChar == $] ifTrue: [ ^ self match: #endBlock ].
@@ -605,10 +605,10 @@ symbol
 	(self isOperator: currentChar) ifTrue: [ ^ self matchOperator ].
 
 	(self nextWordInBufIs: self primitive) ifTrue: [ ^ self matchPrimitive ].
-	
+
 	currentChar isLetter ifTrue: [ ^ self matchLetter ].
 	currentChar isDigit  ifTrue: [ ^ self matchNumber  ].
-	
+
 	"else"
 	sym    := #none.
 	symChr := currentChar.
@@ -655,7 +655,7 @@ checkClassesNotInSystem
 createClasses
 	| postPoned |
 	postPoned := classDefinitions.
-	[ postPoned isEmpty ] whileFalse: [ 
+	[ postPoned isEmpty ] whileFalse: [
 		postPoned := self createClasses: postPoned ]! !
 
 !SomLoader methodsFor: 'actions' stamp: 'StefanMarr 7/22/2016 12:56'!
@@ -674,7 +674,7 @@ createClasses: classes
 				instVars := self varString: c instanceFields.
 				classVars := self varString: c classFields.
 				superCls
-					subclass: c theName asSymbol 
+					subclass: c theName asSymbol
 					instanceVariableNames: instVars
 					classVariableNames: classVars
 					package: 'AWFY-Benchmarks' ]
@@ -718,7 +718,7 @@ loadFile: aFileName
 	^ results! !
 
 !SomLoader methodsFor: 'helper methods' stamp: 'StefanMarr 7/22/2016 12:47'!
-varString: collectionOfSymbols 
+varString: collectionOfSymbols
 	^ collectionOfSymbols inject: '' into: [:res :sym | res, ' ', sym asString ]! !
 
 Object subclass: #SomParser
@@ -743,13 +743,13 @@ on: readStream
 !SomClassParser methodsFor: 'patterns' stamp: 'StefanMarr 5/13/2012 17:54'!
 classBody
 	self expect: #newTerm.
-	
+
 	self classSide.
-	
+
 	self classInstanceSwitch ifTrue: [
 		cgenc toggleClassSide.
 		self classSide.].
-	
+
 	self expect: #endTerm.! !
 
 !SomClassParser methodsFor: 'patterns' stamp: 'StefanMarr 5/13/2012 12:13'!
@@ -759,7 +759,7 @@ classInstanceSwitch
 !SomClassParser methodsFor: 'patterns' stamp: 'StefanMarr 7/21/2016 13:30'!
 classSide
 	self vars.
-	
+
 	[self symIsIdentifier     or: [
 	 sym == #keyword          or: [
 	 sym == #operatorSequence or: [
@@ -770,9 +770,9 @@ classSide
 !SomClassParser methodsFor: 'patterns' stamp: 'StefanMarr 5/17/2012 15:23'!
 classStart
 	cgenc theName: self identifier.
-	
+
 	self expect: #equal.
-	
+
 	sym == #identifier
 		ifTrue:  [cgenc superName: self identifier.].
 		! !
@@ -785,7 +785,7 @@ classdef
 !SomClassParser methodsFor: 'initialize-release' stamp: 'StefanMarr 7/21/2016 13:07'!
 initialize
 	super initialize.
-	
+
 	self cgenc: SomClassGenerationContext new.! !
 
 !SomClassParser methodsFor: 'patterns' stamp: 'StefanMarr 7/21/2016 14:49'!
@@ -816,7 +816,7 @@ vars
 		[self symIsIdentifier] whileTrue: [
 			cgenc addField: self variable.
 		].
-		
+
 		self expect: #or.
 	]! !
 
@@ -857,7 +857,7 @@ assignation
 assignment
 	| v |
 	v := self variable.
-	self expect: #assign.	
+	self expect: #assign.
 	^ v! !
 
 !SomMethodParser methodsFor: 'patterns' stamp: 'StefanMarr 7/21/2016 13:18'!
@@ -865,12 +865,12 @@ assignments: vars
 	self symIsIdentifier ifTrue: [
 		| var nextSym |
 		var := self assignment.
-		
+
 		nextSym := self peek.
 		nextSym == #assign ifTrue: [
 			self assignments: vars.
 		].
-	
+
 		vars add: var ]! !
 
 !SomMethodParser methodsFor: 'patterns' stamp: 'StefanMarr 7/21/2016 13:42'!
@@ -882,10 +882,10 @@ binaryMessage: superSend
 binaryOperand: superSend
 	| doSuper |
 	doSuper := self primary: superSend.
-	
+
 	[self symIsIdentifier] whileTrue:
 		[self unaryMessage: doSuper].
-	
+
 	^ doSuper! !
 
 !SomMethodParser methodsFor: 'patterns' stamp: 'StefanMarr 7/21/2016 11:31'!
@@ -898,7 +898,7 @@ binaryPattern
 binarySelector
 	| s |
 	s := text asSymbol.
-	
+
 	(self accept: #or)		ifFalse: [
 	(self accept: #comma)	ifFalse: [
 	(self accept: #minus)	ifFalse: [
@@ -935,7 +935,7 @@ blockBody
 	].
 
 	self expression.
-	
+
 	(self accept: #period) ifTrue: [
 		self blockBody.
 	].
@@ -959,7 +959,7 @@ blockPattern
 evaluation
 	| superSend |
 	superSend := self primary: false.
-	
+
 	(self symIsIdentifier     or: [
 	 sym == #keyword          or: [
 	 sym == #operatorSequence or: [
@@ -977,20 +977,20 @@ expectOneOf: syms
 	msg nextPutAll: 'unexpected symbol in line '.
 	msg nextPutAll: lexer currentLineNumber asString.
 	msg nextPutAll: '. Expected one of '.
-	
-	syms do: [:s | 
+
+	syms do: [:s |
 		msg nextPutAll: s.
 		msg nextPutAll: ', '].
-	
+
 	msg nextPutAll: 'but found '.
 	msg nextPutAll: sym asString.
-	
+
 	self printableSymbol ifTrue: [
 		msg nextPutAll: ' (', text contents, ')'].
-	
+
 	msg nextPutAll: ': '.
 	msg nextPutAll: lexer rawBuffer.
-	
+
 	Error signal: msg.! !
 
 !SomMethodParser methodsFor: 'patterns' stamp: 'StefanMarr 7/21/2016 13:17'!
@@ -1019,10 +1019,10 @@ fakeMgenc
 formula
 	| superSend |
 	superSend := self binaryOperand: false.
-	
+
 	(sym == #operatorSequence or: [self symIn: BinaryOpSyms])
 		ifTrue: [self binaryMessage: superSend ].
-	
+
 	"only the first message in a sequence can be a super send"
 	[sym == #operatorSequence or: [self symIn: BinaryOpSyms]]
 		whileTrue: [self binaryMessage: false ].! !
@@ -1062,9 +1062,9 @@ keywordPattern
 keywordSelector
 	| s |
 	s := text asSymbol.
-	
+
 	self expectOneOf: KeywordSelectorSyms.
-	
+
 	^ s! !
 
 !SomMethodParser methodsFor: 'accessing' stamp: 'StefanMarr 7/21/2016 13:33'!
@@ -1132,16 +1132,16 @@ locals
 messages: superSend
 	| doSuper |
 	doSuper := superSend.
-		
+
 	self symIsIdentifier ifTrue: [
 		[ self unaryMessage: doSuper.
 		  doSuper := false.
 		] doWhileTrue: [self symIsIdentifier].
-		
+
 		[sym == #operatorSequence or: [self symIn: BinaryOpSyms]] whileTrue: [
 			self binaryMessage: false.
 		].
-	
+
 		sym == #keyword ifTrue: [
 			self keywordMessage: false.
 		].
@@ -1152,7 +1152,7 @@ messages: superSend
 		[ self binaryMessage: doSuper.
 		  doSuper := false.
 		] doWhileTrue: [sym == #operatorSequence or: [self symIn: BinaryOpSyms]].
-		
+
 		sym == #keyword ifTrue: [
 			self keywordMessage: false.
 		].
@@ -1167,7 +1167,7 @@ method
    | name body |
 	name := self methodName.
 	self expect: #equal.
-	
+
 	body := self methodBody.
 	^ name, Character lf asString, body
 ! !
@@ -1176,14 +1176,14 @@ method
 methodBlock
 	| methodSource startIdx endIdx len stream trueEndIdx |
 	startIdx := lexer prevLastNonWhiteCharIdx.
-	
+
 	self expect: #newTerm.
 	self blockContents.
-	
+
 	endIdx := lexer prevLastNonWhiteCharIdx - 1.
 	stream := lexer stream.
 	trueEndIdx := stream position.
-	
+
 	len := endIdx - startIdx.
 	methodSource := String new: len.
 	stream position: startIdx.
@@ -1231,9 +1231,9 @@ nestedBlock
 !SomMethodParser methodsFor: 'patterns' stamp: 'StefanMarr 5/13/2012 10:30'!
 nestedTerm
 	self expect: #newTerm.
-	
+
 	self expression.
-	
+
 	self expect: #endTerm.! !
 
 !SomMethodParser methodsFor: 'patterns' stamp: 'StefanMarr 7/21/2016 13:13'!
@@ -1249,7 +1249,7 @@ parserState
 primary: doSuper
 	| superSend |
 	superSend := doSuper.
-	
+
 	self symIsIdentifier ifTrue: [
 		| v |
 		v := self variable.
@@ -1279,17 +1279,17 @@ primitiveBlock
 
 !SomMethodParser methodsFor: 'patterns' stamp: 'StefanMarr 7/21/2016 13:45'!
 result
-	self expression.	
+	self expression.
 	self accept: #period.! !
 
 !SomMethodParser methodsFor: 'patterns' stamp: 'StefanMarr 5/13/2012 10:36'!
 selector
 	(sym == #operatorSequence or: [self symIn: SingleOpSyms])
 		ifTrue: [^ self binarySelector ].
-	
+
 	(sym == #keyword or: [sym == #keywordSequence])
 		ifTrue: [^ self keywordSelector].
-	
+
 	^ self unarySelector! !
 
 !SomMethodParser methodsFor: 'patterns' stamp: 'StefanMarr 5/13/2012 11:53'!
@@ -1350,13 +1350,13 @@ expect: aSymbol
 	msg nextPutAll: aSymbol asString.
 	msg nextPutAll: ', but found '.
 	msg nextPutAll: sym asString.
-	
+
 	self printableSymbol ifTrue: [
 		msg nextPutAll: ' (', text contents, ')'.].
-	
+
 	msg nextPutAll: ': '.
 	msg nextPutAll: lexer rawBuffer.
-	
+
 	Error signal: msg contents.! !
 
 !SomParser methodsFor: 'private' stamp: 'StefanMarr 5/10/2012 23:03'!
@@ -1366,12 +1366,12 @@ getSym
 
 !SomParser methodsFor: 'patterns' stamp: 'StefanMarr 5/15/2012 22:28'!
 identifier
-	| s | 
+	| s |
 	s := text asSymbol.
-	
+
 	(self accept: #primitive) ifFalse: [
-		self expect: #identifier]. 
-	
+		self expect: #identifier].
+
 	^ s! !
 
 !SomParser methodsFor: 'initialize-release' stamp: 'StefanMarr 7/21/2016 13:16'!
