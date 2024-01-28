@@ -10,13 +10,13 @@ BinaryConstraint = AbstractConstraint (
   variables.
 
   Instance variables:
-      v1, v2      possible output variables <Variable>
+      v1, v2      possible output variables <DBVariable>
       direction       one of:
                       #forward (v2 is output)
                       #backward ( v1 is output)
                       nil (not satisfied)"
   | v1 v2 direction |
-      
+
   "initialize-release"
 
   initializeVar: variable1 var: variable2 strength: strengthSymbol addTo: planner = (
@@ -89,7 +89,7 @@ BinaryConstraint = AbstractConstraint (
       ifTrue:  [ aBlock value: v1 ]
       ifFalse: [ aBlock value: v2 ].
   )
-  
+
   inputsHasOne: aBlock = (
     ^ direction = #forward
         ifTrue:  [ aBlock value: v1 ]

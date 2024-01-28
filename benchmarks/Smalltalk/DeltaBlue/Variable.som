@@ -5,7 +5,7 @@ License details:
 
 http://web.archive.org/web/20050825101121/http://www.sunlabs.com/people/mario/java_benchmarking/index.html
 "
-Variable = (
+DBVariable = (
   "I represent a constrained variable. In addition to my value, I maintain the
   structure of the constraint graph, the current dataflow graph, and various
   parameters of interest to the DeltaBlue incremental constraint solver.
@@ -19,7 +19,7 @@ Variable = (
       stay            true if I am a planning-time constant <Boolean>
       mark            used by the planner to mark constraints <Number>"
   | value constraints determinedBy walkStrength stay mark |
-  
+
   "initialize-release"
 
   initialize = (
@@ -101,7 +101,7 @@ Variable = (
     "Set my walkabout strength in the current dataflow."
     walkStrength := aStrength.
   )
-  
+
   ----
 
   "instance creation"
