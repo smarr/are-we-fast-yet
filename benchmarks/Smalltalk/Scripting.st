@@ -101,7 +101,7 @@ runClasses: aCollectionOfClasses named: aString
 
 !SubunitRunner class methodsFor: 'running' stamp: ''!
 runPackage: aString
-	^ self runClasses: (RPackage organizer packageNamed: aString) classes
+	^ self runClasses: (self packageOrganizer packageNamed: aString) classes
               named: aString! !
 
 !SubunitRunner class methodsFor: 'running' stamp: ''!
@@ -263,7 +263,7 @@ stackTraceString: err of: aTestCase
 	^ String streamContents: [ :str |
 		| context |
 		context := err signalerContext.
-		[ context isNil or: [ context receiver == aTestCase and: [ context methodSelector == #runCase ] ] ] whileFalse: [
+		[ context isNil or: [ context receiver == aTestCase and: [ context selector == #runCase ] ] ] whileFalse: [
 			str print: context; nextPut: Character lf.
 			context := context sender ] ] ! !
 
@@ -296,12 +296,16 @@ cr
 detectAvailableMechanismForStdout
 	"The preferred means is to use the stdout file handle.
 	 Will try to fall back on the RoarVM primitive if necessary."
-	| cls |
-	(FileStream respondsTo: #stdout)
+	| cls ioCls |
+	(Smalltalk classNamed: #Stdio)
+		ifNotNil: [:c| ioCls := c ]
+		ifNil: [ ioCls := Smalltalk classNamed: #FileStream ].
+
+	(ioCls respondsTo: #stdout)
 		ifTrue: [
-			PrintTarget := FileStream stdout.
-      PrintTarget closed ifTrue: [
-        PrintTarget := FileStream standardIOStreamNamed: #stdout forWrite: true ].
+			PrintTarget := ioCls stdout.
+			PrintTarget closed ifTrue: [
+				PrintTarget := ioCls standardIOStreamNamed: #stdout forWrite: true ].
 			^ self.
 		].
 
