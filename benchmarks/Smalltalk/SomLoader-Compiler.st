@@ -8,7 +8,7 @@ Object subclass: #SomClassGenerationContext
 
 Object subclass: #SomParser
 	instanceVariableNames: 'cgenc sym text lexer shouldReadSources'
-	classVariableNames: 'BinaryOpSyms KeywordSelectorSyms SingleOpSyms'
+	classVariableNames: 'BinaryOpSyms KeywordSelectorSyms SingleOpSyms TextStreamCls'
 	poolDictionaries: ''
 	category: 'SomLoader-Compiler'!
 
@@ -235,14 +235,17 @@ load: aFileName
 	parser := SomClassParser on: sourceStream.
 	^ parser start! !
 
-!SomCompiler methodsFor: 'file access' stamp: 'StefanMarr 7/21/2016 10:53'!
+!SomCompiler methodsFor: 'file access' stamp: 'StefanMarr 1/28/2024 01:08'!
 sourceOfClassFile: aFileName
-	| source |
-	source := nil.
-	FileStream
-		fileNamed: aFileName
-		do: [:s | source := s contents].
-	^ source readStream! !
+	(Smalltalk hasClassNamed: #Stdio)
+		ifTrue: [^ aFileName asFileReference readStream]
+		ifFalse: [
+			| source |
+			source := nil.
+			(Smalltalk classNamed: #FileStream)
+				fileNamed: aFileName
+				do: [:s | source := s contents].
+			^ source readStream ]! !
 
 Object subclass: #SomLexer
 	instanceVariableNames: 'stream text nextText lineNumber peekDone sym nextSym symChr nextSymChr buf bufP prevStreamPosition lastNonWhiteChar prevLastNonWhiteChar'
@@ -253,8 +256,6 @@ Object subclass: #SomLexer
 !SomLexer class methodsFor: 'instance creation' stamp: 'StefanMarr 5/10/2012 21:22'!
 on: aReadStream
 	| lexer |
-	[aReadStream isKindOf: PositionableStream ] assert.
-	
 	lexer := self new.
 	lexer stream: aReadStream.
 	^ lexer! !
@@ -299,7 +300,7 @@ hasMoreInput
 initialize
 	lineNumber := 0.
 	peekDone := false.
-	text := RWBinaryOrTextStream on: String new.
+	text := SomParser textStreamCls on: String new.
 	buf := ''.
 	bufP := 1.! !
 
@@ -328,7 +329,7 @@ lastNonWhiteCharIdx
 match: aSymbol
 	sym := aSymbol.
 	symChr := self currentChar.
-	text := RWBinaryOrTextStream with: symChr asString.
+	text := SomParser textStreamCls with: symChr asString.
 	self readNext.
 	^ sym.! !
 
@@ -338,7 +339,7 @@ matchColonOrAssignment
 		sym := #assign.
 		bufP := bufP + 2.
 		symChr := nil.
-		text := RWBinaryOrTextStream with: ':='.
+		text := SomParser textStreamCls with: ':='.
 		^ sym
 	].
 
@@ -347,8 +348,8 @@ matchColonOrAssignment
 !SomLexer methodsFor: 'lexing' stamp: 'StefanMarr 5/13/2012 18:33'!
 matchLetter
 	symChr := nil.
-	text := RWBinaryOrTextStream on: String new.
-	
+	text := SomParser textStreamCls on: String new.
+
 	[self currentChar notNil and: [
 		 self currentChar isLetter or: [
 		 self currentChar isDigit  or: [
@@ -380,7 +381,7 @@ matchLetter
 !SomLexer methodsFor: 'lexing' stamp: 'StefanMarr 5/13/2012 17:51'!
 matchMinusOrSeparator
 	(self nextInBufIs: self seperator) ifTrue: [
-		text := RWBinaryOrTextStream on: String new.
+		text := SomParser textStreamCls on: String new.
 		[self currentChar == $-] whileTrue: [
 			text nextPut: $-.
 			self readNext.
@@ -397,8 +398,8 @@ matchNumber
 	| sawDecimalMark |
 	sym    := #integer.
 	symChr := nil.
-	text   := RWBinaryOrTextStream on: String new.
-	
+	text   := SomParser textStreamCls on: String new.
+
 	sawDecimalMark := false.
 
 	[ text nextPut: self currentChar.
@@ -422,8 +423,8 @@ matchOperator
 	(self isOperator: (self bufchar: bufP + 1)) ifTrue: [
 		sym := #operatorSequence.
 		symChr := nil.
-		text := RWBinaryOrTextStream on: String new.
-		
+		text := SomParser textStreamCls on: String new.
+
 		[self isOperator: self currentChar] whileTrue: [
 			text nextPut: self currentChar.
 			self readNext.
@@ -453,7 +454,7 @@ matchPrimitive
 	self readNext: self primitive size.
 	sym := #primitive.
 	symChr := nil.
-	text := RWBinaryOrTextStream with: self primitive.
+	text := SomParser textStreamCls with: self primitive.
 	^ sym
 	! !
 
@@ -461,8 +462,8 @@ matchPrimitive
 matchString
 	sym := #STString.
 	symChr := nil.
-	text := RWBinaryOrTextStream on: String new.
-	
+	text := SomParser textStreamCls on: String new.
+
 	self readNext. "skip start $' "
 	[ self currentChar == $' ]
 		whileFalse: [
@@ -506,7 +507,7 @@ peek
 
 	oldSym    := sym.
 	oldSymChr := symChr.
-	oldText   := RWBinaryOrTextStream with: text contents.
+	oldText   := SomParser textStreamCls with: text contents.
 	oldPrevStream := prevStreamPosition.
 
 	nextSym   := self symbol.
@@ -604,7 +605,7 @@ symbol
 	self skipWhitespaceAndCommentsOrEnd: [
 		sym := #none.
 		symChr := nil.
-		text := RWBinaryOrTextStream on: String new.
+		text := SomParser textStreamCls on: String new.
 		^ sym
 	].
 
@@ -630,8 +631,8 @@ symbol
 	"else"
 	sym    := #none.
 	symChr := currentChar.
-	text   := RWBinaryOrTextStream with: currentChar asString.
-	
+	text   := SomParser textStreamCls with: currentChar asString.
+
 	^ sym! !
 
 !SomLexer methodsFor: 'lexing' stamp: 'StefanMarr 5/12/2012 23:18'!
@@ -972,8 +973,8 @@ expectOneOf: syms
 	| msg |
 	(self acceptOneOf: syms)
 		ifTrue: [	^ true. ].
-	
-	msg := RWBinaryOrTextStream on: String new.
+
+	msg := SomParser textStreamCls on: String new.
 	msg nextPutAll: 'unexpected symbol in line '.
 	msg nextPutAll: lexer currentLineNumber asString.
 	msg nextPutAll: '. Expected one of '.
@@ -1037,8 +1038,8 @@ keyword
 !SomMethodParser methodsFor: 'patterns' stamp: 'StefanMarr 7/21/2016 13:45'!
 keywordMessage: superSend
 	| kw sel |
-	kw := RWBinaryOrTextStream on: String new.
-	
+	kw := SomParser textStreamCls on: String new.
+
 	[ kw nextPutAll: self keyword.
 	  self formula.
 	] doWhileTrue: [sym == #keyword].
@@ -1049,7 +1050,7 @@ keywordMessage: superSend
 keywordPattern
 	| methodDef first |
 	first := true.
-	methodDef := RWBinaryOrTextStream on: String new.
+	methodDef := SomParser textStreamCls on: String new.
 	[ first ifTrue: [ first := false ] ifFalse: [ methodDef nextPutAll: ' ' ].
 	  methodDef nextPutAll: self keyword.
 	  methodDef nextPutAll: ' '.
@@ -1318,6 +1319,9 @@ initialize
 	SingleOpSyms := #(                     not and or star div mod plus equal more less comma at per none).
 	BinaryOpSyms := #(or comma minus equal not and or star div mod plus equal more less comma at per none).
 	KeywordSelectorSyms := #(keyword keywordSequence).
+	TextStreamCls := (Smalltalk classNamed: #TextStream)
+		ifNotNil: [:cls | cls]
+		ifNil: [Smalltalk classNamed: #RWBinaryOrTextStream].
 	! !
 
 SomParser initialize!
@@ -1342,8 +1346,8 @@ cgenc: anObject
 expect: aSymbol
 	| msg |
 	(self accept: aSymbol) ifTrue: [ ^ true ].
-	
-	msg := RWBinaryOrTextStream on: String new.
+
+	msg := SomParser textStreamCls on: String new.
 	msg nextPutAll: 'unexpected symbol in line '.
 	msg nextPutAll: lexer currentLineNumber asString.
 	msg nextPutAll: '. Expected '.
@@ -1412,5 +1416,9 @@ symIsIdentifier
 !SomParser methodsFor: 'patterns' stamp: 'StefanMarr 5/13/2012 12:27'!
 variable
 	^ self identifier! !
+
+!SomParser class methodsFor: 'patterns' stamp: 'StefanMarr 2/02/2024 20:16'!
+textStreamCls
+	^ TextStreamCls! !
 
 SomParser initialize!
