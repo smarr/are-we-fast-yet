@@ -61,10 +61,10 @@ run: arguments
 	sel := (arguments at: 2) asSymbol.
 	sel = #runAllTests ifTrue: [
 		^ self runAllTests.].
-	
+
 	(arguments size < 3) ifTrue: [
 		^ self usage.].
-	
+
 	self perform: sel with: (arguments at: 3).
 	! !
 
@@ -104,21 +104,21 @@ runPackages: aCollectionOfStrings
 
 !SubunitRunner class methodsFor: 'running' stamp: ''!
 runSuite: aTestSuite
-	^ self new 
-		initializeOn: aTestSuite; 
+	^ self new
+		initializeOn: aTestSuite;
 		run! !
 
 !SubunitRunner class methodsFor: 'scripting' stamp: 'StefanMarr 3/10/2012 17:48'!
 usage
 	ScriptConsole println: 'TestConsoleRunner <action> [argument]'.
 	ScriptConsole println: ''.
-	
+
 	ScriptConsole println: '   <action> = runAllTests | runCategory: | runPackage: '.! !
 
 !SubunitRunner methodsFor: 'reporting' stamp: 'StefanMarr 8/12/2012 08:23'!
 beforeTestCase: aTestCase
 	stream nextPut: Character lf.
-	
+
 	stream	nextPutAll: 'test: '.
 	self   reportTestName: aTestCase.
 	stream nextPut: Character lf.
@@ -127,18 +127,18 @@ beforeTestCase: aTestCase
 !SubunitRunner methodsFor: 'reporting' stamp: 'StefanMarr 8/12/2012 08:23'!
 beforeTestSuite: aSuite
 	stream nextPut: Character lf.
-	
+
 	stream nextPutAll: 'suite: ';    nextPutAll: aSuite name; nextPut: Character lf.
 	stream nextPutAll: 'progress: '; nextPutAll: aSuite tests size asString; nextPut: Character lf.
 	stream nextPutAll: 'time: '; nextPutAll: DateAndTime now asString; nextPut: Character lf.
-	
+
 	stream flush.
 ! !
 
 !SubunitRunner methodsFor: 'reporting' stamp: 'StefanMarr 8/12/2012 08:23'!
 errorTestCase: aTestCase with: error stack: stack
 	stream nextPut: Character lf.
-	
+
 	stream nextPutAll: 'error: '.
 	self   reportTestName: aTestCase.
 	self   reportCause: error stack: stack.
@@ -147,7 +147,7 @@ errorTestCase: aTestCase with: error stack: stack
 !SubunitRunner methodsFor: 'reporting' stamp: 'StefanMarr 8/12/2012 08:23'!
 expectedFailTestCase: aTestCase
 	stream nextPut: Character lf.
-	
+
 	stream nextPutAll: 'xfail: '.
 	self   reportTestName: aTestCase.
 	stream nextPut:    Character lf.
@@ -173,7 +173,7 @@ initializeOn: aTestSuite
 	suitePosition := suiteTime := suiteFailures := suiteErrors := 0! !
 
 !SubunitRunner methodsFor: 'reporting' stamp: 'StefanMarr 8/11/2012 13:12'!
-reportCause: error stack: stack.	
+reportCause: error stack: stack.
 	stream nextPutAll: ' ['; nextPut: Character lf.
 	stream
 		tab; nextPutAll: 'type: '; nextPutAll: (error class name); nextPut: Character lf;
@@ -193,13 +193,13 @@ reportTestName: aTestCase
 !SubunitRunner methodsFor: 'running' stamp: 'StefanMarr 8/11/2012 13:15'!
 run
 	| execBlock |
-	execBlock :=  [ [ 
+	execBlock :=  [ [
 			self setUp.
 			suiteTime := [ self runAll ]
 				timeToRun ]
 					ensure: [ self tearDown. ] ].
-	
-	(Smalltalk at: #Author ifAbsent: [ 
+
+	(Smalltalk at: #Author ifAbsent: [
 		execBlock value.
 		^ self ])
 			uniqueInstance
@@ -214,14 +214,14 @@ runAll
 runCase: aTestCase
 	| error stack didSucceed |
 	didSucceed := false.
-	
+
 	self beforeTestCase: aTestCase.
-	
+
 	[	aTestCase announce: TestCaseStarted withResult: self.
 		aTestCase runCase.
 		aTestCase announce: TestCaseEnded  withResult: self.
 		self addPass: aTestCase.
-		didSucceed := true.] 
+		didSucceed := true.]
 	on: Halt , Error, TestFailure, self class failure, self class error
 	do: [ :err |
 			error := err.
@@ -231,7 +231,7 @@ runCase: aTestCase
 	didSucceed ifTrue: [
 		self successfulTestCase: aTestCase.
 		^ self.].
-	
+
 	(error isNil or: [ aTestCase expectedFailures includes: aTestCase selector ]) ifTrue: [
 		self expectedFailTestCase: aTestCase.
 		^ self.
@@ -246,7 +246,7 @@ runCase: aTestCase
 !SubunitRunner methodsFor: 'running' stamp: 'StefanMarr 8/11/2012 12:30'!
 setUp
 	self beforeTestSuite: suite.
-	
+
 	"Initialize the test resources."
 	suite resources do: [ :each |
 		each isAvailable
@@ -254,7 +254,7 @@ setUp
 
 !SubunitRunner methodsFor: 'private' stamp: ''!
 stackTraceString: err of: aTestCase
-	^ String streamContents: [ :str | 
+	^ String streamContents: [ :str |
 		| context |
 		context := err signalerContext.
 		[ context isNil or: [ context receiver == aTestCase and: [ context methodSelector == #runCase ] ] ] whileFalse: [
@@ -264,8 +264,8 @@ stackTraceString: err of: aTestCase
 !SubunitRunner methodsFor: 'reporting' stamp: 'StefanMarr 8/12/2012 08:25'!
 successfulTestCase: aTestCase
 	stream nextPut: Character lf.
-	
-	stream 
+
+	stream
 	  nextPutAll: 'success: ';
 	  nextPutAll: (aTestCase class category); nextPut: $.;
 	  nextPutAll: (aTestCase class name); nextPut: $.;
@@ -275,7 +275,7 @@ successfulTestCase: aTestCase
 
 !SubunitRunner methodsFor: 'running' stamp: 'StefanMarr 8/11/2012 13:14'!
 tearDown
-	suite resources 
+	suite resources
 		do: [ :each | each reset ]! !
 
 Object subclass: #ScriptConsole
@@ -304,9 +304,9 @@ detectAvailableMechanismForStdout
         PrintTarget := FileStream standardIOStreamNamed: #stdout forWrite: true ].
 			^ self.
 		].
-		
+
 	cls := Smalltalk at: #RVMOperations ifAbsent: [nil].
-	
+
 	"Squeak 4.2 provides a stream at FileStream>>stdout"
 	PrintTarget := Transcript.
 	^ Transcript! !
@@ -358,9 +358,9 @@ print: somethingAsString withLineEnding: lineEnd
 	Position := Position + output size.
 	output size > 0 ifTrue: [
 		LastPrintedChar := output last].
-	
+
 	PrintTarget ifNotNil: [
-    PrintTarget closed ifTrue: [ScriptConsole detectAvailableMechanismForStdout].
+		PrintTarget closed ifTrue: [ScriptConsole detectAvailableMechanismForStdout].
 		PrintTarget nextPutAll: (output, lineEnd)
 	].
 
