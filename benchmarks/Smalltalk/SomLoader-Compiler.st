@@ -6,6 +6,24 @@ Object subclass: #SomClassGenerationContext
 	poolDictionaries: ''
 	category: 'SomLoader-Compiler'!
 
+Object subclass: #SomParser
+	instanceVariableNames: 'cgenc sym text lexer shouldReadSources'
+	classVariableNames: 'BinaryOpSyms KeywordSelectorSyms SingleOpSyms'
+	poolDictionaries: ''
+	category: 'SomLoader-Compiler'!
+
+SomParser subclass: #SomClassParser
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'SomLoader-Compiler'!
+
+SomParser subclass: #SomMethodParser
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'SomLoader-Compiler'!
+
 !SomClassGenerationContext commentStamp: 'StefanMarr 7/21/2016 13:09' prior: 0!
 I represent a class that is currently parsed and I will create the final class object from this information.!
 
@@ -721,18 +739,6 @@ loadFile: aFileName
 varString: collectionOfSymbols
 	^ collectionOfSymbols inject: '' into: [:res :sym | res, ' ', sym asString ]! !
 
-Object subclass: #SomParser
-	instanceVariableNames: 'cgenc sym text lexer shouldReadSources'
-	classVariableNames: 'BinaryOpSyms KeywordSelectorSyms SingleOpSyms'
-	poolDictionaries: ''
-	category: 'SomLoader-Compiler'!
-
-SomParser subclass: #SomClassParser
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'SomLoader-Compiler'!
-
 !SomClassParser class methodsFor: 'instance creation' stamp: 'StefanMarr 7/21/2016 11:05'!
 on: readStream
 	| parser |
@@ -819,12 +825,6 @@ vars
 
 		self expect: #or.
 	]! !
-
-SomParser subclass: #SomMethodParser
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'SomLoader-Compiler'!
 
 !SomMethodParser class methodsFor: 'instance creation' stamp: 'StefanMarr 7/21/2016 13:35'!
 with: lexer sym: sym text: text
