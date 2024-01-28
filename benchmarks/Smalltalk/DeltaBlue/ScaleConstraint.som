@@ -11,10 +11,10 @@ ScaleConstraint = BinaryConstraint (
   this relationship but the scale factor and offset are considered read-only.
 
   Instance variables:
-      scale       scale factor input variable <Variable>
-      offset      offset input variable <Variable>"
+      scale       scale factor input variable <DBVariable>
+      offset      offset input variable <DBVariable>"
   | scale offset |
-  
+
   "initialize-release"
   initializeSrc: srcVar scale: scaleVar offset: offsetVar dst: dstVar strength: strengthSymbol addTo: planner = (
     "Initialize myself with the given variables and strength."
@@ -77,7 +77,7 @@ ScaleConstraint = BinaryConstraint (
     out stay: (in stay and: [scale stay and: [offset stay]]).
     out stay ifTrue: [self execute].      "stay optimization"
   )
-  
+
   ----
 
   "instance creation"
