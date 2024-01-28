@@ -2,6 +2,12 @@ SystemOrganization addCategory: #'Scripting-Examples'!
 SystemOrganization addCategory: #Scripting!
 SystemOrganization addCategory: #'Scripting-Tests'!
 
+Object subclass: #ScriptConsole
+	instanceVariableNames: ''
+	classVariableNames: 'LastPrintedChar OutputToTranscript Position PrintTarget'
+	poolDictionaries: ''
+	category: 'Scripting'!
+
 TestCase subclass: #SubunitTestExamples
 	instanceVariableNames: ''
 	classVariableNames: ''
@@ -277,12 +283,6 @@ successfulTestCase: aTestCase
 tearDown
 	suite resources
 		do: [ :each | each reset ]! !
-
-Object subclass: #ScriptConsole
-	instanceVariableNames: ''
-	classVariableNames: 'LastPrintedChar OutputToTranscript Position PrintTarget'
-	poolDictionaries: ''
-	category: 'Scripting'!
 
 !ScriptConsole class methodsFor: 'streaming' stamp: ''!
 << aString
