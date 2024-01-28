@@ -8,13 +8,14 @@ TestCase subclass: #SomLoaderTests
 
 !SomLoaderTests methodsFor: 'test all files' stamp: 'StefanMarr 7/22/2016 11:01'!
 testLoadAll
-	| classes inSystem loader |
+	| classes loader |
 	loader := SomLoader load: '.'.
-  classes := loader classDefinitions.
-	
+	classes := loader classDefinitions.
+
 	"Test that none of the loaded classes is in the system"
-	inSystem := classes collect: [:c | Smalltalk hasClassNamed: c theName ].
-	self deny: (inSystem anySatisfy: [:b | b ])! !
+	classes do: [:c |
+	   self deny: (Smalltalk hasClassNamed: c theName) description: 'Class already present with name:', c theName.
+	].! !
 
 !SomLoaderTests methodsFor: 'test' stamp: 'StefanMarr 7/21/2016 15:00'!
 testLoadBall
