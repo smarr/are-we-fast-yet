@@ -14,9 +14,7 @@ jobs:
           - { name: Crystal, id: crystal, folder: Crystal }
           - { name: JavaScript, id: js, folder: JavaScript }
           - { name: SOMns, id: somns, folder: SOMns }
-
-          #- { name: Pharo, id: pharo, folder: Smalltalk }
-
+          - { name: Pharo, id: pharo, folder: Smalltalk }
           - { name: Squeak, id: squeak, folder: Smalltalk }
           - { name: Ruby, id: ruby, folder: Ruby }
           - { name: Lua, id: lua, folder: Lua }
