@@ -9,39 +9,17 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Java
-            id:   java
-
-          - name: SOM
-            id:   som
-
-          - name: Crystal
-            id:   crystal
-
-          - name: JavaScript
-            id:   js
-
-          - name: SOMns
-            id:   somns
-            ubuntu: ubuntu-20.04
-
-          # - name: Pharo
-          #   id:   pharo
-
-          - name: Squeak 64-bit
-            id:   squeak64
-
-          - name: Ruby
-            id:   ruby
-
-          - name: Lua 5.2
-            id:   lua52
-
-          - name: Python
-            id:   python
-          
-          - name: C++
-            id:   cpp
+          - { name: Java, id: java, folder: Java }
+          - { name: SOM, id: som, folder: SOM }
+          - { name: Crystal, id: crystal, folder: Crystal }
+          - { name: JavaScript, id: js, folder: JavaScript }
+          - { name: SOMns, id: somns, folder: SOMns, ubuntu: ubuntu-20.04 }
+          - { name: Pharo, id: pharo, folder: Smalltalk }
+          - { name: Squeak, id: squeak, folder: Smalltalk }
+          - { name: Ruby, id: ruby, folder: Ruby }
+          - { name: Lua, id: lua, folder: Lua }
+          - { name: Python, id: python, folder: Python }
+          - { name: C++, id: cpp, folder: C++ }
 
     name: ${{ matrix.name }}
     steps:
@@ -91,7 +69,7 @@ jobs:
       - name: Install Lua
         uses: leafo/gh-actions-lua@v10
         with:
-            luaVersion: 5.2
+          luaVersion: 5.2
         if: matrix.id == 'lua52'
 
       - name: Install LuaRocks
