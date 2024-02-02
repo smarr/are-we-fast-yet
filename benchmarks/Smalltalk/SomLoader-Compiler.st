@@ -687,18 +687,34 @@ createClasses: classes
 	postPoned := OrderedCollection new.
 	classes do: [:c |
 		(Smalltalk hasClassNamed: c superName)
-			ifTrue: [
-				| instVars classVars superCls |
-				superCls := Smalltalk classNamed: c superName.
-				instVars := self varString: c instanceFields.
-				classVars := self varString: c classFields.
-				superCls
-					subclass: c theName asSymbol
-					instanceVariableNames: instVars
-					classVariableNames: classVars
-					package: 'AWFY-Benchmarks' ]
+			ifTrue: [ self createClass: c ]
 			ifFalse: [ postPoned add: c ]].
 	^ postPoned! !
+
+!SomLoader methodsFor: 'actions' stamp: 'StefanMarr 2/02/2024 12:15'!
+createClass: cls
+	| instVars classVars superCls |
+	superCls := Smalltalk classNamed: cls superName.
+	instVars := self varString: cls instanceFields.
+	classVars := self varString: cls classFields.
+
+	(superCls respondsTo: #classInstaller)
+	   ifTrue: [
+			superCls classInstaller make: [ :builder |
+			     builder
+					superclass: superCls;
+					name: cls theName asSymbol;
+					slotsFromString: instVars;
+					sharedVariablesFromString: classVars;
+					package: 'AWFY-Benchmarks';
+					environment: superCls environment ]]
+	   ifFalse: [
+			superCls
+				subclass: cls theName asSymbol
+				instanceVariableNames: instVars
+				classVariableNames: classVars
+				package: 'AWFY-Benchmarks' ]
+! !
 
 !SomLoader methodsFor: 'actions' stamp: 'StefanMarr 7/22/2016 13:04'!
 createMethods
