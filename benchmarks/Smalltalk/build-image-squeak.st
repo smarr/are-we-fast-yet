@@ -1,8 +1,12 @@
 FileStream startUp: true.
-[| parentDir runner loader starting |
-FileStream stdout nextPutAll: 'Installing SOM benchmarks'.
 
+[| parentDir runner loader starting |
 Utilities setAuthorInitials: 'SomLoader'.
+
+FileStream stdout class compile: 'println: aString
+    ^ self nextPutAll: aString; cr; flush' classified: '*SomLoader'.
+
+FileStream stdout println: 'Installing SOM benchmarks'.
 
 parentDir := (FileDirectory default fileNamed: Smalltalk documentPath)
 	directoryEntry containingDirectory.
@@ -31,26 +35,33 @@ Smalltalk class compile: 'exit: code
     ^ Smalltalk quitPrimitive' classified: '*SomLoader'.
 
 Smalltalk at: #DiskStore put: FileDirectory.
+
+"We don't need it, but we'd like the Json name for the benchmark."
+Json rename: 'SqueakJson'.
+JsonObject rename: 'SqueakJsonObject'.
+
 FileDirectory class methodDict at: #delimiter put: (FileDirectory class >> #slash).
 
-FileStream stdout nextPutAll: '== Run Tests'; cr.
+FileStream stdout println: '== Run Tests'.
 runner := (Smalltalk classNamed: 'SomLoaderTests') suite run.
 
-FileStream stdout nextPutAll: '== Load Code'; cr.
+FileStream stdout println: '== Load Code'.
 loader := (Smalltalk classNamed: 'SomLoader') load: parentDir fullName.
 loader createClasses.
 loader createMethods.
 
 (runner hasPassed)
-	ifFalse: [FileStream stderr nextPutAll: '==== Test errors ===='; cr; nextPutAll: runner printString; cr.].
+	ifFalse: [FileStream stderr println: '==== Test errors ===='; println: runner printString.].
 
-FileStream stdout nextPutAll: '== Save and Exit'; cr.
+FileStream stdout println: '== Save and Exit'.
 
 PreferenceWizardMorph allInstances do: #delete.
 SystemWindow allSubInstances do: #delete.
 
-Smalltalk saveAs: 'AWFY'] on: Error do: [:e |
-    FileStream stdout nextPutAll: e printString.
+Smalltalk saveAs: 'AWFY_Squeak'.
+
+] on: Error do: [:e |
+    FileStream stdout nextPutAll: e printString; cr; flush.
 ].
 
 Project current addDeferredUIMessage: [
