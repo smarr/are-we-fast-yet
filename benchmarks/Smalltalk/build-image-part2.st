@@ -12,7 +12,7 @@ loader createMethods.
 
 ScriptConsole println: '== Safe and Exit'.
 
-starting := Smalltalk saveAs: 'AWFY'.
+starting := Smalltalk saveAs: 'AWFY_Pharo'.
 starting ifTrue: [ ^ self ].
 
 runner hasPassed
