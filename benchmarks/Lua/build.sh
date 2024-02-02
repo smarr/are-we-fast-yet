@@ -5,9 +5,9 @@ source $SCRIPT_PATH/../script.inc
 
 if [[ "$1" = "style" ]]
 then
-    exit 0
+  INFO Check style of Lua benchmarks
+  pushd $SCRIPT_PATH
+  luacheck *.lua
+else
+  exit 0
 fi
-
-INFO Build Crystal Benchmarks
-pushd $SCRIPT_PATH
-crystal build --release --no-debug harness.cr

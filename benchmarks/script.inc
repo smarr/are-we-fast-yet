@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # make SCRIPT_PATH absolute
-pushd `dirname $0` > /dev/null
+pushd $(dirname $0) > /dev/null
 SCRIPT_PATH=`pwd`
 popd > /dev/null
 
@@ -55,7 +55,7 @@ function check_for_tools() {
 function get_pypy() {
   if [ \! -d pypy ]; then
     get_web_getter
-    
+
     INFO Get PyPy Source
     PYPY_VERSION="5.8.0"
     PYPY_DIR="pypy2-v${PYPY_VERSION}-src"
@@ -73,7 +73,7 @@ function get_jdk9ea() {
   JDK_ARCHIVE=jdk-9-ea+96_linux-x64_bin.tar.gz
   JDK_URL=http://www.java.net/download/jdk9/archive/96/binaries/$JDK_ARCHIVE
   JDK_DIR=jdk-9
-  
+
   INFO Get JDK9 Early Access from $JDK_URL
   if [ \! -d "$JDK_DIR" ]; then
     $GET $JDK_URL || $GET $JDK_URL
@@ -86,7 +86,7 @@ function get_jdk9ea() {
 
 function load_git_repo() {
   INFO Cloning "$1" into "$2"
-  if [ -z "$3" ]
+  if [[ -z "$3" ]]
   then
     git clone --depth=1 "$1" "$2"
   else
@@ -109,20 +109,3 @@ function check_for() {
     fi
   fi
 }
-
-function check_for_crystal() {
-  check_for "crystal" "Please see http://crystal-lang.org/docs/installation/index.html" "$1"
-}
-
-function check_for_node() {
-  check_for "node" "Please see https://nodejs.org/en/download/" "$1"
-}
-
-function check_for_graalvm() {
-  if [ ! -x "$SCRIPT_PATH/graalvm/jre/bin/javao" ]
-  then
-    ERR "GraalVM not found."
-    ERR "To run benchmarks on the GraalVM, please see 'implementations/graalvm/README.md'"
-  fi
-}
-

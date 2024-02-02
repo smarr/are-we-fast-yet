@@ -2,12 +2,12 @@
 set -e # make script fail on first error
 SCRIPT_PATH=$(dirname $0)
 source $SCRIPT_PATH/../script.inc
+pushd $SCRIPT_PATH
 
 if [[ "$1" = "style" ]]
 then
-    exit 0
+  ant checkstyle-jar && ant checkstyle
+else
+  INFO Build Java Benchmarks
+  ant jar
 fi
-
-INFO Build Crystal Benchmarks
-pushd $SCRIPT_PATH
-crystal build --release --no-debug harness.cr
