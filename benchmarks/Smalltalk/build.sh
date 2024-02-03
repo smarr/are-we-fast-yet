@@ -25,7 +25,7 @@ then
     ERR "Please copy a Pharo.image, Pharo.changes and the corresponding *.sources file to this directory."
     exit 1
   fi
-  ~/.asdf/installs/awfy/pharo-120/bin/pharo Pharo.image build-image.st
+  ~/.asdf/installs/awfy/pharo-120/pharo Pharo.image build-image.st
 else
   exit 0
 fi
