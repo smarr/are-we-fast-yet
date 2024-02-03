@@ -15,7 +15,13 @@ then
     ERR "Please copy a Squeak.image, Squeak.changes and the corresponding *.sources file to this directory."
     exit 1
   fi
-  ~/.asdf/installs/awfy/squeak-6.0-22148/bin/squeak -headless Squeak.image build-image-squeak.st
+  cmd=~/.asdf/installs/awfy/squeak-6.0-22148/bin/squeak
+  headless="-vm-sound-null -vm-display-null -noevents"
+  if [[ ! -f "$cmd" ]]; then
+    cmd=~/.asdf/installs/awfy/squeak-6.0-22148/Squeak.app/Contents/MacOS/Squeak
+    headless="-headless"
+  fi
+  eval "$cmd" "$headless" Squeak.image build-image-squeak.st
 elif [[ "$1" == "pharo" ]]
 then
   pushd "$SCRIPT_PATH"
