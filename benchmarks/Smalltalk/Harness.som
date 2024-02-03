@@ -20,7 +20,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 "
 Harness = (
-  
+
   processArguments: args= (
     | run |
     "First argument is the Harness"
@@ -33,21 +33,21 @@ Harness = (
     ] ].
     ^ run
   )
-  
+
   run: args = (
     | run |
     args size < 2 ifTrue: [
       self printUsage.
       Smalltalk exit: 1
     ].
-    
+
     run := self processArguments: args.
 
     run runBenchmark.
     run printTotal.
     Smalltalk exit: 0
   )
-  
+
   printUsage = (
     ScriptConsole println: './som -cp Smalltalk Benchmarks/Harness.som [benchmark] [num-iterations [inner-iter]]'.
     ScriptConsole println: ''.
