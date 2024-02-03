@@ -49,7 +49,7 @@ FileStream stdout nextPutAll: '== Save and Exit'; cr.
 PreferenceWizardMorph allInstances do: #delete.
 SystemWindow allSubInstances do: #delete.
 
-Smalltalk saveAs: 'AWFY'] on: Error do: [:e |
+Smalltalk saveAs: 'AWFY_Squeak'] on: Error do: [:e |
     FileStream stdout nextPutAll: e printString.
 ].
 

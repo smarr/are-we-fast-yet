@@ -9,48 +9,37 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Java
-            id:   java
+          - { name: Java, id: java, folder: Java }
+          - { name: SOM, id: som, folder: SOM }
+          - { name: Crystal, id: crystal, folder: Crystal }
+          - { name: JavaScript, id: js, folder: JavaScript }
+          - { name: SOMns, id: somns, folder: SOMns }
 
-          - name: SOM
-            id:   som
+          #- { name: Pharo, id: pharo, folder: Smalltalk }
 
-          - name: Crystal
-            id:   crystal
-
-          - name: JavaScript
-            id:   js
-
-          - name: SOMns
-            id:   somns
-
-          # - name: Pharo
-          #   id:   pharo
-
-          - name: Squeak 64-bit
-            id:   squeak64
-
-          - name: Ruby
-            id:   ruby
-
-          - name: Lua 5.2
-            id:   lua52
-
-          - name: Python
-            id:   python
+          - { name: Squeak, id: squeak, folder: Smalltalk }
+          - { name: Ruby, id: ruby, folder: Ruby }
+          - { name: Lua, id: lua, folder: Lua }
+          - { name: Python, id: python, folder: Python }
 
     name: ${{ matrix.name }}
     steps:
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: "3.11"
 
       - name: Checkout AWFY Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install ReBench
         run: |
           python -m pip install ReBench
+
+      - name: Install asdf and asdf-awfy
+        run: |
+          git clone --depth 1 https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.14.0
+          ~/.asdf/bin/asdf plugin add awfy https://github.com/smarr/asdf-awfy.git
+        if: matrix.id == 'squeak'
 
       - name: Install Crystal
         if: matrix.id == 'crystal'
@@ -67,17 +56,13 @@ jobs:
         with:
           smalltalk-image: Pharo64-stable
 
-      - name: Install Squeak64
-        if: matrix.id == 'squeak64'
-        uses: hpi-swa/setup-smalltalkCI@v1
-        with:
-          smalltalk-image: Squeak64-5.2
-
-      - name: Install Squeak32
-        if: matrix.id == 'squeak32'
-        uses: hpi-swa/setup-smalltalkCI@v1
-        with:
-          smalltalk-image: Squeak32-5.2
+      - name: Install Squeak
+        if: matrix.id == 'squeak'
+        run: |
+          ~/.asdf/bin/asdf install awfy squeak-6.0-22148
+          cp ~/.asdf/installs/awfy/squeak-6.0-22148/shared/SqueakV60.sources benchmarks/Smalltalk/
+          cp ~/.asdf/installs/awfy/squeak-6.0-22148/shared/Squeak*.image benchmarks/Smalltalk/Squeak.image
+          cp ~/.asdf/installs/awfy/squeak-6.0-22148/shared/Squeak*.changes benchmarks/Smalltalk/Squeak.changes
 
       - name: Install Ruby
         if: matrix.id == 'ruby'
@@ -87,23 +72,49 @@ jobs:
       - name: Install Lua
         uses: leafo/gh-actions-lua@v10
         with:
-            luaVersion: 5.2
-        if: matrix.id == 'lua52'
+          luaVersion: 5.2
+        if: matrix.id == 'lua'
 
       - name: Install LuaRocks
         uses: leafo/gh-actions-luarocks@v4
-        if: matrix.id == 'lua52'
+        if: matrix.id == 'lua'
 
       - name: Install LuaCheck and lua5.2 symlink
         run: |
           luarocks install luacheck
           (cd .lua/bin && ln -s lua lua5.2)
-        if: matrix.id == 'lua52'
+        if: matrix.id == 'lua'
 
       - name: Install Python
         run: |
           python -m pip install pylint
         if: matrix.id == 'python'
+
+      - name: Install SOM
+        run: |
+          source benchmarks/script.inc
+          load_git_repo https://github.com/SOM-st/som-java.git SOM
+          pushd SOM
+          git submodule update --recursive --init
+          ant
+          popd
+
+          load_git_repo https://github.com/SOM-st/TruffleSOM.git TruffleSOM
+          pushd TruffleSOM
+          git submodule update --recursive --init
+          ./som --setup mx
+          ./som --setup labsjdk
+          ../mx/mx build
+        if: matrix.id == 'som'
+
+      - name: Install SOMns
+        run: |
+          source benchmarks/script.inc
+          load_git_repo https://github.com/smarr/SOMns.git SOMns
+          pushd SOMns
+          git submodule update --recursive --init
+          ant compile
+        if: matrix.id == 'somns'
 
       - name: Python Black Style Check
         uses: psf/black@stable
@@ -114,7 +125,7 @@ jobs:
 
       - name: Build
         run: |
-          implementations/build-${{ matrix.id }}.sh
+          benchmarks/${{ matrix.folder }}/build.sh ${{ matrix.id }}
 
       - name: ReBench Test Run
         run: |
@@ -122,4 +133,4 @@ jobs:
 
       - name: Style Check
         run: |
-          implementations/build-${{ matrix.id }}.sh style skip-black-for-python
+          benchmarks/${{ matrix.folder }}/build.sh style skip-black-for-python

@@ -10,6 +10,7 @@
 *.html
 .Rhistory
 .idea
+.vscode
 .eclipse-ws
 benchmarks.jar
 benchmark.data
