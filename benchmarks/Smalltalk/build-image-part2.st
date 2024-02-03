@@ -1,11 +1,10 @@
 | loader runner starting |
 ScriptConsole println: '== Run Tests'.
 
-runner := SubunitRunner runPackage: 'SomLoader-Tests'.
+runner := SubunitRunner runPackage: 'SomLoader'.
 
 ScriptConsole println: '== Load Code'.
 
-Author fullName: 'SomLoader'.
 loader := SomLoader load: '.'.
 loader createClasses.
 loader createMethods.
