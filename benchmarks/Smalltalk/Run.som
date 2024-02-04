@@ -21,7 +21,7 @@ THE SOFTWARE.
 "
 Run = (
   | total numIterations innerIterations benchmarkSuite name |
-  
+
   initialize: aName = (
     name            := aName.
     benchmarkSuite  := self loadBenchmarkSuite: aName.
@@ -29,7 +29,7 @@ Run = (
     numIterations   := 1.
     innerIterations := 1.
   )
-  
+
   loadBenchmarkSuite: className = (
     | cls |
     cls := Smalltalk classNamed: className.
@@ -37,21 +37,21 @@ Run = (
         self error: 'Failed loading benchmark: ', className ].
     ^ cls
   )
-  
+
   name: aString = ( name := aString )
   benchmarkSuite: aSuite = ( benchmarkSuite  := aSuite )
   numIterations:   anInt = ( numIterations   := anInt )
   innerIterations: anInt = ( innerIterations := anInt )
-  
+
   runBenchmark = (
     ScriptConsole println: ('Starting ', name, ' benchmark ... ').
-    
+
     self doRuns: benchmarkSuite new.
     self reportBenchmark.
 
     ScriptConsole println: ''
   )
-  
+
   measure: bench = (
     | startTime endTime runTime |
     startTime := Time primUTCMicrosecondsClock.
@@ -64,7 +64,7 @@ Run = (
 
     total := total + runTime.
   )
-  
+
   doRuns: bench = (
     1 to: numIterations do: [:i |
       self measure: bench
@@ -74,19 +74,19 @@ Run = (
   reportBenchmark = (
     ScriptConsole println: (name, ': iterations=', numIterations asString,
      ' average: ', (total // numIterations) asString, 'us total: ', total asString,
-     'us\n').
+     'us').
   )
-  
+
   printResult: runTime = (
     ScriptConsole println: (name, ': iterations=1 runtime: ', runTime asString, 'us')
   )
-      
+
   printTotal = (
     ScriptConsole println: ('Total Runtime: ', total asString, 'us')
   )
-  
+
   ----
-  
+
   new: aName = (
     ^ self new initialize: aName
   )

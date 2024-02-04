@@ -10,16 +10,16 @@ UnaryConstraint = AbstractConstraint (
   variable.
 
   Instance variables:
-      output      possible output variable <Variable>
+      output      possible output variable <DBVariable>
       satisfied       true if I am currently satisfied <Boolean>"
   | output satisfied |
-  
+
   "initialize-release"
 
-  initializeVar: aVariable strength: strengthSymbol addTo: planner = (
+  initializeVar: aDBVariable strength: strengthSymbol addTo: planner = (
     "Initialize myself with the given variable and strength."
     super initialize: strengthSymbol.
-    output := aVariable.
+    output := aDBVariable.
     satisfied := false.
     self addConstraint: planner.
   )
@@ -62,7 +62,7 @@ UnaryConstraint = AbstractConstraint (
   inputsDo: aBlock = (
     "I have no input variables."
   )
-  
+
   inputsHasOne: aBlock = (
     ^ false
   )

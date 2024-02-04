@@ -152,12 +152,12 @@ Planner = (
     ^ true
   )
 
-  changeVar: aVariable newValue: newValue = (
+  changeVar: aDBVariable newValue: newValue = (
     | editConstraint plan |
-    editConstraint := EditConstraint var: aVariable strength: Strength SymPreferred addTo: self.
+    editConstraint := EditConstraint var: aDBVariable strength: Strength SymPreferred addTo: self.
     plan := self extractPlanFromConstraints: (Vector with: editConstraint).
     10 timesRepeat: [
-      aVariable value: newValue.
+      aDBVariable value: newValue.
       plan execute ].
     editConstraint destroyConstraint: self.
   )
@@ -189,7 +189,7 @@ Planner = (
 
     | unsatisfied todo v |
     unsatisfied := Vector new.
-        
+
     out determinedBy: nil.
     out walkStrength: Strength absoluteWeakest.
     out stay: true.
@@ -205,9 +205,9 @@ Planner = (
     unsatisfied sort: [:c1 :c2 | c1 strength stronger: c2 strength].
     ^ unsatisfied
   )
-  
+
   ----
-  
+
   "instance creation"
   new = (
     ^ super new initialize
@@ -217,11 +217,11 @@ Planner = (
   chainTest: n = (
       "Do chain-of-equality-constraints performance tests."
       | vars editConstraint plan planner |
-      
+
       planner := Planner new.
       vars := Array new: n+1.
       1 to: n+1 do: [:i |
-        vars at: i put: Variable new ].
+        vars at: i put: DBVariable new ].
 
       "thread a chain of equality constraints through the variables"
       1 to: n do: [ :i |
@@ -249,12 +249,12 @@ Planner = (
       | scale offset src dst planner dests |
       planner := Planner new.
       dests   := Vector new.
-      scale   := Variable value: 10.
-      offset  := Variable value: 1000.
+      scale   := DBVariable value: 10.
+      offset  := DBVariable value: 1000.
 
       1 to: n do: [ :i |
-        src := Variable value: i.
-        dst := Variable value: i.
+        src := DBVariable value: i.
+        dst := DBVariable value: i.
         dests append: dst.
         StayConstraint  var: src strength: Strength SymDefault addTo: planner.
         ScaleConstraint var: src var: scale var: offset var: dst strength: Strength SymRequired addTo: planner

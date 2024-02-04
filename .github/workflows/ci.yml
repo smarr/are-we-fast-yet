@@ -14,9 +14,7 @@ jobs:
           - { name: Crystal, id: crystal, folder: Crystal }
           - { name: JavaScript, id: js, folder: JavaScript }
           - { name: SOMns, id: somns, folder: SOMns }
-
-          #- { name: Pharo, id: pharo, folder: Smalltalk }
-
+          - { name: Pharo, id: pharo, folder: Smalltalk }
           - { name: Squeak, id: squeak, folder: Smalltalk }
           - { name: Ruby, id: ruby, folder: Ruby }
           - { name: Lua, id: lua, folder: Lua }
@@ -39,7 +37,7 @@ jobs:
         run: |
           git clone --depth 1 https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.14.0
           ~/.asdf/bin/asdf plugin add awfy https://github.com/smarr/asdf-awfy.git
-        if: matrix.id == 'squeak'
+        if: matrix.id == 'squeak' || matrix.id == 'pharo'
 
       - name: Install Crystal
         if: matrix.id == 'crystal'
@@ -52,9 +50,11 @@ jobs:
 
       - name: Install Pharo
         if: matrix.id == 'pharo'
-        uses: hpi-swa/setup-smalltalkCI@v1
-        with:
-          smalltalk-image: Pharo64-stable
+        run: |
+          ~/.asdf/bin/asdf install awfy pharo-120
+          cp ~/.asdf/installs/awfy/pharo-120/Pharo*.sources benchmarks/Smalltalk/
+          cp ~/.asdf/installs/awfy/pharo-120/Pharo*.image benchmarks/Smalltalk/Pharo.image
+          cp ~/.asdf/installs/awfy/pharo-120/Pharo*.changes benchmarks/Smalltalk/Pharo.changes
 
       - name: Install Squeak
         if: matrix.id == 'squeak'
