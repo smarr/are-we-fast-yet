@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   test_awfy:
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.ubuntu == '' && 'ubuntu-22.04' || matrix.ubuntu }}
     strategy:
       fail-fast: false
       matrix:
@@ -13,7 +13,7 @@ jobs:
           - { name: SOM, id: som, folder: SOM }
           - { name: Crystal, id: crystal, folder: Crystal }
           - { name: JavaScript, id: js, folder: JavaScript }
-          - { name: SOMns, id: somns, folder: SOMns }
+          - { name: SOMns, id: somns, folder: SOMns, ubuntu: ubuntu-20.04 }
           - { name: Pharo, id: pharo, folder: Smalltalk }
           - { name: Squeak, id: squeak, folder: Smalltalk }
           - { name: Ruby, id: ruby, folder: Ruby }
