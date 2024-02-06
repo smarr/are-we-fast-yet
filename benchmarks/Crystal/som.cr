@@ -19,6 +19,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+require "math"
+
 
 INITIAL_SIZE = 10
 INITIAL_CAPACITY = 16
@@ -41,48 +43,52 @@ class Vector(T)
     new_vector
   end
 
-  def initialize(size = 50)
-    @storage   = Array(T).new(size, nil)
+  def initialize(size = 0)
+    @storage = size == 0 ? nil : Array(T).new(size, nil)
     @first_idx = 0
     @last_idx  = 0
   end
 
   def at(idx)
-    if idx >= @storage.size
+    if @storage == nil || idx >= @storage.not_nil!.size
       return nil
     end
-    @storage[idx]
+    @storage.not_nil![idx]
   end
 
   def at_put(idx, val : T)
-    if idx >= @storage.size
-      new_length = @storage.size
+    if @storage == nil
+      @storage = Array(T).new(Math.max(idx + 1, INITIAL_SIZE), nil)
+    elsif idx >= @storage.not_nil!.size
+      new_length = @storage.not_nil!.size
       while new_length <= idx
         new_length *= 2
       end
       new_storage = Array(T).new(new_length, nil)
-      @storage.each_index { | i |
-        new_storage[i] = @storage[i]
+      @storage.not_nil!.each_index { | i |
+        new_storage[i] = @storage.not_nil![i]
       }
       @storage = new_storage
     end
-    @storage[idx] = val
+    @storage.not_nil![idx] = val
     if @last_idx < idx + 1
       @last_idx = idx + 1
     end
   end
 
   def append(elem : T)
-    if @last_idx >= @storage.size
+    if @storage == nil
+      @storage = Array(T).new(INITIAL_SIZE, nil)
+    elsif @last_idx >= @storage.not_nil!.size
       # Need to expand capacity first
-      new_storage = Array(T).new(2 * @storage.size, nil)
-      @storage.each_index { | i |
-        new_storage[i] = @storage[i]
+      new_storage = Array(T).new(2 * @storage.not_nil!.size, nil)
+      @storage.not_nil!.each_index { | i |
+        new_storage[i] = @storage.not_nil![i]
       }
       @storage = new_storage
     end
 
-    @storage[@last_idx] = elem
+    @storage.not_nil![@last_idx] = elem
     @last_idx += 1
     self
   end
@@ -93,13 +99,13 @@ class Vector(T)
 
   def each # &block
     (@first_idx..(@last_idx - 1)).each { | i |
-      yield @storage[i].not_nil!
+      yield @storage.not_nil![i].not_nil!
     }
   end
 
   def has_some
     (@first_idx..(@last_idx - 1)).each { | i |
-      if yield @storage[i]
+      if yield @storage.not_nil![i]
         return true
       end
     }
@@ -122,10 +128,14 @@ class Vector(T)
     end
 
     @first_idx += 1
-    @storage[@first_idx - 1]
+    @storage.not_nil![@first_idx - 1]
   end
 
   def remove(obj)
+    if @storage == nil || empty?
+      return false
+    end
+
     new_array = Array(T).new(capacity, nil)
     new_last = 0
     found = false
@@ -148,7 +158,10 @@ class Vector(T)
   def remove_all
     @first_idx = 0
     @last_idx  = 0
-    @storage = Array(T).new(@storage.size, nil)
+
+    if @storage
+      @storage = Array(T).new(@storage.not_nil!.size, nil)
+    end
   end
 
   def size
@@ -156,7 +169,7 @@ class Vector(T)
   end
 
   def capacity
-    @storage.size
+    @storage == nil ? 0 : @storage.not_nil!.size
   end
 
   def sort(&block : T, T -> Bool)
@@ -194,12 +207,12 @@ class Vector(T)
     end
 
     # Sort di, dj
-    di = @storage[i]
-    dj = @storage[j]
+    di = @storage.not_nil![i]
+    dj = @storage.not_nil![j]
 
     # i.e., should di precede dj?
     unless block.call(di, dj)
-      @storage.swap(i, j)
+      @storage.not_nil!.swap(i, j)
       tt = di
       di = dj
       dj = tt
@@ -208,15 +221,15 @@ class Vector(T)
     # NOTE: For DeltaBlue, this is never reached.
     if n > 2  # More than two elements.
       ij  = ((i + j) / 2).floor.to_i32 # ij is the midpoint of i and j.
-      dij = @storage[ij]               # Sort di,dij,dj.  Make dij be their median.
+      dij = @storage.not_nil![ij]               # Sort di,dij,dj.  Make dij be their median.
 
       if block.call(di, dij)           # i.e. should di precede dij?
         unless block.call(dij, dj)     # i.e., should dij precede dj?
-          @storage.swap(j, ij)
+          @storage.not_nil!.swap(j, ij)
           dij = dj
         end
       else                       # i.e. di should come after dij
-        @storage.swap(i, ij)
+        @storage.not_nil!.swap(i, ij)
         dij = di
       end
 
@@ -227,16 +240,16 @@ class Vector(T)
         l = j - 1
 
         while (
-          while k <= l && block.call(dij, @storage[l])  # i.e. while dl succeeds dij
+          while k <= l && block.call(dij, @storage.not_nil![l])  # i.e. while dl succeeds dij
             l -= 1
           end
 
           k += 1
-          while k <= l && block.call(@storage[k], dij)  # i.e. while dij succeeds dk
+          while k <= l && block.call(@storage.not_nil![k], dij)  # i.e. while dij succeeds dk
             k += 1
           end
           k <= l)
-          @storage.swap(k, l)
+          @storage.not_nil!.swap(k, l)
         end
 
         # Now l < k (either 1 or 2 less), and di through dl are all less than or equal to dk

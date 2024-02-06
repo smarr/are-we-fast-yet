@@ -27,23 +27,28 @@ Vector = (
   initialize: size = (
     first := 1.
     last  := 1.
-    storage := Array new: size.
+
+    size = 0
+      ifFalse: [ storage := Array new: size ]
   )
 
   at: index = (
-    index > storage length ifTrue: [ ^ nil ].
+    (storage == nil or: [ index > storage length ]) ifTrue: [ ^ nil ].
     ^ storage at: index
   )
   
   at: index put: val = (
-    index > storage length ifTrue: [
-      | newLength newStorage |
-      newLength := storage length.
-      [ newLength < index ] whileTrue: [
-        newLength := newLength * 2 ].
-      newStorage := Array new: newLength.
-      storage doIndexes: [:i | newStorage at: i put: (storage at: i) ].
-      storage := newStorage ].
+    storage == nil ifTrue: [
+      storage := Array new: (index + 1 max: 10)
+    ] ifFalse: [
+      index > storage length ifTrue: [
+        | newLength newStorage |
+        newLength := storage length.
+        [ newLength < index ] whileTrue: [
+          newLength := newLength * 2 ].
+        newStorage := Array new: newLength.
+        storage doIndexes: [:i | newStorage at: i put: (storage at: i) ].
+        storage := newStorage ] ].
 
     storage at: index put: val.
     last < (index + 1) ifTrue: [
@@ -51,12 +56,15 @@ Vector = (
   )
   
   append: element = (
-    (last > storage length) ifTrue: [
-      "Need to expand capacity first"
-      | newStorage |
-      newStorage := Array new: (2 * storage length).
-      storage doIndexes: [ :i | newStorage at: i put: (storage at: i) ].
-      storage := newStorage. ].
+    storage == nil ifTrue: [
+      storage := Array new: 10
+    ] ifFalse: [
+      last > storage length ifTrue: [
+        "Need to expand capacity first"
+        | newStorage |
+        newStorage := Array new: (2 * storage length).
+        storage doIndexes: [ :i | newStorage at: i put: (storage at: i) ].
+        storage := newStorage ] ].
     
     storage at: last put: element.
     last := last + 1.
@@ -94,11 +102,16 @@ Vector = (
   removeAll = (
     first := 1.
     last  := 1.
-    storage  := Array new: storage length
+
+    storage == nil ifFalse: [
+      storage := Array new: storage length
+    ]
   )
 
   remove: object = (
     | newArray newLast found |
+    (storage == nil or: [ self isEmpty ]) ifTrue: [ ^ false ].
+
     newArray := Array new: self capacity.
     newLast := 1.
     found := false.
@@ -117,7 +130,7 @@ Vector = (
   )
   
   size     = ( ^ last - first   )
-  capacity = ( ^ storage length )
+  capacity = ( storage == nil ifTrue: [ ^ 0 ] ifFalse: [ ^ storage length ] )
   
   sort: aBlock = (
     " Make the argument, aBlock, be the criterion for ordering elements of
@@ -186,7 +199,7 @@ Vector = (
   ----------------------------
   
   "Allocation"
-  new              = ( ^ self new: 50 )
+  new              = ( ^ self new: 0 )
   new: initialSize = ( ^ super new initialize: initialSize )
   
   with: elem = (
