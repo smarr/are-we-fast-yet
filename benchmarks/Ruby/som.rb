@@ -34,6 +34,10 @@ class Pair
   end
 end
 
+def max(a, b)
+  a < b ? b : a
+end
+
 class Vector
   def self.with(elem)
     new_vector = new(1)
@@ -41,20 +45,22 @@ class Vector
     new_vector
   end
 
-  def initialize(size = 50)
-    @storage   = Array.new(size)
+  def initialize(size = 0)
+    @storage   = size == 0 ? nil : Array.new(size)
     @first_idx = 0
     @last_idx  = 0
   end
 
   def at(idx)
-    return nil if idx >= @storage.length
+    return nil if @storage == nil || idx >= @storage.length
 
     @storage[idx]
   end
 
   def at_put(idx, val)
-    if idx >= @storage.length
+    if @storage == nil
+      @storage = Array.new(max(idx + 1, INITIAL_SIZE))
+    elsif idx >= @storage.length
       new_length = @storage.length
       new_length *= 2 while new_length <= idx
 
@@ -70,7 +76,9 @@ class Vector
   end
 
   def append(elem)
-    if @last_idx >= @storage.size
+    if @storage == nil
+      @storage = Array.new(INITIAL_SIZE)
+    elsif @last_idx >= @storage.size
       # Need to expand capacity first
       new_storage = Array.new(2 * @storage.size)
       @storage.each_index do |i|
@@ -117,6 +125,8 @@ class Vector
   end
 
   def remove(obj)
+    return false if @storage == nil || empty?
+
     new_array = Array.new(capacity)
     new_last = 0
     found = false
@@ -139,7 +149,10 @@ class Vector
   def remove_all
     @first_idx = 0
     @last_idx  = 0
-    @storage = Array.new(@storage.size)
+
+    if @storage
+      @storage = Array.new(@storage.size)
+    end
   end
 
   def size
@@ -147,7 +160,7 @@ class Vector
   end
 
   def capacity
-    @storage.size
+    @storage == nil ? 0 : @storage.size
   end
 
   def sort(&block)
