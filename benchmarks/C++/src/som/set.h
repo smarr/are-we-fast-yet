@@ -4,8 +4,6 @@
 
 #include "vector.h"
 
-constexpr const int32_t INITIAL_SIZE = 10;
-
 template <typename E>
 class Set {
  private:
