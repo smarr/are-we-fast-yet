@@ -292,7 +292,7 @@ function hashFn(key) {
     return 0;
   }
   const hash = key.customHash();
-  return hash ^ hash >>> 16;
+  return hash ^ (hash >>> 16);
 }
 
 class Dictionary {
@@ -491,7 +491,7 @@ class Random {
   }
 
   next() {
-    this.seed = ((this.seed * 1309) + 13849) & 65535;
+    this.seed = (this.seed * 1309 + 13849) & 65535;
     return this.seed;
   }
 }
