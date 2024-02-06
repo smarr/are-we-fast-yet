@@ -1,28 +1,28 @@
 {
-    "env": {
-        "browser": true,
-        "commonjs": true,
-        "es2021": true
-    },
-    "extends": "airbnb-base",
-    "overrides": [
-    ],
-    "parserOptions": {
-        "ecmaVersion": "latest"
-    },
-    "rules": {
-        "max-classes-per-file": "off",
-        "class-methods-use-this": "off",
-        "no-restricted-syntax": ["error", "WithStatement"],
-        "comma-dangle": "off",
-        "no-param-reassign": "off",
-        "no-nested-ternary": "off",
-        "yoda": "off",
-        "no-bitwise": "off",
-        "no-underscore-dangle": "off",
-        "no-new": "off",
-        "import/no-dynamic-require": "off",
-        "global-require": "off",
-        "no-cond-assign": "off"
-    }
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es2021": true
+  },
+  "extends": "airbnb-base",
+  "overrides": [],
+  "parserOptions": {
+    "ecmaVersion": "latest"
+  },
+  "rules": {
+    "max-classes-per-file": "off",
+    "class-methods-use-this": "off",
+    "no-restricted-syntax": ["error", "WithStatement"],
+    "comma-dangle": "off",
+    "no-param-reassign": "off",
+    "no-nested-ternary": "off",
+    "yoda": "off",
+    "no-bitwise": "off",
+    "no-underscore-dangle": "off",
+    "no-new": "off",
+    "import/no-dynamic-require": "off",
+    "global-require": "off",
+    "no-cond-assign": "off"
+  },
+  "ignorePatterns": ["node_modules/", "dist/"]
 }
