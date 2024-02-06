@@ -4,11 +4,17 @@ SCRIPT_PATH="$(dirname "$0")"
 source "$SCRIPT_PATH/../script.inc"
 
 INFO Build Node.js Benchmarks
+pushd "$SCRIPT_PATH"
+
 if [[ "$1" = "style" ]]
 then
   INFO Check style of JavaScript benchmarks
-  pushd "$SCRIPT_PATH"
+
   npx eslint .
 else
-  exit 0
+  if [[ ! -d "node_modules" ]]
+  then
+    npm install
+  fi
+  npm run webpack
 fi
