@@ -6,6 +6,8 @@
 #include <memory>
 #include <stdexcept>
 
+constexpr const size_t INITIAL_SIZE = 10;
+
 template <typename E>
 class Vector {
  private:
@@ -82,9 +84,10 @@ class Vector {
     return v;
   }
 
-  explicit Vector(size_t size) : storage(new E[size]), _capacity(size) {}
+  explicit Vector(size_t size)
+      : storage(size == 0 ? nullptr : new E[size]), _capacity(size) {}
 
-  explicit Vector() : Vector(50) {}  // NOLINT
+  explicit Vector() : Vector(0) {}  // NOLINT
 
   Vector(const Vector& other) = default;
 
@@ -97,14 +100,17 @@ class Vector {
   }
 
   [[nodiscard]] E* at(size_t idx) const {
-    if (idx >= _lastIdx - _firstIdx) {
+    if (storage == nullptr || idx >= _lastIdx - _firstIdx) {
       return nullptr;
     }
     return &storage[_firstIdx + idx];
   }
 
   void atPut(size_t idx, const E& val) {
-    if (idx >= _lastIdx - _firstIdx) {
+    if (storage == nullptr) {
+      _capacity = std::max(idx + 1, INITIAL_SIZE);
+      storage = new E[_capacity];
+    } else if (idx >= _lastIdx - _firstIdx) {
       size_t newLength = _capacity;
       while (newLength <= idx + _firstIdx) {
         newLength *= 2;
@@ -124,7 +130,10 @@ class Vector {
   }
 
   void append(const E& elem) {
-    if (_lastIdx >= _capacity) {
+    if (storage == nullptr) {
+      storage = new E[INITIAL_SIZE];
+      _capacity = INITIAL_SIZE;
+    } else if (_lastIdx >= _capacity) {
       // Need to expand _capacity first
       _capacity *= 2;
       E* newStorage = new E[_capacity];
@@ -184,6 +193,10 @@ class Vector {
   }
 
   bool remove(const E& obj) {
+    if (storage == nullptr || isEmpty()) {
+      return false;
+    }
+
     bool found = false;
     size_t newLast = _firstIdx;
     for (size_t i = _firstIdx; i < _lastIdx; i += 1) {
@@ -199,13 +212,22 @@ class Vector {
   }
 
   void removeAll() {
+    destroyValues();
+
     _firstIdx = 0;
     _lastIdx = 0;
+
+    if (storage != nullptr) {
+      delete[] storage;
+      storage = new E[_capacity];
+    }
   }
 
   [[nodiscard]] size_t size() const { return _lastIdx - _firstIdx; }
 
-  [[nodiscard]] size_t getCapacity() const { return _capacity; }
+  [[nodiscard]] size_t getCapacity() const {
+    return storage == nullptr ? 0 : _capacity;
+  }
 
   void sort(std::function<int(const E&, const E&)> c) {
     if (size() > 0) {
