@@ -1,5 +1,5 @@
-Are We Fast Yet? Comparing Language Implementations with Objects, Closures, and Arrays
-======================================================================================
+Are We Fast Yet? Comparing Language Implementations with Objects, Closures, Arrays, and Strings
+===================================================================================================
 
 [![Build Status](https://travis-ci.org/smarr/are-we-fast-yet.svg?branch=master)](https://travis-ci.org/smarr/are-we-fast-yet)
 
@@ -9,7 +9,7 @@ The goal of this project is to assess whether a language implementation is
 highly optimizing and thus is able to remove the overhead of programming
 abstractions and frameworks. We are interested in comparing language
 implementations with each other and optimize their compilers as well as the
-run-time representation of objects, closures, and arrays.
+run-time representation of objects, closures, arrays, and strings.
 
 This is in contrast to other projects such as the [Computer Language Benchmark
 game][CLBG], which encourage finding the
@@ -33,7 +33,7 @@ For the detailed set of rules see [the guidelines](docs/guidelines.md) document.
 For a description of the set of common language abstractions see [the *core*
 language](docs/core-language.md) document.
 
-The initial publication describing the project is [Cross-Language Compiler 
+The initial publication describing the project is [Cross-Language Compiler
 Benchmarking: Are We Fast Yet?][3] and can be cited as follows:
 
   > Stefan Marr, Benoit Daloze, Hanspeter Mössenböck. 2016.
@@ -309,7 +309,7 @@ benchmarks.
  [8]: http://stefan-marr.de/downloads/tse18-chari-et-al-fully-reflective-execution-environments.pdf
  [9]: http://stefan-marr.de/downloads/manlang18-aumayr-et-al-efficient-and-deterministic-record-and-replay-for-actor-languages.pdf
  [10]: http://stefan-marr.de/downloads/oopsla18-daloze-et-al-parallelization-of-dynamic-languages-synchronizing-built-in-collections.pdf
- [11]: http://stefan-marr.de/downloads/grace18-marr-et-al-newspeak-and-truffle-a-platform-for-grace.pdf 
+ [11]: http://stefan-marr.de/downloads/grace18-marr-et-al-newspeak-and-truffle-a-platform-for-grace.pdf
  [12]: https://pure.tudelft.nl/portal/en/publications/specializing-a-metainterpreter(bc672ab9-d2bb-42d9-b67f-3f051868e3d7).html
  [13]: https://github.com/densh/talks/blob/master/2018-06-16-interflow-preprint-v1.pdf
  [14]: http://janvitek.org/pubs/dls18.pdf
