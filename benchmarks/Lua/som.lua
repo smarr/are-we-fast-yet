@@ -63,10 +63,13 @@ end
 local Vector = {_CLASS = 'Vector'} do
 
 local floor = math.floor
+local max = math.max
+
+local INITIAL_SIZE = 10
 
 function Vector.new (size)
     local obj = {
-        storage   = alloc_array(size or 50),
+        storage = (size and size > 0) and alloc_array(size) or nil,
         first_idx = 1,
         last_idx  = 1,
     }
@@ -80,14 +83,16 @@ function Vector.with (elem)
 end
 
 function Vector:at (idx)
-    if idx > self.storage.n then
+    if self.storage == nil or idx > self.storage.n then
         return nil
     end
     return self.storage[idx]
 end
 
 function Vector:at_put (idx, val)
-    if idx > self.storage.n then
+    if self.storage == nil then
+        self.storage = alloc_array(max(idx, INITIAL_SIZE))
+    elseif idx > self.storage.n then
         local new_n = self.storage.n
         while idx > new_n do
             new_n = new_n * 2
@@ -107,7 +112,9 @@ function Vector:at_put (idx, val)
 end
 
 function Vector:append (elem)
-    if self.last_idx > self.storage.n then
+    if self.storage == nil then
+        self.storage = alloc_array(INITIAL_SIZE)
+    elseif self.last_idx > self.storage.n then
         -- Need to expand capacity first
         local new_storage = alloc_array(2 * self.storage.n)
         for i = 1, self.storage.n do
@@ -159,6 +166,10 @@ function Vector:remove_first ()
 end
 
 function Vector:remove (obj)
+    if self.storage == nil or self:is_empty() then
+        return false
+    end
+
     local new_array = alloc_array(self:capacity())
     local new_last = 1
     local found = false
@@ -181,7 +192,10 @@ end
 function Vector:remove_all ()
     self.first_idx = 1
     self.last_idx = 1
-    self.storage = alloc_array(self:capacity())
+
+    if self.storage ~= nil then
+        self.storage = alloc_array(self:capacity())
+    end
 end
 
 function Vector:size ()
@@ -189,7 +203,11 @@ function Vector:size ()
 end
 
 function Vector:capacity ()
-    return self.storage.n
+    if self.storage == nil then
+        return 0
+    else
+        return self.storage.n
+    end
 end
 
 function Vector:sort (fn)

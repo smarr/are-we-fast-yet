@@ -26,7 +26,7 @@ const INITIAL_CAPACITY = 16;
 
 class Vector {
   constructor(size) {
-    this.storage = new Array(size === undefined ? 50 : size);
+    this.storage = size === undefined || size === 0 ? null : new Array(size);
     this.firstIdx = 0;
     this.lastIdx = 0;
   }
@@ -38,14 +38,16 @@ class Vector {
   }
 
   at(idx) {
-    if (idx >= this.storage.length) {
+    if (this.storage === null || idx >= this.storage.length) {
       return null;
     }
     return this.storage[idx];
   }
 
   atPut(idx, val) {
-    if (idx >= this.storage.length) {
+    if (this.storage === null) {
+      this.storage = new Array(Math.max(idx + 1, INITIAL_SIZE));
+    } else if (idx >= this.storage.length) {
       let newLength = this.storage.length;
       while (newLength <= idx) {
         newLength *= 2;
@@ -60,7 +62,9 @@ class Vector {
   }
 
   append(elem) {
-    if (this.lastIdx >= this.storage.length) {
+    if (this.storage === null) {
+      this.storage = new Array(INITIAL_SIZE);
+    } else if (this.lastIdx >= this.storage.length) {
       // Copy storage to comply with rules, but don't extend storage
       const newLength = this.storage.length * 2;
       this.storage = this.storage.slice();
@@ -109,6 +113,10 @@ class Vector {
   }
 
   remove(obj) {
+    if (this.storage === null || this.isEmpty()) {
+      return false;
+    }
+
     const newArray = new Array(this.capacity());
     let newLast = 0;
     let found = false;
@@ -131,7 +139,9 @@ class Vector {
   removeAll() {
     this.firstIdx = 0;
     this.lastIdx = 0;
-    this.storage = new Array(this.storage.length);
+    if (this.storage !== null) {
+      this.storage = new Array(this.storage.length);
+    }
   }
 
   size() {
@@ -139,7 +149,7 @@ class Vector {
   }
 
   capacity() {
-    return this.storage.length;
+    return this.storage === null ? 0 : this.storage.length;
   }
 
   // eslint-disable-next-line no-unused-vars
@@ -292,7 +302,7 @@ function hashFn(key) {
     return 0;
   }
   const hash = key.customHash();
-  return hash ^ hash >>> 16;
+  return hash ^ (hash >>> 16);
 }
 
 class Dictionary {
@@ -491,7 +501,7 @@ class Random {
   }
 
   next() {
-    this.seed = ((this.seed * 1309) + 13849) & 65535;
+    this.seed = (this.seed * 1309 + 13849) & 65535;
     return this.seed;
   }
 }

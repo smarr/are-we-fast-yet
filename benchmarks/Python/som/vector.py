@@ -19,6 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+from som.constants import INITIAL_SIZE
 
 
 def vector_with(elem):
@@ -31,18 +32,20 @@ def vector_with(elem):
 #  - does not use an explicit array bounds check, because Java already does
 #    that. Don't see a point in doing it twice.
 class Vector:
-    def __init__(self, size=50):
-        self._storage = [None] * size
+    def __init__(self, size=0):
+        self._storage = None if size == 0 else [None] * size
         self._first_idx = 0
         self._last_idx = 0
 
     def at(self, idx):
-        if idx >= len(self._storage):
+        if self._storage is None or idx >= len(self._storage):
             return None
         return self._storage[idx]
 
     def at_put(self, idx, val):
-        if idx >= len(self._storage):
+        if self._storage is None:
+            self._storage = [None] * max(idx + 1, INITIAL_SIZE)
+        elif idx >= len(self._storage):
             new_length = len(self._storage)
             while new_length <= idx:
                 new_length *= 2
@@ -57,7 +60,9 @@ class Vector:
             self._last_idx = idx + 1
 
     def append(self, elem):
-        if self._last_idx >= len(self._storage):
+        if self._storage is None:
+            self._storage = [None] * INITIAL_SIZE
+        elif self._last_idx >= len(self._storage):
             # Need to expand capacity first
             new_storage = [None] * (2 * len(self._storage))
             for i in range(len(self._storage)):
@@ -99,6 +104,9 @@ class Vector:
         return self._storage[self._first_idx - 1]
 
     def remove(self, obj):
+        if self._storage is None or self.is_empty():
+            return False
+
         new_array = [None] * self.capacity()
         new_last = 0
         found = False
@@ -122,13 +130,15 @@ class Vector:
     def remove_all(self):
         self._first_idx = 0
         self._last_idx = 0
-        self._storage = [None] * len(self._storage)
+
+        if self._storage is not None:
+            self._storage = [None] * len(self._storage)
 
     def size(self):
         return self._last_idx - self._first_idx
 
     def capacity(self):
-        return len(self._storage)
+        return 0 if self._storage is None else len(self._storage)
 
     def sort(self, comparator):
         if self.size() > 0:

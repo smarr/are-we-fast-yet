@@ -34,22 +34,25 @@ class Core with: kernel = (
   public class Vector new: size = (
   | private firstIdx ::= 1.
     private lastIdx  ::= 1.
-    private storage  ::= Array new: size.
+    private storage  ::= size = 0 ifFalse: [ Array new: size ].
   |) (
     public at: index = (
-      index > storage size ifTrue: [ ^ nil ].
+      (storage == nil or: [ index > storage size ]) ifTrue: [ ^ nil ].
       ^ storage at: index
     )
 
     public at: index put: val = (
-      index > storage size ifTrue: [
-        | newLength newStorage |
-        newLength:: storage size.
-        [ newLength < index ] whileTrue: [
-          newLength:: newLength * 2 ].
-        newStorage:: Array new: newLength.
-        storage doIndexes: [:i | newStorage at: i put: (storage at: i) ].
-        storage:: newStorage ].
+      storage == nil ifTrue: [
+        storage:: Array new: (index max: 10).
+      ] ifFalse: [
+        index > storage size ifTrue: [
+          | newLength newStorage |
+          newLength:: storage size.
+          [ newLength < index ] whileTrue: [
+            newLength:: newLength * 2 ].
+          newStorage:: Array new: newLength.
+          storage doIndexes: [:i | newStorage at: i put: (storage at: i) ].
+          storage:: newStorage ] ].
 
       storage at: index put: val.
       lastIdx < (index + 1) ifTrue: [
@@ -57,12 +60,15 @@ class Core with: kernel = (
     )
 
     public append: element = (
-      (lastIdx > storage size) ifTrue: [
-        (* Need to expand capacity first *)
-        | newStorage |
-        newStorage:: Array new: 2 * storage size.
-        storage doIndexes: [ :i | newStorage at: i put: (storage at: i) ].
-        storage:: newStorage. ].
+      storage == nil ifTrue: [
+        storage:: Array new: 10
+      ] ifFalse: [
+        (lastIdx > storage size) ifTrue: [
+          (* Need to expand capacity first *)
+          | newStorage |
+          newStorage:: Array new: 2 * storage size.
+          storage doIndexes: [ :i | newStorage at: i put: (storage at: i) ].
+          storage:: newStorage ] ].
 
       storage at: lastIdx put: element.
       lastIdx:: lastIdx + 1.
@@ -101,11 +107,15 @@ class Core with: kernel = (
     public removeAll = (
       firstIdx:: 1.
       lastIdx::  1.
-      storage::  Array new: storage size
+
+      storage == nil ifFalse: [
+        storage:: Array new: storage size ]
     )
 
     public remove: object = (
       | newArray newLast found |
+      (storage == nil or: [ self isEmpty ]) ifTrue: [ ^ false ].
+
       newArray:: Array new: self capacity.
       newLast:: 1.
       found:: false.
@@ -124,7 +134,7 @@ class Core with: kernel = (
     )
 
     public size     = ( ^ lastIdx - firstIdx   )
-    public capacity = ( ^ storage size )
+    public capacity = ( storage == nil ifTrue: [ ^ 0 ] ifFalse: [ ^ storage size ] )
 
     public sort: aBlock = (
       (* Make the argument, aBlock, be the criterion for ordering elements of
@@ -190,7 +200,7 @@ class Core with: kernel = (
       ]
     )
   ) : (
-    public new = ( ^ self new: 50 )
+    public new = ( ^ self new: 0 )
 
     public with: elem = (
       | newVector |

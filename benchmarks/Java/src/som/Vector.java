@@ -42,23 +42,23 @@ public class Vector<E> {
   }
 
   public Vector(final int size) {
-    storage = new Object[size];
+    storage = size == 0 ? null : new Object[size];
   }
 
-  public Vector() {
-    this(50);
-  }
+  public Vector() { }
 
   @SuppressWarnings("unchecked")
   public E at(final int idx) {
-    if (idx >= storage.length) {
+    if (storage == null || idx >= storage.length) {
       return null;
     }
     return (E) storage[idx];
   }
 
   public void atPut(final int idx, final E val) {
-    if (idx >= storage.length) {
+    if (storage == null) {
+      storage = new Object[Math.max(idx + 1, Constants.INITIAL_SIZE)];
+    } else if (idx >= storage.length) {
       int newLength = storage.length;
       while (newLength <= idx) {
         newLength *= 2;
@@ -72,7 +72,9 @@ public class Vector<E> {
   }
 
   public void append(final E elem) {
-    if (lastIdx >= storage.length) {
+    if (storage == null) {
+      storage = new Object[Constants.INITIAL_SIZE];
+    } else if (lastIdx >= storage.length) {
       // Need to expand capacity first
       storage = Arrays.copyOf(storage, 2 * storage.length);
     }
@@ -131,6 +133,10 @@ public class Vector<E> {
   }
 
   public boolean remove(final E obj) {
+    if (storage == null || isEmpty()) {
+      return false;
+    }
+
     Object[] newArray = new Object[capacity()];
     int[] newLast     = new int[] {0};
     boolean[] found   = new boolean[] {false};
@@ -152,7 +158,9 @@ public class Vector<E> {
   public void removeAll() {
     firstIdx = 0;
     lastIdx = 0;
-    storage = new Object[storage.length];
+    if (storage != null) {
+      storage = new Object[storage.length];
+    }
   }
 
   public int size() {
@@ -160,7 +168,7 @@ public class Vector<E> {
   }
 
   public int capacity() {
-    return storage.length;
+    return storage == null ? 0 : storage.length;
   }
 
   public void sort(final Comparator<E> c) {

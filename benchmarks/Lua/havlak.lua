@@ -196,15 +196,11 @@ function LoopStructureGraph:calculate_nesting_level ()
     self:calculate_nesting_level_rec(self.root, 0)
 end
 
-local function max (a, b)
-    return (a < b) and b or a
-end
-
 function LoopStructureGraph:calculate_nesting_level_rec (loop, depth)
     loop.depth_level = depth
     loop.children:each(function (it)
         self:calculate_nesting_level_rec(it, depth + 1)
-        loop:set_nesting_level(max(loop.nesting_level, 1 + it.nesting_level))
+        loop:set_nesting_level(math.max(loop.nesting_level, 1 + it.nesting_level))
     end)
 end
 

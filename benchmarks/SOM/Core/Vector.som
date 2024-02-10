@@ -23,59 +23,67 @@ THE SOFTWARE.
 Vector = (
 
   | first last storage |
-  
+
   initialize: size = (
     first := 1.
     last  := 1.
-    storage := Array new: size.
+
+    size = 0
+      ifFalse: [ storage := Array new: size ]
   )
 
   at: index = (
-    index > storage length ifTrue: [ ^ nil ].
+    (storage == nil or: [ index > storage length ]) ifTrue: [ ^ nil ].
     ^ storage at: index
   )
-  
+
   at: index put: val = (
-    index > storage length ifTrue: [
-      | newLength newStorage |
-      newLength := storage length.
-      [ newLength < index ] whileTrue: [
-        newLength := newLength * 2 ].
-      newStorage := Array new: newLength.
-      storage doIndexes: [:i | newStorage at: i put: (storage at: i) ].
-      storage := newStorage ].
+    storage == nil ifTrue: [
+      storage := Array new: (index max: 10)
+    ] ifFalse: [
+      index > storage length ifTrue: [
+        | newLength newStorage |
+        newLength := storage length.
+        [ newLength < index ] whileTrue: [
+          newLength := newLength * 2 ].
+        newStorage := Array new: newLength.
+        storage doIndexes: [:i | newStorage at: i put: (storage at: i) ].
+        storage := newStorage ] ].
 
     storage at: index put: val.
     last < (index + 1) ifTrue: [
       last := index + 1 ]
   )
-  
+
   append: element = (
-    (last > storage length) ifTrue: [
-      "Need to expand capacity first"
-      | newStorage |
-      newStorage := Array new: (2 * storage length).
-      storage doIndexes: [ :i | newStorage at: i put: (storage at: i) ].
-      storage := newStorage. ].
-    
+    storage == nil ifTrue: [
+      storage := Array new: 10
+    ] ifFalse: [
+      last > storage length ifTrue: [
+        "Need to expand capacity first"
+        | newStorage |
+        newStorage := Array new: (2 * storage length).
+        storage doIndexes: [ :i | newStorage at: i put: (storage at: i) ].
+        storage := newStorage ] ].
+
     storage at: last put: element.
     last := last + 1.
     ^ self
   )
-  
+
   isEmpty  = ( ^ last = first   )
-  
+
   forEach: block = (
     first to: last - 1 do: [ :i | block value: (storage at: i) ]
   )
-  
+
   hasSome: block = (
     first to: last - 1 do: [ :i |
       (block value: (storage at: i))
         ifTrue: [ ^ true ] ].
     ^ false
   )
-  
+
   getOne: block = (
     first to: last - 1 do: [ :i |
       | e |
@@ -84,7 +92,7 @@ Vector = (
         ifTrue: [ ^ e ] ].
     ^ nil
   )
-  
+
   removeFirst = (
     self isEmpty ifTrue: [ ^ nil ].
     first := first + 1.
@@ -94,15 +102,20 @@ Vector = (
   removeAll = (
     first := 1.
     last  := 1.
-    storage  := Array new: storage length
+
+    storage == nil ifFalse: [
+      storage := Array new: storage length
+    ]
   )
 
   remove: object = (
     | newArray newLast found |
+    (storage == nil or: [ self isEmpty ]) ifTrue: [ ^ false ].
+
     newArray := Array new: self capacity.
     newLast := 1.
     found := false.
-   
+
     self forEach: [ :it |
       it == object
           ifTrue:  [ found := true ]
@@ -115,10 +128,10 @@ Vector = (
     first := 1.
     ^ found
   )
-  
+
   size     = ( ^ last - first   )
-  capacity = ( ^ storage length )
-  
+  capacity = ( storage == nil ifTrue: [ ^ 0 ] ifFalse: [ ^ storage length ] )
+
   sort: aBlock = (
     " Make the argument, aBlock, be the criterion for ordering elements of
        the receiver.
@@ -128,19 +141,19 @@ Vector = (
              to: last - 1
            with: aBlock ]
   )
-  
+
   sort: i to: j with: sortBlock = (
     " Sort elements i through j of self to be non-descending according to
        sortBlock. "
     | di dij dj tt ij k l n |
     sortBlock isNil ifTrue: [ ^ self defaultSort: i to: j ].
-    
+
     "The prefix d means the data at that index."
     (n := j + 1  - i) <= 1 ifTrue: [ ^ self ]. "Nothing to sort."
     " Sort di,dj. "
     di := storage at: i.
     dj := storage at: j.
-    
+
     "i.e., should di precede dj?"
     (sortBlock value: di with: dj) ifFalse: [
       storage swap: i with: j.
@@ -160,7 +173,7 @@ Vector = (
         ifFalse: [ " i.e. di should come after dij "
           storage swap: i with: ij.
           dij := di].
-      
+
       n > 3 ifTrue: [
         " More than three elements.
           Find k>i and l<j such that dk,dij,dl are in reverse order.
@@ -182,13 +195,13 @@ Vector = (
       ]
     ]
   )
-  
+
   ----------------------------
-  
+
   "Allocation"
-  new              = ( ^ self new: 50 )
+  new              = ( ^ self new: 0 )
   new: initialSize = ( ^ super new initialize: initialSize )
-  
+
   with: elem = (
     | newVector |
     newVector := self new: 1.
