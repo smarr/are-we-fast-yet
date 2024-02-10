@@ -91,7 +91,7 @@ end
 
 function Vector:at_put (idx, val)
     if self.storage == nil then
-        self.storage = alloc_array(max(idx + 1, INITIAL_SIZE))
+        self.storage = alloc_array(max(idx, INITIAL_SIZE))
     elseif idx > self.storage.n then
         local new_n = self.storage.n
         while idx > new_n do

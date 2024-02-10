@@ -43,7 +43,7 @@ class Core with: kernel = (
 
     public at: index put: val = (
       storage == nil ifTrue: [
-        storage:: Array new: (index + 1 max: 10).
+        storage:: Array new: (index max: 10).
       ] ifFalse: [
         index > storage size ifTrue: [
           | newLength newStorage |
