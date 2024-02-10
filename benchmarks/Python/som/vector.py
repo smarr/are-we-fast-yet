@@ -33,7 +33,7 @@ def vector_with(elem):
 #    that. Don't see a point in doing it twice.
 class Vector:
     def __init__(self, size=0):
-        self._storage = [None] * size if size > 0 else None
+        self._storage = None if size == 0 else [None] * size
         self._first_idx = 0
         self._last_idx = 0
 

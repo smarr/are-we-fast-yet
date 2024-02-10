@@ -26,7 +26,7 @@ const INITIAL_CAPACITY = 16;
 
 class Vector {
   constructor(size) {
-    this.storage = size === undefined ? null : new Array(size);
+    this.storage = size === undefined || size === 0 ? null : new Array(size);
     this.firstIdx = 0;
     this.lastIdx = 0;
   }

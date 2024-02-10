@@ -42,7 +42,7 @@ public class Vector<E> {
   }
 
   public Vector(final int size) {
-    storage = new Object[size];
+    storage = size == 0 ? null : new Object[size];
   }
 
   public Vector() { }
