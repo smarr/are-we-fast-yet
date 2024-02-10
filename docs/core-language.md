@@ -1,10 +1,10 @@
-The *Core* Language with Objects, Closures, Arrays
-==================================================
+The *Core* Language with Objects, Closures, Arrays, and Strings
+===============================================================
 
 The goal of the project is to have a common set of benchmarks for a wide variety
-of languages that support objects, closures, and arrays. In this setting, it is
-important that benchmarks can be ported easily between languages and produce
-results that are comparable. To ensure portability, the benchmarks use only a
+of languages that support objects, closures, arrays, and strings.
+It is important that benchmarks can be ported easily between languages and
+produce comparable results. To ensure portability, the benchmarks use only a
 set of language abstractions that is common to a wide range of languages.
 
 
@@ -45,6 +45,8 @@ The set of required concepts is:
   - closures, i.e. anonymous functions with read and write access to their
     lexical scope
   - basic array-like abstractions, ideally with a fixed size
+  - strings, with access to individual characters,
+    support for mutation is not required
   - garbage collection, currently benchmarks rely on it and we do not yet have
     variants that do manual memory management
 
@@ -65,6 +67,9 @@ concepts:
   - non-local returns (except in `if` or to implement iteration on collections)
   - flow control in loops with `continue`, `break`, or similar abstractions
     except to implement iterator functions on collections
+  - single character abstractions, such as `char` in Java or C,
+    since they are not supported by all languages and would change the challange
+    for the compiler
 
 These abstractions can cause behavior that is not comparable between languages
 or language implementations. For example, the object-identity-based hash often
