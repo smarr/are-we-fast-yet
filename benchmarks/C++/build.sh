@@ -2,6 +2,12 @@
 SCRIPT_PATH="$(dirname "$0")"
 source "$SCRIPT_PATH/../script.inc"
 
+if [ -z "$OPT" ]; then
+  OPT='-O3 -flto -march=native'
+fi
+NAME_OPT="${OPT//[[:blank:]]/}"
+NAME_OPT="${NAME_OPT//flto/lto}"
+
 # start by trying to find a suitable clang
 CMD_VERSION='-mp-17'
 
@@ -12,9 +18,46 @@ if ! [ -x "$(command -v clang++$CMD_VERSION)" ]; then
   fi
 fi
 
-CMD="clang++$CMD_VERSION"
+if [ -z "$CXX" ]; then
+  CMD="clang++$CMD_VERSION"
+  CXX="$CMD"
 
-pushd "$SCRIPT_PATH"
+  # trying to avoid bugs, CXX should be used at this point
+  unset CMD
+fi
+
+if [[ $CXX == *"clang"* ]]; then
+  COMPILER_NAME="clang"
+  WARNINGS="-Wall -Wextra -Wno-unused-private-field"
+else
+  # we assume gcc
+  COMPILER_NAME="gcc"
+  WARNINGS="-Wall -Wextra"
+fi
+COMP_OPT="-ffp-contract=off -std=c++17"
+
+echo "Using compiler type: $COMPILER_NAME"
+
+SRC='src/harness.cpp src/deltablue.cpp src/memory/object_tracker.cpp src/richards.cpp'
+
+BENCHMARKS=("NBody      10 250000"
+            "Richards   10 100"
+            "DeltaBlue  10 1200"
+            "Mandelbrot 10 500"
+            "Queens     10 1000"
+            "Towers     10 600"
+            "Bounce     10 1500"
+            "CD         10 250"
+            "Json       10 100"
+            "List       10 1500"
+            "Storage    10 1000"
+            "Sieve      10 3000"
+            "Mandelbrot 10 500"
+            "Permute    10 1000"
+            "Bounce     10 1500"
+            "Mandelbrot 10 500"
+            "Havlak     10 1500")
+
 
 if [ "$1" = "style" ]
 then
@@ -82,13 +125,34 @@ then
                      -Wno-sign-conversion
                      -Wno-unsafe-buffer-usage -Wno-weak-vtables'
   SANATIZE="-Weverything -pedantic -Wall -Wextra $DISABLED_WARNINGS"
-  OPT='-O3'
   echo Bulding with pedantic warnings and $OPT optimizations
+elif [ "$1" = "pgo" ]
+then
+  echo Bulding with PGO optimizations
+  ORG_OPT="$OPT"
+
+  OPT="$ORG_OPT -fprofile-generate"
+  $CXX $WARNINGS $SANATIZE $OPT $COMP_OPT $SRC -o harness-$CXX
+
+  for b in "${BENCHMARKS[@]}"; do
+    LLVM_PROFILE_FILE="prof-%p.profraw" ./harness-$CXX $b
+  done
+
+  if [ "$COMPILER_NAME" = "clang" ]; then
+    llvm-profdata$CMD_VERSION merge -output=prof.profdata prof-*.profraw
+    OPT="$ORG_OPT -fprofile-use=prof.profdata"
+  else
+    OPT="$ORG_OPT -fprofile-use"
+  fi
+
+  $CXX $WARNINGS $SANATIZE $OPT $COMP_OPT $SRC -o harness-$CXX$NAME_OPT-pgo
+  EXIT_CODE=$?
+  rm -f *.profraw prof.profdata *.gcda
+  exit $EXIT_CODE
 else
   echo Bulding with $OPT optimizations
   SANATIZE=''
 fi
 
-SRC='src/harness.cpp src/deltablue.cpp src/memory/object_tracker.cpp src/richards.cpp'
-
-exec $CMD -Wall -Wextra -Wno-unused-private-field $SANATIZE $OPT -ffp-contract=off -std=c++17 $SRC -o harness
+echo Binary name: harness-$CXX$NAME_OPT
+exec $CXX $WARNINGS $SANATIZE $OPT $COMP_OPT $SRC -o harness-$CXX$NAME_OPT
