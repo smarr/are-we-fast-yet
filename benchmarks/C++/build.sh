@@ -58,6 +58,7 @@ BENCHMARKS=("NBody      10 250000"
             "Mandelbrot 10 500"
             "Havlak     10 1500")
 
+pushd "$SCRIPT_PATH"
 
 if [ "$1" = "style" ]
 then
@@ -155,4 +156,5 @@ else
 fi
 
 echo Binary name: harness-$CXX$NAME_OPT
-exec $CXX $WARNINGS $SANATIZE $OPT $COMP_OPT $SRC -o harness-$CXX$NAME_OPT
+eval $CXX $WARNINGS $SANATIZE $OPT $COMP_OPT $SRC -o harness-$CXX$NAME_OPT
+ln -sf harness-$CXX$NAME_OPT harness
