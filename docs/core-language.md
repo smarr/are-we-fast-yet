@@ -33,9 +33,9 @@ permitted.
 
 ## The *Core* Languages
 
-While our initial intention is to compare object-oriented (OO) languages, the
+While our intention is to compare object-oriented (OO) languages, the
 benchmarks could be implemented on other languages as well as long as for
-instance the polymorphic nature of the benchmark code can be expressed somehow.
+instance the polymorphic nature of the benchmark code can be expressed.
 
 #### Required Abstractions
 
@@ -47,8 +47,6 @@ The set of required concepts is:
   - basic array-like abstractions, ideally with a fixed size
   - strings, with access to individual characters,
     support for mutation is not required
-  - garbage collection, currently benchmarks rely on it and we do not yet have
-    variants that do manual memory management
 
 For some languages, a mapping of these abstraction is not trivial and we define
 [guidelines](guidelines.md) for these cases. For example, Java does not support
