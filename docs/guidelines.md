@@ -71,7 +71,7 @@ requirements of the benchmarks.
 
 As a basic guideline, we use the following rules:
 
- - Code should pass a linter (if available). This gives some basic consistency
+ - Code should pass a linter, if available, to ensure some basic consistency
    with established rules. However, some language-specific rules impact
    comparability for an example see our [Ruby
    Rubocop](../benchmarks/Ruby/.rubocop.yml) settings.
@@ -85,7 +85,7 @@ As a basic guideline, we use the following rules:
    properties preferable.
 
  - Identical code structure is more important than 100% idiomatic code.
-   While prefer the use of idiomatic iteration constructs, in other cases it is
+   While we prefer idiomatic iteration constructs, in other cases it is
    required to use the same structure of methods and similar naming to
    prevent differences in the general code structure etc.
 
@@ -143,6 +143,115 @@ languages.
 ### Python
 
  - Use plain fields instead of getter/setter when they would be trivial
+
+
+### C++
+
+With C++, we added support for the first language that does not have garbage
+collection, which comes with a new dimension of issues to be considered.
+
+Explicit Memory Management Rules:
+
+ - benchmarks have to run without memory leaks
+
+ - stack allocation can be used where natural and where it does not change the
+   nature of the benchmark, for instance when an object/array is used only in
+   the dynamic scope of a function
+
+ - existing data structures should be used where possible to manage
+   dynamically-created objects, for instance, iterate over an already existing
+   list of objects at the end of the benchmark or a method to free them
+
+ - changes to code structure and APIs should be as minimal as possible,
+   for instance, if a method returns an allocated object, leave it as such,
+   and let the caller manage the memory
+
+ - if the useful lifetime of object fields is restricted to a method,
+   the allocations referenced by these fields should be freed before
+   the end of a method, but the field should remain a field.
+
+ - for arbitrary object graphs, as in DeltaBlue, `memory/object_tracker.h` can
+   be used to free the objects when not needed.
+   The use of `shared_ptr` may also be appropriate, but did not work for DeltaBlue.
+
+Memory Management Strategies Per Benchmarks:
+
+ - **CD** use value objects for most data. Since it's a tree, the red/black tree
+   is trivially managed by deleting the nodes from the root. Vectors are managed
+   explicitly for the voxel map. Don't miss the empty vectors that are not
+   passed on as result though.
+
+ - **DeltaBlue** uses `object_tracker`, since there are cyclic dependencies,
+   but we can free the full setup once it's not needed.
+   A mix of `shared_ptr` and `weak_ptr` could probably also work.
+
+ - **Havlak** manages memory explicitly by assigning ownership to specific
+   classes. Specifically, the ControlFlowGraph owns the basic blocks and
+   block edges, the LoopStructureGraph owns the loops, the HavlakLoopFinder
+   owns its data including UnionFindNodes. Thus, the destructors can free
+   the corresponding memory.
+
+ - **Json** relies on JSON documents being trees, and uses the
+   tree to free objects. The major tradeoff here is that we need to allocate
+   `true`, `false`, and `null` literal objects to have a uniform memory representation.
+   Though, otherwise, we do not require any management overhead.
+
+ - **Richards** uses `object_tracker` for simplicity.
+   It could use `shared_ptr` and when accounting for cyclic references that
+   could work, too. Naively freing the task list did not seem to work,
+   but I might have missed something.
+
+ - **Bounce** allocates everything statically, i.e., on the stack.
+
+ - **List** trivially uses the list structure for freeing the list.
+
+ - **Mandelbrot** does not allocate any data structures.
+
+ - **NBody** allocates everything statically, i.e., on the stack.
+
+ - **Permute** allocates an array dynamically, and frees it directly.
+   Since the benchmark holds the reference in a field, and allocates on
+   each iteration, the new/delete dance is needed to comply.
+
+ - **Queens** allocates its arrays dynamically, and frees them directly,
+   same as Permute.
+
+ - **Sieve** allocates everything statically, i.e., on the stack.
+
+ - **Storage** allocates its tree dynamically, and frees it from the root.
+
+ - **Towers** allocates the disks dynamically, which form a linked list,
+   that is used to free them once not needed anymore.
+
+General C++-isms:
+
+ - the benchmarks, where possible, can be in headers only to match the code
+   structure of other languages
+
+ - we use clang-tidy and clang-format
+
+ - use `std::array` for fixed-sized arrays
+
+ - use `const` where it is appropriate, but it won't really work with containers
+   and can be problematic for value classes
+
+ - use `auto` and `auto*` to make code more concise as recommended by linter,
+   for instance for allocations
+
+ - use annotations like `[[nodiscard]]` where indicated by the linter
+
+ - use modern C++-isms, for instance range loops and `.at()` instead of `[]` on `std::array`
+
+ - use initializer syntax for default values and member initializers lists when depending on constructor parameter
+
+ - prefer `int32_t`, `size_t` and similar to be more explicit about semantics
+   and size of value, plain `int`/`long` shouldn't be used
+
+ - avoid changing signatures for the sake of the compiler. It should do an
+   appropriate return-value optimization itself.
+
+ - use templates where Java uses generics
+
 
 ## Repository Structure
 

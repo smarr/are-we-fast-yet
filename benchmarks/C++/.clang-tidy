@@ -1,0 +1,65 @@
+---
+Checks:          '*,
+                  -modernize-use-trailing-return-type,
+                  -altera-id-dependent-backward-branch,
+                  -altera-unroll-loops,
+                  -bugprone-easily-swappable-parameters,
+                  -bugprone-exception-escape,
+                  -concurrency-mt-unsafe,
+                  -cppcoreguidelines-avoid-const-or-ref-data-members,
+                  -cppcoreguidelines-avoid-do-while,
+                  -cppcoreguidelines-avoid-magic-numbers,
+                  -cppcoreguidelines-avoid-non-const-global-variables
+                  -cppcoreguidelines-non-private-member-variables-in-classes,
+                  -cppcoreguidelines-pro-bounds-constant-array-index,
+                  -fuchsia-default-arguments-calls,
+                  -fuchsia-default-arguments-declarations,
+                  -fuchsia-statically-constructed-objects,
+                  -fuchsia-virtual-inheritance,
+                  -google-global-names-in-headers,
+                  -hicpp-named-parameter,
+                  -hicpp-use-auto,
+                  -llvm-header-guard,
+                  -llvm-include-order,
+                  -llvmlibc-*,
+                  -misc-no-recursion,
+                  -misc-non-private-member-variables-in-classes,
+                  -misc-use-anonymous-namespace,
+                  -readability-delete-null-pointer,
+                  -readability-function-cognitive-complexity,
+                  -readability-convert-member-functions-to-static,
+                  -readability-identifier-length,
+                  -readability-magic-numbers,
+                  -readability-named-parameter,
+                  -readability-simplify-boolean-expr,
+                  -cppcoreguidelines-special-member-functions,
+                  -hicpp-special-member-functions,
+                  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+                  -cppcoreguidelines-owning-memory,
+                  '
+WarningsAsErrors: ''
+HeaderFilterRegex: ''
+AnalyzeTemporaryDtors: false
+FormatStyle:     none
+User:            smarr
+CheckOptions:
+  llvm-else-after-return.WarnOnConditionVariables: 'false'
+  modernize-loop-convert.MinConfidence: reasonable
+  modernize-replace-auto-ptr.IncludeStyle: llvm
+  cert-str34-c.DiagnoseSignedUnsignedCharComparisons: 'false'
+  google-readability-namespace-comments.SpacesBeforeComments: '2'
+  cert-err33-c.CheckedFunctions: '::aligned_alloc;::asctime_s;::at_quick_exit;::atexit;::bsearch;::bsearch_s;::btowc;::c16rtomb;::c32rtomb;::calloc;::clock;::cnd_broadcast;::cnd_init;::cnd_signal;::cnd_timedwait;::cnd_wait;::ctime_s;::fclose;::fflush;::fgetc;::fgetpos;::fgets;::fgetwc;::fopen;::fopen_s;::fprintf;::fprintf_s;::fputc;::fputs;::fputwc;::fputws;::fread;::freopen;::freopen_s;::fscanf;::fscanf_s;::fseek;::fsetpos;::ftell;::fwprintf;::fwprintf_s;::fwrite;::fwscanf;::fwscanf_s;::getc;::getchar;::getenv;::getenv_s;::gets_s;::getwc;::getwchar;::gmtime;::gmtime_s;::localtime;::localtime_s;::malloc;::mbrtoc16;::mbrtoc32;::mbsrtowcs;::mbsrtowcs_s;::mbstowcs;::mbstowcs_s;::memchr;::mktime;::mtx_init;::mtx_lock;::mtx_timedlock;::mtx_trylock;::mtx_unlock;::printf_s;::putc;::putwc;::raise;::realloc;::remove;::rename;::scanf;::scanf_s;::setlocale;::setvbuf;::signal;::snprintf;::snprintf_s;::sprintf;::sprintf_s;::sscanf;::sscanf_s;::strchr;::strerror_s;::strftime;::strpbrk;::strrchr;::strstr;::strtod;::strtof;::strtoimax;::strtok;::strtok_s;::strtol;::strtold;::strtoll;::strtoul;::strtoull;::strtoumax;::strxfrm;::swprintf;::swprintf_s;::swscanf;::swscanf_s;::thrd_create;::thrd_detach;::thrd_join;::thrd_sleep;::time;::timespec_get;::tmpfile;::tmpfile_s;::tmpnam;::tmpnam_s;::tss_create;::tss_get;::tss_set;::ungetc;::ungetwc;::vfprintf;::vfprintf_s;::vfscanf;::vfscanf_s;::vfwprintf;::vfwprintf_s;::vfwscanf;::vfwscanf_s;::vprintf_s;::vscanf;::vscanf_s;::vsnprintf;::vsnprintf_s;::vsprintf;::vsprintf_s;::vsscanf;::vsscanf_s;::vswprintf;::vswprintf_s;::vswscanf;::vswscanf_s;::vwprintf_s;::vwscanf;::vwscanf_s;::wcrtomb;::wcschr;::wcsftime;::wcspbrk;::wcsrchr;::wcsrtombs;::wcsrtombs_s;::wcsstr;::wcstod;::wcstof;::wcstoimax;::wcstok;::wcstok_s;::wcstol;::wcstold;::wcstoll;::wcstombs;::wcstombs_s;::wcstoul;::wcstoull;::wcstoumax;::wcsxfrm;::wctob;::wctrans;::wctype;::wmemchr;::wprintf_s;::wscanf;::wscanf_s;'
+  cert-oop54-cpp.WarnOnlyIfThisHasSuspiciousField: 'false'
+  cert-dcl16-c.NewSuffixes: 'L;LL;LU;LLU'
+  google-readability-braces-around-statements.ShortStatementLines: '1'
+  modernize-pass-by-value.IncludeStyle: llvm
+  google-readability-namespace-comments.ShortNamespaceLines: '10'
+  modernize-loop-convert.MaxCopySize: '16'
+  modernize-use-nullptr.NullMacros: 'NULL'
+  llvm-qualified-auto.AddConstToQualified: 'false'
+  cppcoreguidelines-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic: 'true'
+  modernize-loop-convert.NamingStyle: CamelCase
+  llvm-else-after-return.WarnOnUnfixable: 'false'
+  google-readability-function-size.StatementThreshold: '800'
+...
+

@@ -19,6 +19,7 @@ jobs:
           - { name: Ruby, id: ruby, folder: Ruby }
           - { name: Lua, id: lua, folder: Lua }
           - { name: Python, id: python, folder: Python }
+          - { name: C++, id: cpp, folder: C++ }
 
     name: ${{ matrix.name }}
     steps:
@@ -38,6 +39,14 @@ jobs:
           git clone --depth 1 https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.14.0
           ~/.asdf/bin/asdf plugin add awfy https://github.com/smarr/asdf-awfy.git
         if: matrix.id == 'squeak' || matrix.id == 'pharo'
+
+      - name: Install Clang 17
+        run: |
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+          sudo add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-17 main"
+          sudo apt-get update
+          sudo apt-get install -y clang-17 clang-format-17 clang-tidy-17
+        if: matrix.id == 'cpp'
 
       - name: Install Crystal
         if: matrix.id == 'crystal'
