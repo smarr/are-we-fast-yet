@@ -71,7 +71,7 @@ requirements of the benchmarks.
 
 As a basic guideline, we use the following rules:
 
- - Code should pass a linter (if available). This gives some basic consistency
+ - Code should pass a linter, if available, to ensure some basic consistency
    with established rules. However, some language-specific rules impact
    comparability for an example see our [Ruby
    Rubocop](../benchmarks/Ruby/.rubocop.yml) settings.
@@ -85,7 +85,7 @@ As a basic guideline, we use the following rules:
    properties preferable.
 
  - Identical code structure is more important than 100% idiomatic code.
-   While prefer the use of idiomatic iteration constructs, in other cases it is
+   While we prefer idiomatic iteration constructs, in other cases it is
    required to use the same structure of methods and similar naming to
    prevent differences in the general code structure etc.
 
@@ -147,7 +147,7 @@ languages.
 
 ### C++
 
-With C++, we add support for the first language that does not have garbage
+With C++, we added support for the first language that does not have garbage
 collection, which comes with a new dimension of issues to be considered.
 
 Explicit Memory Management Rules:
@@ -170,9 +170,9 @@ Explicit Memory Management Rules:
    the allocations referenced by these fields should be freed before
    the end of a method, but the field should remain a field.
 
- - for arbitrary object graphs, as in DeltaBlue, memory/object_tracker.h can
+ - for arbitrary object graphs, as in DeltaBlue, `memory/object_tracker.h` can
    be used to free the objects when not needed.
-   The use of shared_ptr may also be appropriate, but did not work for DeltaBlue.
+   The use of `shared_ptr` may also be appropriate, but did not work for DeltaBlue.
 
 Memory Management Strategies Per Benchmarks:
 
@@ -183,7 +183,7 @@ Memory Management Strategies Per Benchmarks:
 
  - **DeltaBlue** uses `object_tracker`, since there are cyclic dependencies,
    but we can free the full setup once it's not needed.
-   A mix of `shared_ptr` and `weak_ptr` would probably also work.
+   A mix of `shared_ptr` and `weak_ptr` could probably also work.
 
  - **Havlak** manages memory explicitly by assigning ownership to specific
    classes. Specifically, the ControlFlowGraph owns the basic blocks and
@@ -197,8 +197,8 @@ Memory Management Strategies Per Benchmarks:
    Though, otherwise, we do not require any management overhead.
 
  - **Richards** uses `object_tracker` for simplicity.
-   It could use `shared_ptr` and accounting for cyclic references that would
-   work, too. A naive using of the task list did not seem to work,
+   It could use `shared_ptr` and when accounting for cyclic references that
+   could work, too. Naively freing the task list did not seem to work,
    but I might have missed something.
 
  - **Bounce** allocates everything statically, i.e., on the stack.
@@ -211,7 +211,7 @@ Memory Management Strategies Per Benchmarks:
 
  - **Permute** allocates an array dynamically, and frees it directly.
    Since the benchmark holds the reference in a field, and allocates on
-   each iteration, the new/delete dance is needed to comply
+   each iteration, the new/delete dance is needed to comply.
 
  - **Queens** allocates its arrays dynamically, and frees them directly,
    same as Permute.
@@ -230,7 +230,7 @@ General C++-isms:
 
  - we use clang-tidy and clang-format
 
- - use std::array for fixed-sized arrays
+ - use `std::array` for fixed-sized arrays
 
  - use `const` where it is appropriate, but it won't really work with containers
    and can be problematic for value classes
@@ -238,9 +238,9 @@ General C++-isms:
  - use `auto` and `auto*` to make code more concise as recommended by linter,
    for instance for allocations
 
- - use annotations like [[nodiscard]] where indicated by the linter
+ - use annotations like `[[nodiscard]]` where indicated by the linter
 
- - use modern C++-isms, for instance range loops and .at instead of [] on std::array
+ - use modern C++-isms, for instance range loops and `.at()` instead of `[]` on `std::array`
 
  - use initializer syntax for default values and member initializers lists when depending on constructor parameter
 
