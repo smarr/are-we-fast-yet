@@ -12,7 +12,9 @@ loader createMethods.
 ScriptConsole println: '== Safe and Exit'.
 
 starting := Smalltalk saveAs: 'AWFY_Pharo'.
-starting ifTrue: [ ^ self ].
+(starting respondsTo: #isImageStarting)
+    ifTrue: [ starting isImageStarting ifTrue: [ ^ self ] ]
+    ifFalse: [ starting ifTrue: [ ^ self ] ].
 
 runner hasPassed
   ifTrue:  [ Smalltalk exit: 0 ]
