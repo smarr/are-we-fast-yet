@@ -16,6 +16,9 @@ class Mandelbrot : public Benchmark {
 
  private:
   bool verify_result(int32_t result, int32_t inner_iterations) {
+    if (inner_iterations == 2000) {
+      return result == 187;
+    }
     if (inner_iterations == 750) {
       return result == 50;
     }
