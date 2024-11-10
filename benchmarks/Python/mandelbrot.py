@@ -59,6 +59,8 @@ class Mandelbrot(Benchmark):
             return result == 191
         if inner_iterations == 750:
             return result == 50
+        if inner_iterations == 50:
+            return result == 15
         if inner_iterations == 1:
             return result == 128
 
