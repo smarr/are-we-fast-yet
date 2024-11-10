@@ -30,6 +30,7 @@ public final class Havlak extends Benchmark {
   }
 
   public boolean verifyResult(final int[] r, final int innerIterations) {
+    if (innerIterations == 40000) { return r[0] == 121602 && r[1] == 5213; }
     if (innerIterations == 15000) { return r[0] == 46602 && r[1] == 5213; }
     if (innerIterations ==  1500) { return r[0] ==  6102 && r[1] == 5213; }
     if (innerIterations ==   150) { return r[0] ==  2052 && r[1] == 5213; }

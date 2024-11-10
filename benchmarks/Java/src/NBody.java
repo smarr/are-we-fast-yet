@@ -18,8 +18,23 @@ public final class NBody extends Benchmark {
   }
 
   private boolean verifyResult(final double result, final int innerIterations) {
+    if (innerIterations == 10000000) {
+      return result == -0.1690778416543499;
+    }
+    if (innerIterations == 1000000) {
+      return result == -0.16908618459850192;
+    }
     if (innerIterations == 250000) {
       return result == -0.1690859889909308;
+    }
+    if (innerIterations == 160000) {
+      return result == -0.16901416322875248;
+    }
+    if (innerIterations == 16000) {
+      return result == -0.16902211820216737;
+    }
+    if (innerIterations == 1600) {
+      return result == -0.16901124420350946;
     }
     if (innerIterations == 1) {
       return result == -0.16907495402506745;
