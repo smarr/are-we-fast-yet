@@ -163,8 +163,12 @@ class NBody(Benchmark):
 
     @staticmethod
     def _verify_result(result, inner_iterations):
+        if inner_iterations == 1000000:
+            return result == -0.16908618459850192
         if inner_iterations == 250000:
             return result == -0.1690859889909308
+        if inner_iterations == 160000:
+            return result == -0.16901416322875248
         if inner_iterations == 16000:
             return result == -0.16902211820216737
         if inner_iterations == 1600:

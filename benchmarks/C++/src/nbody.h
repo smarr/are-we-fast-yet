@@ -174,8 +174,20 @@ class NBodySystem {
 class NBody : public Benchmark {
  private:
   bool verify_result(double result, int32_t innerIterations) {
+    if (innerIterations == 1000000) {
+      return result == -0.16908618459850192;
+    }
     if (innerIterations == 250000) {
       return result == -0.1690859889909308;
+    }
+    if (innerIterations == 160000) {
+      return result == -0.16901416322875248;
+    }
+    if (innerIterations == 16000) {
+      return result == -0.16902211820216737;
+    }
+    if (innerIterations == 1600) {
+      return result == -0.16901124420350946;
     }
     if (innerIterations == 1) {
       return result == -0.16907495402506745;
