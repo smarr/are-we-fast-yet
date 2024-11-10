@@ -59,11 +59,23 @@ final class Mandelbrot extends Benchmark {
   }
 
   private boolean verifyResult(final int result, final int innerIterations) {
-    if (innerIterations == 500) {
-      return result == 191;
+    if (innerIterations == 2000) {
+      return result == 187;
     }
     if (innerIterations == 750) {
       return result == 50;
+    }
+    if (innerIterations == 500) {
+      return result == 191;
+    }
+    if (innerIterations == 250) {
+      return result == 15;
+    }
+    if (innerIterations == 150) {
+      return result == 240;
+    }
+    if (innerIterations == 50) {
+      return result == 15;
     }
     if (innerIterations == 1) {
       return result == 128;
