@@ -918,10 +918,7 @@ class CD : public Benchmark {
   }
 
   static bool verify_result(size_t actualCollisions, int32_t numAircrafts) {
-    if (numAircrafts == 1000) {
-      return actualCollisions == 14484;
-    }
-    if (numAircrafts == 500) {
+    if (numAircrafts >= 500) {
       return actualCollisions == 14484;
     }
     if (numAircrafts == 250) {
