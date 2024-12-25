@@ -163,33 +163,33 @@ class Vector:
             ij = (i + j) // 2
             dij = self._storage[ij]
 
-        if c.compare(di, dij) <= 0:
-            if c.compare(dij, dj) > 0:
-                self._swap(self._storage, j, ij)
-                dij = dj
-        else:
-            self._swap(self._storage, i, ij)
-            dij = di
+            if c.compare(di, dij) <= 0:
+                if c.compare(dij, dj) > 0:
+                    self._swap(self._storage, j, ij)
+                    dij = dj
+            else:
+                self._swap(self._storage, i, ij)
+                dij = di
 
-        if n > 3:
-            k = i
-            l = j - 1
+            if n > 3:
+                k = i
+                l = j - 1
 
-            while True:
-                while k <= l and c.compare(dij, self._storage[l]) <= 0:
-                    l -= 1
+                while True:
+                    while k <= l and c.compare(dij, self._storage[l]) <= 0:
+                        l -= 1
 
-                k += 1
-                while k <= l and c.compare(self._storage[k], dij) <= 0:
                     k += 1
+                    while k <= l and c.compare(self._storage[k], dij) <= 0:
+                        k += 1
 
-                if k > l:
-                    break
+                    if k > l:
+                        break
 
-                self._swap(self._storage, k, l)
+                    self._swap(self._storage, k, l)
 
-            self._sort(i, l, c)
-            self._sort(k, j, c)
+                self._sort(i, l, c)
+                self._sort(k, j, c)
 
     def _swap(self, storage, i, j):
         raise NotImplementedError()
