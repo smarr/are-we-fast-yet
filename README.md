@@ -1,22 +1,22 @@
 Are We Fast Yet? Comparing Language Implementations with Objects, Closures, Arrays, and Strings
 ===================================================================================================
 
-[![Build Status](https://travis-ci.org/smarr/are-we-fast-yet.svg?branch=master)](https://travis-ci.org/smarr/are-we-fast-yet)
+[![Build Status](https://github.com/smarr/are-we-fast-yet/actions/workflows/ci.yml/badge.svg)](https://github.com/smarr/are-we-fast-yet/actions/workflows/ci.yml)
 
 ## Goal
 
 The goal of this project is to assess whether a language implementation is
-highly optimizing and thus is able to remove the overhead of programming
-abstractions and frameworks. We are interested in comparing language
-implementations with each other and optimize their compilers as well as the
+*highly optimizing* and thus able to remove the overhead of programming
+abstractions and frameworks. We are interested in *comparing language
+implementations* (not _languages_!) with each other and optimize their compilers as well as the
 run-time representation of objects, closures, arrays, and strings.
 
 This is in contrast to other projects such as the [Computer Language Benchmark
 game][CLBG], which encourage finding the
 smartest possible way to express a problem in a language to achieve best
-performance.
+performance, an equally interesting but different problem.
 
-##### Approach
+#### Approach
 
 To allow us to compare the degree of optimization done by the implementations
 as well as the absolute performance achieved, we set the following basic rules:
@@ -34,25 +34,25 @@ For a description of the set of common language abstractions see [the *core*
 language](docs/core-language.md) document.
 
 The initial publication describing the project is [Cross-Language Compiler
-Benchmarking: Are We Fast Yet?][3] and can be cited as follows:
+Benchmarking: Are We Fast Yet?][3] and can be cited as ([bib file][28]):
 
   > Stefan Marr, Benoit Daloze, Hanspeter Mössenböck. 2016.
   > [Cross-Language Compiler Benchmarking: Are We Fast Yet?][4]
   > In Proceedings of the 12th Symposium on Dynamic Languages (DLS '16). ACM.
 
-##### Disclaimer: This is an Academic Project to Facilitate Research on Languages
+#### Disclaimer: This is an Academic Project to Facilitate Research on Languages
 
-To facilitate research, the goal of this project is specifically to assess the
+To facilitate our research, we want to be able assess the
 effectiveness of compiler and runtime optimizations for a common set of
 abstractions between languages. As such, many other relevant aspects such as
 GC, standard libraries, and language-specific abstractions are not included
-here. However, by focusing on one aspect, we know exactly what is compared.
+here. However, by focusing on this one aspect, we know exactly what is compared.
 
 ## Current Status
 
-Currently, we have 14 benchmarks ported to seven different languages, including
-[Crystal], Java, JavaScript, Python, Ruby, [SOM Smalltalk][SOM], and [SOMns][1] (a
-[Newspeak implementation][2]).
+Currently, we have 14 benchmarks ported to ten different languages, including
+C++, [Crystal], Java, JavaScript, Lua, Python, Ruby, [SOM Smalltalk][SOM], [SOMns][1] (a
+[Newspeak implementation][2]), and Smalltalk (Squeak/Pharo).
 
 The graph below shows some older results for
 different implementations after warmup, to ensure peak performance is reported:
@@ -61,9 +61,6 @@ different implementations after warmup, to ensure peak performance is reported:
 last update 2016-06-20](docs/figures/all-langs-overview-1.png?raw=true)
 
 A detailed overview of the results is in [docs/performance.md](docs/performance.md).
-
-For a performance comparison over time, see the [timeline view on awfy-speed.stefan-marr.de](http://awfy-speed.stefan-marr.de/timeline/).
-The runs are managed at [smarr/awfy-runs](https://github.com/smarr/awfy-runs).
 
 The benchmarks are listed below. A detailed analysis including metrics for the
 benchmarks is in [docs/metrics.md](docs/metrics.md).
@@ -127,10 +124,10 @@ language](docs/core-language.md) to ensure that we can compare results.
 A list of languages we would definitely be interested in is on the [issues
 tracker](https://github.com/smarr/are-we-fast-yet/issues?q=is%3Aissue+is%3Aopen+label%3A%22contribution+request%22).
 
-This includes languages like Dart, Scala, Python, and Go. Other interesting
+This includes languages like Dart, Scala, and Go. Other interesting
 ports could be for Racket, Clojure, or CLOS, but might require more carefully
-thought-out rules for porting. Similarly, ports to C++ or Rust need additional
-care to account for the absence of a garbage collector.
+thought-out rules for porting. Similarly, a port to Rust need additional
+care to account for the absence of a garbage collector and should be guided by our C++ port.
 
 ## Getting the Code and Running Benchmarks
 
@@ -141,10 +138,6 @@ To obtain the code, benchmarks, and documentation, checkout the git repository:
 ```bash
 git clone --depth 1 https://github.com/smarr/are-we-fast-yet.git
 ```
-
-Note that the repository relies on git submodules, which won't be loaded at that
-point. They are only needed to run the full range of language implementations
-and experiments.
 
 #### Run Benchmarks for a Specific Language
 
@@ -171,27 +164,13 @@ for each benchmark.
 
 ### Using the Full Benchmark Setup
 
-The setup and building of benchmarks and VMs is automated via
-`implementations/setup.sh`. Benchmark are configured and executed with the
+Each port of the benchmarks comes with a `build.sh` file, which either runs any
+build steps needed, or with `./build.sh style` runs code style checks.
+Though, the repository does not contain setup steps for the various languages anymore.
+We abandoned the idea of maintaining a full setup, since it took too much work.
+
+Benchmark are configured and executed with the
 [ReBench](https://github.com/smarr/ReBench) tool.
-
-To execute the benchmarks on all supported VMs, the following implementations
-are expected to be already available on the benchmark machine:
-
- - [Crystal](http://crystal-lang.org/docs/installation/index.html)
- - [Node.js](https://nodejs.org/en/download/)
- - [Ruby](https://www.ruby-lang.org/en/documentation/installation/)
- - GraalVM, expected to be available in `implementations/graalvm`.
-   Please see [implementations/graalvm/README.md](implementations/graalvm/README.md)
-   for details.
-
-This repository uses git submodules for some languages implementations. To
-build these, additional tools are required. These include Ant, Make, Python,
-and a C/C++ compiler.
-
-The `implementations` folder contains wrapper scripts such as `mri-23.sh`,
-`java8.sh`, and `node.sh` to execute all language implementations in a common
-way by ReBench.
 
 ReBench can be installed via the Python package manager pip:
 
@@ -199,7 +178,8 @@ ReBench can be installed via the Python package manager pip:
 pip install ReBench
 ```
 
-The benchmarks can be executed with the following command in the root folder:
+The benchmarks can be executed with the following command in the root folder,
+assuming they have be previously built:
 
 ```
 rebench -d --without-nice rebench.conf all
@@ -215,13 +195,41 @@ benchmarks.
 
 ## Academic Work using this benchmark suite
 
+- [Improving Native-Image Startup Performance](https://www.dag.inf.usi.ch/wp-content/uploads/cgo25.pdf)  
+  M. Basso, A. Prokopec, A. Rosà, W. Binder.
+  Proceedings of the 2025 IEEE/ACM International Symposium on Code Generation and Optimization, CGO 2025.
+
+- [Interactive Programming for Microcontrollers by Offloading Dynamic Incremental Compilation](https://doi.org/10.1145/3679007.3685062)  
+  F. Mochizuki, T. Yamazaki, S. Chiba.
+  Proceedings of the 21st ACM SIGPLAN International Conference on Managed Programming Languages and Runtimes, MPLR 2024.
+
+- [Towards Realistic Results for Instrumentation-Based Profilers for JIT-Compiled Systems](https://stefan-marr.de/downloads/mplr24-burchell-et-al-towards-realistic-results-for-instrumentation-based-profilers-for-jit-compiled-systems.pdf)  
+  H. Burchell, O. Larose, S. Marr.
+  Proceedings of the 21st ACM SIGPLAN International Conference on Managed Programming Languages and Runtimes, MPLR 2024.
+
+- [Taking a Closer Look: An Outlier-Driven Approach to Compilation-Time Optimization](https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ECOOP.2024.20)  
+  F. Huemer, D. Leopoldseder, A. Prokopec, R. Mosaner, H. Mössenböck.
+  Proceedings of the 38th European Conference on Object-Oriented Programming, ECOOP 2024.
+
+- [Live Objects All The Way Down: Removing the Barriers between Applications and Virtual Machines](https://stefan-marr.de/downloads/prog23-pimas-et-al-live-objects-all-the-way-down.pdf)  
+  J. E. Pimás, S. Marr, D. Garbervetsky.
+  The Art, Science, and Engineering of Programming, Programming'24.
+
+- [Don’t Trust Your Profiler: An Empirical Study on the Precision and Accuracy of Java Profilers](https://stefan-marr.de/downloads/mplr23-burchell-et-al-dont-trust-your-profiler.pdf)  
+  H. Burchell, O. Larose, S. Kaleba, S. Marr.
+  Proceedings of the 20th ACM SIGPLAN International Conference on Managed Programming Languages and Runtimes, MPLR'23,
+
+- [AST vs. Bytecode: Interpreters in the Age of Meta-Compilation](https://stefan-marr.de/downloads/oopsla23-larose-et-al-ast-vs-bytecode-interpreters-in-the-age-of-meta-compilation.pdf)  
+  O. Larose, S. Kaleba, H. Burchell, S. Marr.
+  Proceedings of the ACM on Programming Languages, OOPSLA'23
+
 - [Collecting Cyclic Garbage across Foreign Function Interfaces: Who Takes the Last Piece of Cake?][19]  
   T. Yamazaki, T. Nakamaru, R. Shioya, T. Ugawa, S. Chiba.
   Proceedings of the ACM on Programming Languages, PLDI 2023.
 
 - [Simple Object Machine Implementation in a Functional Programming Language][20]  
   Filip Říha. Bachelor's Thesis, CTU Prague, 2023.
-  
+
 - [Supporting multi-scope and multi-level compilation in a
    meta-tracing just-in-time compiler][23]  
   Y. Izawa. PhD Dissertation. Tokyo Institute of Technology, 2023.
@@ -326,6 +334,7 @@ benchmarks.
  [25]: https://stefan-marr.de/downloads/acmsac23-huang-et-al-optimizing-the-order-of-bytecode-handlers-in-interpreters-using-a-genetic-algorithm.pdf
  [26]: https://drops.dagstuhl.de/opus/volltexte/2019/10796/pdf/LIPIcs-ECOOP-2019-4.pdf
  [27]: http://www.jot.fm/issues/issue_2022_02/article2.pdf
+ [28]: https://github.com/smarr/are-we-fast-yet/blob/master/CITATION.bib
 
  [CD]:        https://www.cs.purdue.edu/sss/projects/cdx/
  [CDjs]:      https://github.com/WebKit/webkit/tree/master/PerformanceTests/JetStream/cdjs

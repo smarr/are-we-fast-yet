@@ -1,0 +1,45 @@
+cff-version: 1.2.0
+title: >-
+  Are We Fast Yet? Comparing Language Implementations with
+  Objects, Closures, Arrays, and Strings
+message: >-
+  If you use these benchmarks, or a port to another
+  language, please cite this project, and the DLS'16 paper.
+type: software
+authors:
+  - given-names: Stefan
+    family-names: Marr
+    orcid: 'https://orcid.org/0000-0001-9059-5180'
+  - given-names: Benoit
+    family-names: Daloze
+repository-code: 'https://github.com/smarr/are-we-fast-yet'
+abstract: >-
+  The goal of this project is to assess whether a language
+  implementation is *highly optimizing* and thus able to
+  remove the overhead of programming abstractions and
+  frameworks. We are interested in *comparing language
+  implementations* with each other and optimize their
+  compilers as well as the run-time representation of
+  objects, closures, arrays, and strings.
+preferred-citation:
+  type: article
+  authors:
+  - family-names: Marr
+    given-names: Stefan
+    orcid: 'https://orcid.org/0000-0001-9059-5180'
+  - family-names: Daloze
+    given-names: Benoit
+  - family-names: Mössenböck
+    given-names: Hanspeter
+    orcid: 'https://orcid.org/0000-0001-7706-7308'
+  doi: "10.1145/2989225.2989232"
+  journal: "Proceedings of the 12th Symposium on Dynamic Languages"
+  month: 11
+  start: 120 # First page number
+  end: 131 # Last page number
+  title: "Cross-Language Compiler Benchmarking---Are We Fast Yet?"
+  year: 2016
+identifiers:
+  - type: url
+    value: 'https://github.com/smarr/are-we-fast-yet/blob/master/CITATION.bib'
+    description: "Bibtex entry for the paper describing the benchmarks"
