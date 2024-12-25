@@ -195,6 +195,34 @@ benchmarks.
 
 ## Academic Work using this benchmark suite
 
+- [Improving Native-Image Startup Performance](https://www.dag.inf.usi.ch/wp-content/uploads/cgo25.pdf)  
+  M. Basso, A. Prokopec, A. Rosà, W. Binder.
+  Proceedings of the 2025 IEEE/ACM International Symposium on Code Generation and Optimization, CGO 2025.
+
+- [Interactive Programming for Microcontrollers by Offloading Dynamic Incremental Compilation](https://doi.org/10.1145/3679007.3685062)  
+  F. Mochizuki, T. Yamazaki, S. Chiba.
+  Proceedings of the 21st ACM SIGPLAN International Conference on Managed Programming Languages and Runtimes, MPLR 2024.
+
+- [Towards Realistic Results for Instrumentation-Based Profilers for JIT-Compiled Systems](https://stefan-marr.de/downloads/mplr24-burchell-et-al-towards-realistic-results-for-instrumentation-based-profilers-for-jit-compiled-systems.pdf)  
+  H. Burchell, O. Larose, S. Marr.
+  Proceedings of the 21st ACM SIGPLAN International Conference on Managed Programming Languages and Runtimes, MPLR 2024.
+
+- [Taking a Closer Look: An Outlier-Driven Approach to Compilation-Time Optimization](https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ECOOP.2024.20)  
+  F. Huemer, D. Leopoldseder, A. Prokopec, R. Mosaner, H. Mössenböck.
+  Proceedings of the 38th European Conference on Object-Oriented Programming, ECOOP 2024.
+
+- [Live Objects All The Way Down: Removing the Barriers between Applications and Virtual Machines](https://stefan-marr.de/downloads/prog23-pimas-et-al-live-objects-all-the-way-down.pdf)  
+  J. E. Pimás, S. Marr, D. Garbervetsky.
+  The Art, Science, and Engineering of Programming, Programming'24.
+
+- [Don’t Trust Your Profiler: An Empirical Study on the Precision and Accuracy of Java Profilers](https://stefan-marr.de/downloads/mplr23-burchell-et-al-dont-trust-your-profiler.pdf)  
+  H. Burchell, O. Larose, S. Kaleba, S. Marr.
+  Proceedings of the 20th ACM SIGPLAN International Conference on Managed Programming Languages and Runtimes, MPLR'23,
+
+- [AST vs. Bytecode: Interpreters in the Age of Meta-Compilation](https://stefan-marr.de/downloads/oopsla23-larose-et-al-ast-vs-bytecode-interpreters-in-the-age-of-meta-compilation.pdf)  
+  O. Larose, S. Kaleba, H. Burchell, S. Marr.
+  Proceedings of the ACM on Programming Languages, OOPSLA'23
+
 - [Collecting Cyclic Garbage across Foreign Function Interfaces: Who Takes the Last Piece of Cake?][19]  
   T. Yamazaki, T. Nakamaru, R. Shioya, T. Ugawa, S. Chiba.
   Proceedings of the ACM on Programming Languages, PLDI 2023.
