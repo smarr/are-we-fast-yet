@@ -637,7 +637,7 @@ function havlak:verify_result (result, inner_iterations)
         return result[1] ==  1605 and result[2] == 5213
     else
         print(('No verification result for %d found'):format(inner_iterations))
-        print(('Result is: %d, %d'):format(result[0], result[1]))
+        print(('Result is: %d, %d'):format(result[1], result[2]))
         return false
     end
 end
