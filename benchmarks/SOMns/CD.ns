@@ -245,7 +245,7 @@ class CDSuite usingPlatform: platform andHarness: harness = (
     public remove: key = (
       | x y z xParent |
       z:: findNode: key.
-      z isNil ifTrue: [ ^ nil ].
+      z ifNil: [ ^ nil ].
 
       (* Y is the node to be unlinked from the tree. *)
       (z left isNil or: [ z right isNil ])
@@ -266,9 +266,9 @@ class CDSuite usingPlatform: platform andHarness: harness = (
         ifFalse: [
           xParent:: y parent ].
 
-      y parent isNil
-        ifTrue:  [ root:: x ]
-        ifFalse: [
+      y parent
+        ifNil:  [ root:: x ]
+        ifNotNil: [
           y == y parent left
             ifTrue:  [ y parent left: x ]
             ifFalse: [ y parent right: x ] ].
@@ -303,13 +303,13 @@ class CDSuite usingPlatform: platform andHarness: harness = (
     public at: key = (
       | node |
       node:: findNode: key.
-      node isNil ifTrue: [ ^ nil ].
+      node ifNil: [ ^ nil ].
       ^ node value
     )
 
     public forEach: block = (
       | current |
-      root isNil ifTrue: [ ^ self ].
+      root ifNil: [ ^ self ].
       current:: treeMinimum: root.
       [ current notNil ] whileTrue: [
         block value: (Entry key: current key value: current value).
@@ -351,9 +351,8 @@ class CDSuite usingPlatform: platform andHarness: harness = (
 
       z:: Node key: key value: value.
       z parent: y.
-      y isNil
-        ifTrue: [ root:: z ]
-        ifFalse: [
+      y ifNil: [ root:: z ]
+        ifNotNil: [
           (key compareTo: y key) < 0
             ifTrue:  [ y left: z ]
             ifFalse: [ y right: z ] ].
@@ -372,9 +371,9 @@ class CDSuite usingPlatform: platform andHarness: harness = (
 
       (* Link x's parent to y *)
       y parent: x parent.
-      x parent isNil
-        ifTrue: [ root:: y ]
-        ifFalse: [
+      x parent
+        ifNil: [ root:: y ]
+        ifNotNil: [
           x == x parent left ifTrue:  [ x parent left: y ]
                              ifFalse: [ x parent right: y ] ].
 
@@ -394,9 +393,9 @@ class CDSuite usingPlatform: platform andHarness: harness = (
 
       (* Link y's parent to x *)
       x parent: y parent.
-      y parent isNil
-        ifTrue: [ root:: x ]
-        ifFalse: [
+      y parent
+        ifNil:    [ root:: x ]
+        ifNotNil: [
           y == y parent left
             ifTrue: [ y parent left: x ]
             ifFalse: [ y parent right: x ] ].
@@ -521,7 +520,7 @@ class CDSuite usingPlatform: platform andHarness: harness = (
         newPosition:: aircraft position.
         seen at: aircraft callsign put: true.
 
-        oldPosition isNil ifTrue: [
+        oldPosition ifNil: [
           (* Treat newly introduced aircraft as if they were stationary *)
           oldPosition:: newPosition ].
 
@@ -609,7 +608,7 @@ class CDSuite usingPlatform: platform andHarness: harness = (
     private put: motion and: voxel into: voxelMap = (
       | array |
       array:: voxelMap at: voxel.
-      array isNil ifTrue: [
+      array ifNil: [
         array:: Vector new.
         voxelMap at: voxel put: array ].
       array append: motion

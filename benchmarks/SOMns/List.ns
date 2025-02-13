@@ -74,7 +74,7 @@ class ListSuite usingPlatform: platform andHarness: harness = (
       public next ::= nil.
     |
   ) (
-    public length = ( next isNil ifTrue: [ ^ 1 ] ifFalse: [ ^ (1 + next length) ] )
+    public length = ( next ifNil: [ ^ 1 ] ifNotNil: [ ^ (1 + next length) ] )
   )
 
   public newInstance = ( ^ List new )

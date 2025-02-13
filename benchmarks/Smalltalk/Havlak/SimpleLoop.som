@@ -30,7 +30,7 @@ SimpleLoop = (
     basicBlocks := SomIdentitySet new.
     children    := SomIdentitySet new.
 
-    aBB notNil ifTrue: [ basicBlocks add: aBB ]
+    aBB ifNotNil: [ basicBlocks add: aBB ]
   )
 
   counter = ( ^ counter )

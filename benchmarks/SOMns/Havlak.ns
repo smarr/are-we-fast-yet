@@ -81,9 +81,9 @@ class Havlak usingPlatform: platform andHarness: harness = (
     public createNode: name = (
       | node |
 
-      (basicBlockMap at: name) notNil
-        ifTrue:  [ node:: basicBlockMap at: name ]
-        ifFalse: [
+      (basicBlockMap at: name)
+        ifNotNil: [ node:: basicBlockMap at: name ]
+        ifNil: [
           node:: BasicBlock new: name.
           basicBlockMap at: name put: node ].
 
@@ -130,7 +130,7 @@ class Havlak usingPlatform: platform andHarness: harness = (
     public calculateNestingLevel = (
       loops forEach: [:liter |
         liter isRoot ifFalse: [
-          liter parent isNil ifTrue: [
+          liter parent ifNil: [
             liter parent: root ] ] ].
 
       calculateNestingLevelRec: root depth: 0
@@ -160,7 +160,7 @@ class Havlak usingPlatform: platform andHarness: harness = (
     private basicBlocks = IdentitySet new.
     public  children    = IdentitySet new.
   |
-    bb notNil ifTrue: [ basicBlocks add: bb ]
+    bb ifNotNil: [ basicBlocks add: bb ]
   )(
     public addNode: bb = (
       basicBlocks add: bb
@@ -372,9 +372,9 @@ class Havlak usingPlatform: platform andHarness: harness = (
         type   at: w put: #BBNonHeader.
 
         nodeW:: (nodes at: w) bb.
-        nodeW isNil
-          ifTrue:  [ type at: w put: #BBDead ]
-          ifFalse: [ processEdges: nodeW w: w ] ]
+        nodeW
+          ifNil:    [ type at: w put: #BBDead ]
+          ifNotNil: [ processEdges: nodeW w: w ] ]
     )
 
     private processEdges: nodeW w: w = (
@@ -390,7 +390,7 @@ class Havlak usingPlatform: platform andHarness: harness = (
 
     public findLoops = (
       | size |
-      cfg startBasicBlock isNil ifTrue: [ ^ self ].
+      cfg startBasicBlock ifNil: [ ^ self ].
 
       size:: cfg numNodes.
 
@@ -419,7 +419,7 @@ class Havlak usingPlatform: platform andHarness: harness = (
         nodePool:: Vector new.
         nodeW:: (nodes at: w) bb.
 
-        nodeW notNil ifTrue: [
+        nodeW ifNotNil: [
           | workList |
           stepD: w nodePool: nodePool.
 
@@ -468,9 +468,9 @@ class Havlak usingPlatform: platform andHarness: harness = (
         header at: node dfsNumber put: w.
         node union: (nodes at: w).
 
-        node loop notNil
-          ifTrue: [ node loop parent: loop ]
-          ifFalse: [ loop addNode: node bb ] ]
+        node loop
+          ifNotNil: [ node loop parent: loop ]
+          ifNil: [ loop addNode: node bb ] ]
     )
 
     private stepD: w nodePool: nodePool = (
