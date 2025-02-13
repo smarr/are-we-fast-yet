@@ -410,7 +410,7 @@ class CDSuite usingPlatform: platform andHarness: harness = (
       x:: anX.
       xParent:: anXParent.
 
-      x ~= root and: [ x isNil or: [ x color = #black ]] whileTrue: [
+      (x ~= root and: [ x isNil or: [ x color = #black ]]) whileTrue: [
         x == xParent left
           ifTrue: [
             | w |
