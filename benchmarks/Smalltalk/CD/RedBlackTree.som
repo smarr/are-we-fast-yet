@@ -42,7 +42,7 @@ RedBlackTree = (
         ifTrue: [
           | y |
           y := x parent parent right.
-          (y notNil and: [y color = #red])
+          (y notNil and: [ y color = #red ])
             ifTrue: [
               "Case 1"
               x parent color: #black.

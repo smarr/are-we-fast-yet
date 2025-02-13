@@ -127,8 +127,8 @@ SomDictionary = (
     loHead := nil. loTail := nil.
     hiHead := nil. hiTail := nil.
     current := head.
-    
-    [current notNil] whileTrue: [
+
+    [ current notNil ] whileTrue: [
       (current hash & oldStorage length) = 0
         ifTrue: [
           loTail
