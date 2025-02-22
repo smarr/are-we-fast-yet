@@ -52,7 +52,7 @@ Node = (
   successor = (
     | x y |
     x := self.
-    x right notNil ifTrue: [
+    x right ifNotNil: [
       ^ RedBlackTree treeMinimum: x right ].
 
     y := x parent.

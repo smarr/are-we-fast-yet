@@ -21,9 +21,9 @@ THE SOFTWARE.
 "
 ListElement = (
   | val next |
-  
-  length = ( next isNil ifTrue: [ ^ 1 ] ifFalse: [ ^ (1 + next length) ] )
-  
+
+  length = ( next ifNil: [ ^ 1 ] ifNotNil: [ ^ (1 + next length) ] )
+
   val    = ( ^ val )
   val: n = ( val := n )
   

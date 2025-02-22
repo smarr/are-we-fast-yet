@@ -51,7 +51,7 @@ class ListSuite usingPlatform: platform andHarness: harness = (
       xTail:: x. yTail:: y.
       [ yTail isNil ]
         whileFalse: [
-          xTail isNil ifTrue: [ ^ true ].
+          xTail ifNil: [ ^ true ].
           xTail:: xTail next.
           yTail:: yTail next ].
 
@@ -74,7 +74,7 @@ class ListSuite usingPlatform: platform andHarness: harness = (
       public next ::= nil.
     |
   ) (
-    public length = ( next isNil ifTrue: [ ^ 1 ] ifFalse: [ ^ (1 + next length) ] )
+    public length = ( next ifNil: [ ^ 1 ] ifNotNil: [ ^ (1 + next length) ] )
   )
 
   public newInstance = ( ^ List new )

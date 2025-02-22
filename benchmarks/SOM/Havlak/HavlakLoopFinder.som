@@ -70,9 +70,9 @@ HavlakLoopFinder = (
       type   at: w put: #BBNonHeader.
       
       nodeW := (nodes at: w) bb.
-      nodeW isNil
-        ifTrue:  [ type at: w put: #BBDead ]
-        ifFalse: [ self processEdges: nodeW w: w ] ]
+      nodeW
+        ifNil:    [ type at: w put: #BBDead ]
+        ifNotNil: [ self processEdges: nodeW w: w ] ]
   )
   
   processEdges: nodeW w: w = (
@@ -88,8 +88,8 @@ HavlakLoopFinder = (
   
   findLoops = (
     | size |
-    cfg startBasicBlock isNil ifTrue: [ ^ self ].
-    
+    cfg startBasicBlock ifNil: [ ^ self ].
+
     size := cfg numNodes.
     
     nonBackPreds removeAll.
@@ -116,8 +116,8 @@ HavlakLoopFinder = (
       | nodePool nodeW |
       nodePool := Vector new.
       nodeW := (nodes at: w) bb.
-      
-      nodeW notNil ifTrue: [
+
+      nodeW ifNotNil: [
         | workList |
         self stepD: w nodePool: nodePool.
         
@@ -165,10 +165,10 @@ HavlakLoopFinder = (
     nodePool forEach: [:node |
       header at: node dfsNumber put: w.
       node union: (nodes at: w).
-      
-      node loop notNil
-        ifTrue: [ node loop parent: loop ]
-        ifFalse: [ loop addNode: node bb ] ]
+
+      node loop
+        ifNotNil: [ node loop parent: loop ]
+        ifNil: [ loop addNode: node bb ] ]
   )
   
   stepD: w nodePool: nodePool = (
