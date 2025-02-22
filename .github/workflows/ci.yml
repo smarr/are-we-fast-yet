@@ -13,7 +13,7 @@ jobs:
           - { name: SOM, id: som, folder: SOM }
           - { name: Crystal, id: crystal, folder: Crystal }
           - { name: JavaScript, id: js, folder: JavaScript }
-          - { name: SOMns, id: somns, folder: SOMns, ubuntu: ubuntu-20.04 }
+          - { name: SOMns, id: somns, folder: SOMns, ubuntu: ubuntu-24.04 }
           - { name: Pharo, id: pharo, folder: Smalltalk }
           - { name: Squeak, id: squeak, folder: Smalltalk }
           - { name: Ruby, id: ruby, folder: Ruby }
@@ -119,9 +119,11 @@ jobs:
       - name: Install SOMns
         run: |
           source benchmarks/script.inc
-          load_git_repo https://github.com/smarr/SOMns.git SOMns
+          load_git_repo https://github.com/smarr/SOMns.git SOMns dev
           pushd SOMns
           git submodule update --recursive --init
+          export JAVA_HOME=$JAVA_HOME_17_X64
+          echo "JAVA_HOME=$JAVA_HOME" >> "$GITHUB_ENV"
           ant compile
         if: matrix.id == 'somns'
 
