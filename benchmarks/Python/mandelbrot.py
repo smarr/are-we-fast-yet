@@ -55,10 +55,16 @@ class Mandelbrot(Benchmark):
 
     @staticmethod
     def _verify_result(result, inner_iterations):
-        if inner_iterations == 500:
-            return result == 191
         if inner_iterations == 750:
             return result == 50
+        if inner_iterations == 500:
+            return result == 191
+        if inner_iterations == 250:
+            return result == 15
+        if inner_iterations == 150:
+            return result == 240
+        if inner_iterations == 50:
+            return result == 15
         if inner_iterations == 1:
             return result == 128
 
