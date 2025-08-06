@@ -336,8 +336,8 @@ benchmarks.
  [27]: http://www.jot.fm/issues/issue_2022_02/article2.pdf
  [28]: https://github.com/smarr/are-we-fast-yet/blob/master/CITATION.bib
 
- [CD]:        https://www.cs.purdue.edu/sss/projects/cdx/
- [CDjs]:      https://github.com/WebKit/webkit/tree/master/PerformanceTests/JetStream/cdjs
+ [CD]:        https://sss.cs.purdue.edu/projects/cdx/
+ [CDjs]:      https://github.com/WebKit/webkit/tree/main/PerformanceTests/JetStream/cdjs
  [DeltaBlue]: http://www.wolczko.com/java_benchmarking.html
  [Havlak]:    https://days2011.scala-lang.org/sites/days2011/files/ws3-1-Hundt.pdf
  [Json]:      https://github.com/ralfstx/minimal-json
