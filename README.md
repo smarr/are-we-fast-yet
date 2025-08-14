@@ -314,26 +314,26 @@ benchmarks.
  [5]: https://2016.splashcon.org/event/splash-2016-oopsla-efficient-and-thread-safe-objects-for-dynamically-typed-languages
  [6]: https://stefan-marr.de/downloads/manlang17-grimmer-et-al-applying-optimizations-for-dynamically-typed-languages-to-java.pdf
  [7]: https://stefan-marr.de/downloads/dls17-pimas-et-al-garbage-collection-and-efficiency-in-dynamic-metacircular-runtimes.pdf
- [8]: http://stefan-marr.de/downloads/tse18-chari-et-al-fully-reflective-execution-environments.pdf
- [9]: http://stefan-marr.de/downloads/manlang18-aumayr-et-al-efficient-and-deterministic-record-and-replay-for-actor-languages.pdf
- [10]: http://stefan-marr.de/downloads/oopsla18-daloze-et-al-parallelization-of-dynamic-languages-synchronizing-built-in-collections.pdf
- [11]: http://stefan-marr.de/downloads/grace18-marr-et-al-newspeak-and-truffle-a-platform-for-grace.pdf
- [12]: https://pure.tudelft.nl/portal/en/publications/specializing-a-metainterpreter(bc672ab9-d2bb-42d9-b67f-3f051868e3d7).html
+ [8]: https://stefan-marr.de/downloads/tse18-chari-et-al-fully-reflective-execution-environments.pdf
+ [9]: https://stefan-marr.de/downloads/manlang18-aumayr-et-al-efficient-and-deterministic-record-and-replay-for-actor-languages.pdf
+ [10]: https://stefan-marr.de/downloads/oopsla18-daloze-et-al-parallelization-of-dynamic-languages-synchronizing-built-in-collections.pdf
+ [11]: https://stefan-marr.de/downloads/grace18-marr-et-al-newspeak-and-truffle-a-platform-for-grace.pdf
+ [12]: https://doi.org/10.1145/3237009.3237018
  [13]: https://github.com/densh/talks/blob/master/2018-06-16-interflow-preprint-v1.pdf
- [14]: http://janvitek.org/pubs/dls18.pdf
+ [14]: https://janvitek.org/pubs/dls18.pdf
  [15]: https://fniephaus.com/2019/mplr19-graalsqueak.pdf
- [16]: http://janvitek.org/pubs/oopsla20-cd.pdf
- [17]: http://www.inf.puc-rio.br/~hgualandi/papers/Gualandi-2022-SCP.pdf
+ [16]: https://janvitek.org/pubs/oopsla20-cd.pdf
+ [17]: https://doi.org/10.1016/j.cola.2022.101151
  [18]: https://www.jstage.jst.go.jp/article/ipsjjip/30/0/30_679/_pdf
- [19]: https://dl.acm.org/doi/abs/10.1145/3591244
+ [19]: https://doi.org/10.1145/3591244
  [20]: https://dspace.cvut.cz/bitstream/handle/10467/109352/F8-BP-2023-Riha-Filip-thesis.pdf
  [21]: https://stefan-marr.de/downloads/dls22-kaleba-et-al-analyzing-the-run-time-call-site-behavior-of-ruby-applications.pdf
- [22]: https://dl.acm.org/doi/10.1145/3459898.3463903
+ [22]: https://doi.org/10.1145/3459898.3463903
  [23]: https://prg.is.titech.ac.jp/wp-content/uploads/2023/03/izawa-phd-dissertation.pdf
  [24]: https://stefan-marr.de/downloads/vmil22-ugawa-et-al-profile-guided-offline-optimization-of-hidden-class-graphs.pdf
  [25]: https://stefan-marr.de/downloads/acmsac23-huang-et-al-optimizing-the-order-of-bytecode-handlers-in-interpreters-using-a-genetic-algorithm.pdf
  [26]: https://drops.dagstuhl.de/opus/volltexte/2019/10796/pdf/LIPIcs-ECOOP-2019-4.pdf
- [27]: http://www.jot.fm/issues/issue_2022_02/article2.pdf
+ [27]: https://www.jot.fm/issues/issue_2022_02/article2.pdf
  [28]: https://github.com/smarr/are-we-fast-yet/blob/master/CITATION.bib
 
  [CD]:        https://sss.cs.purdue.edu/projects/cdx/
@@ -341,7 +341,7 @@ benchmarks.
  [DeltaBlue]: http://www.wolczko.com/java_benchmarking.html
  [Havlak]:    https://days2011.scala-lang.org/sites/days2011/files/ws3-1-Hundt.pdf
  [Json]:      https://github.com/ralfstx/minimal-json
- [Richards]:  http://www.cl.cam.ac.uk/~mr10/Bench.html
- [SOM]:       http://som-st.github.io/
+ [Richards]:  https://www.cl.cam.ac.uk/~mr10/Bench.html
+ [SOM]:       https://som-st.github.io/
  [CLBG]:      https://benchmarksgame-team.pages.debian.net/benchmarksgame/
- [Crystal]:   http://crystal-lang.org/
+ [Crystal]:   https://crystal-lang.org/
