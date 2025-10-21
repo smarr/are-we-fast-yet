@@ -167,7 +167,7 @@ class _Parser:
             self._read_array_element(array)
 
         if not self._read_char("]"):
-            self._expected("',' or ']'")
+            raise self._expected("',' or ']'")
 
         return array
 
