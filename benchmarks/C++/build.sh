@@ -24,6 +24,8 @@ if [ -z "$CXX" ]; then
 
   # trying to avoid bugs, CXX should be used at this point
   unset CMD
+else
+  CMD_VERSION="-${CXX##*-}"
 fi
 
 if [[ $CXX == *"clang"* ]]; then
