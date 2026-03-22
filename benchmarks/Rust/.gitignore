@@ -1,0 +1,33 @@
+# Only allow specificly allowed things
+# Can see what's ignored by this with:  git status --ignored
+
+# Deny everything by default
+*
+
+# Allow directories (directories with no tracked files don't get committed regardless)
+!**/
+
+# General git related root files
+!/.gitignore
+!/.gitattributes
+!/.gitmodules
+
+# Editor config files
+!/.editorconfig
+
+# License files
+!LICENSE*
+!COPYING*
+
+# Documentation files
+!*.md
+
+# Rust Build files
+!/Cargo.toml
+!/Cargo.lock
+!/rustfmt.toml
+
+# Rust Source files
+!/src/**/*.rs
+!/test/**/*.rs
+!/benches/**/*.rs
