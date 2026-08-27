@@ -53,6 +53,7 @@ public static class Harness
       {nameof(Bounce), typeof(Bounce)},
       {nameof(CD), typeof(CD)},
       {nameof(DeltaBlue), typeof(DeltaBlue)},
+      {nameof(Havlak), typeof(Havlak)},
       {nameof(Json), typeof(Json)},
       {nameof(List), typeof(List)},
       {nameof(Mandelbrot), typeof(Mandelbrot)},
