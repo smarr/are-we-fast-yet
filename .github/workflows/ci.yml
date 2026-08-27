@@ -53,12 +53,12 @@ jobs:
         if: matrix.id == 'csharp'
         uses: actions/setup-dotnet@v2
         with:
-          dotnet-version: '6.x.x'
+          dotnet-version: '10.x.x'
 
       - name: Install ReSharper
         if: matrix.id == 'csharp'
         run: |
-          (cd benchmarks/CSharp && dotnet new tool-manifest && dotnet tool install JetBrains.ReSharper.GlobalTools)
+          (cd benchmarks/CSharp && dotnet tool restore)
 
       - name: Install Crystal
         if: matrix.id == 'crystal'
