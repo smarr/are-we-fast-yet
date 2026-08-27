@@ -12,7 +12,7 @@ jobs:
           - { name: Java, id: java, folder: Java }
           - { name: SOM, id: som, folder: SOM }
           - { name: Crystal, id: crystal, folder: Crystal }
-          - { name: C#, id: csharp, folder: C# }
+          - { name: C#, id: csharp, folder: CSharp }
           - { name: JavaScript, id: js, folder: JavaScript }
           - { name: SOMns, id: somns, folder: SOMns, ubuntu: ubuntu-24.04 }
           - { name: Pharo, id: pharo, folder: Smalltalk }
