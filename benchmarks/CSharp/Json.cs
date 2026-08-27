@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace Benchmarks;
 
 public class Json : Benchmark
@@ -579,8 +581,13 @@ public class Json : Benchmark
     private int index;
     private int line;
     private int column;
-    private string? current;
-    private string captureBuffer;
+    // Ported from Java's `String current`, but kept as a char so that scanning a
+    // character does not allocate a one-char string per input character. We read
+    // `input[index]` directly and slice captured tokens with AsSpan, so only the
+    // final token strings are allocated (as in the Java reference).
+    private char current;
+    private bool isEndOfText;
+    private readonly StringBuilder captureBuffer;
     private int captureStart;
 
     public Parser(string str)
@@ -590,8 +597,9 @@ public class Json : Benchmark
       line = 1;
       captureStart = -1;
       column = 0;
-      current = null;
-      captureBuffer = "";
+      current = '\0';
+      isEndOfText = false;
+      captureBuffer = new StringBuilder();
     }
 
     public JsonValue Parse()
@@ -612,29 +620,29 @@ public class Json : Benchmark
     {
       switch (current)
       {
-        case "n":
+        case 'n':
           return ReadNull();
-        case "t":
+        case 't':
           return ReadTrue();
-        case "f":
+        case 'f':
           return ReadFalse();
-        case "\"":
+        case '"':
           return ReadString();
-        case "[":
+        case '[':
           return ReadArray();
-        case "{":
+        case '{':
           return ReadObject();
-        case "-":
-        case "0":
-        case "1":
-        case "2":
-        case "3":
-        case "4":
-        case "5":
-        case "6":
-        case "7":
-        case "8":
-        case "9":
+        case '-':
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
           return ReadNumber();
         default:
           throw Expected("value");
@@ -646,7 +654,7 @@ public class Json : Benchmark
       Read();
       JsonArray array = new JsonArray();
       SkipWhiteSpace();
-      if (ReadChar("]"))
+      if (ReadChar(']'))
       {
         return array;
       }
@@ -656,9 +664,9 @@ public class Json : Benchmark
         SkipWhiteSpace();
         array.Add(ReadValue());
         SkipWhiteSpace();
-      } while (ReadChar(","));
+      } while (ReadChar(','));
 
-      if (!ReadChar("]"))
+      if (!ReadChar(']'))
       {
         throw Expected("',' or ']'");
       }
@@ -671,7 +679,7 @@ public class Json : Benchmark
       Read();
       JsonObject obj = new JsonObject();
       SkipWhiteSpace();
-      if (ReadChar("}"))
+      if (ReadChar('}'))
       {
         return obj;
       }
@@ -681,7 +689,7 @@ public class Json : Benchmark
         SkipWhiteSpace();
         String name = ReadName();
         SkipWhiteSpace();
-        if (!ReadChar(":"))
+        if (!ReadChar(':'))
         {
           throw Expected("':'");
         }
@@ -689,9 +697,9 @@ public class Json : Benchmark
         SkipWhiteSpace();
         obj.Add(name, ReadValue());
         SkipWhiteSpace();
-      } while (ReadChar(","));
+      } while (ReadChar(','));
 
-      if (!ReadChar("}"))
+      if (!ReadChar('}'))
       {
         throw Expected("',' or '}'");
       }
@@ -701,7 +709,7 @@ public class Json : Benchmark
 
     private String ReadName()
     {
-      if (current != null && !current.Equals("\""))
+      if (!isEndOfText && current != '"')
       {
         throw Expected("name");
       }
@@ -712,32 +720,32 @@ public class Json : Benchmark
     private JsonValue ReadNull()
     {
       Read();
-      ReadRequiredChar("u");
-      ReadRequiredChar("l");
-      ReadRequiredChar("l");
+      ReadRequiredChar('u');
+      ReadRequiredChar('l');
+      ReadRequiredChar('l');
       return JsonLiteral.NULL;
     }
 
     private JsonValue ReadTrue()
     {
       Read();
-      ReadRequiredChar("r");
-      ReadRequiredChar("u");
-      ReadRequiredChar("e");
+      ReadRequiredChar('r');
+      ReadRequiredChar('u');
+      ReadRequiredChar('e');
       return JsonLiteral.TRUE;
     }
 
     private JsonValue ReadFalse()
     {
       Read();
-      ReadRequiredChar("a");
-      ReadRequiredChar("l");
-      ReadRequiredChar("s");
-      ReadRequiredChar("e");
+      ReadRequiredChar('a');
+      ReadRequiredChar('l');
+      ReadRequiredChar('s');
+      ReadRequiredChar('e');
       return JsonLiteral.FALSE;
     }
 
-    private void ReadRequiredChar(string ch)
+    private void ReadRequiredChar(char ch)
     {
       if (!ReadChar(ch))
       {
@@ -754,9 +762,9 @@ public class Json : Benchmark
     {
       Read();
       StartCapture();
-      while (current != null && !current.Equals("\""))
+      while (!isEndOfText && current != '"')
       {
-        if (current != null && current.Equals("\\"))
+        if (current == '\\')
         {
           PauseCapture();
           ReadEscape();
@@ -778,25 +786,25 @@ public class Json : Benchmark
       Read();
       switch (current)
       {
-        case "\"":
-        case "/":
-        case "\\":
-          captureBuffer += current;
+        case '"':
+        case '/':
+        case '\\':
+          captureBuffer.Append(current);
           break;
-        case "b":
-          captureBuffer += "\b";
+        case 'b':
+          captureBuffer.Append('\b');
           break;
-        case "f":
-          captureBuffer += "\f";
+        case 'f':
+          captureBuffer.Append('\f');
           break;
-        case "n":
-          captureBuffer += "\n";
+        case 'n':
+          captureBuffer.Append('\n');
           break;
-        case "r":
-          captureBuffer += "\r";
+        case 'r':
+          captureBuffer.Append('\r');
           break;
-        case "t":
-          captureBuffer += "\t";
+        case 't':
+          captureBuffer.Append('\t');
           break;
         default:
           throw Expected("valid escape sequence");
@@ -808,14 +816,14 @@ public class Json : Benchmark
     private JsonValue ReadNumber()
     {
       StartCapture();
-      ReadChar("-");
-      string? firstDigit = current;
+      ReadChar('-');
+      char firstDigit = current;
       if (!ReadDigit())
       {
         throw Expected("digit");
       }
 
-      if (firstDigit != null && !firstDigit.Equals("0"))
+      if (firstDigit != '0')
       {
         while (ReadDigit())
         {
@@ -829,7 +837,7 @@ public class Json : Benchmark
 
     private bool ReadFraction()
     {
-      if (!ReadChar("."))
+      if (!ReadChar('.'))
       {
         return false;
       }
@@ -848,14 +856,14 @@ public class Json : Benchmark
 
     private bool ReadExponent()
     {
-      if (!ReadChar("e") && !ReadChar("E"))
+      if (!ReadChar('e') && !ReadChar('E'))
       {
         return false;
       }
 
-      if (!ReadChar("+"))
+      if (!ReadChar('+'))
       {
-        ReadChar("-");
+        ReadChar('-');
       }
 
       if (!ReadDigit())
@@ -870,9 +878,9 @@ public class Json : Benchmark
       return true;
     }
 
-    private bool ReadChar(string ch)
+    private bool ReadChar(char ch)
     {
-      if (current != null && !current.Equals(ch))
+      if (!isEndOfText && current != ch)
       {
         return false;
       }
@@ -902,7 +910,7 @@ public class Json : Benchmark
 
     private void Read()
     {
-      if ("\n".Equals(current))
+      if (current == '\n')
       {
         line += 1;
         column = 0;
@@ -911,11 +919,12 @@ public class Json : Benchmark
       index += 1;
       if (index < input.Length)
       {
-        current = input.Substring(index, 1);
+        current = input[index];
       }
       else
       {
-        current = null;
+        current = '\0';
+        isEndOfText = true;
       }
     }
 
@@ -926,24 +935,27 @@ public class Json : Benchmark
 
     private void PauseCapture()
     {
-      int end = current == null ? index : index - 1;
-      captureBuffer += input.Substring(captureStart, end + 1 - captureStart);
+      int end = isEndOfText ? index : index - 1;
+      captureBuffer.Append(input.AsSpan(captureStart, end + 1 - captureStart));
       captureStart = -1;
     }
 
     private string EndCapture()
     {
-      int end = current == null ? index : index - 1;
+      int end = isEndOfText ? index : index - 1;
+      int length = end + 1 - captureStart;
       string captured;
-      if ("".Equals(captureBuffer))
+      if (captureBuffer.Length == 0)
       {
-        captured = input.Substring(captureStart, end + 1 - captureStart);
+        // Fast path: the whole token is contiguous in the input, so allocate the
+        // token string once (mirrors Java's single substring allocation).
+        captured = input.Substring(captureStart, length);
       }
       else
       {
-        captureBuffer += input.Substring(captureStart, end + 1 - captureStart);
-        captured = captureBuffer;
-        captureBuffer = "";
+        captureBuffer.Append(input.AsSpan(captureStart, length));
+        captured = captureBuffer.ToString();
+        captureBuffer.Clear();
       }
 
       captureStart = -1;
@@ -967,26 +979,26 @@ public class Json : Benchmark
 
     private bool IsWhiteSpace()
     {
-      return " ".Equals(current) || "\t".Equals(current) || "\n".Equals(current) || "\r".Equals(current);
+      return current == ' ' || current == '\t' || current == '\n' || current == '\r';
     }
 
     private bool IsDigit()
     {
-      return "0".Equals(current) ||
-             "1".Equals(current) ||
-             "2".Equals(current) ||
-             "3".Equals(current) ||
-             "4".Equals(current) ||
-             "5".Equals(current) ||
-             "6".Equals(current) ||
-             "7".Equals(current) ||
-             "8".Equals(current) ||
-             "9".Equals(current);
+      return current == '0' ||
+             current == '1' ||
+             current == '2' ||
+             current == '3' ||
+             current == '4' ||
+             current == '5' ||
+             current == '6' ||
+             current == '7' ||
+             current == '8' ||
+             current == '9';
     }
 
     private bool IsEndOfText()
     {
-      return current == null;
+      return isEndOfText;
     }
   }
 }
