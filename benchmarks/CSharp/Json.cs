@@ -911,7 +911,7 @@ public class Json : Benchmark
       index += 1;
       if (index < input.Length)
       {
-        current = input.Substring(index, index + 1);
+        current = input.Substring(index, 1);
       }
       else
       {
@@ -927,7 +927,7 @@ public class Json : Benchmark
     private void PauseCapture()
     {
       int end = current == null ? index : index - 1;
-      captureBuffer += input.Substring(captureStart, end + 1);
+      captureBuffer += input.Substring(captureStart, end + 1 - captureStart);
       captureStart = -1;
     }
 
@@ -937,11 +937,11 @@ public class Json : Benchmark
       string captured;
       if ("".Equals(captureBuffer))
       {
-        captured = input.Substring(captureStart, end + 1);
+        captured = input.Substring(captureStart, end + 1 - captureStart);
       }
       else
       {
-        captureBuffer += input.Substring(captureStart, end + 1);
+        captureBuffer += input.Substring(captureStart, end + 1 - captureStart);
         captured = captureBuffer;
         captureBuffer = "";
       }
