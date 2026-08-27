@@ -12,6 +12,7 @@ jobs:
           - { name: Java, id: java, folder: Java }
           - { name: SOM, id: som, folder: SOM }
           - { name: Crystal, id: crystal, folder: Crystal }
+          - { name: C#, id: csharp, folder: CSharp }
           - { name: JavaScript, id: js, folder: JavaScript }
           - { name: SOMns, id: somns, folder: SOMns, ubuntu: ubuntu-24.04 }
           - { name: Pharo, id: pharo, folder: Smalltalk }
@@ -47,6 +48,17 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y clang-17 clang-format-17 clang-tidy-17
         if: matrix.id == 'cpp'
+
+      - name: Install C#
+        if: matrix.id == 'csharp'
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '10.x.x'
+
+      - name: Install ReSharper
+        if: matrix.id == 'csharp'
+        run: |
+          (cd benchmarks/CSharp && dotnet tool restore)
 
       - name: Install Crystal
         if: matrix.id == 'crystal'
@@ -137,6 +149,7 @@ jobs:
       - name: Build
         run: |
           benchmarks/${{ matrix.folder }}/build.sh ${{ matrix.id }}
+          find . -name Benchmarks
 
       - name: ReBench Test Run
         run: |

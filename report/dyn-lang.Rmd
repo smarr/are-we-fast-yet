@@ -7,9 +7,6 @@ This report was generated on `r Sys.time()`.
 if (Sys.getenv("RSTUDIO") == "1") { setwd("/Users/smarr/Projects/awfy-runs/awfy/report") }
 source("scripts/libraries.R", chdir=TRUE)
 
-load_and_install_if_necessary("ragg")
-library(ragg)
-
 data <- rbind(
   # main run, one invocation of everything
   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1518"),
@@ -22,12 +19,9 @@ data <- rbind(
   load_data_url("https://rebench.stefan-marr.de/rebenchdb/get-exp-data/1543")) %>%
   factorize_result()
 
-# ragg_png = function(..., res = 192) {
-#   ragg::agg_png(..., res = res, units = "in")
-# }
 opts_chunk$set(dev = 'png',
                #fig.ext = 'png',
-               #dpi = 120,
+               dpi = 150,
                fig.retina = 2,
                dev.args=list(pointsize=10),
                echo = FALSE,
@@ -113,6 +107,32 @@ vms_jit <- c(
   "TruffleSOM-bc-HotspotCE-jit-main"
 )
 
+vms_dyn_int <- c(
+  "Node-int",
+  "GraalJS-NativeEE-int",
+  
+  "CPython-int",
+  "GraalPython-NativeEE-int", 
+  
+  "CRuby-int",
+  "TruffleRuby-NativeEE-int",
+ 
+  "TruffleSOM-ast-NativeEE-int-main",
+  "TruffleSOM-ast-NativeEE-int-super"
+)
+
+vms_dyn_jit <- c(
+  "Node-jit",
+  "GraalJS-HotspotEE-jit",
+  
+  "PyPy-jit",
+  "GraalPython-HotspotEE-jit", 
+  
+  "TruffleRuby-HotspotEE-jit",
+  
+  "TruffleSOM-ast-HotspotCE-jit-main"
+)
+
 assert_that(all(sort(c(vms_int, vms_jit)) == sort(vms_all))) ## sanity check
 
 # vm_colors <- brewer.pal(length(vms_all), "Paired")  # to replace scale_fill_brewer(type = "qual", palette = "Paired")
@@ -123,9 +143,29 @@ names(vm_colors) <- vm_names
 names(vm_colors_light) <- vm_names
 
 warmup_jit_iteration <- 100
-baseline_vm_peak <- "Java8-C2-jit"
-baseline_vm_int <- "Java8-int"
-baseline_vm_first <- "Java8-C2-jit"
+baseline_vm_peak <- "Node-jit"
+baseline_vm_int <- "Node-int"
+baseline_vm_first <- "Node-jit"
+
+vm_colors[["Node.js 17.5"]]                       <- "#725000"
+vm_colors[["Graal.js EE 22.0.0.2 Hotspot"]]       <- "#c4a000"
+vm_colors[["Node.js 17.5 jitless"]]               <- "#edd400"
+vm_colors[["Graal.js EE 22.0.0.2 Native Int"]]    <- "#fce94f"
+
+vm_colors[["PyPy 3.8 7.3.7"]]                     <- "#2a5703"
+vm_colors[["GraalPython EE 22.0.0.2 Hotspot"]]    <- "#4e9a06"
+vm_colors[["CPython 3.10"]]                       <- "#73d216"
+vm_colors[["GraalPython EE 22.0.0.2 Native Int"]] <- "#b7f774"
+
+vm_colors[["Ruby 3.1.0"]]                         <- "#3465a4"
+vm_colors[["TruffleRuby EE 22.0.0.2 Hotspot"]]    <- "#204a87"
+vm_colors[["TruffleRuby EE 22.0.0.2 Native Int"]] <- "#97c4f0"
+
+vm_colors[["TruffleSOM AST Hotspot CE base"]]     <- "#a40000"
+vm_colors[["TruffleSOM AST Native Int EE base"]]  <- "#ef2929"
+vm_colors[["TruffleSOM AST Native Int EE super"]] <- "#f78787"
+
+
 
 results_peak <- data %>%
   compute_all(
@@ -259,13 +299,10 @@ it gives us relatively stable results for most language implementations.
 
 ##### Just-in-Time Compiling Language Implementations
 
-The following set of language implementations reaches the performance of Java on
-our set of benchmarks within a factor of 2 to 3 on average. To allow for a more
-detailed assessment of these implementations, we exclude slower
-ones from the following plot.
+The baseline here is `r vm_names[baseline_vm_peak]`.
 
 ```{r jit-overview, fig.width=15, fig.height=5}
-overview_box_plot(results_peak$stats$bench, vms = vms_jit,
+overview_box_plot(results_peak$stats$bench, vms = vms_dyn_jit,
   x_breaks = c(1, 2, 3, 4, 5, 6, 8, 10, 12, 20, 30, 40))
 ```
 
@@ -276,27 +313,8 @@ quite a bit different. Here we use `r vm_names[baseline_vm_int]` as baseline.
 
 ```{r int-overview, fig.width=8, fig.height=6}
 overview_box_plot(
-  results_int$stats$bench,
+  results_int$stats$bench, vms = vms_dyn_int,
   x_breaks = c(0.33333, 0.5, 0.75, 1, 1.33333, 2, 3, 5, 10, 15, 20))
-```
-
-##### First Iteration
-
-Looking at interpreter performance, the plot looks
-quite a bit different. Here we use `r vm_names[baseline_vm_int]` as baseline.
-
-```{r first-overview, fig.width=8, fig.height=6}
-overview_box_plot(
-  results_first$stats$bench,
-  x_breaks = c(0.7, 0.75, 1, 1.33333, 2, 3, 5, 10, 15, 20, 50, 100, 500, 1000, 250))
-```
-
-###### Java Performance
-
-```{r java-overview, fig.width=8, fig.height=1.5}
-overview_box_plot(results_int$stats$bench,
-                  c("Java-int",  "Java17-C2-jit",
-                    "Java8-int", "Java8-C2-jit"))
 ```
 
 ###### JavaScript Performance
@@ -380,48 +398,6 @@ html.tabular(t)
 <a id="all-benchmarks"></a>
 
 The following plots show results for each of the benchmarks.
-
-##### With JIT Compiler
-
-```{r jit-benchmarks, fig.width=8, fig.height=5}
-plot_benchmarks_speedup_for_vms(results_peak$normalized, vms_jit)
-```
-
-###### Truffle Impl. Only
-
-```{r jit-truffle-benchmarks, fig.width=8, fig.height=5}
-plot_benchmarks_speedup_for_vms(results_peak$normalized,
-                                c("GraalJS-HotspotEE-jit", 
-                                  "GraalPython-HotspotEE-jit",
-                                  "TruffleRuby-HotspotEE-jit", 
-                                  "TruffleSOM-ast-HotspotCE-jit-main"
-))
-```
-
-##### Interpreter Only
-
-```{r int-benchmarks, fig.width=8, fig.height=5}
-plot_benchmarks_speedup_for_vms(results_int$normalized, vms_int)
-```
-
-###### Truffle Impl. Only
-
-```{r int-truffle-benchmarks, fig.width=8, fig.height=5}
-plot_benchmarks_speedup_for_vms(results_int$normalized, c(
-  "GraalJS-NativeEE-int",
-  "GraalPython-NativeEE-int", 
-  "TruffleRuby-NativeEE-int",
-  "TruffleSOM-ast-NativeEE-int-main"
-))
-```
-
-##### Java+JavaScript Interpreter Only
-
-```{r java-js-benchmarks, fig.width=8, fig.height=2.2}
-plot_benchmarks_speedup_for_vms(
-  results_int$normalized,
-  c("Java-int", "Java8-int", "Node-int", "GraalJS-NativeEE-int"))
-```
 
 ##### SOM Optimizations
 

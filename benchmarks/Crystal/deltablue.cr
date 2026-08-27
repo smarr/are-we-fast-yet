@@ -10,23 +10,23 @@
 #
 # Port of deltablue.py, as documented below, to Ruby.
 # Stefan Marr, 2014-04-28
-# 
+#
 # Was: deltablue.py
 # =================
-# 
+#
 # Ported for the PyPy project.
 # Contributed by Daniel Lindsley
-# 
+#
 # This implementation of the DeltaBlue benchmark was directly ported
 # from the `V8's source code`_, which was in turn derived
 # from the Smalltalk implementation by John Maloney and Mario
 # Wolczko. The original Javascript implementation was licensed under the GPL.
-# 
+#
 # It's been updated in places to be more idiomatic to Python (for loops over
 # collections, a couple magic methods, ``OrderedCollection`` being a list & things
 # altering those collections changed to the builtin methods) but largely retains
 # the layout & logic from the original. (Ugh.)
-# 
+#
 # .. _`V8's source code`: (http://code.google.com/p/v8/source/browse/branches/bleeding_edge/benchmarks/deltablue.js)
 require "./benchmark"
 require "./som"
@@ -360,12 +360,12 @@ SYM_ABSOLUTE_WEAKEST   = Sym.new(7)
 
 class Strength
   getter :arithmetic_value
-  
+
   @arithmetic_value : Int32
 
   def initialize(strength_sym : Sym)
     @symbolic_value   = strength_sym
-    @arithmetic_value = STRENGHT_TABLE.at(strength_sym).not_nil!
+    @arithmetic_value = STRENGTH_TABLE.at(strength_sym).not_nil!
   end
 
   def same_as(strength : Strength)
@@ -411,17 +411,17 @@ class Strength
 
   def self.create_strength_constants
     constants = IdentityDictionary(Sym, Strength).new
-    STRENGHT_TABLE.keys.each { | strength_sym |
+    STRENGTH_TABLE.keys.each { | strength_sym |
       constants.at_put(strength_sym, self.new(strength_sym))
     }
     constants
   end
 
-  STRENGHT_TABLE     = create_strength_table
-  STRENGHT_CONSTANTS = create_strength_constants
+  STRENGTH_TABLE     = create_strength_table
+  STRENGTH_CONSTANTS = create_strength_constants
 
   def self.of(sym) : Strength
-    STRENGHT_CONSTANTS.at(sym).not_nil!
+    STRENGTH_CONSTANTS.at(sym).not_nil!
   end
 end
 
@@ -696,7 +696,7 @@ class Variable
   property :walk_strength
   property :stay
   property :mark
-  
+
   @determined_by : AbstractConstraint?
   @walk_strength : Strength
 

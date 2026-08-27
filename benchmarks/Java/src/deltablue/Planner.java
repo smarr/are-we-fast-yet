@@ -64,7 +64,7 @@ public final class Planner {
   // Extract a plan for resatisfaction starting from the outputs of
   // the given constraints, usually a set of input constraints.
   //
-  protected Plan extractPlanFromConstraints(final Vector<AbstractConstraint> constraints) {
+  private Plan extractPlanFromConstraints(final Vector<AbstractConstraint> constraints) {
     Vector<AbstractConstraint> sources = new Vector<>();
 
     constraints.forEach(c -> {
@@ -93,7 +93,7 @@ public final class Planner {
   // any constraint.
   // Assume: sources are all satisfied.
   //
-  protected Plan makePlan(final Vector<AbstractConstraint> sources) {
+  private Plan makePlan(final Vector<AbstractConstraint> sources) {
     int mark = newMark();
     Plan plan = new Plan();
     Vector<AbstractConstraint> todo = sources;
@@ -123,7 +123,7 @@ public final class Planner {
     }
   }
 
-  protected void addConstraintsConsumingTo(final Variable v, final Vector<AbstractConstraint> coll) {
+  private void addConstraintsConsumingTo(final Variable v, final Vector<AbstractConstraint> coll) {
     AbstractConstraint determiningC = v.getDeterminedBy();
 
     v.getConstraints().forEach(c -> {
@@ -192,7 +192,7 @@ public final class Planner {
   // Update the walkabout strengths and stay flags of all variables
   // downstream of the given constraint. Answer a collection of
   // unsatisfied constraints sorted in order of decreasing strength.
-  protected Vector<AbstractConstraint> removePropagateFrom(final Variable out) {
+  private Vector<AbstractConstraint> removePropagateFrom(final Variable out) {
     Vector<AbstractConstraint> unsatisfied = new Vector<>();
 
     out.setDeterminedBy(null);
