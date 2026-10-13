@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <StartupObject>Benchmarks.Harness</StartupObject>
+    
   </PropertyGroup>
 
 </Project>

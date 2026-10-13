@@ -52,3 +52,4 @@ __pycache__
 /report/*.png
 /benchmarks/Java/*.xml
 .Rproj.user
+.vs/

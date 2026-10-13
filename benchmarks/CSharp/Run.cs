@@ -2,68 +2,87 @@ using System.Diagnostics;
 
 namespace Benchmarks;
 
-sealed class Run
+internal sealed class Run
 {
-  private int iterations;
-  private int innerIterations;
-  private long total;
-  private readonly string name;
+    private int _iterations;
+    private int _innerIterations;
+    private long _total;
+    private readonly string _name;
+    private readonly Func<Benchmark> _benchmarkSuite;
 
-  public Run(string name)
-  {
-    this.name = name;
-    iterations = 1;
-    innerIterations = 1;
-  }
-
-  public void RunBenchmark(Benchmark benchmarkInstance)
-  {
-    Console.WriteLine("Starting " + benchmarkInstance + " benchmark ...");
-    DoRuns(benchmarkInstance);
-    ReportBenchmark();
-    Console.WriteLine();
-  }
-
-  private void DoRuns(Benchmark bench)
-  {
-    for (var i = 0; i < iterations; i++)
+    public Run(string name)
     {
-      Measure(bench);
-    }
-  }
-
-  private void Measure(Benchmark bench)
-  {
-    var sw = new Stopwatch();
-    sw.Start();
-    if (!bench.InnerBenchmarkLoop(innerIterations))
-    {
-      throw new Exception("Benchmark failed with incorrect result");
+        _name = name;
+        _benchmarkSuite = GetSuiteFromName(name);
+        _iterations = 1;
+        _innerIterations = 1;
     }
 
-    var runTime = (long) (sw.Elapsed.TotalMilliseconds * 1000);
-    PrintResult(runTime);
-    total += runTime;
-  }
+    private static Func<Benchmark> GetSuiteFromName(string name)
+    {
+        return name switch
+        {
+            "Bounce" => static () => new Bounce(),
+            "CD" => static () => new CD(),
+            "DeltaBlue" => static () => new DeltaBlue(),
+            "Havlak" => static () => new Havlak(),
+            "Json" => static () => new Json(),
+            "List" => static () => new List(),
+            "Mandelbrot" => static () => new Mandelbrot(),
+            "NBody" => static () => new NBody(),
+            "Permute" => static () => new Permute(),
+            "Queens" => static () => new Queens(),
+            "Richards" => static () => new Richards(),
+            "Sieve" => static () => new Sieve(),
+            "Storage" => static () => new Storage(),
+            "Towers" => static () => new Towers(),
+            _ => throw new ArgumentException($"No benchmark found with the name: {name}")
+        };
+    }
 
-  private void PrintResult(long runTime)
-  {
-    Console.WriteLine($"{name}: iterations=1 runtime: {runTime}us");
-  }
+    public void RunBenchmark()
+    {
+        Console.WriteLine($"Starting {_name} benchmark ...");
 
-  private void ReportBenchmark()
-  {
-    var avgTimeUs = total / iterations;
-    Console.WriteLine($"{name}: iterations={iterations} average: {avgTimeUs}us total: {total}us\n");
-  }
+        DoRuns(_benchmarkSuite());
+        ReportBenchmark();
 
-  public void SetIterations(int value)
-  {
-    iterations = value;
-  }
+        Console.WriteLine();
+    }
 
-  public void SetInnerIterations(int value)
-  {
-    this.innerIterations = value;
-  }
+    private void Measure(Benchmark bench)
+    {
+        Stopwatch sw = new();
+        sw.Start();
+        if (!bench.InnerBenchmarkLoop(_innerIterations))
+        {
+            throw new InvalidOperationException("Benchmark failed with incorrect result");
+        }
+
+        long runTime = (long)(sw.Elapsed.TotalMilliseconds * 1000);
+        PrintResult(runTime);
+        _total += runTime;
+    }
+
+    private void DoRuns(Benchmark bench)
+    {
+        for (int i = 0; i < _iterations; i++)
+        {
+            Measure(bench);
+        }
+    }
+
+    private void ReportBenchmark()
+    {
+        long avgTimeUs = _total / _iterations;
+        Console.WriteLine($"{_name}: iterations={_iterations} average: {avgTimeUs}us total: {_total}us\n");
+    }
+
+    private void PrintResult(long runTime) => Console.WriteLine($"{_name}: iterations=1 runtime: {runTime}us");
+
+    public void PrintTotal() => Console.WriteLine($"Total Runtime: {_total}us");
+
+    public void SetIterations(int value) => _iterations = value;
+
+    public void SetInnerIterations(int value) => _innerIterations = value;
 }

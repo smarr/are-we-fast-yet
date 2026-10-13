@@ -1,43 +1,40 @@
 namespace Benchmarks;
 
-public class Permute : Benchmark
+internal class Permute : Benchmark
 {
-  private int count;
-  private int[] v = Array.Empty<int>();
+    private int _count;
+    private int[] _v = null!;
 
-  public override object Execute()
-  {
-    count = 0;
-    v = new int[6];
-    _permute(6);
-    return count;
-  }
-
-  private void _permute(int n)
-  {
-    count++;
-    if (n != 0)
+    public override object Execute()
     {
-      int n1 = n - 1;
-      _permute(n1);
-      for (int i = n1; i >= 0; i--)
-      {
-        _swap(n1, i);
-        _permute(n1);
-        _swap(n1, i);
-      }
+        _count = 0;
+        _v = new int[6];
+        CalculatePermutations(6);
+        return _count;
     }
-  }
 
-  private void _swap(int i, int j)
-  {
-    int tmp = v[i];
-    v[i] = v[j];
-    v[j] = tmp;
-  }
+    private void CalculatePermutations(int n)
+    {
+        _count++;
+        if (n != 0)
+        {
+            int n1 = n - 1;
+            CalculatePermutations(n1);
+            for (int i = n1; i >= 0; i--)
+            {
+                Swap(n1, i);
+                CalculatePermutations(n1);
+                Swap(n1, i);
+            }
+        }
+    }
 
-  public override bool VerifyResult(object result)
-  {
-    return (int) result == 8660;
-  }
+    private void Swap(int i, int j)
+    {
+        int tmp = _v[i];
+        _v[i] = _v[j];
+        _v[j] = tmp;
+    }
+
+    public override bool VerifyResult(object result) => (int)result == 8660;
 }

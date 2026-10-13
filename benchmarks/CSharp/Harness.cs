@@ -1,77 +1,43 @@
 namespace Benchmarks;
 
-public static class Harness
+internal sealed class Harness
 {
-  public static void Main(string[] args)
-  {
-    if (args.Length == 0)
+    private static Run ProcessArguments(string[] args)
     {
-      PrintHelp();
-      return;
+        Run run = new(args[0]);
+
+        if (args.Length > 1)
+        {
+            run.SetIterations(int.Parse(args[1]));
+            if (args.Length > 2)
+            {
+                run.SetInnerIterations(int.Parse(args[2]));
+            }
+        }
+
+        return run;
     }
 
-    var benchmarkName = args[0];
-    var numberOfIterations = ArgumentOrDefault(1, 1);
-    var numberOfInnerIterations = ArgumentOrDefault(2, 1);
-
-    var benchmarkInstance = CreateBenchmarkInstance(benchmarkName);
-    if (benchmarkInstance == null)
+    private static void PrintUsage()
     {
-      PrintHelp();
-      Console.WriteLine();
-      Console.WriteLine($"Error: Benchmark \"{benchmarkName}\" was not found.");
-      Console.WriteLine("Known benchmarks:");
-      foreach (var known in KnownBenchmarks.Keys.OrderBy(x => x))
-        Console.WriteLine(known);
-      return;
+        Console.WriteLine("Harness [benchmark] [num-iterations [inner-iter]]");
+        Console.WriteLine();
+        Console.WriteLine("  benchmark      - benchmark class name ");
+        Console.WriteLine("  num-iterations - number of times to execute benchmark, default: 1");
+        Console.WriteLine("  inner-iter     - number of times the benchmark is executed in an inner loop, ");
+        Console.WriteLine("                   which is measured in total, default: 1");
     }
 
-    var run = new Run(benchmarkInstance.GetType().Name);
-    run.SetIterations(numberOfIterations);
-    run.SetInnerIterations(numberOfInnerIterations);
-    run.RunBenchmark(benchmarkInstance);
-
-    int ArgumentOrDefault(int index, int defaultValue)
+    public static void Main(string[] args)
     {
-      return args.Length > index ? int.Parse(args[index]) : defaultValue;
+        if (args.Length < 1)
+        {
+            PrintUsage();
+            Environment.Exit(1);
+        }
+
+        Run run = ProcessArguments(args);
+        run.RunBenchmark();
+        run.PrintTotal();
     }
-  }
-
-  private static void PrintHelp()
-  {
-    Console.WriteLine("Harness [benchmark] [num-iterations [inner-iter]]");
-    Console.WriteLine();
-    Console.WriteLine("  benchmark      - benchmark class name ");
-    Console.WriteLine("  num-iterations - number of times to execute benchmark, default: 1");
-    Console.WriteLine("  inner-iter     - number of times the benchmark is executed in an inner loop, ");
-    Console.WriteLine("                   which is measured in total, default: 1");
-  }
-
-  private static readonly System.Collections.Generic.Dictionary<string, Type> KnownBenchmarks =
-    new(StringComparer.InvariantCultureIgnoreCase)
-    {
-      {nameof(Bounce), typeof(Bounce)},
-      {nameof(CD), typeof(CD)},
-      {nameof(DeltaBlue), typeof(DeltaBlue)},
-      {nameof(Havlak), typeof(Havlak)},
-      {nameof(Json), typeof(Json)},
-      {nameof(List), typeof(List)},
-      {nameof(Mandelbrot), typeof(Mandelbrot)},
-      {nameof(NBody), typeof(NBody)},
-      {nameof(Permute), typeof(Permute)},
-      {nameof(Queens), typeof(Queens)},
-      {nameof(Richards), typeof(Richards)},
-      {nameof(Sieve), typeof(Sieve)},
-      {nameof(Storage), typeof(Storage)},
-      {nameof(Towers), typeof(Towers)},
-    };
-
-  private static Benchmark? CreateBenchmarkInstance(string name)
-  {
-    KnownBenchmarks.TryGetValue(name, out var benchmarkClass);
-    if (benchmarkClass == null)
-      return null;
-    var benchmarkInstance = Activator.CreateInstance(benchmarkClass) as Benchmark;
-    return benchmarkInstance;
-  }
 }

@@ -1,20 +1,20 @@
 namespace Benchmarks;
 
-public abstract class Benchmark
+internal abstract class Benchmark
 {
-  public abstract object Execute();
-  public abstract bool VerifyResult(object result);
+    public abstract object Execute();
+    public abstract bool VerifyResult(object result);
 
-  public virtual bool InnerBenchmarkLoop(int innerIterations)
-  {
-    for (int i = 0; i < innerIterations; i++)
+    public virtual bool InnerBenchmarkLoop(int innerIterations)
     {
-      if (!VerifyResult(Execute()))
-      {
-        return false;
-      }
-    }
+        for (int i = 0; i < innerIterations; i++)
+        {
+            if (!VerifyResult(Execute()))
+            {
+                return false;
+            }
+        }
 
-    return true;
-  }
+        return true;
+    }
 }

@@ -1,127 +1,183 @@
 root = true
 
-[*]
+# ==========================================
+# 1. GLOBAL BASICS & IDIOMATIC STYLE
+# ==========================================
+[*.cs]
+indent_size = 4
 indent_style = space
-indent_size = 2
-tab_width = 2
+tab_width = 4
+end_of_line = lf
+insert_final_newline = true
 
-# Microsoft .NET properties
-csharp_new_line_before_members_in_object_initializers = false
-csharp_preferred_modifier_order = public, private, protected, internal, new, static, abstract, virtual, sealed, readonly, override, extern, unsafe, volatile, async:suggestion
-csharp_space_after_cast = true
-csharp_style_var_elsewhere = true:suggestion
-csharp_style_var_for_built_in_types = true:suggestion
-csharp_style_var_when_type_is_apparent = true:suggestion
-dotnet_naming_rule.private_constants_rule.import_to_resharper = as_predefined
-dotnet_naming_rule.private_constants_rule.severity = warning
-dotnet_naming_rule.private_constants_rule.style = all_upper_style
-dotnet_naming_rule.private_constants_rule.symbols = private_constants_symbols
-dotnet_naming_rule.private_instance_fields_rule.import_to_resharper = as_predefined
-dotnet_naming_rule.private_instance_fields_rule.severity = warning
-dotnet_naming_rule.private_instance_fields_rule.style = lower_camel_case_style
-dotnet_naming_rule.private_instance_fields_rule.symbols = private_instance_fields_symbols
-dotnet_naming_rule.private_static_fields_rule.import_to_resharper = as_predefined
-dotnet_naming_rule.private_static_fields_rule.severity = warning
-dotnet_naming_rule.private_static_fields_rule.style = lower_camel_case_style_1
-dotnet_naming_rule.private_static_fields_rule.symbols = private_static_fields_symbols
-dotnet_naming_rule.private_static_readonly_rule.import_to_resharper = as_predefined
-dotnet_naming_rule.private_static_readonly_rule.severity = warning
-dotnet_naming_rule.private_static_readonly_rule.style = upper_camel_case_style
-dotnet_naming_rule.private_static_readonly_rule.symbols = private_static_readonly_symbols
-dotnet_naming_style.all_upper_style.capitalization = all_upper
-dotnet_naming_style.all_upper_style.word_separator = _
-dotnet_naming_style.lower_camel_case_style.capitalization = camel_case
-dotnet_naming_style.lower_camel_case_style_1.capitalization = camel_case
-dotnet_naming_style.lower_camel_case_style_1.required_prefix = _
-dotnet_naming_style.upper_camel_case_style.capitalization = pascal_case
-dotnet_naming_symbols.private_constants_symbols.applicable_accessibilities = private
-dotnet_naming_symbols.private_constants_symbols.applicable_kinds = field
-dotnet_naming_symbols.private_constants_symbols.required_modifiers = const
-dotnet_naming_symbols.private_instance_fields_symbols.applicable_accessibilities = private
-dotnet_naming_symbols.private_instance_fields_symbols.applicable_kinds = field
-dotnet_naming_symbols.private_static_fields_symbols.applicable_accessibilities = private
-dotnet_naming_symbols.private_static_fields_symbols.applicable_kinds = field
-dotnet_naming_symbols.private_static_fields_symbols.required_modifiers = static
-dotnet_naming_symbols.private_static_readonly_symbols.applicable_accessibilities = private
-dotnet_naming_symbols.private_static_readonly_symbols.applicable_kinds = field
-dotnet_naming_symbols.private_static_readonly_symbols.required_modifiers = static,readonly
-dotnet_style_parentheses_in_arithmetic_binary_operators = never_if_unnecessary:none
-dotnet_style_parentheses_in_other_binary_operators = never_if_unnecessary:none
-dotnet_style_parentheses_in_relational_binary_operators = never_if_unnecessary:none
-dotnet_style_predefined_type_for_locals_parameters_members = true:suggestion
-dotnet_style_predefined_type_for_member_access = true:suggestion
-dotnet_style_qualification_for_event = false:suggestion
-dotnet_style_qualification_for_field = false:suggestion
-dotnet_style_qualification_for_method = false:suggestion
-dotnet_style_qualification_for_property = false:suggestion
+# Use file-scoped namespaces (modern C# standard, no impact on IL)
+csharp_style_namespace_declarations = file_scoped:suggestion
 
-# ReSharper properties
-resharper_autodetect_indent_settings = false
-resharper_default_private_modifier = implicit
-resharper_space_within_single_line_array_initializer_braces = false
-resharper_use_indent_from_vs = false
+# ==========================================
+# 2. NAMING CONVENTIONS
+# ==========================================
 
-# ReSharper inspection severities
-resharper_arrange_redundant_parentheses_highlighting = hint
-resharper_arrange_this_qualifier_highlighting = hint
-resharper_built_in_type_reference_style_for_member_access_highlighting = hint
-resharper_built_in_type_reference_style_highlighting = hint
-resharper_redundant_base_qualifier_highlighting = warning
-resharper_suggest_var_or_type_built_in_types_highlighting = hint
-resharper_suggest_var_or_type_elsewhere_highlighting = hint
-resharper_suggest_var_or_type_simple_types_highlighting = hint
-resharper_web_config_module_not_resolved_highlighting = warning
-resharper_web_config_type_not_resolved_highlighting = warning
-resharper_web_config_wrong_module_highlighting = warning
+# --- Interfaces must start with 'I' ---
+dotnet_naming_rule.interface_rule.severity = suggestion
+dotnet_naming_rule.interface_rule.symbols = interface_symbols
+dotnet_naming_rule.interface_rule.style = i_prefix_style
+dotnet_naming_symbols.interface_symbols.applicable_kinds = interface
+dotnet_naming_style.i_prefix_style.required_prefix = I
+dotnet_naming_style.i_prefix_style.capitalization = pascal_case
 
-resharper_member_can_be_protected_local_highlighting = none
-resharper_member_can_be_protected_global_highlighting = none
-resharper_member_can_be_private_global_highlighting = none
-resharper_member_can_be_private_local_highlighting = none
-resharper_use_object_or_collection_initializer_highlighting = none
-resharper_replace_with_destructuring_swap_highlighting = none
-resharper_swap_via_deconstruction_highlighting = none
-resharper_negative_equality_expression_highlighting = none
+# --- Types and Methods must be PascalCase ---
+dotnet_naming_rule.types_and_methods_rule.severity = suggestion
+dotnet_naming_rule.types_and_methods_rule.symbols = types_and_methods_symbols
+dotnet_naming_rule.types_and_methods_rule.style = pascal_case_style
+dotnet_naming_symbols.types_and_methods_symbols.applicable_kinds = class, struct, enum, method, property, event
+dotnet_naming_style.pascal_case_style.capitalization = pascal_case
 
-resharper_convert_if_statement_to_conditional_ternary_expression_highlighting = none
+# --- Private fields must be _camelCase ---
+dotnet_naming_rule.private_fields_rule.severity = suggestion
+dotnet_naming_rule.private_fields_rule.symbols = private_fields_symbols
+dotnet_naming_rule.private_fields_rule.style = underscore_camel_case_style
+dotnet_naming_symbols.private_fields_symbols.applicable_kinds = field
+dotnet_naming_symbols.private_fields_symbols.applicable_accessibilities = private
+dotnet_naming_style.underscore_camel_case_style.required_prefix = _
+dotnet_naming_style.underscore_camel_case_style.capitalization = camel_case
 
+# --- Locals and Parameters must be camelCase ---
+dotnet_naming_rule.locals_and_parameters_rule.severity = suggestion
+dotnet_naming_rule.locals_and_parameters_rule.symbols = locals_and_parameters_symbols
+dotnet_naming_rule.locals_and_parameters_rule.style = camel_case_style
+dotnet_naming_symbols.locals_and_parameters_symbols.applicable_kinds = local, parameter
+dotnet_naming_style.camel_case_style.capitalization = camel_case
+
+# --- Constants must be PascalCase ---
+dotnet_naming_rule.constant_rule.severity = suggestion
+dotnet_naming_rule.constant_rule.symbols = constant_symbols
+dotnet_naming_rule.constant_rule.style = pascal_case_style
+dotnet_naming_symbols.constant_symbols.applicable_kinds = field, local
+dotnet_naming_symbols.constant_symbols.required_modifiers = const
+
+# ==========================================
+# 3. AWFY: IMMUTABILITY & COMPILER HINTS
+# ==========================================
+# C# 'readonly' and 'sealed' provide the JIT with the exact same 
+# optimization opportunities as Java's 'final' keyword.
+
+# Suggest readonly for fields
+csharp_style_prefer_readonly_bindable_variables = true:suggestion
+dotnet_diagnostic.IDE0044.severity = suggestion
+resharper_field_can_be_made_read_only_global_highlighting = suggestion
+resharper_field_can_be_made_read_only_local_highlighting = suggestion
+
+# Suggest sealed for internal classes
+dotnet_diagnostic.CA1852.severity = suggestion
+resharper_class_can_be_sealed_global_highlighting = suggestion
+
+
+# ==========================================
+# 4. AWFY: STRUCTURAL SYMMETRY (DISABLING SYNTACTIC SUGAR)
+# ==========================================
+# These rules prevent C#-specific sugar that alters IL generation, 
+# ensuring algorithmic parity with older languages.
+
+# --- Block LINQ Conversions ---
+resharper_loop_can_be_converted_to_linq_highlighting = none
+resharper_for_can_be_converted_to_linq_highlighting = none
+resharper_foreach_can_be_converted_to_linq_highlighting = none
+resharper_loop_can_be_converted_to_query_highlighting = none
+resharper_convert_to_linq_highlighting = none
+
+# --- Block Pattern Matching & Switch Expressions ---
+csharp_style_prefer_switch_expression = false:none
+csharp_style_prefer_pattern_matching = false:none
+dotnet_diagnostic.IDE0066.severity = none
+dotnet_diagnostic.IDE0078.severity = none
+resharper_convert_if_statement_to_switch_statement_highlighting = none
 resharper_merge_into_pattern_highlighting = none
-resharper_must_use_return_value_highlighting = none
+resharper_merge_into_logical_pattern_highlighting = none
 
-[List.cs]
-resharper_unused_auto_property_accessor_global_highlighting = none
-resharper_auto_property_can_be_made_get_only_global_highlighting = none
-resharper_unused_auto_property_accessor_local_highlighting = none
-resharper_auto_property_can_be_made_get_only_local_highlighting = none
+# --- Block Index and Range Operators (^1, 1..3) ---
+# Enforces standard array math (array.Length - 1) instead of System.Index/Range structs.
+csharp_style_prefer_index_operator = false:none
+csharp_style_prefer_range_operator = false:none
+dotnet_diagnostic.IDE0056.severity = none
+dotnet_diagnostic.IDE0057.severity = none
 
-[NBody.cs]
-resharper_compare_of_floats_by_equality_operator_highlighting = none
+# --- Block Object and Collection Initializers ---
+# Forces standard constructor + property assignment, matching Java/C++ instantiation.
+csharp_style_prefer_object_initializer = false:none
+csharp_style_prefer_collection_expression = false:none
+dotnet_diagnostic.IDE0017.severity = none
+dotnet_diagnostic.IDE0028.severity = none
+dotnet_diagnostic.IDE0300.severity = none
+dotnet_diagnostic.IDE0305.severity = none
+resharper_use_object_or_collection_initializer_highlighting = none
 
-[Richards.cs]
-resharper_heuristic_unreachable_code_highlighting = none
-resharper_heuristically_unreachable_code_highlighting = none
-resharper_c_sharp_warnings_cs0162_highlighting = none
-resharper_unused_auto_property_accessor_global_highlighting = none
-resharper_unused_auto_property_accessor_local_highlighting = none
+# --- Block Primary Constructors ---
+csharp_style_prefer_primary_constructors = false:none
 
-[CD.cs]
-resharper_unused_method_return_value_global_highlighting = none
-resharper_unused_method_return_value_local_highlighting = none
-resharper_unused_auto_property_accessor_global_highlighting = none
-resharper_unused_auto_property_accessor_local_highlighting = none
-resharper_convert_if_statement_to_null_coalescing_assignment_highlighting = none
-resharper_convert_if_statement_to_null_coalescing_expression_highlighting = none
-resharper_unused_local_function_return_value_highlighting = none
 
-[som.cs]
-resharper_unused_member_global_highlighting = none
-resharper_unused_parameter_global_highlighting = none
-resharper_unused_parameter_local_highlighting = none
-resharper_unused_type_global_highlighting = none
-resharper_virtual_member_never_overridden_global_highlighting = none
-resharper_virtual_member_never_overridden_local_highlighting = none
-resharper_auto_property_can_be_made_get_only_global_highlighting = none
-resharper_auto_property_can_be_made_get_only_local_highlighting = none
+# ==========================================
+# 5. AWFY: BRANCH SYMMETRY & STACK ALLOCATIONS
+# ==========================================
+# Prevents IDEs from refactoring control flow, ensuring the JIT faces
+# the exact same jump tables and branch prediction scenarios.
 
-[DeltaBlue.cs]
+# --- Block Conditional / Branch Merging ---
+resharper_invert_if_highlighting = none
+resharper_duplicated_if_branches_highlighting = none
+resharper_identical_conditional_branch_highlighting = none
+resharper_redundant_if_else_block_highlighting = none
+resharper_convert_if_to_or_expression_highlighting = none
+resharper_merge_sequential_checks_highlighting = none
+resharper_duplicated_sequential_if_bodies_highlighting = none
+resharper_convert_if_statement_to_return_statement_highlighting = none
+dotnet_diagnostic.IDE0270.severity = none # Block Null check simplifications (IDE0029, 30, 31, 41)
+
+# --- Preserve Local Stack Memory Layout ---
+# Blocks tuple swaps and inlining to preserve explicit temporary variables.
+csharp_style_prefer_tuple_swap = false:none
+dotnet_diagnostic.IDE0180.severity = none
+resharper_swap_via_deconstruction_highlighting = none
+resharper_inline_temporary_variable_highlighting = none
+
+# --- Block Inline Out Variables ---
+# Forces explicit declaration of out variables on a separate line.
+dotnet_diagnostic.IDE0018.severity = none
+resharper_inline_out_variable_declaration_highlighting = none
+
+
+# ==========================================
+# 6. AWFY: DISPATCH OVERHEAD & POLYMORPHISM
+# ==========================================
+# Prevents the IDE from stripping virtual/instance dispatch overhead 
+# if a method doesn't strictly need 'this'.
+
+# Block "Make static"
+dotnet_diagnostic.CA1822.severity = none
+resharper_member_can_be_made_static_local_highlighting = none
+resharper_member_can_be_made_static_global_highlighting = none
+
+# Block "Use concrete types" (Preserves Interface dispatch)
+dotnet_diagnostic.CA1859.severity = none
+
+
+# ==========================================
+# 7. TYPOS & NOISE SUPPRESSION
+# ==========================================
+# Suppresses non-structural warnings and spelling checks for ported code.
+
+dotnet_diagnostic.CA1806.severity = none # Ignore ignored return values
+resharper_possible_unassigned_object_created_by_new_expression_highlighting = none # Ignore bare 'new Foo()'
 resharper_object_creation_as_statement_highlighting = none
+resharper_tail_recursive_call_highlighting = none
+resharper_suggest_var_or_type_built_in_types_highlighting = none
+resharper_suggest_var_or_type_simple_types_highlighting = none
+resharper_suggest_var_or_type_elsewhere_highlighting = none
+
+# Disable ReSharper spell/grammar checkers
+resharper_typo_highlighting = none
+resharper_identifier_typo_highlighting = none
+resharper_string_literal_typo_highlighting = none
+resharper_comment_typo_highlighting = none
+resharper_grammar_mistake_in_comment_highlighting = none
+resharper_grammar_mistake_in_string_literal_highlighting = none
+resharper_grammar_mistake_in_markup_attribute_highlighting = none
