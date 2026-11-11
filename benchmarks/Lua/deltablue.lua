@@ -60,28 +60,28 @@ local function create_strength_table ()
     return dict
 end
 
-local STRENGHT_TABLE = create_strength_table()
+local STRENGTH_TABLE = create_strength_table()
 
 function Strength.new (strength_sym)
     local obj = {
         symbolic_value   = strength_sym,
-        arithmetic_value = STRENGHT_TABLE:at(strength_sym),
+        arithmetic_value = STRENGTH_TABLE:at(strength_sym),
     }
     return setmetatable(obj, {__index = Strength})
 end
 
 local function create_strength_constants ()
     local dict = IdentityDictionary.new()
-    STRENGHT_TABLE:keys():each(function (key)
+    STRENGTH_TABLE:keys():each(function (key)
         dict:at_put(key, Strength.new(key))
     end)
     return dict
 end
 
-local STRENGHT_CONSTANTS = create_strength_constants()
+local STRENGTH_CONSTANTS = create_strength_constants()
 
 function Strength.of (sym)
-    return STRENGHT_CONSTANTS:at(sym)
+    return STRENGTH_CONSTANTS:at(sym)
 end
 
 Strength.ABSOLUTE_STRONGEST = Strength.of(ABSOLUTE_STRONGEST)
