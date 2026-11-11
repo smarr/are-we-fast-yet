@@ -104,6 +104,19 @@ languages.
  - should be entry point for all executions
  - dynamically selects benchmark to execute based on arguments
 
+
+### C#
+
+  - We use lambdas and delegates directly; unlike Java, lambdas can mutate variables in their lexical scope without array wrappers.
+  - Generic collections are used with primitive types.
+  - We use standard C# properties (get/set) instead of explicit getter/setter methods.
+  - Smalltalk/Ruby symbols are realized with enums.
+  - Absent features are replaced by NotImplementedException.
+  - Expression-bodied members, ternary operators, and null-handling operators (?., ??, !) are used where they improve readability.
+  - Features like LINQ, pattern matching, switch expressions, primary constructors, and tuple swaps are avoided to maintain identical code structure across languages.
+  - Fields use readonly and classes use sealed to provide immutability hints to the compiler.
+  - We use Roslyn analyzers and ReSharper rules via .editorconfig as a linter.
+
 ### Java
 
  - To realize closures which assign variables in their lexical scope, we use
