@@ -6,7 +6,6 @@
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 Properties
-.vs
 
 [Bb]in/
 [Oo]bj/

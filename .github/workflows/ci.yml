@@ -51,14 +51,9 @@ jobs:
 
       - name: Install C#
         if: matrix.id == 'csharp'
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: '10.0.x'
-
-      - name: Install ReSharper
-        if: matrix.id == 'csharp'
-        run: |
-          dotnet tool restore --tool-manifest benchmarks/CSharp/.config/dotnet-tools.json
+          dotnet-version: '11.0.x'
 
       - name: Install Crystal
         if: matrix.id == 'crystal'

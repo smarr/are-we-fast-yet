@@ -130,7 +130,8 @@ resharper_convert_if_to_or_expression_highlighting = none
 resharper_merge_sequential_checks_highlighting = none
 resharper_duplicated_sequential_if_bodies_highlighting = none
 resharper_convert_if_statement_to_return_statement_highlighting = none
-dotnet_diagnostic.IDE0270.severity = none # Block Null check simplifications (IDE0029, 30, 31, 41)
+# Block 'null check can be simplified' (if (x == null) throw -> x ?? throw)
+dotnet_diagnostic.IDE0270.severity = none
 
 # --- Preserve Local Stack Memory Layout ---
 # Blocks tuple swaps and inlining to preserve explicit temporary variables.
@@ -165,8 +166,10 @@ dotnet_diagnostic.CA1859.severity = none
 # ==========================================
 # Suppresses non-structural warnings and spelling checks for ported code.
 
-dotnet_diagnostic.CA1806.severity = none # Ignore ignored return values
-resharper_possible_unassigned_object_created_by_new_expression_highlighting = none # Ignore bare 'new Foo()'
+# Ignore ignored return values
+dotnet_diagnostic.CA1806.severity = none
+# Ignore bare 'new Foo()'
+resharper_possible_unassigned_object_created_by_new_expression_highlighting = none
 resharper_object_creation_as_statement_highlighting = none
 resharper_tail_recursive_call_highlighting = none
 resharper_suggest_var_or_type_built_in_types_highlighting = none
