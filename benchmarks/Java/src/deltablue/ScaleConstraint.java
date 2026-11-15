@@ -17,8 +17,8 @@ import som.ForEachInterface;
 // read-only.
 final class ScaleConstraint extends BinaryConstraint {
 
-  protected final Variable scale;  // scale factor input variable
-  protected final Variable offset; // offset input variable
+  private final Variable scale;  // scale factor input variable
+  private final Variable offset; // offset input variable
 
   ScaleConstraint(final Variable src, final Variable scale,
       final Variable offset, final Variable dest, final Sym strength,
