@@ -2,7 +2,6 @@ namespace Benchmarks;
 
 public class Sieve : Benchmark
 {
-
   public override object Execute()
   {
     bool[] flags = new bool[5000];
@@ -27,11 +26,12 @@ public class Sieve : Benchmark
         }
       }
     }
+
     return primeCount;
   }
 
   public override bool VerifyResult(object result)
   {
-    return 669 == (int)result;
+    return 669 == (int) result;
   }
 }

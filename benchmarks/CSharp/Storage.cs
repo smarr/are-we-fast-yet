@@ -2,7 +2,7 @@ namespace Benchmarks;
 
 public class Storage : Benchmark
 {
-  int count;
+  private int count;
 
   public override object Execute()
   {
@@ -26,12 +26,13 @@ public class Storage : Benchmark
       {
         arr[i] = this.BuildTreeDepth(depth - 1, random);
       }
+
       return arr;
     }
   }
 
   public override bool VerifyResult(object result)
   {
-    return 5461 == (int)result;
+    return 5461 == (int) result;
   }
 }

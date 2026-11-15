@@ -12,22 +12,27 @@ public class Queens : Benchmark
     bool result = true;
     for (int i = 0; i < 10; i++)
     {
-      result = result && queens();
+      result = result && _queens();
     }
+
     return result;
   }
 
-  private bool queens()
+  private bool _queens()
   {
-    freeRows = new bool[8]; Array.Fill(freeRows, true);
-    freeMaxs = new bool[16]; Array.Fill(freeMaxs, true);
-    freeMins = new bool[16]; Array.Fill(freeMins, true);
-    queenRows = new int[8]; Array.Fill(queenRows, -1);
+    freeRows = new bool[8];
+    Array.Fill(freeRows, true);
+    freeMaxs = new bool[16];
+    Array.Fill(freeMaxs, true);
+    freeMins = new bool[16];
+    Array.Fill(freeMins, true);
+    queenRows = new int[8];
+    Array.Fill(queenRows, -1);
 
     return PlaceQueen(0);
   }
 
-  bool PlaceQueen(int c)
+  private bool PlaceQueen(int c)
   {
     for (int r = 0; r < 8; r++)
     {
@@ -45,18 +50,20 @@ public class Queens : Benchmark
         {
           return true;
         }
+
         SetRowColumn(r, c, true);
       }
     }
+
     return false;
   }
 
-  bool GetRowColumn(int r, int c)
+  private bool GetRowColumn(int r, int c)
   {
     return freeRows[r] && freeMaxs[c + r] && freeMins[c - r + 7];
   }
 
-  void SetRowColumn(int r, int c, bool v)
+  private void SetRowColumn(int r, int c, bool v)
   {
     freeRows[r] = v;
     freeMaxs[c + r] = v;
@@ -65,6 +72,6 @@ public class Queens : Benchmark
 
   public override bool VerifyResult(object result)
   {
-    return (bool)result;
+    return (bool) result;
   }
 }
