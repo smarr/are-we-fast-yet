@@ -1,0 +1,33 @@
+variables:
+  PYTHONUNBUFFERED: "true"
+  GIT_CLEAN_FLAGS: none
+
+default:
+  before_script:
+    - |
+      rebenchBuild() {
+        ~/.asdf/bin/asdf plugin update --all
+        rebench -c -d -v --setup-only --disable-data-reporting rebench.conf all s:*:List
+      }
+      rebenchRun() {
+        rebench -c -f --without-building --experiment="CI ID $CI_PIPELINE_ID" --branch="$CI_COMMIT_REF_NAME" rebench.conf all s:*:$1
+      }
+
+build-y1: { tags: [kent-yuria], script: [ rebenchBuild ] }
+build-y2: { tags: [kent-yuria2], script: [ rebenchBuild ] }
+build-y3: { tags: [kent-yuria3], script: [ rebenchBuild ] }
+
+deltablue:  { needs: [build-y1], tags: [kent-yuria],  script: [ rebenchRun DeltaBlue ] }
+richards:   { needs: [build-y2], tags: [kent-yuria2], script: [ rebenchRun Richards ] }
+json:       { needs: [build-y3], tags: [kent-yuria3], script: [ rebenchRun Json ] }
+cd:         { needs: [build-y1], tags: [kent-yuria],  script: [ rebenchRun CD ] }
+havlak:     { needs: [build-y2], tags: [kent-yuria2], script: [ rebenchRun Havlak ] }
+bounce:     { needs: [build-y3], tags: [kent-yuria3], script: [ rebenchRun Bounce ] }
+list:       { needs: [build-y1], tags: [kent-yuria],  script: [ rebenchRun List ] }
+mandelbrot: { needs: [build-y2], tags: [kent-yuria2], script: [ rebenchRun Mandelbrot ] }
+nbody:      { needs: [build-y3], tags: [kent-yuria3], script: [ rebenchRun NBody ] }
+permute:    { needs: [build-y1], tags: [kent-yuria],  script: [ rebenchRun Permute ] }
+queens:     { needs: [build-y2], tags: [kent-yuria2], script: [ rebenchRun Queens ] }
+sieve:      { needs: [build-y3], tags: [kent-yuria3], script: [ rebenchRun Sieve ] }
+storage:    { needs: [build-y1], tags: [kent-yuria],  script: [ rebenchRun Storage ] }
+towers:     { needs: [build-y3], tags: [kent-yuria3], script: [ rebenchRun Towers ] }

@@ -5,7 +5,7 @@ source "$SCRIPT_PATH/../script.inc"
 if [ -z "$OPT" ]; then
   OPT='-O3 -flto -march=native'
 fi
-NAME_OPT="${OPT//[[:blank:]]/}"
+NAME_OPT="${OPT//[[:blank:]=]/}"
 NAME_OPT="${NAME_OPT//flto/lto}"
 
 # start by trying to find a suitable clang
